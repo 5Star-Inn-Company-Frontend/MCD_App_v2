@@ -259,7 +259,12 @@ class TransactionDetailModulePage
                                   "vCard Creation Fee" &&
                               !controller.paymentType
                                   .toLowerCase()
-                                  .contains('vcard') 
+                                  .contains('vcard') &&
+                              controller.paymentType.toLowerCase() !=
+                                  "reversal" &&
+                              !controller.paymentType
+                                  .toLowerCase()
+                                  .contains('reversal') 
                             )
                             itemRow("Phone Number", controller.phoneNumber),
 

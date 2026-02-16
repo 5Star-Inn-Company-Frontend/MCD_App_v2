@@ -5,6 +5,7 @@ class DataPlanModel {
   final String network;
   final String category;
   final int id;
+  final String? operatorId;
 
   DataPlanModel({
     required this.name,
@@ -13,7 +14,7 @@ class DataPlanModel {
     required this.network,
     required this.category,
     required this.id,
-  });
+    this.operatorId,});
 
   factory DataPlanModel.fromJson(Map<String, dynamic> json) {
     return DataPlanModel(
@@ -23,6 +24,7 @@ class DataPlanModel {
       network: json['network'] ?? '',
       category: json['category'] ?? 'Unknown',
       id: json['id'] ?? 0,
+      operatorId: json['operatorId'] ?? '',
     );
   }
 }

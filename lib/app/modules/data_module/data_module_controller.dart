@@ -284,6 +284,7 @@ class DataModuleController extends GetxController {
             if (data['data'] != null && data['data'] is Map) {
               final dataMap = data['data'] as Map<String, dynamic>;
               final name = dataMap['name'] ?? 'Unknown';
+              final operatorId = dataMap['operatorId']?.toString() ?? '';
               final fixedAmountsDescriptions =
                   dataMap['fixedAmountsDescriptions'];
 
@@ -317,6 +318,7 @@ class DataModuleController extends GetxController {
                     network: name,
                     category: category,
                     id: 0, // No specific plan ID in this response format
+                    operatorId: operatorId,
                   ));
                 });
 

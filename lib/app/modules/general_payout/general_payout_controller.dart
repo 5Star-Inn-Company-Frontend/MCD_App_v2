@@ -1417,7 +1417,6 @@ class GeneralPayoutController extends GetxController {
     }
 
     final ref = _generateReference();
-    dev.log('Starting Data Payment Flow', name: 'GeneralPayout');
     dev.log('Generated Reference: $ref', name: 'GeneralPayout');
 
     final networkProvider = paymentData['networkProvider'];
@@ -1430,7 +1429,7 @@ class GeneralPayoutController extends GetxController {
     if (isForeign) {
       body = {
         "name": dataPlan?.name ?? '',
-        "coded": dataPlan?.coded ?? '',
+        "coded": dataPlan?.operatorId?.toString() ?? '',
         "amount": dataPlan?.price ?? '',
         "number": phoneNumber,
         "payment": getPaymentMethodKey(),
