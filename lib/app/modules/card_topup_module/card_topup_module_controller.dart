@@ -66,8 +66,11 @@ class CardTopupModuleController extends GetxController {
 
   // generate reference
   String _generateReference() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    return 'MCD_$timestamp';
+    final username = box.read('biometric_username_real') ?? 'MCD';
+    final userPrefix = username.length >= 3
+        ? username.substring(0, 3).toUpperCase()
+        : username.toUpperCase();
+    return 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
   }
 
   // amount input methods

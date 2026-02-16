@@ -1,3 +1,4 @@
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/app/widgets/skeleton_loader.dart';
 import './account_info_module_controller.dart';
@@ -17,7 +18,7 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                 TextSpan(
                   text: String.fromCharCode(0x20A6),
                   style: const TextStyle(
-                    fontFamily: 'Roboto',
+                    fontFamily: 'plusJakartaSans',
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimaryColor,
@@ -359,11 +360,68 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                     rowcard('Target (${profile?.target})', () {
                       Get.toNamed(Routes.AGENT_REQUEST_MODULE);
                     }, true, '(Level ${profile?.level ?? 0})'),
-                    rowcard('General Market', () {}, false, ''),
+                    rowcard('General Market', () {
+                      _showGeneralMarketDialog(context);
+                    }, false, ''),
                   ],
                 );
               }),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showGeneralMarketDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextSemiBold(
+                'General Market',
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+              const Gap(16),
+              Text(
+                'General Market get funded by buying data and using free money.\n\n'
+                'The fund is available to everyone for use but subject to terms and conditions.\n\n'
+                '1. You must have buy data on the day you want to use it.\n\n'
+                '2. On checkout with General Market option, advertisement will be displayed thrice before your request will be processed.\n\n'
+                '3. In case someone checkout before you, your request will not be served.\n\n'
+                '4. The minimum balance is ₦300.\n\n'
+                '5. You must be clicking on free money once in a while to keep general market active',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  color: Colors.black87,
+                  height: 1.5,
+                ),
+              ),
+              const Gap(20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: TextSemiBold(
+                        'OK',
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

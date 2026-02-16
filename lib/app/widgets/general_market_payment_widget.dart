@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/core/services/general_market_payment_service.dart';
@@ -85,10 +85,12 @@ class GeneralMarketPaymentWidget extends StatelessWidget {
                   fontSize: 14,
                   color: Colors.black87,
                 ),
-                TextBold(
+                Text(
                   '₦${AmountUtil.formatFigure(gmBalance)}',
-                  fontSize: 14,
-                  color: canUseGM ? AppColors.primaryColor : Colors.grey.shade600,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 14,
+                    color: canUseGM ? AppColors.primaryColor : Colors.grey.shade600,
+                  ),
                 ),
               ],
             ),
@@ -161,10 +163,12 @@ class GeneralMarketPaymentWidget extends StatelessWidget {
                 ),
                 elevation: 0,
               ),
-              child: TextBold(
+              child: Text(
                 'Pay ₦${AmountUtil.formatFigure(amount)}',
-                fontSize: 16,
-                color: Colors.white,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),

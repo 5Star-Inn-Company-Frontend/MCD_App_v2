@@ -24,7 +24,7 @@ class TransactionDetailModuleController extends GetxController {
   Transaction? transaction;
 
   // Computed properties from transaction
-  String get name => transaction?.name ?? 'Unknown Transaction';
+  String get name => _formatTransactionName(transaction?.name ?? 'Unknown Transaction');
   String get image => _getTransactionIcon();
   double get amount => transaction?.amountValue ?? 0.0;
   String get paymentType => _getPaymentType();
@@ -131,14 +131,18 @@ class TransactionDetailModuleController extends GetxController {
 
     if (code.contains('airtime_pin') || name.contains('airtime_pin')) {
       // Airtime PIN/Epin
-      if (name.contains('mtn') || code.contains('mtn'))
+      if (name.contains('mtn') || code.contains('mtn')) {
         return 'assets/images/history/mtn.png';
-      if (name.contains('glo') || code.contains('glo'))
+      }
+      if (name.contains('glo') || code.contains('glo')) {
         return 'assets/images/glo.png';
-      if (name.contains('airtel') || code.contains('airtel'))
+      }
+      if (name.contains('airtel') || code.contains('airtel')) {
         return 'assets/images/history/airtel.png';
-      if (name.contains('9mobile') || code.contains('9mobile'))
+      }
+      if (name.contains('9mobile') || code.contains('9mobile')) {
         return 'assets/images/history/9mobile.png';
+      }
       return 'assets/images/mcdlogo.png';
     } else if (code.contains('airtime') || name.contains('airtime')) {
       if (name.contains('mtn')) return 'assets/images/history/mtn.png';
@@ -249,19 +253,41 @@ class TransactionDetailModuleController extends GetxController {
     final code = transaction!.code.toLowerCase();
     final service = transaction!.serverLog?.service.toLowerCase() ?? '';
 
-    if (code.contains('airtime_pin') || service.contains('airtime_pin'))
+    if (code.contains('airtime_pin') || service.contains('airtime_pin')) {
       return 'Airtime PIN';
-    if (code.contains('airtime') || service.contains('airtime'))
+    }
+    if (code.contains('data_pin') || service.contains('data_pin')) {
+      return 'Data PIN';
+    }
+    if (code.contains('airtime') || service.contains('airtime')) {
       return 'Airtime';
+    }
     if (code.contains('data') || service.contains('data')) return 'Data';
-    if (code.contains('betting') || service.contains('betting'))
+    if (code.contains('betting') || service.contains('betting')) {
       return 'Betting';
-    if (code.contains('electricity') || service.contains('electricity'))
+    }
+    if (code.contains('electricity') || service.contains('electricity')) {
       return 'Electricity';
+    }
     if (code.contains('cable') || service.contains('cable')) return 'Cable TV';
     if (code.contains('commission')) return 'Commission';
 
-    return transaction!.name;
+    // Format the transaction name properly
+    return _formatTransactionName(transaction!.name);
+  }
+
+  /// Format transaction name: replace underscores with spaces and capitalize words
+  String _formatTransactionName(String name) {
+    if (name.isEmpty) return 'Transaction';
+    
+    // Replace underscores with spaces
+    String formatted = name.replaceAll('_', ' ');
+    
+    // Capitalize each word
+    return formatted.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
   }
 
   String _getCustomerName() {
@@ -312,8 +338,9 @@ class TransactionDetailModuleController extends GetxController {
     final name = transaction!.name.toLowerCase();
 
     if (code.contains('jamb') || name.contains('jamb')) return 'Jamb';
-    if (code.contains('resultchecker') || code.contains('result_checker'))
+    if (code.contains('resultchecker') || code.contains('result_checker')) {
       return 'Result Checker';
+    }
     if (code.contains('waec') || name.contains('waec')) return 'WAEC';
     if (code.contains('neco') || name.contains('neco')) return 'NECO';
     if (code.contains('nabteb') || name.contains('nabteb')) return 'NABTEB';

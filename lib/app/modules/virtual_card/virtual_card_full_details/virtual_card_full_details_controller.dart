@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/virtual_card/models/virtual_card_model.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_details/virtual_card_details_controller.dart';
+import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_controller.dart';
@@ -118,14 +120,14 @@ class VirtualCardFullDetailsController extends GetxController {
               colorText: AppColors.textSnackbarColor,
             );
 
-            // // Refresh home list
-            // if (Get.isRegistered<VirtualCardHomeController>()) {
-            //   Get.find<VirtualCardHomeController>().refreshCards();
-            // }
+            // Refresh home list
+            if (Get.isRegistered<VirtualCardDetailsController>()) {
+              Get.find<VirtualCardDetailsController>().fetchAllCards();
+            }
 
-            // Get.until((route) => route.settings.name == '/virtual-card-home');
-            // // Or just close enough
-            // // Get.close(2);
+            Get.until((route) => route.settings.name == Routes.VIRTUAL_CARD_DETAILS);
+            // Or just close enough
+            // Get.close(2);
           } else {
             dev.log('Error: ${data['message']}');
             Get.snackbar(

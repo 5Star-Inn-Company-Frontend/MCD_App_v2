@@ -27,6 +27,7 @@ class ElectricityModuleController extends GetxController {
   final isValidating = false.obs;
   final errorMessage = RxnString();
   final validatedCustomerName = RxnString();
+  final validationDetails = Rxn<Map<String, dynamic>>();
 
   final Map<String, String> providerImages = {
     'IKEDC': 'assets/images/electricity/IKEDC.png',
@@ -186,6 +187,8 @@ class ElectricityModuleController extends GetxController {
             
             if (customerName != null && customerName.isNotEmpty) {
               validatedCustomerName.value = customerName;
+              // Store full validation details
+              validationDetails.value = data['details'] ?? {};
               dev.log('Meter validated successfully: ${validatedCustomerName.value}', name: 'ElectricityModule');
               Get.snackbar(
                 "Validation Successful", 
@@ -243,6 +246,12 @@ class ElectricityModuleController extends GetxController {
     }
 
     if (formKey.currentState?.validate() ?? false) {
+      // Get provider image
+      String providerImage = '';
+      if (selectedProvider.value?.name != null) {
+        providerImage = providerImages[selectedProvider.value!.name.toUpperCase()] ?? providerImages['DEFAULT']!;
+      }
+      
       dev.log('Navigating to payout with: Provider=${selectedProvider.value?.name}, Amount=₦${amountController.text}', name: 'ElectricityModule');
       Get.toNamed(
         Routes.GENERAL_PAYOUT,
@@ -250,10 +259,12 @@ class ElectricityModuleController extends GetxController {
           'paymentType': PaymentType.electricity,
           'paymentData': {
             'provider': selectedProvider.value,
+            'providerImage': providerImage,
             'meterNumber': meterNoController.text,
             'amount': double.tryParse(amountController.text) ?? 0.0,
             'paymentType': selectedPaymentType.value,
             'customerName': validatedCustomerName.value,
+            'validationDetails': validationDetails.value,
           },
         },
       );

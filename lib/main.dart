@@ -79,7 +79,7 @@ void _setupForegroundMessageHandler() {
         snackPosition: SnackPosition.TOP,
         duration: const Duration(seconds: 4),
         margin: const EdgeInsets.all(10),
-        backgroundColor: Get.theme.primaryColor.withOpacity(0.9),
+        backgroundColor: AppColors.primaryColor,
         colorText: Colors.white,
         icon: const Icon(Icons.notifications, color: Colors.white),
       );

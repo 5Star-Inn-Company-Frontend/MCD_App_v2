@@ -73,7 +73,7 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                                   children: [
                                     TextSpan(
                                       text: '₦',
-                                      style: GoogleFonts.roboto(
+                                      style: GoogleFonts.plusJakartaSans(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
                                         color: AppColors.primaryGrey2,
@@ -137,7 +137,7 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                           children: [
                             TextSpan(
                               text: '₦',
-                              style: GoogleFonts.roboto(
+                              style: GoogleFonts.plusJakartaSans(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.white,
@@ -168,7 +168,7 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
               //     RichText(
               //       text: TextSpan(
               //         text: '₦',
-              //         style: GoogleFonts.roboto(
+              //         style: GoogleFonts.plusJakartaSans(
               //           fontSize: 18,
               //           fontWeight: FontWeight.w600,
               //           color: Colors.black87,
@@ -604,7 +604,7 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                                   children: [
                                     TextSpan(
                                       text: '₦',
-                                      style: GoogleFonts.roboto(
+                                      style: GoogleFonts.plusJakartaSans(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
                                         color: AppColors.primaryGrey2,
@@ -665,7 +665,7 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                                   children: [
                                     TextSpan(
                                       text: '₦',
-                                      style: GoogleFonts.roboto(
+                                      style: GoogleFonts.plusJakartaSans(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
                                         color: AppColors.primaryGrey2,

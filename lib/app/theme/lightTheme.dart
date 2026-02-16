@@ -25,5 +25,7 @@ final lightTheme = ThemeData(
     dialogBackgroundColor: Colors.white,
     hoverColor: AppColors.primaryGreen.withOpacity(0.1),
     highlightColor: AppColors.primaryGreen.withOpacity(0.1),
-    splashColor: AppColors.primaryGreen.withOpacity(0.1)
+    splashColor: AppColors.primaryGreen.withOpacity(0.1),
+    focusColor: AppColors.primaryGreen.withOpacity(0.1),
+    hintColor: AppColors.primaryGreen.withOpacity(0.5),
   );

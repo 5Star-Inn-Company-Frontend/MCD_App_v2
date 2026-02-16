@@ -3,6 +3,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mcd/app/modules/a2c_module/models/bank_model.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
 
@@ -319,6 +320,62 @@ class A2CModuleController extends GetxController {
               colorText: AppColors.textSnackbarColor,
               duration: const Duration(seconds: 5),
             );
+
+            Get.dialog(
+              Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset('assets/images/a2c-avatar-icon.png', width: 80, height: 80),
+                      const SizedBox(height: 10),
+                      Text(
+                        data['message'] ?? 'Your airtime conversion has been initiated successfully.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.primaryGrey2,
+                        ),
+                      ),
+                      Gap(30),
+                      Row(
+                        children: [
+                          Text('09031945519', style: TextStyle(fontSize: 14, color: AppColors.primaryColor)),
+                          Icon(Icons.copy, size: 16, color: AppColors.primaryColor),
+                        ],
+                      ),
+                      Gap(30),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          BusyButton(
+                            title: 'Done',
+                            borderRadius: BorderRadius.circular(32),
+                            color: AppColors.primaryColor,
+                            textColor: Colors.white,
+                            onTap: () { Get.back(); }, 
+                          ),
+                          BusyButton(
+                            title: 'Home', 
+                            borderRadius: BorderRadius.circular(32),
+                            color: AppColors.primaryColor.withOpacity(0.1),
+                            textColor: AppColors.primaryColor,
+                            onTap: () { 
+                              Get.back(); 
+                              Get.toNamed(Routes.HOME_SCREEN);
+                            }, 
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            );
             
             // Clear form
             phoneController.clear();
@@ -329,9 +386,9 @@ class A2CModuleController extends GetxController {
             selectedBank.value = null;
             
             // Navigate back after delay
-            Future.delayed(const Duration(seconds: 3), () {
-              Get.back();
-            });
+            // Future.delayed(const Duration(seconds: 3), () {
+            //   Get.back();
+            // });
           } else {
             Get.snackbar(
               'Error',

@@ -657,7 +657,7 @@ class GiveawayModuleController extends GetxController {
               ),
               const SizedBox(height: 8),
               const Text(
-                'To claim this giveaway, please watch a short video ad. It helps us keep the platform free!',
+                'To claim this giveaway, please watch a short video ad.', 
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,

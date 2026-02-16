@@ -56,14 +56,14 @@ class A2CModulePage extends GetView<A2CModuleController> {
                         ),
                       ),
                       const Gap(10),
-                      Obx(() => Text(
-                            '${controller.selectedNetwork} (Charges: 20% ${controller.selectedNetwork == 'Airtel' ? 'AIRTEL' : controller.selectedNetwork}, Charges: 20%)',
+                      Text(
+                            '(MTN Charges: 20% AIRTEL Charges: 20%)',
                             style: const TextStyle(
                               fontSize: 13,
                               color: AppColors.primaryGrey2,
                               fontFamily: AppFonts.manRope
                             ),
-                          )),
+                          ),
                       const Gap(20),
 
                       // Network Selection

@@ -69,7 +69,7 @@ class TransactionDetailModulePage
                               children: [
                                 TextSpan(
                                   text: "₦",
-                                  style: GoogleFonts.roboto(
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.black,
@@ -239,7 +239,28 @@ class TransactionDetailModulePage
                                   "data pin" &&
                               !controller.paymentType
                                   .toLowerCase()
-                                  .contains('data_pin'))
+                                  .contains('data_pin') &&
+                              controller.paymentType.toLowerCase() !=
+                                  "wallet_funding" &&
+                              !controller.paymentType
+                                  .toLowerCase()
+                                  .contains('wallet') &&
+                              controller.paymentType.toLowerCase() !=
+                                  "giveaway" &&
+                              !controller.paymentType
+                                  .toLowerCase()
+                                  .contains('giveaway') &&
+                              controller.paymentType.toLowerCase() !=
+                                  "vCard Funding" &&
+                              !controller.paymentType
+                                  .toLowerCase()
+                                  .contains('funding') &&
+                              controller.paymentType.toLowerCase() !=
+                                  "vCard Creation Fee" &&
+                              !controller.paymentType
+                                  .toLowerCase()
+                                  .contains('vcard') 
+                            )
                             itemRow("Phone Number", controller.phoneNumber),
 
                           // Airtime PIN-specific fields

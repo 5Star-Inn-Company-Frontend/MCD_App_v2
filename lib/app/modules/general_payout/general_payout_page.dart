@@ -738,6 +738,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
               subtitle,
               style: GoogleFonts.plusJakartaSans(fontSize: 15),
               textAlign: TextAlign.right,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
             ),
           ),
         ],

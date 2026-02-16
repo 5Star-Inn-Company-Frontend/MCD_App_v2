@@ -828,7 +828,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
               children: [
                 TextSpan(
                   text: "₦",
-                  style: GoogleFonts.roboto(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,

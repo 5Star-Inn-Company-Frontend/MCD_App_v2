@@ -146,7 +146,7 @@ class PlansModulePage extends GetView<PlansModuleController> {
                                             TextSpan(
                                               text: plan.nairaSymbol,
                                               style: const TextStyle(
-                                                fontFamily: 'Roboto',
+                                                fontFamily: 'plusJakartaSans',
                                                 fontSize: 28,
                                                 fontWeight: FontWeight.w700,
                                                 color:

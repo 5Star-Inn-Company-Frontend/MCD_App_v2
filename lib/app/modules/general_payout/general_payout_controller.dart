@@ -12,6 +12,7 @@ import 'package:mcd/core/controllers/payment_config_controller.dart';
 import 'dart:developer' as dev;
 import 'package:mcd/core/utils/amount_formatter.dart';
 import 'package:flutter_paystack_payment_plus/flutter_paystack_payment_plus.dart';
+import 'package:mcd/core/services/general_market_payment_service.dart';
 
 enum PaymentType {
   airtime,
@@ -30,6 +31,7 @@ class GeneralPayoutController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
   PaymentConfigController? _paymentConfig;
+  final _gmPaymentService = GeneralMarketPaymentService();
 
   // Paystack plugin
   final plugin = PaystackPayment();
@@ -219,15 +221,38 @@ class GeneralPayoutController extends GetxController {
     serviceName = paymentData['provider']?.name ?? 'Electricity';
     serviceImage = paymentData['providerImage'] ?? '';
     phoneNumber = paymentData['meterNumber'] ?? 'N/A';
+    
+    // Get validation details
+    final validationDetails = paymentData['validationDetails'] as Map<String, dynamic>?;
+    
     detailsRows.value = [
-      {'label': 'Biller Name', 'value': serviceName},
-      {'label': 'Payment Type', 'value': paymentData['paymentType'] ?? 'N/A'},
-      {'label': 'Account Name', 'value': paymentData['customerName'] ?? 'N/A'},
-      {'label': 'Meter Number', 'value': phoneNumber},
       {
         'label': 'Amount',
         'value':
             '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount']?.toString() ?? '0')) ?? 0)}'
+      },
+      {'label': 'Biller Name', 'value': serviceName},
+      {'label': 'Account Name', 'value': paymentData['customerName'] ?? 'N/A'},
+      {'label': 'Account Number', 'value': phoneNumber},
+      {
+        'label': 'Address', 
+        'value': validationDetails?['Address']?.toString().trim() ?? 'N/A'
+      },
+      {
+        'label': 'Min Purchase', 
+        'value': validationDetails?['Min_Purchase_Amount'] != null 
+            ? '₦${AmountUtil.formatFigure(double.tryParse(validationDetails!['Min_Purchase_Amount'].toString()) ?? 0)}'
+            : '₦0.00'
+      },
+      {
+        'label': 'Arrears', 
+        'value': validationDetails?['Customer_Arrears'] != null 
+            ? '₦${AmountUtil.formatFigure(double.tryParse(validationDetails!['Customer_Arrears'].toString()) ?? 0)}'
+            : '₦0.00'
+      },
+      {
+        'label': 'Account Type', 
+        'value': validationDetails?['Meter_Type']?.toString().trim() ?? 'N/A'
       },
     ];
   }
@@ -933,10 +958,10 @@ class GeneralPayoutController extends GetxController {
       final response = await plugin.chargeCard(context, charge: charge);
 
       dev.log('Paystack Response Received:', name: 'GeneralPayout');
-      dev.log(' - Status: ${response.status}', name: 'GeneralPayout');
-      dev.log(' - Message: ${response.message}', name: 'GeneralPayout');
-      dev.log(' - Reference: ${response.reference}', name: 'GeneralPayout');
-      dev.log(' - Verify: ${response.verify}', name: 'GeneralPayout');
+      dev.log('Status: ${response.status}', name: 'GeneralPayout');
+      dev.log('Message: ${response.message}', name: 'GeneralPayout');
+      dev.log('Reference: ${response.reference}', name: 'GeneralPayout');
+      dev.log('Verify: ${response.verify}', name: 'GeneralPayout');
 
       if (response.status == true) {
         dev.log('Payment Successful. Processing post-payment actions...',
@@ -1042,6 +1067,12 @@ class GeneralPayoutController extends GetxController {
         name: 'GeneralPayout');
 
     try {
+      // Check if General Market payment is selected
+      if (selectedPaymentMethod.value == 2) {
+        await _handleGeneralMarketPayment();
+        return;
+      }
+
       // Process other payment methods
       switch (paymentType) {
         case PaymentType.airtime:
@@ -1085,6 +1116,103 @@ class GeneralPayoutController extends GetxController {
       );
     } finally {
       isPaying.value = false;
+    }
+  }
+
+  Future<void> _handleGeneralMarketPayment() async {
+    dev.log('Starting General Market payment flow', name: 'GeneralPayout');
+    
+    final amount = _getTransactionAmount();
+    final currentGMBalance = double.tryParse(gmBalance.value) ?? 0.0;
+    
+    dev.log('GM Balance: ₦$currentGMBalance, Amount: ₦$amount', name: 'GeneralPayout');
+    
+    final success = await _gmPaymentService.processGeneralMarketPayment(
+      amount: amount,
+      currentGMBalance: currentGMBalance,
+      onPaymentSuccess: () async {
+        dev.log('GM ads completed, processing actual transaction', name: 'GeneralPayout');
+        // After ads are watched, process the actual payment
+        await _processActualTransaction();
+      },
+      onPaymentFailed: (errorMessage) {
+        dev.log('GM payment failed: $errorMessage', name: 'GeneralPayout');
+        isPaying.value = false;
+        Get.snackbar(
+          'Payment Failed',
+          errorMessage,
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+      },
+    );
+    
+    if (!success) {
+      isPaying.value = false;
+    }
+  }
+
+  double _getTransactionAmount() {
+    if (isMultipleAirtime.value) {
+      return multipleAirtimeList.fold<double>(
+        0, 
+        (sum, item) => sum + double.parse(item['amount'])
+      );
+    }
+    return double.tryParse(paymentData['amount']?.toString() ?? '0') ?? 0.0;
+  }
+
+  Future<void> _processActualTransaction() async {
+    try {
+      dev.log('Processing transaction with GM payment', name: 'GeneralPayout');
+      
+      // Process based on payment type
+      switch (paymentType) {
+        case PaymentType.airtime:
+          await _processAirtimePayment();
+          break;
+        case PaymentType.data:
+          await _processDataPayment();
+          break;
+        case PaymentType.electricity:
+          await _processElectricityPayment();
+          break;
+        case PaymentType.cable:
+          await _processCablePayment();
+          break;
+        case PaymentType.airtimePin:
+          await _processAirtimePinPayment();
+          break;
+        case PaymentType.dataPin:
+          await _processDataPinPayment();
+          break;
+        case PaymentType.epin:
+          await _processEpinPayment();
+          break;
+        case PaymentType.ninValidation:
+          await _processNinValidationPayment();
+          break;
+        case PaymentType.resultChecker:
+          await _processResultCheckerPayment();
+          break;
+        case PaymentType.betting:
+          await _processBettingPayment();
+          break;
+      }
+      
+      // Refresh GM balance after successful transaction
+      dev.log('Transaction complete, refreshing GM balance', name: 'GeneralPayout');
+      await fetchGMBalance();
+      
+    } catch (e) {
+      dev.log('Transaction processing error', name: 'GeneralPayout', error: e);
+      isPaying.value = false;
+      Get.snackbar(
+        'Transaction Failed',
+        'An error occurred while processing your transaction',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
     }
   }
 
@@ -1589,8 +1717,6 @@ class GeneralPayoutController extends GetxController {
   }
 
   Future<void> _processAirtimePinPayment() async {
-    dev.log('Starting Airtime PIN payment flow...', name: 'GeneralPayout');
-
     final transactionUrl = box.read('transaction_service_url');
     if (transactionUrl == null) {
       dev.log('Transaction URL not found',
@@ -1701,8 +1827,6 @@ class GeneralPayoutController extends GetxController {
   }
 
   Future<void> _processDataPinPayment() async {
-    dev.log('Starting Data PIN payment flow...', name: 'GeneralPayout');
-
     final transactionUrl = box.read('transaction_service_url');
     if (transactionUrl == null) {
       dev.log('Transaction URL not found',
@@ -1915,8 +2039,6 @@ class GeneralPayoutController extends GetxController {
   }
 
   Future<void> _processNinValidationPayment() async {
-    dev.log('Starting NIN validation payment flow...', name: 'GeneralPayout');
-
     final transactionUrl = box.read('transaction_service_url');
     if (transactionUrl == null) {
       dev.log('Transaction URL not found',
@@ -2006,8 +2128,6 @@ class GeneralPayoutController extends GetxController {
   }
 
   Future<void> _processResultCheckerPayment() async {
-    dev.log('Starting Result Checker payment flow...', name: 'GeneralPayout');
-
     final transactionUrl = box.read('transaction_service_url');
     if (transactionUrl == null) {
       dev.log('Transaction URL not found',
@@ -2204,11 +2324,6 @@ class GeneralPayoutController extends GetxController {
 
     final ref = _generateReference();
     dev.log('Generated Reference: $ref', name: 'GeneralPayout');
-
-    // Note: Keeping existing logic for betting if it has specific ref requirements (MCD2...),
-    // but user requested "same approach". The existing ref generation for Betting was 'MCD2_...'.
-    // If I should strictly follow CardTopup, I uses _generateReference 'MCD_...'.
-    // I will use _generateReference for consistency as requested.
 
     final body = {
       "provider": paymentData['providerCode']?.toUpperCase() ?? '',

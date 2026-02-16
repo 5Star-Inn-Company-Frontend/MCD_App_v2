@@ -144,7 +144,7 @@ class PosWithdrawalModulePage extends GetView<PosWithdrawalModuleController> {
                               children: [
                                 TextSpan(
                                   text: '₦',
-                                  style: GoogleFonts.roboto(
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontSize: 24.sp,
                                     fontWeight: FontWeight.w600,
                                     color: const Color.fromRGBO(51, 51, 51, 1),

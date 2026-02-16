@@ -2,6 +2,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gap/gap.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/electricity_module/model/electricity_provider_model.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
@@ -256,7 +257,7 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
           const Gap(15),
           Row(
             children: [
-              const Text("₦", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+              Text("₦", style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w500)),
               const Gap(8),
               Expanded(
                 child: TextFormField(

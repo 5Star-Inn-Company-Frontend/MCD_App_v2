@@ -16,7 +16,7 @@ class NotificationModulePage extends GetView<NotificationModuleController> {
         actions: [
           TextButton(
             onPressed: controller.markAllAsRead,
-            child: TextSemiBold('Mark all read',
+            child: TextSemiBold('Mark all as read',
                 fontSize: 12, color: AppColors.primaryColor),
           ),
         ],

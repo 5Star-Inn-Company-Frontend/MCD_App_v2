@@ -38,7 +38,7 @@ class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleContr
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('Available Balance', style: GoogleFonts.roboto(fontSize: 11.sp, fontWeight: FontWeight.w500, color: const Color.fromRGBO(51, 51, 51, 1)),),
+                  Text('Available Balance', style: GoogleFonts.plusJakartaSans(fontSize: 11.sp, fontWeight: FontWeight.w500, color: const Color.fromRGBO(51, 51, 51, 1)),),
 
                   const Gap(5),
                   RichText(
@@ -46,7 +46,7 @@ class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleContr
                       children: [
                         TextSpan(
                           text: '₦',
-                          style: GoogleFonts.roboto(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 24.sp,
                             fontWeight: FontWeight.w600,
                             color: const Color.fromRGBO(51, 51, 51, 1),
@@ -71,7 +71,7 @@ class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleContr
                       children: [
                         TextSpan(
                           text: 'Cashback Balance: ',
-                          style: GoogleFonts.roboto(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w400,
                             color: const Color.fromRGBO(51, 51, 51, 1),
@@ -79,7 +79,7 @@ class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleContr
                         ),
                         TextSpan(
                           text: '₦',
-                          style: GoogleFonts.roboto(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w600,
                             color: const Color.fromRGBO(51, 51, 51, 1),
@@ -159,10 +159,10 @@ class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleContr
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('Current Level', style: GoogleFonts.roboto(fontSize: 11.sp, fontWeight: FontWeight.w500, color: const Color.fromRGBO(51, 51, 51, 1)),),
+                  Text('Current Level', style: GoogleFonts.plusJakartaSans(fontSize: 11.sp, fontWeight: FontWeight.w500, color: const Color.fromRGBO(51, 51, 51, 1)),),
 
                   const Gap(5),
-                  Text(controller.currentLevel.value, style: GoogleFonts.roboto(fontSize: 24.sp, fontWeight: FontWeight.w700, color: const Color.fromRGBO(90, 187, 123, 1)),),
+                  Text(controller.currentLevel.value, style: GoogleFonts.plusJakartaSans(fontSize: 24.sp, fontWeight: FontWeight.w700, color: const Color.fromRGBO(90, 187, 123, 1)),),
 
                   const Gap(5),
                   RichText(
@@ -170,7 +170,7 @@ class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleContr
                       children: [
                         TextSpan(
                           text: 'Cashback Balance: ',
-                          style: GoogleFonts.roboto(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w400,
                             color: const Color.fromRGBO(51, 51, 51, 1),
@@ -178,7 +178,7 @@ class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleContr
                         ),
                         TextSpan(
                           text: '₦',
-                          style: GoogleFonts.roboto(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 11.sp,
                             fontWeight: FontWeight.w600,
                             color: const Color.fromRGBO(51, 51, 51, 1),
@@ -232,8 +232,8 @@ class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleContr
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Business Name:', style: GoogleFonts.roboto(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(112, 112, 112, 1)),),
-                      Text(controller.businessName.value, style: GoogleFonts.roboto(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(51, 51, 51, 1)),),
+                      Text('Business Name:', style: GoogleFonts.plusJakartaSans(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(112, 112, 112, 1)),),
+                      Text(controller.businessName.value, style: GoogleFonts.plusJakartaSans(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(51, 51, 51, 1)),),
                     ],
                   ),
 
@@ -241,8 +241,8 @@ class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleContr
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Terminal ID:', style: GoogleFonts.roboto(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(112, 112, 112, 1)),),
-                      Text(controller.terminalId.value, style: GoogleFonts.roboto(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(51, 51, 51, 1)),),
+                      Text('Terminal ID:', style: GoogleFonts.plusJakartaSans(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(112, 112, 112, 1)),),
+                      Text(controller.terminalId.value, style: GoogleFonts.plusJakartaSans(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(51, 51, 51, 1)),),
                     ],
                   ),
 
@@ -250,8 +250,8 @@ class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleContr
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Terminal Type:', style: GoogleFonts.roboto(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(112, 112, 112, 1)),),
-                      Text(controller.terminalType.value, style: GoogleFonts.roboto(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(51, 51, 51, 1)),),
+                      Text('Terminal Type:', style: GoogleFonts.plusJakartaSans(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(112, 112, 112, 1)),),
+                      Text(controller.terminalType.value, style: GoogleFonts.plusJakartaSans(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(51, 51, 51, 1)),),
                     ],
                   ),
 
@@ -259,8 +259,8 @@ class PosTerminalDetailsModulePage extends GetView<PosTerminalDetailsModuleContr
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Serial Number:', style: GoogleFonts.roboto(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(112, 112, 112, 1)),),
-                      Text(controller.serialNumber.value, style: GoogleFonts.roboto(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(51, 51, 51, 1)),),
+                      Text('Serial Number:', style: GoogleFonts.plusJakartaSans(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(112, 112, 112, 1)),),
+                      Text(controller.serialNumber.value, style: GoogleFonts.plusJakartaSans(fontSize: 12.sp, fontWeight: FontWeight.w400, color: const Color.fromRGBO(51, 51, 51, 1)),),
                     ],
                   ),
                 ]
