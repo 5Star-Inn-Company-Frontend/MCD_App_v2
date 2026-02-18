@@ -219,6 +219,7 @@ class BettingModulePage extends GetView<BettingModuleController> {
                             Flexible(
                               child: TextFormField(
                                 controller: controller.amountController,
+                                keyboardType: TextInputType.number,
                                 style: const TextStyle(
                                     fontFamily: AppFonts.manRope),
                                 decoration: const InputDecoration(

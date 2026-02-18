@@ -1,7 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import './settings_module_controller.dart';
-import '../login_screen_module/login_screen_controller.dart';
 import '../more_module/more_module_controller.dart';
 
 class SettingsModulePage extends GetView<SettingsModuleController> {
@@ -121,7 +120,7 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                     isSwitch: true,
                     value: controller.twoFA.value,
                     onChanged: (val) {
-                      controller.twoFA.value = val;
+                      controller.saveTwoFASetting(val);
                     },
                   )),
               Obx(() => rowcard(

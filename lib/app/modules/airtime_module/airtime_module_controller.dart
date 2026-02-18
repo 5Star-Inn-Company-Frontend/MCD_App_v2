@@ -79,8 +79,10 @@ class AirtimeModuleController extends GetxController {
     final countryCode = Get.arguments?['countryCode'];
 
     _isForeign = isForeign;
-    _countryCode = countryCode;
-    _countryCode = countryCode;
+    // For non-foreign airtime, default to 'NG' if countryCode is null or empty
+    _countryCode = (countryCode == null || countryCode.toString().isEmpty) 
+        ? (isForeign ? null : 'NG') 
+        : countryCode;
 
     if (verifiedNumber != null) {
       phoneController.text = verifiedNumber;
@@ -467,7 +469,15 @@ class AirtimeModuleController extends GetxController {
 
   // verify number inline without navigating away
   Future<void> verifyNumberInline() async {
-    if (phoneController.text.isEmpty || phoneController.text.length != 11) {
+    // Only enforce 11-digit validation for Nigerian numbers
+    if (phoneController.text.isEmpty) {
+      Get.snackbar("Error", "Please enter a phone number.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
+      return;
+    }
+
+    if (!_isForeign && phoneController.text.length != 11) {
       Get.snackbar("Error", "Please enter a valid 11-digit phone number.",
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor);
@@ -487,13 +497,15 @@ class AirtimeModuleController extends GetxController {
 
       final body = {
         "service": "airtime",
-        "provider": "Ng",
+        "provider": _isForeign ? _countryCode : "Ng",
         "number": phoneController.text,
       };
 
-      dev.log('Inline verification request: $body', name: 'AirtimeModule');
+      // Use different endpoint for foreign vs Nigerian validation
+      final endpoint = _isForeign ? 'validate' : 'validate-number';
+      dev.log('Inline verification request to $endpoint: $body', name: 'AirtimeModule');
       final result = await apiService.postrequest(
-          '${transactionUrl}validate-number', body);
+          '$transactionUrl$endpoint', body);
 
       result.fold(
         (failure) {
@@ -550,6 +562,32 @@ class AirtimeModuleController extends GetxController {
 
     if (amountController.text.isEmpty) {
       Get.snackbar("Error", "Please enter an amount.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
+      return;
+    }
+
+    // Validate amount against min/max
+    final amount = double.tryParse(amountController.text);
+    if (amount == null) {
+      Get.snackbar("Error", "Please enter a valid amount.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
+      return;
+    }
+
+    final provider = selectedProvider.value;
+    if (provider?.minAmount != null && amount < provider!.minAmount!) {
+      Get.snackbar("Amount Too Low", 
+          "Amount must be at least ${provider.minAmount!.toStringAsFixed(0)}.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
+      return;
+    }
+
+    if (provider?.maxAmount != null && amount > provider!.maxAmount!) {
+      Get.snackbar("Amount Too High", 
+          "Amount must not exceed ${provider.maxAmount!.toStringAsFixed(0)}.",
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor);
       return;

@@ -637,35 +637,13 @@ class TransactionDetailModuleController extends GetxController {
 
       dev.log('Receipt saved to: ${file.path}', name: 'TransactionDetail');
 
-      String? savedLocation;
-      // If Android, attempt to move the file into Downloads via MediaStore
-      if (Platform.isAndroid) {
-        try {
-          const channel = MethodChannel('mcd.storage/channel');
-          final result =
-              await channel.invokeMethod<String>('saveFileToDownloads', {
-            'sourcePath': file.path,
-            'displayName': fileName,
-            'mimeType': 'image/png',
-          });
-
-          if (result != null && result.isNotEmpty) {
-            savedLocation =
-                result; // This will be a content URI string on success
-          }
-        } catch (e) {
-          dev.log('MediaStore save failed, keeping original file: ${file.path}',
-              name: 'TransactionDetail', error: e);
-        }
-      }
-
-      final displayPath = savedLocation ?? file.path;
+      // Show success message with the file path
       Get.snackbar(
         'Saved',
-        'Receipt saved: $displayPath',
+        'Receipt saved to Downloads',
         backgroundColor: AppColors.successBgColor,
         colorText: AppColors.textSnackbarColor,
-        duration: const Duration(seconds: 4),
+        duration: const Duration(seconds: 3),
       );
     } catch (e) {
       dev.log('Download failed', name: 'TransactionDetail', error: e);

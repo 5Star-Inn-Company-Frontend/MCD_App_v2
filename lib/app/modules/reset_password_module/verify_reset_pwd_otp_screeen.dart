@@ -27,7 +27,7 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
               const Gap(15),
               RichText(
                 text: TextSpan(
-                  text: "We've send you a one time verification code to ",
+                  text: "We've sent you a one time verification code to ",
                   style: const TextStyle(
                     color: AppColors.background,
                     fontFamily: AppFonts.manRope,
@@ -50,10 +50,10 @@ class VerifyResetPwdOtpPage extends GetView<ResetPasswordController> {
               OTPTextField(
                 controller: controller.otpController,
                 length: 6,
-                contentPadding: const EdgeInsets.symmetric(vertical: 25),
+                contentPadding: const EdgeInsets.symmetric(vertical: 20),
                 width: MediaQuery.of(context).size.width,
                 fieldWidth: (MediaQuery.of(context).size.width - 40) / 8,
-                spaceBetween: 6,
+                spaceBetween: 4,
                 otpFieldStyle: OtpFieldStyle(
                   backgroundColor: AppColors.boxColor,
                   borderColor: AppColors.white,

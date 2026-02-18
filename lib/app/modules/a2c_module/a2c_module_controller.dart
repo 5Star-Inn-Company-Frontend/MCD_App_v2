@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/a2c_module/models/bank_model.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/import/imports.dart';
@@ -313,16 +315,17 @@ class A2CModuleController extends GetxController {
         (data) {
           dev.log('Conversion response: $data', name: 'A2CModule');
           if (data['success'] == 1) {
-            Get.snackbar(
-              'Success',
-              data['message'] ?? 'Airtime conversion initiated successfully',
-              backgroundColor: AppColors.successBgColor,
-              colorText: AppColors.textSnackbarColor,
-              duration: const Duration(seconds: 5),
-            );
+            // Get.snackbar(
+            //   'Success',
+            //   data['message'] ?? 'Airtime conversion initiated successfully',
+            //   backgroundColor: AppColors.successBgColor,
+            //   colorText: AppColors.textSnackbarColor,
+            //   duration: const Duration(seconds: 5),
+            // );
 
             Get.dialog(
               Dialog(
+                backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -330,45 +333,67 @@ class A2CModuleController extends GetxController {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Image.asset('assets/images/a2c-avatar-icon.png', width: 80, height: 80),
+                      Image.asset('assets/images/a2c-avatar-icon.png', width: 120, height: 120),
                       const SizedBox(height: 10),
                       Text(
                         data['message'] ?? 'Your airtime conversion has been initiated successfully.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: GoogleFonts.plusJakartaSans(
                           fontSize: 14,
                           color: AppColors.primaryGrey2,
                         ),
                       ),
                       Gap(30),
-                      Row(
-                        children: [
-                          Text('09031945519', style: TextStyle(fontSize: 14, color: AppColors.primaryColor)),
-                          Icon(Icons.copy, size: 16, color: AppColors.primaryColor),
-                        ],
+                      GestureDetector(
+                        onTap: () async {
+                          await Clipboard.setData(const ClipboardData(text: '08166939205'));
+                          Get.snackbar(
+                            'Copied',
+                            'Phone number copied to clipboard',
+                            backgroundColor: AppColors.successBgColor,
+                            colorText: AppColors.textSnackbarColor,
+                            duration: const Duration(seconds: 2),
+                            snackPosition: SnackPosition.TOP,
+                          );
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('08166939205', style: TextStyle(fontSize: 18, color: AppColors.primaryColor)),
+                            Gap(20),
+                            Icon(Icons.copy, size: 22, color: AppColors.primaryColor),
+                          ],
+                        ),
                       ),
                       Gap(30),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          BusyButton(
-                            title: 'Done',
-                            borderRadius: BorderRadius.circular(32),
-                            color: AppColors.primaryColor,
-                            textColor: Colors.white,
-                            onTap: () { Get.back(); }, 
+                          Expanded(
+                            child: BusyButton(
+                              title: 'Done',
+                              borderRadius: BorderRadius.circular(32),
+                              color: AppColors.primaryColor,
+                              textColor: Colors.white,
+                              onTap: () { Get.back(); }, 
+                            ),
                           ),
-                          BusyButton(
-                            title: 'Home', 
-                            borderRadius: BorderRadius.circular(32),
-                            color: AppColors.primaryColor.withOpacity(0.1),
-                            textColor: AppColors.primaryColor,
-                            onTap: () { 
-                              Get.back(); 
-                              Get.toNamed(Routes.HOME_SCREEN);
-                            }, 
-                          )
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: BusyButton(
+                              title: 'Home', 
+                              borderRadius: BorderRadius.circular(32),
+                              color: AppColors.primaryColor.withOpacity(0.1),
+                              textColor: AppColors.primaryColor,
+                              onTap: () { 
+                                Get.back(); 
+                                Get.toNamed(Routes.HOME_SCREEN);
+                              }, 
+                            ),
+                          ),
                         ],
                       )
                     ],

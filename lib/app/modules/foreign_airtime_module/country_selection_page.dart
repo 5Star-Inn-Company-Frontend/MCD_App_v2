@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:gap/gap.dart';
 import 'package:mcd/app/modules/foreign_airtime_module/country_selection_controller.dart';
@@ -228,7 +229,7 @@ class CountrySelectionPage extends GetView<CountrySelectionController> {
   Widget _buildCountryFlag(String flagUrl) {
     if (flagUrl.isEmpty) {
       return Container(
-        width: 50,
+        width: 70,
         height: 50,
         decoration: BoxDecoration(
           color: AppColors.primaryGrey.withOpacity(0.2),
@@ -242,37 +243,66 @@ class CountrySelectionPage extends GetView<CountrySelectionController> {
       );
     }
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: CachedNetworkImage(
-        imageUrl: flagUrl,
-        width: 50,
-        height: 50,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => Container(
-          width: 50,
-          height: 50,
-          color: AppColors.primaryGrey.withOpacity(0.2),
-          child: const Center(
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: AppColors.primaryColor,
-            ),
-          ),
-        ),
-        errorWidget: (context, url, error) => Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            color: AppColors.primaryGrey.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            Icons.flag,
-            size: 24,
-            color: AppColors.primaryGrey,
-          ),
-        ),
+    // Check if the URL is an SVG file
+    final isSvg = flagUrl.toLowerCase().endsWith('.svg');
+
+    return Container(
+      width: 70,
+      height: 50,
+      decoration: BoxDecoration(
+        color: AppColors.primaryGrey.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: isSvg
+            ? SvgPicture.network(
+                flagUrl,
+                width: 70,
+                height: 50,
+                fit: BoxFit.cover,
+                placeholderBuilder: (context) => Container(
+                  width: 70,
+                  height: 50,
+                  color: AppColors.primaryGrey.withOpacity(0.2),
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                ),
+              )
+            : CachedNetworkImage(
+                imageUrl: flagUrl,
+                width: 70,
+                height: 50,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  width: 70,
+                  height: 50,
+                  color: AppColors.primaryGrey.withOpacity(0.2),
+                  child: const Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  width: 70,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryGrey.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.flag,
+                    size: 24,
+                    color: AppColors.primaryGrey,
+                  ),
+                ),
+              ),
       ),
     );
   }

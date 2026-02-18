@@ -255,7 +255,7 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
           //   ],
           // ),
           const Gap(15),
-          Row(
+          Obx(() => Row(
             children: [
               Text("₦", style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w500)),
               const Gap(8),
@@ -265,13 +265,22 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) return "Amount needed";
+                    final amount = double.tryParse(value);
+                    if (amount == null) return "Invalid amount";
+                    
+                    // Check minimum amount if available
+                    if (controller.minimumAmount.value != null && amount < controller.minimumAmount.value!) {
+                      return "Minimum amount is ₦${controller.minimumAmount.value!.toStringAsFixed(2)}";
+                    }
                     return null;
                   },
                   style: const TextStyle(
                     fontFamily: AppFonts.manRope,
                   ),
                   decoration: InputDecoration(
-                    hintText: '500.00 - 50,000.00',
+                    hintText: controller.minimumAmount.value != null 
+                        ? '${controller.minimumAmount.value!.toStringAsFixed(2)} - 50,000.00'
+                        : '500.00 - 50,000.00',
                     hintStyle: TextStyle(
                       fontFamily: AppFonts.manRope,
                       color: Colors.grey[400],
@@ -288,7 +297,7 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                 ),
               )
             ],
-          ),
+          )),
         ],
       ),
     );

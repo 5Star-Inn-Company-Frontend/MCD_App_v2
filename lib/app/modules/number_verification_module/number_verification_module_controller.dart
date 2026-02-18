@@ -95,7 +95,7 @@ class NumberVerificationModuleController extends GetxController {
         'network': network,
         'networkData': jsonEncode(networkData),
         'isForeign': isForeign.toString(),
-        'countryCode': countryCode ?? '',
+        'countryCode': countryCode ?? (isForeign ? '' : 'NG'),
         'countryName': countryName ?? '',
         'redirectTo': redirectTo ?? '',
       });
@@ -146,7 +146,7 @@ class NumberVerificationModuleController extends GetxController {
         'verifiedNetwork': network,
         'networkData': networkData,
         'isForeign': isForeign,
-        'countryCode': countryCode,
+        'countryCode': (countryCode?.isEmpty ?? true) ? (isForeign ? null : 'NG') : countryCode,
         'countryName': countryName,
       });
     } else {

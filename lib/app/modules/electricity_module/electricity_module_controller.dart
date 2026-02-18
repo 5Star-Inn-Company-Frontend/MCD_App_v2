@@ -28,6 +28,7 @@ class ElectricityModuleController extends GetxController {
   final errorMessage = RxnString();
   final validatedCustomerName = RxnString();
   final validationDetails = Rxn<Map<String, dynamic>>();
+  final minimumAmount = Rxn<double>();
 
   final Map<String, String> providerImages = {
     'IKEDC': 'assets/images/electricity/IKEDC.png',
@@ -52,10 +53,12 @@ class ElectricityModuleController extends GetxController {
     meterNoController.addListener(() {
       if (meterNoController.text.isEmpty) {
         validatedCustomerName.value = null;
+        minimumAmount.value = null;
         dev.log('Meter number cleared', name: 'ElectricityModule');
       } else if (validatedCustomerName.value != null) {
         // Clear validation if meter number is changed after validation
         validatedCustomerName.value = null;
+        minimumAmount.value = null;
         dev.log('Meter number changed, clearing validation', name: 'ElectricityModule');
       }
     });
@@ -189,6 +192,16 @@ class ElectricityModuleController extends GetxController {
               validatedCustomerName.value = customerName;
               // Store full validation details
               validationDetails.value = data['details'] ?? {};
+              
+              // Extract and store minimum amount
+              if (data['details'] != null) {
+                final minAmount = data['details']['Minimum_Amount'] ?? data['details']['Min_Purchase_Amount'];
+                if (minAmount != null) {
+                  minimumAmount.value = double.tryParse(minAmount.toString());
+                  dev.log('Minimum amount set to: ₦${minimumAmount.value}', name: 'ElectricityModule');
+                }
+              }
+              
               dev.log('Meter validated successfully: ${validatedCustomerName.value}', name: 'ElectricityModule');
               Get.snackbar(
                 "Validation Successful", 

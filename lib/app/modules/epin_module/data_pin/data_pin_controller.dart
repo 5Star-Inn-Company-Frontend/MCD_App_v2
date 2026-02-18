@@ -52,7 +52,7 @@ class DataPinController extends GetxController {
   ];
 
   final types = ['Type A', 'Type B', 'Type C', 'Type D'];
-  final denominations = ['100', '500', '1000', '2000', '5000'];
+  final denominations = ['100', '200', '500'];
   final designs = ['Design 1', 'Design 2', 'Design 3', 'Design 4'];
   
   @override

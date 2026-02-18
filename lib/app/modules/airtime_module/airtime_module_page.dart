@@ -356,26 +356,50 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                           GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w500)),
                   const Gap(8),
                   Flexible(
-                    child: TextFormField(
-                      controller: controller.amountController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return ("Pls input amount");
-                        }
-                        return null;
-                      },
-                      keyboardType: TextInputType.number,
-                      style: TextStyle(
-                        fontFamily: AppFonts.manRope,
-                      ),
-                      decoration: const InputDecoration(
-                        hintText: '500.00 - 50,000.00',
-                        hintStyle: TextStyle(color: AppColors.primaryGrey),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.primaryColor),
+                    child: Obx(() {
+                      final provider = controller.selectedProvider.value;
+                      final minAmount = provider?.minAmount;
+                      final maxAmount = provider?.maxAmount;
+                      String hintText = '500.00 - 50,000.00';
+                      if (minAmount != null && maxAmount != null) {
+                        hintText = '${minAmount.toStringAsFixed(2)} - ${maxAmount.toStringAsFixed(2)}';
+                      } else if (minAmount != null) {
+                        hintText = 'Min: ${minAmount.toStringAsFixed(2)}';
+                      } else if (maxAmount != null) {
+                        hintText = 'Max: ${maxAmount.toStringAsFixed(2)}';
+                      }
+                      
+                      return TextFormField(
+                        controller: controller.amountController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return ("Pls input amount");
+                          }
+                          final amount = double.tryParse(value);
+                          if (amount == null) {
+                            return ("Enter a valid amount");
+                          }
+                          if (minAmount != null && amount < minAmount) {
+                            return ("Amount must be at least ${minAmount.toStringAsFixed(0)}");
+                          }
+                          if (maxAmount != null && amount > maxAmount) {
+                            return ("Amount must not exceed ${maxAmount.toStringAsFixed(0)}");
+                          }
+                          return null;
+                        },
+                        keyboardType: TextInputType.number,
+                        style: TextStyle(
+                          fontFamily: AppFonts.manRope,
                         ),
-                      ),
-                    ),
+                        decoration: InputDecoration(
+                          hintText: hintText,
+                          hintStyle: TextStyle(color: AppColors.primaryGrey),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.primaryColor),
+                          ),
+                        ),
+                      );
+                    }),
                   )
                 ],
               ),
@@ -655,22 +679,36 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                                   fontSize: 15, fontWeight: FontWeight.w500)),
                           const Gap(8),
                           Flexible(
-                            child: TextFormField(
-                              controller: controller.amountController,
-                              keyboardType: TextInputType.number,
-                              style: TextStyle(
-                                fontFamily: AppFonts.manRope,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: 'Custom amount',
-                                hintStyle: TextStyle(
-                                    color: AppColors.primaryGrey,
-                                    fontFamily: AppFonts.manRope),
-                                focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.primaryColor),
-                        ),
-                              ),
-                            ),
+                            child: Obx(() {
+                              final provider = controller.selectedProvider.value;
+                              final minAmount = provider?.minAmount;
+                              final maxAmount = provider?.maxAmount;
+                              String hintText = 'Custom amount';
+                              if (minAmount != null && maxAmount != null) {
+                                hintText = '${minAmount.toStringAsFixed(0)} - ${maxAmount.toStringAsFixed(0)}';
+                              } else if (minAmount != null) {
+                                hintText = 'Min: ${minAmount.toStringAsFixed(0)}';
+                              } else if (maxAmount != null) {
+                                hintText = 'Max: ${maxAmount.toStringAsFixed(0)}';
+                              }
+                              
+                              return TextFormField(
+                                controller: controller.amountController,
+                                keyboardType: TextInputType.number,
+                                style: TextStyle(
+                                  fontFamily: AppFonts.manRope,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: hintText,
+                                  hintStyle: TextStyle(
+                                      color: AppColors.primaryGrey,
+                                      fontFamily: AppFonts.manRope),
+                                  focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: AppColors.primaryColor),
+                          ),
+                                ),
+                              );
+                            }),
                           )
                         ],
                       ),

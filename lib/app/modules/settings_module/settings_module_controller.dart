@@ -27,6 +27,7 @@ class SettingsModuleController extends GetxController {
   void onInit() {
     super.onInit();
     loadBiometricSetting();
+    loadTwoFASetting();
     loadPromoSetting();
     loadGiveawaySetting();
   }
@@ -35,6 +36,7 @@ class SettingsModuleController extends GetxController {
   void onReady() {
     super.onReady();
     loadBiometricSetting();
+    loadTwoFASetting();
     loadPromoSetting();
     loadGiveawaySetting();
   }
@@ -47,6 +49,17 @@ class SettingsModuleController extends GetxController {
       biometrics.value = storedValue.toLowerCase() == 'true';
     } else {
       biometrics.value = false;
+    }
+  }
+
+  void loadTwoFASetting() {
+    final storedValue = box.read('twofa_enabled');
+    if (storedValue is bool) {
+      twoFA.value = storedValue;
+    } else if (storedValue is String) {
+      twoFA.value = storedValue.toLowerCase() == 'true';
+    } else {
+      twoFA.value = false;
     }
   }
 
@@ -75,6 +88,11 @@ class SettingsModuleController extends GetxController {
   void savePromoSetting(bool value) {
     promo.value = value;
     box.write('promo_enabled', value);
+  }
+
+  void saveTwoFASetting(bool value) {
+    twoFA.value = value;
+    box.write('twofa_enabled', value);
   }
 
   Future<void> saveGiveawaySetting(bool value) async {
