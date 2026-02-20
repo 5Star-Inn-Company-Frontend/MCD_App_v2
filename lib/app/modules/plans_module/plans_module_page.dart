@@ -19,36 +19,38 @@ class PlansModulePage extends GetView<PlansModuleController> {
           : null,
       body: Obx(() {
         if (controller.isLoading) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-            child: Column(
-              children: [
-                // badge skeleton
-                const SkeletonLoader(width: 80, height: 24, borderRadius: 20),
-                const Gap(16),
-                // title skeleton
-                const SkeletonText(width: 150, height: 28),
-                const Gap(20),
-                // description skeleton
-                const SkeletonText(width: 250, height: 14),
-                const Gap(8),
-                const SkeletonText(width: 200, height: 14),
-                const Gap(20),
-                // price skeleton
-                const SkeletonText(width: 120, height: 36),
-                const Gap(40),
-                // feature cards skeleton
-                const SkeletonCard(height: 50),
-                const Gap(12),
-                const SkeletonCard(height: 50),
-                const Gap(12),
-                const SkeletonCard(height: 50),
-                const Gap(12),
-                const SkeletonCard(height: 50),
-                const Gap(40),
-                // button skeleton
-                const SkeletonCard(width: 200, height: 48, borderRadius: 8),
-              ],
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+              child: Column(
+                children: [
+                  // badge skeleton
+                  const SkeletonLoader(width: 80, height: 24, borderRadius: 20),
+                  const Gap(16),
+                  // title skeleton
+                  const SkeletonText(width: 150, height: 28),
+                  const Gap(20),
+                  // description skeleton
+                  const SkeletonText(width: 250, height: 14),
+                  const Gap(8),
+                  const SkeletonText(width: 200, height: 14),
+                  const Gap(20),
+                  // price skeleton
+                  const SkeletonText(width: 120, height: 36),
+                  const Gap(40),
+                  // feature cards skeleton
+                  const SkeletonCard(height: 50),
+                  const Gap(12),
+                  const SkeletonCard(height: 50),
+                  const Gap(12),
+                  const SkeletonCard(height: 50),
+                  const Gap(12),
+                  const SkeletonCard(height: 50),
+                  const Gap(40),
+                  // button skeleton
+                  const SkeletonCard(width: 200, height: 48, borderRadius: 8),
+                ],
+              ),
             ),
           );
         }
@@ -339,7 +341,7 @@ class PlansModulePage extends GetView<PlansModuleController> {
                     ),
                     const TextSpan(
                         text:
-                            " Plan. Kindly note that this is not reversible.x"),
+                            " Plan. Kindly note that this is not reversible"),
                   ],
                 ),
               ),

@@ -212,21 +212,20 @@ class BettingModulePage extends GetView<BettingModuleController> {
                         ),
                         Row(
                           children: [
-                            const Text("₦",
-                                style: TextStyle(
+                            Text("₦",
+                                style: GoogleFonts.plusJakartaSans(
                                     fontSize: 15, fontWeight: FontWeight.w500)),
                             const Gap(8),
                             Flexible(
                               child: TextFormField(
                                 controller: controller.amountController,
                                 keyboardType: TextInputType.number,
-                                style: const TextStyle(
-                                    fontFamily: AppFonts.manRope),
-                                decoration: const InputDecoration(
+                                style: GoogleFonts.plusJakartaSans(),
+                                decoration: InputDecoration(
                                   hintText: '500.00 - 50,000.00',
-                                  hintStyle: TextStyle(
-                                      color: AppColors.primaryGrey,
-                                      fontFamily: AppFonts.manRope),
+                                  hintStyle: GoogleFonts.plusJakartaSans(
+                                    color: AppColors.primaryGrey,
+                                  ),
                                   focusedBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
                                         color: AppColors.primaryColor),

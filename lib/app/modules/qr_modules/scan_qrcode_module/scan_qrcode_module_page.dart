@@ -10,6 +10,20 @@ class ScanQrcodeModulePage extends GetView<ScanQrcodeModuleController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Get.back(),
+        ),
+        title: TextSemiBold(
+          'Scan QR Code',
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
+        centerTitle: false,
+      ),
       body: _scanWidget(context),
     );
   }

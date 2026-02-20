@@ -41,7 +41,7 @@ class CableModuleController extends GetxController {
     'DSTV': 'assets/images/dstv.jpeg',
     'GOTV': 'assets/images/gotv.png',
     'STARTIMES': 'assets/images/startimes.jpeg',
-    'SHOWMAX': 'assets/images/showmax.jpeg',
+    'SHOWMAX': 'assets/images/cable/showmax.jpeg',
   };
 
   @override

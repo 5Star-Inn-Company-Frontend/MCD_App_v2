@@ -34,9 +34,11 @@ class VirtualCardChangePinPage extends GetView<VirtualCardChangePinController> {
 
                 // Subtitle
                 Obx(() => TextSemiBold(
-                      controller.isNewPinStep.value
-                          ? 'Enter the New Pin'
-                          : 'Confirm the New Pin',
+                      controller.isOldPinStep.value
+                          ? 'Enter your Old PIN'
+                          : controller.isNewPinStep.value
+                              ? 'Enter the New PIN'
+                              : 'Confirm the New PIN',
                       fontSize: 16,
                       color: Colors.black87,
                     )),
@@ -44,9 +46,11 @@ class VirtualCardChangePinPage extends GetView<VirtualCardChangePinController> {
 
                 // PIN Display
                 Obx(() {
-                  final pin = controller.isNewPinStep.value
-                      ? controller.newPin.value
-                      : controller.confirmPin.value;
+                  final pin = controller.isOldPinStep.value
+                      ? controller.oldPin.value
+                      : controller.isNewPinStep.value
+                          ? controller.newPin.value
+                          : controller.confirmPin.value;
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(4, (index) {

@@ -28,118 +28,123 @@ class VirtualCardHomePage extends GetView<VirtualCardHomeController> {
   }
 
   Widget _buildEmptyState() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Gap(30),
+    return Scrollbar(
+      thumbVisibility: true,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Gap(20),
 
-          // Top circular icons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildCircleIcon(
-                  Color.fromRGBO(51, 160, 88, 0.1), Icons.credit_card, -50),
-              Gap(80),
-              _buildCircleIcon(Color.fromRGBO(51, 160, 85, 0.1),
-                  Icons.account_balance_wallet, 30),
-            ],
-          ),
-          Gap(20),
-
-          // Center icon
-          Center(
-              child: _buildCircleIcon(
-                  Color.fromRGBO(51, 160, 85, 0.1), Icons.payment, 0)),
-
-          Gap(70),
-
-          // Stacked Cards Image
-          Center(
-            child: Image.asset(
-              'assets/images/vcards_home_screen.png',
-              height: 400,
-              width: 400,
+            // Top circular icons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildCircleIcon(
+                    Color.fromRGBO(51, 160, 88, 0.1), Image.asset('assets/images/virtual_card/transfer-icon.png')),
+                Gap(80),
+                _buildCircleIcon(Color.fromRGBO(51, 160, 85, 0.1),
+                    Image.asset('assets/images/virtual_card/transfer2-icon.png', width: 48, height: 48)),
+              ],
             ),
-          ),
+            Gap(10),
 
-          const Spacer(flex: 1),
+            // Center icon
+            Center(
+                child: _buildCircleIcon(
+                    Color.fromRGBO(51, 160, 85, 0.1), Image.asset('assets/images/virtual_card/card-icon.png'))),
 
-          Text(
-            'Digital Banking For The',
-            style: GoogleFonts.montserrat(
-                fontSize: 24, fontWeight: FontWeight.w900),
-          ),
+            Gap(50),
 
-          Text(
-            'Easiest Payments',
-            style: GoogleFonts.montserrat(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              color: AppColors.primaryGreen,
+            // Stacked Cards Image
+            Center(
+              child: Image.asset(
+                'assets/images/virtual_card/vcards_home_screen.png',
+                height: 220,
+                width: 220,
+              ),
             ),
-          ),
-          const Gap(24),
 
-          // Description
-          TextSemiBold(
-            'Get started by applying for your ATM Card with small fee and enjoy your transactions',
-            fontSize: 14,
-            color: Colors.grey,
-          ),
-          const Gap(40),
+            const Gap(20),
 
-          SizedBox(
-            width: 200,
-            height: 56,
-            child: GestureDetector(
-              onTap: () {
-                Get.toNamed(Routes.VIRTUAL_CARD_REQUEST);
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.lightGreen,
-                  borderRadius: BorderRadius.circular(26),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        const Gap(40),
-                        TextBold(
-                          'Get Started',
-                          fontSize: 16,
+            Text(
+              'Digital Banking For The',
+              style: GoogleFonts.montserrat(
+                  fontSize: 24, fontWeight: FontWeight.w900),
+            ),
+
+            Text(
+              'Easiest Payments',
+              style: GoogleFonts.montserrat(
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                color: AppColors.primaryGreen,
+              ),
+            ),
+            const Gap(24),
+
+            // Description
+            TextSemiBold(
+              'Get started by applying for your ATM Card with small fee and enjoy your transactions',
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+            const Gap(40),
+
+            SizedBox(
+              width: 200,
+              height: 56,
+              child: GestureDetector(
+                onTap: () {
+                  Get.toNamed(Routes.VIRTUAL_CARD_REQUEST);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.lightGreen,
+                    borderRadius: BorderRadius.circular(26),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Gap(40),
+                          TextBold(
+                            'Get Started',
+                            fontSize: 16,
+                            color: AppColors.primaryGreen,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(17.5),
+                        decoration: BoxDecoration(
                           color: AppColors.primaryGreen,
-                          fontWeight: FontWeight.w700,
+                          shape: BoxShape.circle,
                         ),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(17.5),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryGreen,
-                        shape: BoxShape.circle,
+                        child: const Icon(
+                          Icons.arrow_forward,
+                          color: Colors.white,
+                          size: 22,
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.arrow_forward,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          const Gap(40),
-        ],
+            const Gap(40),
+          ],
+        ),
+      ),
       ),
     );
   }
 
-  Widget _buildCircleIcon(Color bgColor, IconData icon, double offsetX) {
+  Widget _buildCircleIcon(Color bgColor, Image image) {
     return Container(
       width: 56,
       height: 56,
@@ -147,11 +152,7 @@ class VirtualCardHomePage extends GetView<VirtualCardHomeController> {
         color: bgColor,
         shape: BoxShape.circle,
       ),
-      child: Icon(
-        icon,
-        color: AppColors.primaryGreen,
-        size: 28,
-      ),
+      child: image,
     );
   }
 }

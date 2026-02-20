@@ -1265,7 +1265,6 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        Get.back(); // Close recipient dialog
                         controller.showAdClaimDialog(
                           giveawayId,
                           controller.receiverController.text,

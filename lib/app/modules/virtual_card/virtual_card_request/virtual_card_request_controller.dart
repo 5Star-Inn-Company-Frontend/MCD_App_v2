@@ -16,11 +16,66 @@ class VirtualCardRequestController extends GetxController {
   final selectedCurrency1 = ''.obs;
   final selectedCardType = ''.obs;
   final isCreating = false.obs;
+  final isLoadingFees = false.obs;
+  final createFee = 0.0.obs;
+  final rate = 0.0.obs;
+  final convertedAmount = 0.0.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchCardFees();
+  }
 
   @override
   void onClose() {
     amountController.dispose();
     super.onClose();
+  }
+
+  // Calculate the converted amount based on the rate
+  void calculateConversion() {
+    final amount = double.tryParse(amountController.text) ?? 0;
+    if (amount > 0 && rate.value > 0) {
+      convertedAmount.value = amount * rate.value;
+    } else {
+      convertedAmount.value = 0;
+    }
+  }
+
+  // Fetch card creation fees from API
+  Future<void> fetchCardFees() async {
+    try {
+      isLoadingFees.value = true;
+      dev.log('Fetching card creation fees');
+
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null) {
+        dev.log('Error: Transaction URL not found');
+        return;
+      }
+
+      final result = await apiService.getrequest(
+        '${transactionUrl}virtual-card/list',
+      );
+
+      result.fold(
+        (failure) {
+          dev.log('Error fetching fees: ${failure.message}');
+        },
+        (data) {
+          if (data['success'] == 1) {
+            createFee.value = (data['create_fee'] ?? 2).toDouble();
+            rate.value = (data['rate'] ?? 0).toDouble();
+            dev.log('Fetched fees - Create Fee: \$${createFee.value}, Rate: ${rate.value}');
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Error fetching fees: $e');
+    } finally {
+      isLoadingFees.value = false;
+    }
   }
 
   // validates inputs before creating card

@@ -32,16 +32,16 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                       child: _boxCard('assets/icons/hold-seeds-filled.png',
                           "Give away", 'Create and claim giveaways')),
                 ),
-              // if (controller.service['freemoney'] == '1')
-              //   InkWell(
-              //     onTap: () {
-              //       controller.freemoney();
-              //     },
-              //     child: AspectRatio(
-              //         aspectRatio: 3 / 2,
-              //         child: _boxCard('assets/icons/hold-seeds-filled.png',
-              //             "Free Money", 'Watch advert and get paid for it')),
-              //   ),
+              if (controller.service['freemoney'] == '1')
+                InkWell(
+                  onTap: () {
+                    controller.freemoney();
+                  },
+                  child: AspectRatio(
+                      aspectRatio: 3 / 2,
+                      child: _boxCard('assets/icons/hold-seeds-filled.png',
+                          "Free Money", 'Watch advert and get paid for it')),
+                ),
               if (_isPromoEnabled())
                 InkWell(
                   onTap: () {

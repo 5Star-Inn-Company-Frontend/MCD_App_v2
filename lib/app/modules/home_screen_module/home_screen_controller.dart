@@ -263,7 +263,7 @@ class HomeScreenController extends GetxController
       return "resultchecker";
     } else if (buttonText.toLowerCase().contains("nin")) {
       return "nin_validation";
-    } else if (link == Routes.POS_HOME) {
+    } else if (buttonText.toLowerCase().contains("virtual card") || link == Routes.VIRTUAL_CARD_DETAILS || link == Routes.VIRTUAL_CARD_HOME) {
       return "virtual_card";
     } else if (buttonText.toLowerCase().contains("reward")) {
       // Check for spin win, giveaway, etc.
