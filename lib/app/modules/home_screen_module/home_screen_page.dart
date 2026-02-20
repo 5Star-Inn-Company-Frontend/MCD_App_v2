@@ -1,10 +1,11 @@
 import 'dart:async';
-import 'dart:developer' as dev;
+
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:marquee/marquee.dart';
+import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
+
 import '../../../core/import/imports.dart';
 import '../../utils/bottom_navigation.dart';
 import '../../widgets/app_bar.dart';
@@ -18,6 +19,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
 
   @override
   Widget build(BuildContext context) {
+    controller.checkClipboardForPhoneNumber();
     return WillPopScope(
       onWillPop: () async {
         return await _showExitDialog(context) ?? false;
@@ -251,13 +253,8 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    dataItem(
-                                        "Commision",
-                                        AmountUtil.formatFigure(double.tryParse(
-                                                controller.dashboardData
-                                                        ?.balance.commission ??
-                                                    '0') ??
-                                            0)),
+                                    dataItem("Commission",
+                                        "₦ ${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.commission ?? '0') ?? 0)}"),
                                     dataItem(
                                         "Points",
                                         AmountUtil.formatFigure(double.tryParse(
@@ -265,18 +262,10 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                                         ?.balance.points ??
                                                     '0') ??
                                             0)),
-                                    dataItem(
-                                        "Bonus",
-                                        AmountUtil.formatFigure(double.tryParse(
-                                                controller.dashboardData
-                                                        ?.balance.bonus ??
-                                                    '0') ??
-                                            0)),
-                                    dataItem(
-                                        "General Market",
-                                        AmountUtil.formatFigure(double.tryParse(
-                                                controller.gmBalance ?? '0') ??
-                                            0))
+                                    dataItem("Bonus",
+                                        "₦ ${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.bonus ?? '0') ?? 0)}"),
+                                    dataItem("General Market",
+                                        "₦ ${AmountUtil.formatFigure(double.tryParse(controller.gmBalance ?? '0') ?? 0)}")
                                   ],
                                 ),
                               ],
@@ -404,14 +393,17 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        SvgPicture.asset(controller
-                                            .actionButtonz[index].icon, colorFilter: const ColorFilter.mode(
-                              AppColors.primaryColor, BlendMode.srcIn)),
+                                        SvgPicture.asset(
+                                            controller
+                                                .actionButtonz[index].icon,
+                                            colorFilter: const ColorFilter.mode(
+                                                AppColors.primaryColor2,
+                                                BlendMode.srcIn)),
                                         const Gap(5),
                                         TextSemiBold(
                                           controller.actionButtonz[index].text,
                                           textAlign: TextAlign.center,
-                                          color: AppColors.primaryColor,
+                                          color: AppColors.primaryColor2,
                                           fontSize: 10,
                                         ),
                                       ],
@@ -994,7 +986,7 @@ class _ImageItemState extends State<_ImageItem> {
           imageUrl: widget.url,
           fit: BoxFit.cover,
           width: double.infinity,
-          height: 150,
+          height: 160,
           placeholder: (context, url) => Container(
             color: Colors.grey[100],
             child: const Center(
@@ -1053,7 +1045,7 @@ class _LoggedImageState extends State<_LoggedImage> {
   void initState() {
     super.initState();
     // Log success message exactly as requested
-    dev.log("success: image loaded ${widget.url}".toLowerCase());
+    // dev.log("success: image loaded ${widget.url}".toLowerCase());
   }
 
   @override

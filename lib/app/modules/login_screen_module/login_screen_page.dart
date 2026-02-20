@@ -1,7 +1,3 @@
-import 'dart:developer' as dev;
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:mcd/core/import/imports.dart';
 // import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
@@ -102,7 +98,8 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                                       ? AppColors.white
                                                       : AppColors.primaryGrey2,
                                                 ),
-                                                child: const Text('Email'),
+                                                child: const Text(
+                                                    'Email/Username'),
                                               ),
                                             ),
                                           ),
@@ -176,7 +173,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                           fontFamily: AppFonts.manRope),
                                       decoration: textInputDecoration.copyWith(
                                         filled: false,
-                                        hintText: "name@mail.com",
+                                        hintText: "name@mail.com or username",
                                         prefixIcon: const Icon(
                                             Icons.email_outlined,
                                             color: AppColors.primaryGrey2),

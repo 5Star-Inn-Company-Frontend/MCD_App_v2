@@ -2,6 +2,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/data_module/network_provider.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
+
 import './data_module_controller.dart';
 
 class DataModulePage extends GetView<DataModuleController> {
@@ -174,7 +175,7 @@ class DataModulePage extends GetView<DataModuleController> {
           _buildCategoryTabs(),
           const Gap(20),
           SizedBox(
-              height: screenHeight(context) * 0.550, child: _buildPlanGrid()),
+              height: screenHeight(context) * 0.56, child: _buildPlanGrid()),
         ],
       );
     });
@@ -238,7 +239,8 @@ class DataModulePage extends GetView<DataModuleController> {
             return TouchableOpacity(
               onTap: () => controller.onPlanSelected(plan),
               child: Container(
-                padding: const EdgeInsets.all(12),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: isSelected

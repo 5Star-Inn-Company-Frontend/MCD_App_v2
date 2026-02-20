@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
-import 'package:flutter/services.dart';
 
+import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/mixins/service_availability_mixin.dart';
+
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
 // import 'package:mcd/core/services/ads_service.dart';
@@ -75,7 +76,7 @@ class HomeScreenController extends GetxController
           text: "Airtime to cash",
           link: Routes.A2C_MODULE),
       ButtonModel(
-          icon: AppAsset.docSearch,
+          icon: AppAsset.capOne,
           text: "Exams",
           link: Routes.RESULT_CHECKER_MODULE),
       ButtonModel(icon: AppAsset.posIcon, text: "POS", link: Routes.POS_HOME),
@@ -88,7 +89,10 @@ class HomeScreenController extends GetxController
           text: "Reward Centre",
           link: Routes.REWARD_CENTRE_MODULE),
       // ButtonModel(icon: AppAsset.service, text: "Mega Bulk Service", link: ""),
-      ButtonModel(icon: 'assets/icons/bank-card-two.svg', text: "Virtual Card", link: Routes.VIRTUAL_CARD_DETAILS),
+      ButtonModel(
+          icon: 'assets/icons/bank-card-two.svg',
+          text: "Virtual Card",
+          link: Routes.VIRTUAL_CARD_DETAILS),
     ];
 
     _actionButtonz.assignAll(allButtons);
@@ -104,7 +108,7 @@ class HomeScreenController extends GetxController
     // AdsService().showBannerAd();
 
     // Check clipboard for phone number
-    _checkClipboardForPhoneNumber();
+    // _checkClipboardForPhoneNumber();
   }
 
   @override
@@ -136,7 +140,7 @@ class HomeScreenController extends GetxController
             colorText: AppColors.textSnackbarColor);
       },
       (data) async {
-        dev.log("Dashboard fetch success: ${data.toString()}");
+        // dev.log("Dashboard fetch success: ${data.toString()}");
         dashboardData = DashboardModel.fromJson(data);
         dev.log(
             "Dashboard model created - User: ${dashboardData?.user.userName}, Balance: ${dashboardData?.balance.wallet}");
@@ -285,15 +289,9 @@ class HomeScreenController extends GetxController
   }
 
   /// Check clipboard for phone number and show dialog
-  Future<void> _checkClipboardForPhoneNumber() async {
+  Future<void> checkClipboardForPhoneNumber() async {
+    dev.log('_checkClipboardForPhoneNumber initiated');
     try {
-      // Check if dialog has already been shown in this session
-      final hasShownDialog = box.read('clipboard_dialog_shown') ?? false;
-      if (hasShownDialog) {
-        dev.log('Clipboard dialog already shown, skipping', name: 'HomeScreen');
-        return;
-      }
-
       // Delay to ensure home screen is fully loaded
       await Future.delayed(const Duration(milliseconds: 500));
 
@@ -313,12 +311,21 @@ class HomeScreenController extends GetxController
           phoneNumber = '0$phoneNumber';
         }
 
+        // Check if dialog has already been shown in this session
+        final hasShownDialog =
+            box.read('clipboard_dialog_shown') == phoneNumber;
+        if (hasShownDialog) {
+          dev.log('Clipboard dialog already shown, skipping',
+              name: 'HomeScreen');
+          return;
+        }
+
         // Check if it's a valid 11-digit Nigerian phone number
         if (phoneNumber.length == 11 && phoneNumber.startsWith('0')) {
           dev.log('Valid phone number detected in clipboard: $phoneNumber',
               name: 'HomeScreen');
           // Mark dialog as shown
-          await box.write('clipboard_dialog_shown', true);
+          await box.write('clipboard_dialog_shown', phoneNumber);
           // Verify the network first
           await _verifyAndShowDialog(phoneNumber);
         }
@@ -361,7 +368,7 @@ class HomeScreenController extends GetxController
           _showClipboardPhoneDialog(phoneNumber, networkName, networkData);
         } else {
           // Show dialog without network info
-          _showClipboardPhoneDialog(phoneNumber, 'Unknown', {});
+          // _showClipboardPhoneDialog(phoneNumber, 'Unknown', {});
         }
       },
     );
@@ -379,14 +386,14 @@ class HomeScreenController extends GetxController
             top: 0, left: 24.0, right: 24.0, bottom: 16.0),
         child: Column(
           children: [
-            // Image.asset('assets/images/mcdagentlogo.png', height: 80),
+            Image.asset('assets/images/number_detected_ico.png', height: 55),
             const SizedBox(height: 20),
             RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
-                text: "Mega Cheap Data detected ",
+                text: "Mega Cheap Data detected phone number ",
                 style: const TextStyle(
-                  color: AppColors.background,
+                  color: Color(0xff727272),
                   fontFamily: AppFonts.manRope,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -426,15 +433,16 @@ class HomeScreenController extends GetxController
                         ),
                       ),
                       SizedBox(width: 10),
-                      Flexible(
+                      Container(
+                        width: 70,
                         child: Text(
                           networkName,
                           style: const TextStyle(
-                            color: AppColors.primaryColor,
-                            fontFamily: AppFonts.manRope,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
+                              color: AppColors.primaryColor,
+                              fontFamily: AppFonts.manRope,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              overflow: TextOverflow.ellipsis),
                         ),
                       )
                     ],
@@ -456,7 +464,7 @@ class HomeScreenController extends GetxController
                 Expanded(
                   child: _dialogButton(
                     'Send Airtime',
-                    AppColors.primaryColor,
+                    AppColors.primaryColor2,
                     Colors.white,
                   ).onTap(() {
                     Get.back();
@@ -472,7 +480,7 @@ class HomeScreenController extends GetxController
                 Expanded(
                   child: _dialogButton(
                     'Send Data',
-                    AppColors.primaryColor,
+                    AppColors.primaryColor2,
                     Colors.white,
                   ).onTap(() {
                     Get.back();
@@ -506,7 +514,7 @@ class HomeScreenController extends GetxController
           style: TextStyle(
             color: textColor,
             fontFamily: AppFonts.manRope,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             fontSize: 14,
           ),
         ),

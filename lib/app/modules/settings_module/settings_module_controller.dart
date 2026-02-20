@@ -1,7 +1,7 @@
-import 'package:get_storage/get_storage.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:developer' as dev;
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 
 class SettingsModuleController extends GetxController {
@@ -42,7 +42,7 @@ class SettingsModuleController extends GetxController {
   }
 
   void loadBiometricSetting() {
-    final storedValue = box.read('biometric_enabled');
+    final storedValue = box.read('biometric_enabled') ?? true;
     if (storedValue is bool) {
       biometrics.value = storedValue;
     } else if (storedValue is String) {

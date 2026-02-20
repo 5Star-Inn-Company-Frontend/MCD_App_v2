@@ -1,18 +1,18 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_paystack_payment_plus/flutter_paystack_payment_plus.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
-
 import 'package:mcd/core/constants/fonts.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:mcd/core/controllers/payment_config_controller.dart';
 import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
-import 'package:mcd/core/controllers/payment_config_controller.dart';
-import 'dart:developer' as dev;
-import 'package:mcd/core/utils/amount_formatter.dart';
-import 'package:flutter_paystack_payment_plus/flutter_paystack_payment_plus.dart';
 import 'package:mcd/core/services/general_market_payment_service.dart';
+import 'package:mcd/core/utils/amount_formatter.dart';
 
 enum PaymentType {
   airtime,
@@ -221,10 +221,11 @@ class GeneralPayoutController extends GetxController {
     serviceName = paymentData['provider']?.name ?? 'Electricity';
     serviceImage = paymentData['providerImage'] ?? '';
     phoneNumber = paymentData['meterNumber'] ?? 'N/A';
-    
+
     // Get validation details
-    final validationDetails = paymentData['validationDetails'] as Map<String, dynamic>?;
-    
+    final validationDetails =
+        paymentData['validationDetails'] as Map<String, dynamic>?;
+
     detailsRows.value = [
       {
         'label': 'Amount',
@@ -235,23 +236,23 @@ class GeneralPayoutController extends GetxController {
       {'label': 'Account Name', 'value': paymentData['customerName'] ?? 'N/A'},
       {'label': 'Account Number', 'value': phoneNumber},
       {
-        'label': 'Address', 
+        'label': 'Address',
         'value': validationDetails?['Address']?.toString().trim() ?? 'N/A'
       },
       {
-        'label': 'Min Purchase', 
-        'value': validationDetails?['Min_Purchase_Amount'] != null 
+        'label': 'Min Purchase',
+        'value': validationDetails?['Min_Purchase_Amount'] != null
             ? '₦${AmountUtil.formatFigure(double.tryParse(validationDetails!['Min_Purchase_Amount'].toString()) ?? 0)}'
             : '₦0.00'
       },
       {
-        'label': 'Arrears', 
-        'value': validationDetails?['Customer_Arrears'] != null 
+        'label': 'Arrears',
+        'value': validationDetails?['Customer_Arrears'] != null
             ? '₦${AmountUtil.formatFigure(double.tryParse(validationDetails!['Customer_Arrears'].toString()) ?? 0)}'
             : '₦0.00'
       },
       {
-        'label': 'Account Type', 
+        'label': 'Account Type',
         'value': validationDetails?['Meter_Type']?.toString().trim() ?? 'N/A'
       },
     ];
@@ -529,7 +530,7 @@ class GeneralPayoutController extends GetxController {
       case 1:
         return 'wallet';
       case 2:
-        return 'pay_gm';
+        return 'general_market';
       case 3:
         return 'paystack';
       default:
@@ -1121,17 +1122,19 @@ class GeneralPayoutController extends GetxController {
 
   Future<void> _handleGeneralMarketPayment() async {
     dev.log('Starting General Market payment flow', name: 'GeneralPayout');
-    
+
     final amount = _getTransactionAmount();
     final currentGMBalance = double.tryParse(gmBalance.value) ?? 0.0;
-    
-    dev.log('GM Balance: ₦$currentGMBalance, Amount: ₦$amount', name: 'GeneralPayout');
-    
+
+    dev.log('GM Balance: ₦$currentGMBalance, Amount: ₦$amount',
+        name: 'GeneralPayout');
+
     final success = await _gmPaymentService.processGeneralMarketPayment(
       amount: amount,
       currentGMBalance: currentGMBalance,
       onPaymentSuccess: () async {
-        dev.log('GM ads completed, processing actual transaction', name: 'GeneralPayout');
+        dev.log('GM ads completed, processing actual transaction',
+            name: 'GeneralPayout');
         // After ads are watched, process the actual payment
         await _processActualTransaction();
       },
@@ -1146,7 +1149,7 @@ class GeneralPayoutController extends GetxController {
         );
       },
     );
-    
+
     if (!success) {
       isPaying.value = false;
     }
@@ -1155,9 +1158,7 @@ class GeneralPayoutController extends GetxController {
   double _getTransactionAmount() {
     if (isMultipleAirtime.value) {
       return multipleAirtimeList.fold<double>(
-        0, 
-        (sum, item) => sum + double.parse(item['amount'])
-      );
+          0, (sum, item) => sum + double.parse(item['amount']));
     }
     return double.tryParse(paymentData['amount']?.toString() ?? '0') ?? 0.0;
   }
@@ -1165,7 +1166,7 @@ class GeneralPayoutController extends GetxController {
   Future<void> _processActualTransaction() async {
     try {
       dev.log('Processing transaction with GM payment', name: 'GeneralPayout');
-      
+
       // Process based on payment type
       switch (paymentType) {
         case PaymentType.airtime:
@@ -1199,11 +1200,11 @@ class GeneralPayoutController extends GetxController {
           await _processBettingPayment();
           break;
       }
-      
+
       // Refresh GM balance after successful transaction
-      dev.log('Transaction complete, refreshing GM balance', name: 'GeneralPayout');
+      dev.log('Transaction complete, refreshing GM balance',
+          name: 'GeneralPayout');
       await fetchGMBalance();
-      
     } catch (e) {
       dev.log('Transaction processing error', name: 'GeneralPayout', error: e);
       isPaying.value = false;

@@ -1,27 +1,26 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/app/modules/login_screen_module/models/user_signup_data.dart';
 import 'package:mcd/app/styles/app_colors.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:mcd/app/widgets/loading_dialog.dart';
-import 'package:http/http.dart' as http;
 
+import '../../../core/controllers/service_status_controller.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
 import '../../../core/utils/validator.dart';
-import '../../../core/controllers/service_status_controller.dart';
 import '../../routes/app_pages.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
@@ -168,7 +167,7 @@ class LoginScreenController extends GetxController {
 
   /// check if biometric is fully setup (enabled and has saved credentials)
   void checkBiometricSetup() {
-    final isBiometricEnabled = box.read('biometric_enabled');
+    final isBiometricEnabled = box.read('biometric_enabled') ?? true;
     final savedUsername = box.read('biometric_username');
     isBiometricSetup = (isBiometricEnabled == true &&
         savedUsername != null &&
@@ -483,7 +482,7 @@ class LoginScreenController extends GetxController {
     } catch (e) {
       dev.log('Error fetching service status after login: $e', name: 'Login');
     }
-    
+
     await fetchDashboard(force: true);
     Get.offAllNamed(Routes.HOME_SCREEN);
   }
