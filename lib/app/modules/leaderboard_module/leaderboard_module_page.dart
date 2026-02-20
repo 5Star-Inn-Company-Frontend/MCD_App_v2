@@ -151,6 +151,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
     return SizedBox(
       height: 260,
       child: Stack(
+        alignment: Alignment.bottomCenter,
         children: [
           // Second Place (Left)
           Positioned(
@@ -214,9 +215,9 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
         ] else
           const Gap(40),
         Container(
-          width: 140,
+          width: 110,
           height: height,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(12),
@@ -225,18 +226,18 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircleAvatar(
-                radius: 32,
+                radius: 28,
                 backgroundImage:
                     user.avatar.isNotEmpty ? NetworkImage(user.avatar) : null,
                 backgroundColor: Colors.white,
                 child: user.avatar.isEmpty
-                    ? Icon(Icons.person, size: 32, color: color)
+                    ? Icon(Icons.person, size: 28, color: color)
                     : null,
               ),
               const Gap(8),
                TextSemiBold(
                 user.fullName,
-                fontSize: 13,
+                fontSize: 12,
                 color: AppColors.white,
                 textAlign: TextAlign.center,
                 maxLines: 1,
@@ -245,7 +246,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
               const Gap(4),
               TextSemiBold(
                 _maskUsername(user.userName),
-                fontSize: 13,
+                fontSize: 11,
                 color: AppColors.white,
                 textAlign: TextAlign.center,
                 maxLines: 1,
@@ -254,7 +255,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
               const Gap(4),
               TextSemiBold(
                 '${user.pointsValue}',
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w700,
                 color: AppColors.white,
               ),
@@ -326,7 +327,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextSemiBold(
-                  user.fullName,
+                  user.fullName ?? 'N/A',
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   maxLines: 1,

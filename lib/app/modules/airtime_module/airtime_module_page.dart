@@ -867,24 +867,36 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
     );
   }
 
-  Widget _amountCard(String amount) {
-    return TouchableOpacity(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        controller.onAmountSelected(amount);
-      },
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-            color: AppColors.primaryColor,
+  Widget _amountCard(String amount, {bool isFirst = false}) {
+    return Obx(() {
+      final isSelected = controller.selectedAmount.value == amount;
+      return TouchableOpacity(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          controller.onAmountSelected(amount);
+        },
+        child: Container(
+          height: 50,
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.primaryColor : Colors.white,
             borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: const Color(0xffF1F1F1))),
-        child: Center(
-          child: Text('₦$amount',
+            border: Border.all(
+              color: AppColors.primaryColor,
+              width: 1.5,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              '₦$amount',
               style: GoogleFonts.plusJakartaSans(
-                  color: AppColors.white, fontWeight: FontWeight.w500)),
+                color: isSelected ? AppColors.white : AppColors.primaryColor,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

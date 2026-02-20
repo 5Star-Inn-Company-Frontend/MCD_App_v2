@@ -174,7 +174,7 @@ class DataModulePage extends GetView<DataModuleController> {
           _buildCategoryTabs(),
           const Gap(20),
           SizedBox(
-              height: screenHeight(context) * 0.650, child: _buildPlanGrid()),
+              height: screenHeight(context) * 0.550, child: _buildPlanGrid()),
         ],
       );
     });

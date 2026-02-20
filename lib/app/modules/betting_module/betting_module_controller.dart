@@ -12,6 +12,7 @@ class BettingModuleController extends GetxController {
 
   final userIdController = TextEditingController();
   final amountController = TextEditingController();
+  final selectedAmount = ''.obs;
   final selectedProvider = Rxn<BettingProvider>();
   final bettingProviders = <BettingProvider>[].obs;
 
@@ -67,6 +68,7 @@ class BettingModuleController extends GetxController {
 
   void onAmountSelected(String amount) {
     amountController.text = amount.replaceAll('₦', '').trim();
+    selectedAmount.value = amount;
     dev.log('Amount selected: ${amountController.text}', name: 'BettingModule');
   }
 

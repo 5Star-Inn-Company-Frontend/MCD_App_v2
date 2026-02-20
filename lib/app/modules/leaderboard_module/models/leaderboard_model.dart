@@ -70,11 +70,7 @@ class LeaderboardUser {
           ? json['rank']
           : int.tryParse(json['rank']?.toString() ?? '0') ?? 0,
       userName: json['user_name'] ?? json['username'] ?? '',
-      fullName: json['full_name'] ??
-          json['name'] ??
-          json['user_name'] ??
-          json['username'] ??
-          '',
+      fullName: json['full_name'] ?? 'N/A',
       avatar: json['avatar'] ?? json['profile_picture'] ?? '',
       points: json['points'] ?? json['score'] ?? 0,
     );

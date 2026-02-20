@@ -87,7 +87,8 @@ class HomeScreenController extends GetxController
           icon: AppAsset.gift,
           text: "Reward Centre",
           link: Routes.REWARD_CENTRE_MODULE),
-      ButtonModel(icon: AppAsset.service, text: "Mega Bulk Service", link: ""),
+      // ButtonModel(icon: AppAsset.service, text: "Mega Bulk Service", link: ""),
+      ButtonModel(icon: 'assets/icons/bank-card-two.svg', text: "Virtual Card", link: Routes.VIRTUAL_CARD_DETAILS),
     ];
 
     _actionButtonz.assignAll(allButtons);

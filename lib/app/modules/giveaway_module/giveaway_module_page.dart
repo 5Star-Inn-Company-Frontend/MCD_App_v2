@@ -1,4 +1,5 @@
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mcd/app/modules/giveaway_module/models/giveaway_model.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
 import './giveaway_module_controller.dart';
@@ -930,12 +931,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
   //   );
   // }
 
-  Future<void> _showGiveawayDetail(BuildContext context, int giveawayId) async {
-    final detail = await controller.fetchGiveawayDetail(giveawayId);
-    if (detail == null) return;
-
-    if (!context.mounted) return;
-
+  void _showGiveawayDetail(BuildContext context, int giveawayId) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -950,124 +946,177 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
           right: 16,
           top: 20,
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Profile Image
-              if (detail.giver.photo.isNotEmpty)
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: NetworkImage(detail.giveaway.image),
-                  backgroundColor: const Color(0xffF3FFF7),
-                  onBackgroundImageError: (exception, stackTrace) {},
-                  child: detail.giveaway.image.isEmpty
-                      ? const Icon(Icons.person,
-                          size: 50, color: AppColors.primaryGrey2)
-                      : null,
-                )
-              else
-                const CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Color(0xffF3FFF7),
-                  child: Icon(Icons.person,
-                      size: 50, color: AppColors.primaryGrey2),
-                ),
-              const Gap(12),
-              // Username with @ symbol
-              TextSemiBold(
-                '@${detail.giveaway.userName}',
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                style: const TextStyle(fontFamily: AppFonts.manRope),
-              ),
-              const Gap(8),
-              // Title/Description
-              Text(
-                detail.giveaway.description,
-                style: const TextStyle(
-                  fontFamily: AppFonts.manRope,
-                  fontSize: 14,
-                  color: AppColors.primaryGrey2,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const Gap(20),
-              // Giveaway image
-              if (detail.giveaway.image.isNotEmpty)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    detail.giveaway.image,
-                    height: 180,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      height: 180,
-                      color: const Color(0xffF3FFF7),
-                      child: const Icon(Icons.image,
-                          size: 60, color: AppColors.primaryGrey2),
-                    ),
+        child: FutureBuilder<GiveawayDetailModel?>(
+          future: controller.fetchGiveawayDetail(giveawayId),
+          builder: (context, snapshot) {
+            // Loading state
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 100),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryColor,
                   ),
                 ),
-              const Gap(20),
-              // Details Card
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xffF9F9F9),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xffE5E5E5)),
-                ),
+              );
+            }
+
+            // Error or null state
+            if (!snapshot.hasData || snapshot.data == null) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 60),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    _detailRow('Type', detail.giveaway.type.toUpperCase()),
-                    const Divider(height: 20, color: Color(0xffE5E5E5)),
-                    _detailRow(
-                        'Provider', detail.giveaway.typeCode.toUpperCase()),
-                    const Divider(height: 20, color: Color(0xffE5E5E5)),
-                    _detailRow('Amount',
-                        '₦${AmountUtil.formatFigure(double.tryParse(detail.giveaway.amount.toString()) ?? 0)}'),
-                    const Divider(height: 20, color: Color(0xffE5E5E5)),
-                    _detailRow('User',
-                        '${detail.requesters.length}/${detail.giveaway.quantity}'),
+                    const Icon(
+                      Icons.error_outline,
+                      size: 60,
+                      color: AppColors.primaryGrey2,
+                    ),
+                    const Gap(16),
+                    const Text(
+                      'Failed to load giveaway details',
+                      style: TextStyle(
+                        fontFamily: AppFonts.manRope,
+                        fontSize: 16,
+                        color: AppColors.primaryGrey2,
+                      ),
+                    ),
+                    const Gap(20),
+                    ElevatedButton(
+                      onPressed: () => Get.back(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                      ),
+                      child: const Text('Close'),
+                    ),
                   ],
                 ),
-              ),
-              const Gap(20),
-              // Claim button or completed message
-              if (!detail.completed)
-                SizedBox(
-                  width: double.infinity,
-                  child: BusyButton(
-                    title: "Claim",
-                    onTap: () => _showRecipientDialog(
-                        context, giveawayId, detail.giveaway.type),
+              );
+            }
+
+            final detail = snapshot.data!;
+
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Profile Image
+                  if (detail.giver.photo.isNotEmpty)
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage: NetworkImage(detail.giveaway.image),
+                      backgroundColor: const Color(0xffF3FFF7),
+                      onBackgroundImageError: (exception, stackTrace) {},
+                      child: detail.giveaway.image.isEmpty
+                          ? const Icon(Icons.person,
+                              size: 50, color: AppColors.primaryGrey2)
+                          : null,
+                    )
+                  else
+                    const CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Color(0xffF3FFF7),
+                      child: Icon(Icons.person,
+                          size: 50, color: AppColors.primaryGrey2),
+                    ),
+                  const Gap(12),
+                  // Username with @ symbol
+                  TextSemiBold(
+                    '@${detail.giveaway.userName}',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    style: const TextStyle(fontFamily: AppFonts.manRope),
                   ),
-                )
-              else
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade100,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.orange.shade300),
-                  ),
-                  child: const Text(
-                    'This giveaway has been fully claimed',
-                    style: TextStyle(
+                  const Gap(8),
+                  // Title/Description
+                  Text(
+                    detail.giveaway.description,
+                    style: const TextStyle(
                       fontFamily: AppFonts.manRope,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.orange,
+                      fontSize: 14,
+                      color: AppColors.primaryGrey2,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                ),
-              const Gap(20),
-            ],
-          ),
+                  const Gap(20),
+                  // Giveaway image
+                  if (detail.giveaway.image.isNotEmpty)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        detail.giveaway.image,
+                        height: 180,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          height: 180,
+                          color: const Color(0xffF3FFF7),
+                          child: const Icon(Icons.image,
+                              size: 60, color: AppColors.primaryGrey2),
+                        ),
+                      ),
+                    ),
+                  const Gap(20),
+                  // Details Card
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xffF9F9F9),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xffE5E5E5)),
+                    ),
+                    child: Column(
+                      children: [
+                        _detailRow('Type', detail.giveaway.type.toUpperCase()),
+                        const Divider(height: 20, color: Color(0xffE5E5E5)),
+                        _detailRow(
+                            'Provider', detail.giveaway.typeCode.toUpperCase()),
+                        const Divider(height: 20, color: Color(0xffE5E5E5)),
+                        _detailRow('Amount',
+                            '₦${AmountUtil.formatFigure(double.tryParse(detail.giveaway.amount.toString()) ?? 0)}'),
+                        const Divider(height: 20, color: Color(0xffE5E5E5)),
+                        _detailRow('User',
+                            '${detail.requesters.length}/${detail.giveaway.quantity}'),
+                      ],
+                    ),
+                  ),
+                  const Gap(20),
+                  // Claim button or completed message
+                  if (!detail.completed)
+                    SizedBox(
+                      width: double.infinity,
+                      child: BusyButton(
+                        title: "Claim",
+                        onTap: () => _showRecipientDialog(
+                            context, giveawayId, detail.giveaway.type),
+                      ),
+                    )
+                  else
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.orange.shade300),
+                      ),
+                      child: const Text(
+                        'This giveaway has been fully claimed',
+                        style: TextStyle(
+                          fontFamily: AppFonts.manRope,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.orange,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  const Gap(20),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );

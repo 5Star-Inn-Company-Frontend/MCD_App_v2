@@ -39,16 +39,16 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                               Colors.black, BlendMode.srcIn),
                         ))),
                 const Gap(10),
-                TouchableOpacity(
-                    child: InkWell(
-                        onTap: () {
-                          Get.toNamed(Routes.VIRTUAL_CARD_DETAILS);
-                        },
-                        child: SvgPicture.asset(
-                          'assets/icons/bank-card-two.svg',
-                          colorFilter: const ColorFilter.mode(
-                              Colors.black, BlendMode.srcIn),
-                        ))),
+                // TouchableOpacity(
+                //     child: InkWell(
+                //         onTap: () {
+                //           Get.toNamed(Routes.VIRTUAL_CARD_DETAILS);
+                //         },
+                //         child: SvgPicture.asset(
+                //           'assets/icons/bank-card-two.svg',
+                //           colorFilter: const ColorFilter.mode(
+                //               Colors.black, BlendMode.srcIn),
+                //         ))),
                 const Gap(10),
                 // TouchableOpacity(
                 //     child: InkWell(
@@ -405,7 +405,8 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                           MainAxisAlignment.center,
                                       children: [
                                         SvgPicture.asset(controller
-                                            .actionButtonz[index].icon),
+                                            .actionButtonz[index].icon, colorFilter: const ColorFilter.mode(
+                              AppColors.primaryColor, BlendMode.srcIn)),
                                         const Gap(5),
                                         TextSemiBold(
                                           controller.actionButtonz[index].text,
@@ -918,7 +919,7 @@ class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
     return Column(
       children: [
         SizedBox(
-          height: 150,
+          height: 200,
           child: GestureDetector(
             onPanDown: (_) => _stopAutoSlide(),
             onPanCancel: () => _startAutoSlide(),

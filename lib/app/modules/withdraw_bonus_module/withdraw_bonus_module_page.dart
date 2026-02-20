@@ -123,40 +123,47 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                 ),
                 itemCount: controller.quickAmounts.length,
                 itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: () => controller
-                        .setQuickAmount(controller.quickAmounts[index]),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryColor,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      alignment: Alignment.center,
-                      child: RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '₦',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.white,
+                  return Obx(() {
+                    final isSelected = controller.selectedAmount.value == controller.quickAmounts[index];
+                    return InkWell(
+                      onTap: () => controller
+                          .setQuickAmount(controller.quickAmounts[index]),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isSelected ? AppColors.primaryColor : Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppColors.primaryColor,
+                            width: 1.5,
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: '₦',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: isSelected ? AppColors.white : AppColors.primaryColor,
+                                ),
                               ),
-                            ),
-                            TextSpan(
-                              text: controller.quickAmounts[index],
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.white,
-                                fontFamily: 'Manrope',
+                              TextSpan(
+                                text: controller.quickAmounts[index],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: isSelected ? AppColors.white : AppColors.primaryColor,
+                                  fontFamily: 'Manrope',
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
+                    );
+                  });
                 },
               ),
 

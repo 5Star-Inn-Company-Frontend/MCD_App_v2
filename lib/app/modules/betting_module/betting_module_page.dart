@@ -258,10 +258,10 @@ class BettingModulePage extends GetView<BettingModuleController> {
 
   Widget _buildProviderDropdown() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.primaryGrey)),
-      ),
+      // padding: const EdgeInsets.symmetric(vertical: 6),
+      // decoration: const BoxDecoration(
+      //   border: Border(bottom: BorderSide(color: AppColors.primaryGrey)),
+      // ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<BettingProvider>(
           isExpanded: true,
@@ -317,28 +317,37 @@ class BettingModulePage extends GetView<BettingModuleController> {
     );
   }
 
-  Widget _amountCard(String amount) {
+  Widget _amountCard(String amount, {bool isFirst = false}) {
     final raw = amount.replaceAll('₦', '').replaceAll(',', '').trim();
     final value = double.tryParse(raw) ?? 0.0;
     final label = AmountUtil.formatAmountToNaira(value);
 
-    return InkWell(
-      onTap: () => controller.onAmountSelected(label),
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: AppColors.primaryColor,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: const Color(0xffF1F1F1)),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: GoogleFonts.plusJakartaSans(
-                color: AppColors.white, fontWeight: FontWeight.w500),
+    return Obx(() {
+      final isSelected = controller.selectedAmount.value == label;
+      return InkWell(
+        onTap: () => controller.onAmountSelected(label),
+        child: Container(
+          height: 50,
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.primaryColor : Colors.white,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: AppColors.primaryColor,
+              width: 1.5,
+            ),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                color: isSelected ? AppColors.white : AppColors.primaryColor,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

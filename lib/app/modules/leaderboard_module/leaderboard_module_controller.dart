@@ -41,7 +41,6 @@ class LeaderboardModuleController extends GetxController {
   Future<void> fetchLeaderboard() async {
     try {
       isLoading = true;
-      dev.log("Fetching leaderboard...");
 
       final url = '${ApiConstants.authUrlV2}/leaderboard';
       dev.log("Leaderboard URL: $url");

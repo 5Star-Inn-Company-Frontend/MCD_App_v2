@@ -271,7 +271,7 @@ class DataModuleController extends GetxController {
         dev.log(
             "Fetching foreign data for $countryCode, network: $verifiedNetworkName");
         final url =
-            '${transactionUrl}foreign_data/$countryCode?name=$verifiedNetworkName';
+            '${transactionUrl}foreign_data/$countryCode';
         dev.log("Foreign Data URL: $url");
 
         final result = await apiService.getrequest(url);
@@ -280,8 +280,74 @@ class DataModuleController extends GetxController {
         result.fold(
           (failure) => errorMessage.value = failure.message,
           (data) {
-            // Foreign data response parsing
-            if (data['data'] != null && data['data'] is Map) {
+            dev.log("Foreign Data Full Response: $data");
+            
+            // Check if data is a list of providers
+            if (data['data'] != null && data['data'] is List) {
+              final providersList = data['data'] as List;
+              dev.log("Foreign Data Providers List: $providersList");
+              
+              final List<DataPlanModel> parsedPlans = [];
+              
+              // Iterate through each provider
+              for (var provider in providersList) {
+                if (provider is Map<String, dynamic>) {
+                  final name = provider['name'] ?? 'Unknown';
+                  final operatorId = provider['operatorId']?.toString() ?? '';
+                  final fixedAmountsDescriptions = provider['fixedAmountsDescriptions'];
+                  
+                  if (fixedAmountsDescriptions != null && fixedAmountsDescriptions is Map) {
+                    fixedAmountsDescriptions.forEach((price, description) {
+                      // Infer category
+                      String category = 'Others';
+                      final descLower = description.toString().toLowerCase();
+                      if (descLower.contains('daily') || descLower.contains('day')) {
+                        category = 'Daily';
+                      } else if (descLower.contains('weekly') || descLower.contains('week')) {
+                        category = 'Weekly';
+                      } else if (descLower.contains('monthly') || descLower.contains('month')) {
+                        category = 'Monthly';
+                      } else if (descLower.contains('weekend')) {
+                        category = 'Weekend';
+                      } else if (descLower.contains('night')) {
+                        category = 'Night';
+                      }
+
+                      parsedPlans.add(DataPlanModel(
+                        name: description.toString(),
+                        coded: price.toString(),
+                        price: price.toString(),
+                        network: name,
+                        category: category,
+                        id: 0,
+                        operatorId: operatorId,
+                      ));
+                    });
+                  }
+                }
+              }
+              
+              if (parsedPlans.isEmpty) {
+                errorMessage.value = "No data plans found for this country.";
+                return;
+              }
+              
+              // Update categories tab
+              tabBarItems.assignAll(parsedPlans.map((e) => e.category).toSet().toList());
+              // Sort categories to have typical order if possible
+              tabBarItems.sort((a, b) {
+                final order = ['Daily', 'Night', 'Weekend', 'Weekly', 'Monthly', 'Others'];
+                return order.indexOf(a).compareTo(order.indexOf(b));
+              });
+
+              _allDataPlansForNetwork.assignAll(parsedPlans);
+
+              if (tabBarItems.isNotEmpty) {
+                onTabSelected(tabBarItems.first);
+              }
+            } 
+            // Original format check (single provider object)
+            else if (data['data'] != null && data['data'] is Map) {
               final dataMap = data['data'] as Map<String, dynamic>;
               final name = dataMap['name'] ?? 'Unknown';
               final operatorId = dataMap['operatorId']?.toString() ?? '';

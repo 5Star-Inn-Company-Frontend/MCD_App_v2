@@ -13,6 +13,7 @@ class AirtimePinModuleController extends GetxController {
   
   final formKey = GlobalKey<FormState>();
   final amountController = TextEditingController();
+  final selectedAmount = ''.obs;
   final quantityController = TextEditingController();
   
   final selectedNetwork = Rx<String?>(null);
@@ -43,7 +44,8 @@ class AirtimePinModuleController extends GetxController {
 
   void onAmountSelected(String amount) {
     amountController.text = amount;
-    dev.log('Amount selected: $amount', name: 'AirtimePin');
+    selectedAmount.value = amount;
+    dev.log('Amount selected: ₦$amount', name: 'AirtimePinModule');
   }
 
   void selectNetwork(String network) {

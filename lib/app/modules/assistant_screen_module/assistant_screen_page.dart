@@ -1,3 +1,4 @@
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/assistant_screen_module/widgets/message_bubble.dart';
 import 'package:mcd/app/modules/assistant_screen_module/widgets/typing_indicator.dart';
 import 'package:mcd/app/utils/bottom_navigation.dart';
@@ -68,9 +69,49 @@ class AssistantScreenPage extends GetView<AssistantScreenController> {
                     // Adjust index if thinking indicator is present
                     final listIndex = controller.isThinking ? index - 1 : index;
                     final message = controller.chatMessages[listIndex];
+                    
+                    // Check if we need to show a date header
+                    bool showDateHeader = false;
+                    if (listIndex < controller.chatMessages.length - 1) {
+                      final nextMessage = controller.chatMessages[listIndex + 1];
+                      if (message.timestamp != null && nextMessage.timestamp != null) {
+                        final messageDate = DateTime(
+                          message.timestamp!.year,
+                          message.timestamp!.month,
+                          message.timestamp!.day,
+                        );
+                        final nextMessageDate = DateTime(
+                          nextMessage.timestamp!.year,
+                          nextMessage.timestamp!.month,
+                          nextMessage.timestamp!.day,
+                        );
+                        showDateHeader = !messageDate.isAtSameMomentAs(nextMessageDate);
+                      }
+                    } else {
+                      // Always show date header for the last (oldest) message
+                      showDateHeader = message.timestamp != null;
+                    }
 
-                    return MessageBubble(
-                        messageText: message.text, isMe: !message.isAi);
+                    return Column(
+                      children: [
+                        MessageBubble(
+                            messageText: message.text, 
+                            isMe: !message.isAi,
+                            timestamp: message.timestamp),
+                        if (showDateHeader)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Text(
+                              _formatDate(message.timestamp!),
+                              style: GoogleFonts.plusJakartaSans(
+                                color: AppColors.primaryColor,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
                   })),
               Align(
                 alignment: Alignment.bottomCenter,
@@ -208,6 +249,14 @@ class AssistantScreenPage extends GetView<AssistantScreenController> {
         bottomNavigationBar: const BottomNavigation(selectedIndex: 2),
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    final months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
   Future<bool?> _showExitDialog(BuildContext context) {

@@ -15,6 +15,7 @@ class AirtimeModuleController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final phoneController = TextEditingController();
   final amountController = TextEditingController();
+  final selectedAmount = ''.obs;
 
   final selectedProvider = Rxn<AirtimeProvider>();
 
@@ -421,6 +422,7 @@ class AirtimeModuleController extends GetxController {
 
   void onAmountSelected(String amount) {
     amountController.text = amount;
+    selectedAmount.value = amount;
     dev.log('Amount selected: ₦$amount', name: 'AirtimeModule');
   }
 

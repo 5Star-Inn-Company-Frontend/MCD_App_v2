@@ -14,6 +14,7 @@ class WithdrawBonusModuleController extends GetxController {
 
   final formKey = GlobalKey<FormState>();
   final amountController = TextEditingController();
+  final selectedAmount = ''.obs;
   final accountNumberController = TextEditingController();
   final accountNameController = TextEditingController();
   final bankSearchController = TextEditingController();
@@ -63,6 +64,7 @@ class WithdrawBonusModuleController extends GetxController {
 
   void setQuickAmount(String amount) {
     amountController.text = amount;
+    selectedAmount.value = amount;
     try {
       final amt = double.tryParse(amount.replaceAll(',', '')) ?? 0.0;
       dev.log('Quick amount selected: ₦${AmountUtil.formatFigure(amt)}',

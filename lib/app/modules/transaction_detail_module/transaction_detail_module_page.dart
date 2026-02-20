@@ -89,19 +89,52 @@ class TransactionDetailModulePage
                             ),
                           ),
                           const Gap(10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.check_circle_outline_outlined,
-                                color: AppColors.primaryColor,
-                              ),
-                              const Gap(4),
-                              TextSemiBold(
-                                "Successful",
-                                color: AppColors.primaryColor,
-                              )
-                            ],
+                          Builder(
+                            builder: (context) {
+                              final status = controller.status.toLowerCase();
+                              final isSuccessful = status == 'successful' || 
+                                                   status == 'success' || 
+                                                   status == 'delivered';
+                              final isPending = status == 'pending' || 
+                                               status == 'processing';
+                              final isReversed = status == 'reversed' || 
+                                                status == 'reversal';
+                              final isFailed = status == 'failed' || 
+                                              status == 'error';
+                              
+                              Color statusColor = AppColors.primaryColor;
+                              IconData statusIcon = Icons.check_circle_outline_outlined;
+                              String statusText = 'Successful';
+                              
+                              if (isPending) {
+                                statusColor = Colors.orange;
+                                statusIcon = Icons.pending_outlined;
+                                statusText = 'Pending';
+                              } else if (isReversed) {
+                                statusColor = Colors.blue;
+                                statusIcon = Icons.sync_outlined;
+                                statusText = 'Reversed';
+                              } else if (isFailed) {
+                                statusColor = Colors.red;
+                                statusIcon = Icons.cancel_outlined;
+                                statusText = 'Failed';
+                              }
+                              
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    statusIcon,
+                                    color: statusColor,
+                                  ),
+                                  const Gap(4),
+                                  TextSemiBold(
+                                    statusText,
+                                    color: statusColor,
+                                  )
+                                ],
+                              );
+                            },
                           )
                         ],
                       ),
@@ -319,8 +352,13 @@ class TransactionDetailModulePage
                               controller.paymentType
                                   .toLowerCase()
                                   .contains('electric')) ...[
+                            itemRow("Biller Name", controller.name),
                             if (controller.customerName != 'N/A')
                               itemRow("Customer Name", controller.customerName),
+                            if (controller.customerAddress != 'N/A')
+                              itemRow("Customer Address", controller.customerAddress),
+                            if (controller.kwUnits != 'N/A')
+                              itemRow("Units", controller.kwUnits),
                             if (controller.packageName != 'N/A')
                               itemRow("Meter Type", controller.packageName),
                           ],
@@ -333,6 +371,10 @@ class TransactionDetailModulePage
                                   .contains('bet')) ...[
                             if (controller.network.isNotEmpty)
                               itemRow("Betting Platform", controller.network),
+                            if (controller.initialAmount != 'N/A')
+                              itemRow("Initial Amount", "₦${controller.initialAmount}"),
+                            if (controller.finalAmount != 'N/A')
+                              itemRow("Final Amount", "₦${controller.finalAmount}"),
                             // itemRow("Account ID", controller.phoneNumber),
                           ],
 

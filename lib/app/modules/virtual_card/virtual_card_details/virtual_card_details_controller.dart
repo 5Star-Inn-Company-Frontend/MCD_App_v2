@@ -72,9 +72,9 @@ class VirtualCardDetailsController extends GetxController {
             cards.value = response.data;
             dev.log('Success: ${cards.length} cards loaded');
             
-            // Navigate to request screen if no cards exist
+            // Navigate to home screen if no cards exist
             if (cards.isEmpty) {
-              Get.offNamed('/virtual_card_request');
+              Get.offNamed('/virtual_card_home');
               return;
             }
             

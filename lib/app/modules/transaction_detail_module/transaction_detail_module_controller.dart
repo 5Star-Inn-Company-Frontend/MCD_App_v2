@@ -50,6 +50,8 @@ class TransactionDetailModuleController extends GetxController {
   }
 
   String get customerName => _getCustomerName();
+  String get customerAddress => _getCustomerAddress();
+  String get kwUnits => _getKwUnits();
   String get transactionId => transaction?.ref ?? 'N/A';
   String get packageName {
     if (legacyPackageName != null &&
@@ -69,6 +71,8 @@ class TransactionDetailModuleController extends GetxController {
   String get status => transaction?.status ?? '';
   String get network => transaction?.networkProvider ?? '';
   String get quantity => transaction?.serverLog?.quantity ?? '1';
+  String get initialAmount => transaction?.iWallet ?? 'N/A';
+  String get finalAmount => transaction?.fWallet ?? 'N/A';
 
   final _isRepeating = false.obs;
   bool get isRepeating => _isRepeating.value;
@@ -291,7 +295,69 @@ class TransactionDetailModuleController extends GetxController {
   }
 
   String _getCustomerName() {
-    // For electricity and cable, we might not have customer name
+    if (transaction == null) return 'N/A';
+
+    final desc = transaction!.description;
+    final code = transaction!.code.toLowerCase();
+
+    // For electricity, try to extract customer name from description
+    if (code.contains('electricity') || code.contains('electric')) {
+      // Look for pattern like "Customer Name: OLUWADIPE TEMITOPE O"
+      final nameMatch = RegExp(r'Customer Name:\s*([^,]+)', caseSensitive: false)
+          .firstMatch(desc);
+      if (nameMatch != null) {
+        return nameMatch.group(1)?.trim() ?? 'N/A';
+      }
+    }
+
+    // For cable TV, try similar extraction
+    if (code.contains('cable')) {
+      final nameMatch = RegExp(r'Customer Name:\s*([^,]+)', caseSensitive: false)
+          .firstMatch(desc);
+      if (nameMatch != null) {
+        return nameMatch.group(1)?.trim() ?? 'N/A';
+      }
+    }
+
+    return 'N/A';
+  }
+
+  String _getCustomerAddress() {
+    if (transaction == null) return 'N/A';
+
+    final desc = transaction!.description;
+    final code = transaction!.code.toLowerCase();
+
+    // For electricity, try to extract customer address from description
+    if (code.contains('electricity') || code.contains('electric')) {
+      // Look for pattern like "Address: 1 MAKINDE STR ONIBUDO PHASE II"
+      final addressMatch = RegExp(r'Address:\s*([^,]+)', caseSensitive: false)
+          .firstMatch(desc);
+      if (addressMatch != null) {
+        return addressMatch.group(1)?.trim() ?? 'N/A';
+      }
+    }
+
+    return 'N/A';
+  }
+
+  String _getKwUnits() {
+    if (transaction == null) return 'N/A';
+
+    final desc = transaction!.description;
+    final code = transaction!.code.toLowerCase();
+
+    // For electricity, try to extract units from description
+    if (code.contains('electricity') || code.contains('electric')) {
+      // Look for pattern like "Units: 45.67 kWh" or "kwUnits: 45.67"
+      final unitsMatch = RegExp(r'(?:Units|kwUnits):\s*([\d.]+)', caseSensitive: false)
+          .firstMatch(desc);
+      if (unitsMatch != null) {
+        final units = unitsMatch.group(1)?.trim() ?? '';
+        return units.isNotEmpty ? '$units kWh' : 'N/A';
+      }
+    }
+
     return 'N/A';
   }
 
