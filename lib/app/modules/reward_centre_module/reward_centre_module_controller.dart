@@ -1,11 +1,11 @@
 import 'dart:convert';
+import 'dart:developer' as dev;
 
+import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/core/services/ads_service.dart';
-import 'dart:developer' as dev;
-import 'package:flutter/services.dart';
 
 class RewardCentreModuleController extends GetxController {
   final adsService = AdsService();
@@ -31,12 +31,14 @@ class RewardCentreModuleController extends GetxController {
 
   Future<void> fetchservicestatus() async {
     var storageresult = box.read('serviceenablingdata');
+    print("storageresult ${storageresult}");
     if (storageresult != null) {
       var data = jsonDecode(storageresult);
       if (data != null) {
         service = data;
       }
     }
+    print("storageresult done");
     final transactionUrl = box.read('transaction_service_url');
     if (transactionUrl == null) {
       dev.log('Transaction URL not found',
@@ -52,7 +54,7 @@ class RewardCentreModuleController extends GetxController {
             name: 'HomeScreen');
       },
       (data) async {
-        // dev.log('GM balance response: ${data['data']}', name: 'HomeScreen');
+        dev.log('GM balance response: ${data['data']}', name: 'HomeScreen');
         await box.write('serviceenablingdata', jsonEncode(data['data']));
         if (data['data']['services'] != null) {
           service = data['data']['services'];

@@ -1,5 +1,6 @@
-import 'package:mcd/core/import/imports.dart';
 import 'package:flutter_fortune_wheel/flutter_fortune_wheel.dart';
+import 'package:mcd/core/import/imports.dart';
+
 import './spin_win_module_controller.dart';
 
 class SpinWinModulePage extends GetView<SpinWinModuleController> {
@@ -60,17 +61,18 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
                 fontWeight: FontWeight.w700,
                 style: const TextStyle(fontFamily: AppFonts.manRope),
               ),
-              const Gap(20),
+              const Gap(10),
               // Instructions text
               controller.chancesRemaining <= 0
                   ? SizedBox.shrink()
                   : Text(
                       controller.freeSpinsRemaining > 0
                           ? "You have ${controller.freeSpinsRemaining} FREE spin(s)! No ads required. Spin now and claim your reward if you win."
-                          : "You have 5 chances every 5 hours. You must watch 5 ads before each spin. Use correct recipient details as refunds won't be made for errors.",
+                          : "No Free Spin! But you can spin by watching Ads, you have 5 chances. Click on Roll Button below",
+                      // : "You have 5 chances every 5 hours. You must watch 5 ads before each spin. Use correct recipient details as refunds won't be made for errors.",
                       style: const TextStyle(
                         fontFamily: AppFonts.manRope,
-                        fontSize: 15,
+                        fontSize: 13,
                         height: 1.5,
                         color: Colors.black87,
                       ),
@@ -87,7 +89,7 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
               // Fortune Wheel
               Center(
                 child: SizedBox(
-                  height: 450,
+                  height: 350,
                   child: FortuneWheel(
                     selected: controller.selectedStream,
                     items: controller.spinItems
@@ -129,7 +131,7 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
                   ),
                 ),
               ),
-              const Gap(40),
+              const Gap(10),
 
               // Ad progress indicator when playing ads
               if (controller.isPlayingAds) ...[
@@ -192,7 +194,7 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
                   ),
                 ),
               ),
-              const Gap(60),
+              const Gap(20),
               // Roll button
               controller.chancesRemaining <= 0
                   ? SizedBox.shrink()
@@ -201,7 +203,7 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
                       child: Obx(() => BusyButton(
                             title: controller.freeSpinsRemaining > 0
                                 ? "Roll (Free)"
-                                : "Roll",
+                                : "Roll (Watch Ads)",
                             isLoading: controller.isSpinning ||
                                 controller.isPlayingAds,
                             onTap: controller.isSpinning ||
@@ -257,6 +259,8 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
                     ],
                   ),
                 ),
+                const Gap(10),
+                controller.adsService.showBannerAdWidget()
               ],
             ],
           ),
@@ -320,7 +324,7 @@ class SpinWinModulePage extends GetView<SpinWinModuleController> {
                 ),
                 const Gap(8),
                 Text(
-                  'Your plan doesn\'t include free spins. Upgrade to get up to 10 free spins daily!',
+                  'Your plan doesn\'t include free monthly spins. Upgrade to get up to 10 free spins monthly!',
                   style: TextStyle(
                     fontSize: 12,
                     fontFamily: AppFonts.manRope,

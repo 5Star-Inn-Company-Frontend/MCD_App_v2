@@ -5,7 +5,6 @@ import 'package:marquee/marquee.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_page.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
-import 'package:url_launcher/url_launcher.dart' as launcher;
 
 import '../../../core/import/imports.dart';
 import '../../utils/bottom_navigation.dart';

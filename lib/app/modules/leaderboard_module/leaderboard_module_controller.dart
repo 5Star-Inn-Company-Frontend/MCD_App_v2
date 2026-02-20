@@ -1,14 +1,17 @@
+import 'dart:developer' as dev;
+
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/leaderboard_module/models/leaderboard_model.dart';
 import 'package:mcd/app/styles/app_colors.dart';
-import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/core/network/api_constants.dart';
-import 'dart:developer' as dev;
+import 'package:mcd/core/network/dio_api_service.dart';
+import 'package:mcd/core/services/ads_service.dart';
 
 class LeaderboardModuleController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
+  final adsService = AdsService();
 
   final _isLoading = false.obs;
   set isLoading(value) => _isLoading.value = value;
@@ -60,7 +63,8 @@ class LeaderboardModuleController extends GetxController {
         (data) {
           dev.log("Leaderboard data received: ${data.toString()}");
           leaderboardData = LeaderboardModel.fromJson(data);
-          dev.log("Leaderboard loaded: ${leaderboardData?.leaderboard.length} users");
+          dev.log(
+              "Leaderboard loaded: ${leaderboardData?.leaderboard.length} users");
         },
       );
     } catch (e) {

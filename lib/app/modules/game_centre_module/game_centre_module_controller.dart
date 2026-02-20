@@ -3,6 +3,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/game_centre_module/models/game_model.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
+import 'package:mcd/core/services/ads_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GameCentreModuleController extends GetxController {
@@ -12,6 +13,7 @@ class GameCentreModuleController extends GetxController {
 
   final box = GetStorage();
   final apiService = DioApiService();
+  final adsService = AdsService();
 
   // Observables
   final isLoading = true.obs;
@@ -22,6 +24,7 @@ class GameCentreModuleController extends GetxController {
   void onInit() {
     super.onInit();
     fetchGames();
+    adsService.showInterstitialAd();
   }
 
   Future<void> fetchGames() async {
@@ -48,9 +51,10 @@ class GameCentreModuleController extends GetxController {
         },
         (data) {
           final gamesResponse = GamesResponse.fromJson(data);
-          
+
           if (gamesResponse.isSuccess) {
-            games.value = gamesResponse.games.where((game) => game.isActive).toList();
+            games.value =
+                gamesResponse.games.where((game) => game.isActive).toList();
           } else {
             errorMessage.value = gamesResponse.message;
             Get.snackbar(
