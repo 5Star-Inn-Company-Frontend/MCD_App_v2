@@ -30,6 +30,10 @@ class DataModuleController extends GetxController {
   final tabBarItems = ['Daily', 'Night', 'Weekend', 'Weekly', 'Monthly'].obs;
   final selectedTab = 'Daily'.obs;
 
+  // Amount filter options
+  final amountFilters = ['All', '< 200', '< 500', '< 1000', '< 1500'].obs;
+  final selectedAmountFilter = 'All'.obs;
+
   // Loading and Error States
   final isLoading = true.obs;
   final isPaying = false.obs;
@@ -176,6 +180,11 @@ class DataModuleController extends GetxController {
 
   void onTabSelected(String tabName) {
     selectedTab.value = tabName;
+    _filterPlansByTab();
+  }
+
+  void onAmountFilterSelected(String filter) {
+    selectedAmountFilter.value = filter;
     _filterPlansByTab();
   }
 
@@ -457,9 +466,31 @@ class DataModuleController extends GetxController {
       // filterKey = 'SME';
     }
 
-    filteredDataPlans.assignAll(_allDataPlansForNetwork
-        .where((plan) => plan.category.toUpperCase() == filterKey));
-    selectedPlan.value = null; // Clear selection when tab changes
+    // First filter by category
+    var plansFilteredByCategory = _allDataPlansForNetwork
+        .where((plan) => plan.category.toUpperCase() == filterKey);
+
+    // Then filter by amount
+    var plansFilteredByAmount = plansFilteredByCategory.where((plan) {
+      final price = double.tryParse(plan.price.toString()) ?? 0;
+      
+      switch (selectedAmountFilter.value) {
+        case '< 200':
+          return price < 200;
+        case '< 500':
+          return price < 500;
+        case '< 1000':
+          return price < 1000;
+        case '< 1500':
+          return price < 1500;
+        case 'All':
+        default:
+          return true;
+      }
+    });
+
+    filteredDataPlans.assignAll(plansFilteredByAmount);
+    selectedPlan.value = null; // Clear selection when filters change
   }
 
   void pay() async {

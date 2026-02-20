@@ -329,23 +329,23 @@ class createaccountPage extends GetView<createaccountController> {
                       ),
                     ),
                   ),
-                  const Gap(20),
+                  // const Gap(20),
 
-                  /// Social
-                  Center(
-                      child: TextSemiBold(
-                    "Or",
-                    textAlign: TextAlign.center,
-                  )),
-                  const Gap(20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset(AppAsset.facebook, width: 50),
-                      const Gap(10),
-                      Image.asset(AppAsset.google, width: 50),
-                    ],
-                  ),
+                  // /// Social
+                  // Center(
+                  //     child: TextSemiBold(
+                  //   "Or",
+                  //   textAlign: TextAlign.center,
+                  // )),
+                  // const Gap(20),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     SvgPicture.asset(AppAsset.facebook, width: 50),
+                  //     const Gap(10),
+                  //     Image.asset(AppAsset.google, width: 50),
+                  //   ],
+                  // ),
                   const Gap(100),
                 ],
               ),

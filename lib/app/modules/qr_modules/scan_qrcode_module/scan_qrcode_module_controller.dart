@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'dart:developer' as dev;
+import 'package:mcd/app/styles/app_colors.dart';
 
 class ScanQrcodeModuleController extends GetxController {
   QRViewController? qrController;
@@ -31,18 +33,58 @@ class ScanQrcodeModuleController extends GetxController {
 
         dev.log('QR Code scanned: ${scanData.code}', name: 'QRScanner');
 
-        
-        String scannedUsername = scanData.code!.trim();
+        try {
+          // Try to parse as JSON (new format with username and email)
+          final data = jsonDecode(scanData.code!);
+          final username = data['username'];
+          final email = data['email'];
 
-        
-        Future.delayed(const Duration(milliseconds: 500), () {
-          Get.offNamed(
-            Routes.QRCODE_TRANSFER_DETAILS_MODULE,
-            arguments: {
-              'username': scannedUsername,
-            },
-          );
-        });
+          dev.log('Parsed QR data - Username: $username, Email: $email', name: 'QRScanner');
+
+          Future.delayed(const Duration(milliseconds: 500), () {
+            Get.offNamed(
+              Routes.QRCODE_TRANSFER_DETAILS_MODULE,
+              arguments: {
+                'username': username,
+                'email': email,
+              },
+            );
+          });
+        } catch (e) {
+          // Check if it's semicolon-separated format (username;email;)
+          if (scanData.code!.contains(';')) {
+            final parts = scanData.code!.split(';');
+            if (parts.length >= 2 && parts[0].isNotEmpty && parts[1].isNotEmpty) {
+              final username = parts[0].trim();
+              final email = parts[1].trim();
+              dev.log('Parsed semicolon-separated QR data - Username: $username, Email: $email', name: 'QRScanner');
+
+              Future.delayed(const Duration(milliseconds: 500), () {
+                Get.offNamed(
+                  Routes.QRCODE_TRANSFER_DETAILS_MODULE,
+                  arguments: {
+                    'username': username,
+                    'email': email,
+                  },
+                );
+              });
+              return;
+            }
+          }
+          
+          // Fallback: treat as plain username (old format)
+          dev.log('QR code is not JSON or semicolon format, treating as username: ${scanData.code}', name: 'QRScanner');
+          String scannedUsername = scanData.code!.trim();
+
+          Future.delayed(const Duration(milliseconds: 500), () {
+            Get.offNamed(
+              Routes.QRCODE_TRANSFER_DETAILS_MODULE,
+              arguments: {
+                'username': scannedUsername,
+              },
+            );
+          });
+        }
       }
     });
   }

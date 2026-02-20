@@ -322,8 +322,8 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                             )),
                         const Gap(20),
 
-                        Center(child: TextSemiBold("Or")),
-                        const Gap(20),
+                        // Center(child: TextSemiBold("Or")),
+                        // const Gap(20),
 
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

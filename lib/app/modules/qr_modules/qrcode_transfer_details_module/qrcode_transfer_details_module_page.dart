@@ -1,4 +1,5 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
 import './qrcode_transfer_details_module_controller.dart';
@@ -53,15 +54,20 @@ class QrcodeTransferDetailsModulePage
                                 fontSize: 15,
                               ),
                             ),
-                            Obx(() => Text(
-                                  controller.scannedUsername,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontFamily: AppFonts.manRope,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 15,
-                                  ),
-                                )),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Obx(() => Text(
+                                    controller.scannedUsername,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.right,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: AppFonts.manRope,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 15,
+                                    ),
+                                  )),
+                            ),
                           ],
                         ),
                         Row(
@@ -76,23 +82,28 @@ class QrcodeTransferDetailsModulePage
                                 fontSize: 15,
                               ),
                             ),
-                            Obx(() => controller.isFetchingUserData
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : Text(
-                                    controller.scannedEmail,
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: AppFonts.manRope,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 15,
-                                    ),
-                                  )),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Obx(() => controller.isFetchingUserData
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Text(
+                                      controller.scannedEmail,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.right,
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: AppFonts.manRope,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 15,
+                                      ),
+                                    )),
+                            ),
                           ],
                         ),
                         Row(
@@ -107,26 +118,12 @@ class QrcodeTransferDetailsModulePage
                                 fontSize: 15,
                               ),
                             ),
-                            Obx(() => RichText(
-                                  text: TextSpan(
-                                    text: '₦${AmountUtil.formatFigure(controller.currentWallet)}',
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontFamily: AppFonts.manRope,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 15,
-                                    ),
-                                    children: <TextSpan>[
-                                      TextSpan(
-                                        text: '.00',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: AppFonts.manRope,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 12.sp,
-                                        ),
-                                      ),
-                                    ],
+                            Obx(() => Text(
+                                  '₦${AmountUtil.formatFigure(controller.currentWallet)}',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15,
                                   ),
                                 )),
                           ],
@@ -188,60 +185,60 @@ class QrcodeTransferDetailsModulePage
                       return null;
                     },
                   ),
-                  SizedBox(height: screenHeight(context) * 0.03),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Reference',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: AppFonts.manRope,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                  TextFormField(
-                    controller: controller.referenceController,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontFamily: AppFonts.manRope,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12.sp,
-                    ),
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                      hintText: 'Enter reference',
-                      hintStyle: TextStyle(
-                        color: Colors.grey,
-                        fontFamily: AppFonts.manRope,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 12.sp,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                          color: Color.fromRGBO(224, 224, 224, 1),
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                          color: Color.fromRGBO(224, 224, 224, 1),
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(3),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter reference';
-                      }
-                      return null;
-                    },
-                  ),
+                  // SizedBox(height: screenHeight(context) * 0.03),
+                  // const Row(
+                  //   mainAxisAlignment: MainAxisAlignment.start,
+                  //   children: [
+                  //     Text(
+                  //       'Reference',
+                  //       style: TextStyle(
+                  //         color: Colors.black,
+                  //         fontFamily: AppFonts.manRope,
+                  //         fontWeight: FontWeight.w500,
+                  //         fontSize: 13,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // TextFormField(
+                  //   controller: controller.referenceController,
+                  //   style: TextStyle(
+                  //     color: Colors.black,
+                  //     fontFamily: AppFonts.manRope,
+                  //     fontWeight: FontWeight.w600,
+                  //     fontSize: 12.sp,
+                  //   ),
+                  //   keyboardType: TextInputType.text,
+                  //   decoration: InputDecoration(
+                  //     hintText: 'Enter reference',
+                  //     hintStyle: TextStyle(
+                  //       color: Colors.grey,
+                  //       fontFamily: AppFonts.manRope,
+                  //       fontWeight: FontWeight.w400,
+                  //       fontSize: 12.sp,
+                  //     ),
+                  //     enabledBorder: OutlineInputBorder(
+                  //       borderSide: const BorderSide(
+                  //         color: Color.fromRGBO(224, 224, 224, 1),
+                  //         width: 1,
+                  //       ),
+                  //       borderRadius: BorderRadius.circular(3),
+                  //     ),
+                  //     focusedBorder: OutlineInputBorder(
+                  //       borderSide: const BorderSide(
+                  //         color: Color.fromRGBO(224, 224, 224, 1),
+                  //         width: 1,
+                  //       ),
+                  //       borderRadius: BorderRadius.circular(3),
+                  //     ),
+                  //   ),
+                  //   validator: (value) {
+                  //     if (value == null || value.isEmpty) {
+                  //       return 'Please enter reference';
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
                   SizedBox(height: screenHeight(context) * 0.08),
                   Obx(() => BusyButton(
                         height: screenHeight(context) * 0.06,

@@ -3,6 +3,7 @@ import 'dart:developer' as dev;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:marquee/marquee.dart';
+import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_page.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 import '../../../core/import/imports.dart';
@@ -39,16 +40,22 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                               Colors.black, BlendMode.srcIn),
                         ))),
                 const Gap(10),
-                // TouchableOpacity(
-                //     child: InkWell(
-                //         onTap: () {
-                //           Get.toNamed(Routes.VIRTUAL_CARD_DETAILS);
-                //         },
-                //         child: SvgPicture.asset(
-                //           'assets/icons/bank-card-two.svg',
-                //           colorFilter: const ColorFilter.mode(
-                //               Colors.black, BlendMode.srcIn),
-                //         ))),
+                TouchableOpacity(
+                    child: InkWell(
+                        onTap: () {
+                          // Get.toNamed(Routes.VIRTUAL_CARD_DETAILS);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const VirtualCardHomePage(),
+                            ),
+                          );
+                        },
+                        child: SvgPicture.asset(
+                          'assets/icons/bank-card-two.svg',
+                          colorFilter: const ColorFilter.mode(
+                              Colors.black, BlendMode.srcIn),
+                        ))),
                 const Gap(10),
                 // TouchableOpacity(
                 //     child: InkWell(
@@ -377,24 +384,25 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                               .actionButtonz[index].link ==
                                           Routes.DATA_MODULE) {
                                         _showDataSelectionBottomSheet(context);
-                                      } else if (controller
-                                              .actionButtonz[index].text ==
-                                          "Mega Bulk Service") {
-                                        try {
-                                          final url = Uri.parse(
-                                              'https://megabulk.5starcompany.com.ng/');
-                                          await launcher.launchUrl(url);
-                                        } catch (e) {
-                                          Get.snackbar(
-                                            "Error",
-                                            "Could not open Mega Bulk Service",
-                                            backgroundColor:
-                                                AppColors.errorBgColor,
-                                            colorText:
-                                                AppColors.textSnackbarColor,
-                                          );
-                                        }
-                                      } else if (controller.actionButtonz[index]
+                                      } 
+                                      // else if (controller
+                                      //         .actionButtonz[index].text ==
+                                      //     "Mega Bulk Service") {
+                                      //   try {
+                                      //     final url = Uri.parse(
+                                      //         'https://megabulk.5starcompany.com.ng/');
+                                      //     await launcher.launchUrl(url);
+                                      //   } catch (e) {
+                                      //     Get.snackbar(
+                                      //       "Error",
+                                      //       "Could not open Mega Bulk Service",
+                                      //       backgroundColor:
+                                      //           AppColors.errorBgColor,
+                                      //       colorText:
+                                      //           AppColors.textSnackbarColor,
+                                      //     );
+                                      //   }
+                                      else if (controller.actionButtonz[index]
                                           .link.isNotEmpty) {
                                         Get.toNamed(controller
                                             .actionButtonz[index].link);

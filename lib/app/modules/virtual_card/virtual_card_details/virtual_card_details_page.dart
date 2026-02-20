@@ -125,7 +125,6 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                 );
               },
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildActionButton(
                     icon: Icons.receipt_long_outlined,
@@ -140,6 +139,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                       }
                     },
                   ),
+                  const Gap(8),
                   Obx(() {
                     final card = controller.currentCard;
                     final isFrozen = card != null && card.status == 0;
@@ -149,6 +149,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                       onTap: () => _showFreezeDialog(context),
                     );
                   }),
+                  const Gap(8),
                   _buildActionButton(
                     icon: Icons.credit_card_outlined,
                     label: 'Details',
@@ -207,13 +208,13 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
             const Gap(16),
 
             // Limits Option
-            _buildManageOption(
-              icon: Icons.speed_outlined,
-              iconColor: AppColors.primaryColor,
-              label: 'Limits',
-              onTap: () => Get.toNamed(Routes.VIRTUAL_CARD_LIMITS),
-            ),
-            const Gap(12),
+            // _buildManageOption(
+            //   icon: Icons.speed_outlined,
+            //   iconColor: AppColors.primaryColor,
+            //   label: 'Limits',
+            //   onTap: () => Get.toNamed(Routes.VIRTUAL_CARD_LIMITS),
+            // ),
+            // const Gap(12),
 
             // Change PIN Option
             _buildManageOption(
@@ -461,31 +462,34 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
     required String label,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        height: 70,
-        width: 140,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: Colors.black87,
-              size: 28,
-            ),
-            TextSemiBold(
-              label,
-              fontSize: 14,
-              color: Colors.black87,
-            ),
-          ],
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          height: 70,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: Colors.black87,
+                size: 24,
+              ),
+              const Gap(4),
+              TextSemiBold(
+                label,
+                fontSize: 12,
+                color: Colors.black87,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -88,7 +88,11 @@ class HomeScreenController extends GetxController
           text: "Reward Centre",
           link: Routes.REWARD_CENTRE_MODULE),
       // ButtonModel(icon: AppAsset.service, text: "Mega Bulk Service", link: ""),
-      ButtonModel(icon: 'assets/icons/bank-card-two.svg', text: "Virtual Card", link: Routes.VIRTUAL_CARD_DETAILS),
+      ButtonModel(
+        icon: 'assets/icons/bank-card-two.svg',
+        text: "Virtual Card",
+        link: Routes.VIRTUAL_CARD_DETAILS
+      ),
     ];
 
     _actionButtonz.assignAll(allButtons);
@@ -259,7 +263,7 @@ class HomeScreenController extends GetxController
       return "resultchecker";
     } else if (buttonText.toLowerCase().contains("nin")) {
       return "nin_validation";
-    } else if (link == Routes.POS_HOME) {
+    } else if (buttonText.toLowerCase().contains("virtual card") || link == Routes.VIRTUAL_CARD_DETAILS || link == Routes.VIRTUAL_CARD_HOME) {
       return "virtual_card";
     } else if (buttonText.toLowerCase().contains("reward")) {
       // Check for spin win, giveaway, etc.

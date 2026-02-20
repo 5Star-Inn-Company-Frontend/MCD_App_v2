@@ -61,8 +61,15 @@ class QrcodeTransferDetailsModuleController extends GetxController {
       _scannedUsername.value = args['username'];
       dev.log('Scanned username: ${_scannedUsername.value}');
       
-      // Fetch user details by username from the utility service
-      await _fetchUserDetails();
+      // Check if email was provided in QR code (new format)
+      if (args['email'] != null && args['email'].toString().isNotEmpty) {
+        _scannedEmail.value = args['email'];
+        dev.log('Email from QR code: ${_scannedEmail.value}');
+      } else {
+        // Fallback: Fetch user details by username from the utility service (old format)
+        dev.log('Email not in QR code, fetching from API');
+        await _fetchUserDetails();
+      }
     } else {
       // Default values for testing
       _scannedUsername.value = 'User';
@@ -119,6 +126,14 @@ class QrcodeTransferDetailsModuleController extends GetxController {
     }
   }
 
+  String _generateReference() {
+    final username = _storage.read('biometric_username_real') ?? 'MCD';
+    final userPrefix = username.length >= 3
+        ? username.substring(0, 3).toUpperCase()
+        : username.toUpperCase();
+    return 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
+  }
+
   Future<void> transfer() async {
     if (!formKey.currentState!.validate()) return;
 
@@ -126,7 +141,7 @@ class QrcodeTransferDetailsModuleController extends GetxController {
       _isLoading.value = true;
 
       final amount = double.tryParse(amountController.text) ?? 0.0;
-      final reference = referenceController.text.trim();
+      final ref = _generateReference();
 
       if (amount <= 0) {
         Get.snackbar(
@@ -135,6 +150,7 @@ class QrcodeTransferDetailsModuleController extends GetxController {
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor,
         );
+        _isLoading.value = false;
         return;
       }
 
@@ -145,16 +161,7 @@ class QrcodeTransferDetailsModuleController extends GetxController {
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor,
         );
-        return;
-      }
-
-      if (reference.isEmpty) {
-        Get.snackbar(
-          'Error',
-          'Please enter a reference',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
+        _isLoading.value = false;
         return;
       }
 
@@ -168,20 +175,21 @@ class QrcodeTransferDetailsModuleController extends GetxController {
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor,
         );
+        _isLoading.value = false;
         return;
       }
 
-      // Prepare request body based on the endpoint in the image
+      // Prepare request body with auto-generated reference
       final body = {
         'user_name': _scannedUsername.value,
         'amount': amount.toString(),
-        'reference': reference,
+        'reference': ref,
       };
 
       dev.log('Transfer request body: $body', name: 'QRTransfer');
 
       // Call the transfer endpoint
-      final result = await apiService.postrequest('${transactionUrl}w2wtransfer', body);
+      final result = await apiService.postrequest('${transactionUrl}w2w/transfer', body);
 
       result.fold(
         (failure) {

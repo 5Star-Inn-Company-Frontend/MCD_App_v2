@@ -18,7 +18,7 @@ class QrcodeRequestFundModulePage
           child: Column(
             children: [
               const Text(
-                'Scan the other party QR Code to transfer too',
+                'Scan the other party QR Code to request fund',
                 style: TextStyle(
                   color: Colors.black,
                   fontFamily: AppFonts.manRope,
@@ -30,7 +30,7 @@ class QrcodeRequestFundModulePage
               Center(
                 child: InkWell(
                   onTap: () {
-                    Get.toNamed(Routes.QRCODE_REQUEST_FUND_DETAILS_MODULE);
+                    Get.toNamed(Routes.SCAN_QRCODE_MODULE);
                   },
                   child: SizedBox(
                     height: screenHeight(context) * 0.058,

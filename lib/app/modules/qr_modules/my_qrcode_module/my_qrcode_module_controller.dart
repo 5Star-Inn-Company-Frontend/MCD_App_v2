@@ -1,6 +1,7 @@
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'dart:developer' as dev;
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:ui' as ui;
@@ -27,8 +28,14 @@ class MyQrcodeModuleController extends GetxController {
   final _isSaving = false.obs;
   bool get isSaving => _isSaving.value;
 
-  // QR data - embed username
-  String get qrData => username;
+  // QR data - embed username and email as JSON
+  String get qrData {
+    final data = {
+      'username': username,
+      'email': email,
+    };
+    return jsonEncode(data);
+  }
 
   @override
   void onInit() {

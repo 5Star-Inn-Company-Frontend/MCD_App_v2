@@ -170,11 +170,16 @@ class DataModulePage extends GetView<DataModuleController> {
                 )));
       }
       return Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           _buildCategoryTabs(),
           const Gap(20),
-          SizedBox(
-              height: screenHeight(context) * 0.550, child: _buildPlanGrid()),
+          _buildAmountFilters(),
+          const Gap(20),
+          Flexible(
+            child: SizedBox(
+                height: screenHeight(context) * 0.450, child: _buildPlanGrid()),
+          ),
         ],
       );
     });
@@ -205,6 +210,43 @@ class DataModulePage extends GetView<DataModuleController> {
                     ),
                     child: TextSemiBold(
                       item,
+                      color: isSelected
+                          ? AppColors.primaryColor
+                          : AppColors.textPrimaryColor,
+                    ),
+                  ),
+                );
+              }).toList(),
+            )),
+      ),
+    );
+  }
+
+  Widget _buildAmountFilters() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.primaryGrey.withOpacity(0.4)),
+        ),
+        child: Obx(() => Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: controller.amountFilters.map((filter) {
+                bool isSelected = filter == controller.selectedAmountFilter.value;
+                return TouchableOpacity(
+                  onTap: () => controller.onAmountFilterSelected(filter),
+                  child: Container(
+                    padding: const EdgeInsets.only(right: 10, left: 10),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        right: filter == controller.amountFilters.last
+                            ? BorderSide.none
+                            : const BorderSide(color: AppColors.primaryGrey),
+                      ),
+                    ),
+                    child: TextSemiBold(
+                      filter,
                       color: isSelected
                           ? AppColors.primaryColor
                           : AppColors.textPrimaryColor,
@@ -251,8 +293,12 @@ class DataModulePage extends GetView<DataModuleController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextSemiBold(plan.name, fontSize: 14, maxLines: 2),
+                    Flexible(
+                      child: TextSemiBold(plan.name, fontSize: 14, maxLines: 2, overflow: TextOverflow.ellipsis),
+                    ),
+                    const SizedBox(height: 4),
                     Text(
                         '₦${AmountUtil.formatFigure(double.tryParse(plan.price.toString()) ?? 0)}',
                         style: GoogleFonts.plusJakartaSans(

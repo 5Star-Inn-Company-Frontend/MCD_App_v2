@@ -164,7 +164,7 @@ class JambPaymentModulePage extends GetView<JambPaymentModuleController> {
         return 'Wallet';
       case 'paystack':
         return 'Paystack';
-      case 'general_market':
+      case 'pay_gm':
         return 'General Market';
       case 'mega_bonus':
         return 'Mega Bonus';

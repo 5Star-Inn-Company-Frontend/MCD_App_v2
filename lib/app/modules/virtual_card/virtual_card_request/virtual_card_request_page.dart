@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
@@ -127,45 +128,113 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
               color: Colors.black87,
             ),
             const Gap(8),
-            Obx(() => TextFormField(
-                  controller: controller.amountController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  style: TextStyle(fontFamily: AppFonts.manRope),
-                  decoration: InputDecoration(
-                    prefixText: controller.selectedCurrency1.value == 'Dollar'
-                        ? '\$ '
-                        : '',
-                    prefixStyle: TextStyle(
-                      fontFamily: AppFonts.manRope,
-                      fontSize: 16,
-                      color: Colors.black,
-                    ),
-                    hintText: 'Amount',
-                    hintStyle: TextStyle(
-                        color: Colors.grey.shade400,
-                        fontSize: 14,
-                        fontFamily: AppFonts.manRope),
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          BorderSide(color: AppColors.primaryColor, width: 2),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 16),
+            TextFormField(
+              controller: controller.amountController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              style: const TextStyle(fontFamily: AppFonts.manRope),
+              onChanged: (value) => controller.calculateConversion(),
+              decoration: InputDecoration(
+                prefixText: '\$ ',
+                prefixStyle: const TextStyle(
+                  fontFamily: AppFonts.manRope,
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+                hintText: 'Amount',
+                hintStyle: TextStyle(
+                    color: Colors.grey.shade400,
+                    fontSize: 14,
+                    fontFamily: AppFonts.manRope),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      BorderSide(color: AppColors.primaryColor, width: 2),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 16),
+              ),
+            ),
+            const Gap(8),
+            
+            // Rate conversion display
+            Obx(() {
+              if (controller.amountController.text.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              
+              final amount = double.tryParse(controller.amountController.text) ?? 0;
+              if (amount <= 0) {
+                return const SizedBox.shrink();
+              }
+              
+              if (controller.rate.value == 0) {
+                return const SizedBox.shrink();
+              }
+              
+              final convertedAmount = controller.convertedAmount.value;
+              
+              return Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppColors.primaryColor.withOpacity(0.2),
                   ),
-                )),
-            const Gap(40),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextSemiBold(
+                          'Exchange Rate:',
+                          fontSize: 13,
+                          color: Colors.black87,
+                        ),
+                        TextSemiBold(
+                          '₦${controller.rate.value.toStringAsFixed(2)}',
+                          fontSize: 13,
+                          color: AppColors.primaryColor,
+                          style: GoogleFonts.plusJakartaSans(),
+                        ),
+                      ],
+                    ),
+                    const Gap(4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextBold(
+                          'You will pay:',
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                        TextBold(
+                          '₦${convertedAmount.toStringAsFixed(2)}',
+                          fontSize: 14,
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.w700,
+                          style: GoogleFonts.plusJakartaSans(),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const Gap(32),
 
             // fee and charges section
             TextBold(
@@ -176,11 +245,16 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
             const Gap(20),
 
             // issuance fee
-            _buildDetailRow('Issuance Fee', '\$2.00'),
-            const Gap(16),
+            Obx(() => controller.isLoadingFees.value
+                ? _buildDetailRow('Issuance Fee', 'Loading...')
+                : _buildDetailRow(
+                    'Issuance Fee',
+                    '\$${controller.createFee.value.toStringAsFixed(2)}',
+                  )),
+            // const Gap(16),
 
-            // fee
-            _buildDetailRow('Fee', '\$0.50'),
+            // // fee
+            // _buildDetailRow('Fee', '\$0.50'),
             const Gap(40),
 
             // proceed button
