@@ -40,8 +40,10 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                   },
                   child: AspectRatio(
                       aspectRatio: 3 / 2,
-                      child: _boxCard('assets/images/reward_centre/free-money.png',
-                          "Free Money", 'Watch advert and get paid for it')),
+                      child: _boxCard(
+                          'assets/images/reward_centre/free-money.png',
+                          "Free Money",
+                          'Watch advert and get paid for it')),
                 ),
               InkWell(
                 onTap: () {
@@ -49,8 +51,10 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                 },
                 child: AspectRatio(
                     aspectRatio: 3 / 2,
-                    child: _boxCard('assets/images/reward_centre/promo-code.png',
-                        "Promo Code", 'Watch advert and get promo code')),
+                    child: _boxCard(
+                        'assets/images/reward_centre/promo-code.png',
+                        "Promo Code",
+                        'Watch advert and get promo code')),
               ),
               if (controller.service['spinwin'] == '1')
                 InkWell(
@@ -83,7 +87,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                     child: _boxCard(
                         'assets/images/reward_centre/leaderboard.png',
                         "Leaderboard",
-                        'Earn extra rewards and climb to ranks to become a to MCD customer')),
+                        'Earn points via purchases and climb the ranks to become MCD customer of the Year')),
               ),
               InkWell(
                 onTap: () {
@@ -91,8 +95,10 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                 },
                 child: AspectRatio(
                     aspectRatio: 3 / 2,
-                    child: _boxCard('assets/images/reward_centre/game-centre.png',
-                        "Game Centre", 'Play games and earn money')),
+                    child: _boxCard(
+                        'assets/images/reward_centre/game-centre.png',
+                        "Game Centre",
+                        'Play games and earn rewards')),
               ),
               controller.adsService.showBannerAdWidget()
             ],

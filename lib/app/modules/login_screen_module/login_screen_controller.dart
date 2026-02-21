@@ -94,6 +94,8 @@ class LoginScreenController extends GetxController {
 
   GoogleSignInAccount? _currentUser;
 
+  var isBiometricEnabled = true.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -167,13 +169,13 @@ class LoginScreenController extends GetxController {
 
   /// check if biometric is fully setup (enabled and has saved credentials)
   void checkBiometricSetup() {
-    final isBiometricEnabled = box.read('biometric_enabled') ?? true;
+    isBiometricEnabled.value = box.read('biometric_enabled') ?? true;
     final savedUsername = box.read('biometric_username');
-    isBiometricSetup = (isBiometricEnabled == true &&
+    isBiometricSetup = (isBiometricEnabled.value == true &&
         savedUsername != null &&
         savedUsername.toString().isNotEmpty);
     dev.log(
-        "Biometric setup status: $isBiometricSetup (enabled: $isBiometricEnabled, username saved: ${savedUsername != null}");
+        "Biometric setup status: $isBiometricSetup (enabled: ${isBiometricEnabled.value}, username saved: ${savedUsername != null}");
   }
 
   var apiService = DioApiService();
@@ -338,10 +340,9 @@ class LoginScreenController extends GetxController {
       }
 
       // check if user has saved credentials for biometric
-      final isBiometricEnabled = box.read('biometric_enabled');
       final savedUsername = box.read('biometric_username');
 
-      if (isBiometricEnabled != true) {
+      if (isBiometricEnabled.value != true) {
         Get.snackbar("Error",
             "Biometric login is disabled. Please enable it in Settings.",
             backgroundColor: AppColors.errorBgColor,
@@ -460,8 +461,7 @@ class LoginScreenController extends GetxController {
       String username, String password) async {
     try {
       // only save credentials if biometric is enabled in settings
-      final isBiometricEnabled = box.read('biometric_enabled');
-      if (isBiometricEnabled == true) {
+      if (isBiometricEnabled.value == true) {
         // this is the username use for login e.g phone number or email
         await box.write('biometric_username', username);
         await secureStorage.write(key: 'biometric_password', value: password);

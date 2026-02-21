@@ -129,7 +129,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                                     currentUsername.toLowerCase();
                             return _boxCard(
                               giveaway.userName,
-                              'N${giveaway.amount} • ${giveaway.quantity} claims',
+                              'N${giveaway.amount} • ${giveaway.quantity} Qty • ${giveaway.views} Seen \n${giveaway.type.toUpperCase()} • ${giveaway.typeCode.toUpperCase()}',
                               () => _showGiveawayDetail(context, giveaway.id),
                               giveaway.image,
                               isOwnGiveaway: isOwnGiveaway,
@@ -212,7 +212,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
               fontSize: 11,
               color: AppColors.primaryGrey2,
             ),
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const Gap(6),
@@ -937,7 +937,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
   void _showGiveawayDetail(BuildContext context, int giveawayId) {
     // Cache the future before showing the modal to prevent re-fetching on rebuild
     final detailFuture = controller.fetchGiveawayDetail(giveawayId);
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

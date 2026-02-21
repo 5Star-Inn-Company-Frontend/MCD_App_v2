@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:mcd/app/modules/predict_win_module/predict_win_module_controller.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
@@ -106,31 +106,34 @@ class PredictWinModulePage extends GetView<PredictWinModuleController> {
             children: [
               // Match Card
               _buildMatchCard(),
-              const Gap(24),
-              
+              const Gap(14),
+              controller.adsService.showBannerAdWidget(),
+              const Gap(14),
+
               // Description
-              if (controller.selectedPrediction.value?.description.isNotEmpty ?? false)
+              if (controller.selectedPrediction.value?.description.isNotEmpty ??
+                  false)
                 _buildDescriptionCard(),
-              
+
               const Gap(24),
-              
+
               // Prediction Form
               _buildPredictionForm(),
-              
+
               const Gap(24),
-              
+
               // Warning message
               _buildWarningMessage(),
-              
+
               const Gap(32),
-              
+
               // Submit button
               Obx(() => BusyButton(
-                title: 'Submit',
-                onTap: controller.submitPrediction,
-                disabled: controller.isSubmitting.value,
-              )),
-              
+                    title: 'Submit',
+                    onTap: controller.submitPrediction,
+                    disabled: controller.isSubmitting.value,
+                  )),
+
               const Gap(40),
             ],
           ),
@@ -170,7 +173,7 @@ class PredictWinModulePage extends GetView<PredictWinModuleController> {
             ),
           ),
           const Gap(8),
-          
+
           // Match date and time
           Text(
             '${prediction.matchDate} • ${prediction.kickoffTime}',
@@ -181,7 +184,7 @@ class PredictWinModulePage extends GetView<PredictWinModuleController> {
             ),
           ),
           const Gap(20),
-          
+
           // Teams
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -205,7 +208,7 @@ class PredictWinModulePage extends GetView<PredictWinModuleController> {
                   ],
                 ),
               ),
-              
+
               // VS
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -227,7 +230,7 @@ class PredictWinModulePage extends GetView<PredictWinModuleController> {
                   ),
                 ),
               ),
-              
+
               // Team 2
               Expanded(
                 child: Column(
@@ -250,37 +253,38 @@ class PredictWinModulePage extends GetView<PredictWinModuleController> {
             ],
           ),
           const Gap(20),
-          
+
           // Countdown
           Obx(() => Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppColors.primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.access_time,
-                  size: 18,
-                  color: AppColors.primaryColor,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const Gap(8),
-                Text(
-                  controller.countdown.value.isEmpty 
-                      ? 'Loading...' 
-                      : controller.countdown.value,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primaryColor,
-                    fontFamily: AppFonts.manRope,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.access_time,
+                      size: 18,
+                      color: AppColors.primaryColor,
+                    ),
+                    const Gap(8),
+                    Text(
+                      controller.countdown.value.isEmpty
+                          ? 'Loading...'
+                          : controller.countdown.value,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primaryColor,
+                        fontFamily: AppFonts.manRope,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          )),
+              )),
         ],
       ),
     );
@@ -391,7 +395,7 @@ class PredictWinModulePage extends GetView<PredictWinModuleController> {
             fontWeight: FontWeight.w600,
           ),
           const Gap(12),
-          
+
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -411,7 +415,7 @@ class PredictWinModulePage extends GetView<PredictWinModuleController> {
             ),
           ),
           const Gap(24),
-          
+
           // Answer Input
           TextSemiBold(
             'Enter your Prediction',
@@ -423,7 +427,8 @@ class PredictWinModulePage extends GetView<PredictWinModuleController> {
             controller: controller.answerController,
             decoration: InputDecoration(
               hintText: 'e.g., 1-1, 2-0, 0-0',
-              errorText: controller.validateAnswer(controller.answerController.text),
+              errorText:
+                  controller.validateAnswer(controller.answerController.text),
             ),
             keyboardType: TextInputType.text,
             inputFormatters: [
@@ -431,7 +436,7 @@ class PredictWinModulePage extends GetView<PredictWinModuleController> {
             ],
           ),
           const Gap(20),
-          
+
           // Recipient Phone Number
           TextSemiBold(
             'Recipient Phone Number',
@@ -443,7 +448,8 @@ class PredictWinModulePage extends GetView<PredictWinModuleController> {
             controller: controller.recipientController,
             decoration: InputDecoration(
               hintText: '08012345678',
-              errorText: controller.validateRecipient(controller.recipientController.text),
+              errorText: controller
+                  .validateRecipient(controller.recipientController.text),
             ),
             keyboardType: TextInputType.phone,
             inputFormatters: [
