@@ -58,6 +58,56 @@ class HistoryScreenController extends GetxController {
     fetchTransactions();
   }
 
+  // Future<void> testFetchTransactions(String transactionRef) async {
+  //   try {
+      
+  //     final transUrl = box.read('transaction_service_url') ?? '';
+  //     final url = '${transUrl}transactions';
+      
+  //     dev.log('Request URL: $url', name: 'HistoryScreen');
+      
+  //     final response = await apiService.getrequest(url);
+      
+  //     response.fold(
+  //       (failure) {
+  //         dev.log('Failed to fetch transaction detail', 
+  //             name: 'HistoryScreen', error: failure.message);
+  //       },
+  //       (data) {
+  //         dev.log('Response JSON for /transactions endpoint: $data', name: 'HistoryScreen');
+  //       },
+  //     );
+  //   } catch (e) {
+  //     dev.log('Error fetching transaction detail', name: 'HistoryScreen', error: e);
+  //   }
+  // }
+
+  // Fetch transaction detail using transactions-detail endpoint
+  Future<void> fetchTransactionDetail(String transactionRef) async {
+    try {
+      dev.log('Fetching transaction detail for ref: $transactionRef', name: 'HistoryScreen');
+      
+      final transUrl = box.read('transaction_service_url') ?? '';
+      final url = '${transUrl}transactions-detail/$transactionRef';
+      
+      dev.log('Request URL: $url', name: 'HistoryScreen');
+      
+      final response = await apiService.getrequest(url);
+      
+      response.fold(
+        (failure) {
+          dev.log('Failed to fetch transaction detail', 
+              name: 'HistoryScreen', error: failure.message);
+        },
+        (data) {
+          dev.log('Transaction Detail Response JSON: $data', name: 'HistoryScreen');
+        },
+      );
+    } catch (e) {
+      dev.log('Error fetching transaction detail', name: 'HistoryScreen', error: e);
+    }
+  }
+
   final _selectedValue = 'January'.obs;
   String get selectedValue => _selectedValue.value;
   set selectedValue(String value) => _selectedValue.value = value;

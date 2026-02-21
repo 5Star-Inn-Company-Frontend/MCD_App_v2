@@ -32,6 +32,27 @@ class NumberVerificationModuleController extends GetxController {
   final recentNumbers = <Map<String, String>>[].obs;
   static const _recentNumbersKey = 'recent_verified_numbers';
 
+  // beneficiaries from API
+  final beneficiaries = <Map<String, dynamic>>[].obs;
+  final isLoadingBeneficiaries = false.obs;
+
+  // Filtered beneficiaries based on current context (Nigerian vs Foreign)
+  List<Map<String, dynamic>> get filteredBeneficiaries {
+    if (_isForeign) {
+      // Show only foreign numbers
+      return beneficiaries.where((b) {
+        final network = b['network']?.toString() ?? '';
+        return _isForeignNetwork(network);
+      }).toList();
+    } else {
+      // Show only Nigerian numbers
+      return beneficiaries.where((b) {
+        final network = b['network']?.toString() ?? '';
+        return !_isForeignNetwork(network);
+      }).toList();
+    }
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -57,6 +78,96 @@ class NumberVerificationModuleController extends GetxController {
         name: 'NumberVerification');
 
     _loadRecentNumbers();
+    fetchBeneficiaries(); // Load beneficiaries on init
+  }
+
+  // Fetch beneficiaries from API
+  Future<void> fetchBeneficiaries() async {
+    try {
+      isLoadingBeneficiaries.value = true;
+      dev.log('Fetching beneficiaries from API', name: 'NumberVerification');
+
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null) {
+        dev.log('Transaction URL not found', name: 'NumberVerification');
+        Get.snackbar(
+          'Error',
+          'Transaction URL not found. Please log in again.',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor,
+        );
+        return;
+      }
+
+      final url = '${transactionUrl}beneficiary/airtime';
+      dev.log('Fetching from: $url', name: 'NumberVerification');
+
+      final result = await apiService.getrequest(url);
+
+      result.fold(
+        (failure) {
+          dev.log('Failed to fetch beneficiaries: ${failure.message}',
+              name: 'NumberVerification');
+          Get.snackbar(
+            'Error',
+            failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        },
+        (data) {
+          dev.log('Beneficiaries response: $data', name: 'NumberVerification');
+          
+          if (data['success'] == 1) {
+            // Parse beneficiaries data
+            if (data['data'] != null && data['data'] is List) {
+              final List<dynamic> beneficiaryList = data['data'];
+              beneficiaries.assignAll(
+                beneficiaryList.map((e) => Map<String, dynamic>.from(e)).toList(),
+              );
+              dev.log('Loaded ${beneficiaries.length} beneficiaries',
+                  name: 'NumberVerification');
+              
+              Get.snackbar(
+                'Success',
+                'Loaded ${beneficiaries.length} beneficiaries',
+                backgroundColor: AppColors.successBgColor,
+                colorText: AppColors.textSnackbarColor,
+              );
+            } else {
+              dev.log('No beneficiaries found or invalid data format',
+                  name: 'NumberVerification');
+              Get.snackbar(
+                'Info',
+                'No beneficiaries found',
+                backgroundColor: AppColors.primaryColor,
+                colorText: Colors.white,
+              );
+            }
+          } else {
+            dev.log('API returned success=0: ${data['message']}',
+                name: 'NumberVerification');
+            Get.snackbar(
+              'Error',
+              data['message'] ?? 'Failed to fetch beneficiaries',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Error fetching beneficiaries',
+          name: 'NumberVerification', error: e);
+      Get.snackbar(
+        'Error',
+        'An error occurred: $e',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    } finally {
+      isLoadingBeneficiaries.value = false;
+    }
   }
 
   void _loadRecentNumbers() {
@@ -153,6 +264,68 @@ class NumberVerificationModuleController extends GetxController {
       // fallback: just fill the input
       phoneController.text = phone;
     }
+  }
+
+  void selectBeneficiary(Map<String, dynamic> beneficiary) {
+    final phone = beneficiary['phone']?.toString() ?? '';
+    final network = beneficiary['network']?.toString() ?? '';
+
+    dev.log('Selected beneficiary: $phone ($network)',
+        name: 'NumberVerification');
+
+    // Determine if this is a foreign number based on network name
+    final isForeignBeneficiary = _isForeignNetwork(network);
+
+    // Create network data from beneficiary info
+    final networkData = {
+      'operatorName': network,
+    };
+
+    // If we're in the correct context (foreign vs Nigerian), navigate directly
+    if ((_isForeign && isForeignBeneficiary) || (!_isForeign && !isForeignBeneficiary)) {
+      if (_redirectTo != null && _redirectTo!.isNotEmpty) {
+        Get.offNamed(_redirectTo!, arguments: {
+          'verifiedNumber': phone,
+          'verifiedNetwork': network,
+          'networkData': networkData,
+          'isForeign': isForeignBeneficiary,
+          'countryCode': isForeignBeneficiary ? null : 'NG',
+        });
+      } else {
+        // Just fill the phone number field
+        phoneController.text = phone;
+      }
+    } else {
+      // Mismatch: show message
+      Get.snackbar(
+        'Notice',
+        isForeignBeneficiary
+            ? 'This is a foreign number. Please use the foreign airtime option.'
+            : 'This is a Nigerian number. Please use the regular airtime option.',
+        backgroundColor: AppColors.primaryColor,
+        colorText: Colors.white,
+      );
+      // Still fill the phone number
+      phoneController.text = phone;
+    }
+  }
+
+  bool _isForeignNetwork(String network) {
+    final normalized = network.toUpperCase();
+    // Check if network name contains country/foreign indicators
+    return normalized.contains('UGANDA') ||
+        normalized.contains('KENYA') ||
+        normalized.contains('GHANA') ||
+        normalized.contains('SOUTH AFRICA') ||
+        // Add more foreign indicators
+        (!normalized.contains('MTN') &&
+            !normalized.contains('AIRTEL') &&
+            !normalized.contains('GLO') &&
+            !normalized.contains('9MOBILE') &&
+            !normalized.contains('ETISALAT')) ||
+        // Or if it's MTN/AIRTEL but with country suffix
+        (normalized.contains('MTN') && normalized != 'MTN') ||
+        (normalized.contains('AIRTEL') && normalized != 'AIRTEL');
   }
 
   void onPhoneInputChanged(String value) {

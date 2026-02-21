@@ -795,13 +795,10 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
 
     return ListTile(
       onTap: () {
-        try {
-          dev.log('Transaction selected: ${transaction.ref}',
-              name: 'HistoryScreen');
-        } catch (e) {
-          dev.log('Transaction selected (error): $transaction',
-              name: 'HistoryScreen');
-        }
+        dev.log('Transaction JSON: ${transaction.toJson()}', name: 'HistoryScreen');
+
+        // Test the transactions-detail endpoint
+        controller.fetchTransactionDetail(transaction.ref);
 
         // Pass complete transaction data to details screen
         Get.toNamed(

@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:ui' as ui;
 import 'dart:io';
+import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -83,6 +83,10 @@ class TransactionDetailModuleController extends GetxController {
   final _isDownloading = false.obs;
   bool get isDownloading => _isDownloading.value;
 
+  // Detailed transaction data from API
+  final Rx<Map<String, dynamic>?> _detailedTransaction = Rx<Map<String, dynamic>?>(null);
+  Map<String, dynamic>? get detailedTransaction => _detailedTransaction.value;
+
   @override
   void onInit() {
     super.onInit();
@@ -90,13 +94,43 @@ class TransactionDetailModuleController extends GetxController {
 
     if (arguments != null && arguments['transaction'] != null) {
       transaction = arguments['transaction'] as Transaction;
-      dev.log(
-          'Transaction loaded - ${transaction?.name}, Amount: ₦${transaction?.amountValue}, Ref: ${transaction?.ref}',
-          name: 'TransactionDetail');
+      
+      // Fetch detailed transaction data from API
+      if (transaction?.ref != null) {
+        fetchTransactionDetail(transaction!.ref);
+      }
     } else {
       // Fallback to old format for backward compatibility
       dev.log('Using legacy transaction format', name: 'TransactionDetail');
       _loadLegacyFormat(arguments);
+    }
+  }
+
+  // Fetch detailed transaction from transactions-detail endpoint
+  Future<void> fetchTransactionDetail(String ref) async {
+    try {
+      final transUrl = box.read('transaction_service_url') ?? '';
+      final url = '${transUrl}transactions-detail/$ref';
+      
+      dev.log('Fetching from: $url', name: 'TransactionDetail');
+      
+      final response = await apiService.getrequest(url);
+      
+      response.fold(
+        (failure) {
+          dev.log('Failed to fetch transaction detail', 
+              name: 'TransactionDetail', error: failure.message);
+        },
+        (data) {
+          if (data['success'] == 1 && data['data'] != null) {
+            _detailedTransaction.value = data['data'];
+            dev.log('Transaction detail fetched successfully', name: 'TransactionDetail');
+            dev.log('Server response type: ${data['data']['server_response'].runtimeType}', name: 'TransactionDetail');
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Error fetching transaction detail', name: 'TransactionDetail', error: e);
     }
   }
 
@@ -297,21 +331,42 @@ class TransactionDetailModuleController extends GetxController {
   String _getCustomerName() {
     if (transaction == null) return 'N/A';
 
-    final desc = transaction!.description;
     final code = transaction!.code.toLowerCase();
 
-    // For electricity, try to extract customer name from description
-    if (code.contains('electricity') || code.contains('electric')) {
-      // Look for pattern like "Customer Name: OLUWADIPE TEMITOPE O"
-      final nameMatch = RegExp(r'Customer Name:\s*([^,]+)', caseSensitive: false)
-          .firstMatch(desc);
-      if (nameMatch != null) {
-        return nameMatch.group(1)?.trim() ?? 'N/A';
+    // Try to get from server_response first
+    if (detailedTransaction != null && detailedTransaction!['server_response'] != null) {
+      try {
+        var serverResponse = detailedTransaction!['server_response'];
+        
+        // Parse JSON string if needed
+        if (serverResponse is String) {
+          serverResponse = jsonDecode(serverResponse);
+        }
+        
+        // For electricity - customerName is at root level of server_response
+        if (code.contains('electricity') || code.contains('electric')) {
+          if (serverResponse is Map) {
+            if (serverResponse['customerName'] != null) {
+              dev.log('Found customerName: ${serverResponse['customerName']}', name: 'TransactionDetail');
+              return serverResponse['customerName'].toString();
+            }
+          }
+        }
+        
+        // For cable TV
+        if (code.contains('cable') || code.contains('tv')) {
+          if (serverResponse is Map && serverResponse['customerName'] != null) {
+            return serverResponse['customerName'].toString();
+          }
+        }
+      } catch (e) {
+        dev.log('Error parsing customerName from server_response', name: 'TransactionDetail', error: e);
       }
     }
 
-    // For cable TV, try similar extraction
-    if (code.contains('cable')) {
+    // Fallback to description parsing
+    final desc = transaction!.description;
+    if (code.contains('electricity') || code.contains('electric') || code.contains('cable')) {
       final nameMatch = RegExp(r'Customer Name:\s*([^,]+)', caseSensitive: false)
           .firstMatch(desc);
       if (nameMatch != null) {
@@ -325,12 +380,34 @@ class TransactionDetailModuleController extends GetxController {
   String _getCustomerAddress() {
     if (transaction == null) return 'N/A';
 
-    final desc = transaction!.description;
     final code = transaction!.code.toLowerCase();
 
-    // For electricity, try to extract customer address from description
+    // Try to get from server_response first
+    if (detailedTransaction != null && detailedTransaction!['server_response'] != null) {
+      try {
+        var serverResponse = detailedTransaction!['server_response'];
+        
+        // Parse JSON string if needed
+        if (serverResponse is String) {
+          serverResponse = jsonDecode(serverResponse);
+        }
+        
+        if (code.contains('electricity') || code.contains('electric')) {
+          if (serverResponse is Map) {
+            if (serverResponse['customerAddress'] != null) {
+              dev.log('Found customerAddress: ${serverResponse['customerAddress']}', name: 'TransactionDetail');
+              return serverResponse['customerAddress'].toString();
+            }
+          }
+        }
+      } catch (e) {
+        dev.log('Error parsing customerAddress from server_response', name: 'TransactionDetail', error: e);
+      }
+    }
+
+    // Fallback to description parsing
+    final desc = transaction!.description;
     if (code.contains('electricity') || code.contains('electric')) {
-      // Look for pattern like "Address: 1 MAKINDE STR ONIBUDO PHASE II"
       final addressMatch = RegExp(r'Address:\s*([^,]+)', caseSensitive: false)
           .firstMatch(desc);
       if (addressMatch != null) {
@@ -344,12 +421,41 @@ class TransactionDetailModuleController extends GetxController {
   String _getKwUnits() {
     if (transaction == null) return 'N/A';
 
-    final desc = transaction!.description;
     final code = transaction!.code.toLowerCase();
 
-    // For electricity, try to extract units from description
+    // Try to get from server_response first
+    if (detailedTransaction != null && detailedTransaction!['server_response'] != null) {
+      try {
+        var serverResponse = detailedTransaction!['server_response'];
+        
+        // Parse JSON string if needed
+        if (serverResponse is String) {
+          serverResponse = jsonDecode(serverResponse);
+        }
+        
+        if (code.contains('electricity') || code.contains('electric')) {
+          if (serverResponse is Map) {
+            // Try multiple possible field names at root level
+            if (serverResponse['units'] != null) {
+              dev.log('Found units: ${serverResponse['units']}', name: 'TransactionDetail');
+              return serverResponse['units'].toString();
+            }
+            if (serverResponse['kwUnits'] != null) {
+              return serverResponse['kwUnits'].toString();
+            }
+            if (serverResponse['KWh'] != null) {
+              return serverResponse['KWh'].toString();
+            }
+          }
+        }
+      } catch (e) {
+        dev.log('Error parsing units from server_response', name: 'TransactionDetail', error: e);
+      }
+    }
+
+    // Fallback to description parsing
+    final desc = transaction!.description;
     if (code.contains('electricity') || code.contains('electric')) {
-      // Look for pattern like "Units: 45.67 kWh" or "kwUnits: 45.67"
       final unitsMatch = RegExp(r'(?:Units|kwUnits):\s*([\d.]+)', caseSensitive: false)
           .firstMatch(desc);
       if (unitsMatch != null) {

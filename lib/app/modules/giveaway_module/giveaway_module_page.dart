@@ -932,6 +932,9 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
   // }
 
   void _showGiveawayDetail(BuildContext context, int giveawayId) {
+    // Cache the future before showing the modal to prevent re-fetching on rebuild
+    final detailFuture = controller.fetchGiveawayDetail(giveawayId);
+    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -947,7 +950,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
           top: 20,
         ),
         child: FutureBuilder<GiveawayDetailModel?>(
-          future: controller.fetchGiveawayDetail(giveawayId),
+          future: detailFuture,
           builder: (context, snapshot) {
             // Loading state
             if (snapshot.connectionState == ConnectionState.waiting) {

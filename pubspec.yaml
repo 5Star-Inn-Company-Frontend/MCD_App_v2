@@ -141,6 +141,7 @@ flutter:
     - assets/images/electricity/
     - assets/images/history/
     - assets/images/virtual_card/
+    - assets/images/reward_centre/
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

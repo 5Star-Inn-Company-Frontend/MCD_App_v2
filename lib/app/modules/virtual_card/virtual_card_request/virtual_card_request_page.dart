@@ -169,20 +169,13 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
             
             // Rate conversion display
             Obx(() {
-              if (controller.amountController.text.isEmpty) {
-                return const SizedBox.shrink();
-              }
-              
-              final amount = double.tryParse(controller.amountController.text) ?? 0;
-              if (amount <= 0) {
-                return const SizedBox.shrink();
-              }
-              
-              if (controller.rate.value == 0) {
-                return const SizedBox.shrink();
-              }
-              
+              // Access observable values to trigger reactivity
+              final rate = controller.rate.value;
               final convertedAmount = controller.convertedAmount.value;
+              
+              if (convertedAmount <= 0 || rate == 0) {
+                return const SizedBox.shrink();
+              }
               
               return Container(
                 padding: const EdgeInsets.all(12),
@@ -205,7 +198,7 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
                           color: Colors.black87,
                         ),
                         TextSemiBold(
-                          '₦${controller.rate.value.toStringAsFixed(2)}',
+                          '₦${rate.toStringAsFixed(2)}',
                           fontSize: 13,
                           color: AppColors.primaryColor,
                           style: GoogleFonts.plusJakartaSans(),

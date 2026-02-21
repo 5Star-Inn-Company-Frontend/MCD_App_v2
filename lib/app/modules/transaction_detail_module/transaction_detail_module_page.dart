@@ -353,12 +353,15 @@ class TransactionDetailModulePage
                                   .toLowerCase()
                                   .contains('electric')) ...[
                             itemRow("Biller Name", controller.name),
-                            if (controller.customerName != 'N/A')
-                              itemRow("Customer Name", controller.customerName),
-                            if (controller.customerAddress != 'N/A')
-                              itemRow("Customer Address", controller.customerAddress),
-                            if (controller.kwUnits != 'N/A')
-                              itemRow("Units", controller.kwUnits),
+                            Obx(() => controller.customerName != 'N/A'
+                                ? itemRow("Customer Name", controller.customerName)
+                                : const SizedBox.shrink()),
+                            Obx(() => controller.customerAddress != 'N/A'
+                                ? itemRow("Customer Address", controller.customerAddress)
+                                : const SizedBox.shrink()),
+                            Obx(() => controller.kwUnits != 'N/A'
+                                ? itemRow("Units", controller.kwUnits)
+                                : const SizedBox.shrink()),
                             if (controller.packageName != 'N/A')
                               itemRow("Meter Type", controller.packageName),
                           ],

@@ -114,10 +114,26 @@ class AssistantScreenController extends GetxController {
           final content =
               msg['content']?.toString() ?? msg['message']?.toString() ?? '';
 
+          // Parse timestamp from message data if available
+          DateTime? messageTimestamp;
+          if (msg['timestamp'] != null) {
+            try {
+              messageTimestamp = DateTime.parse(msg['timestamp'].toString());
+            } catch (e) {
+              dev.log('Error parsing timestamp: $e', name: 'AiAssistant');
+            }
+          } else if (msg['created_at'] != null) {
+            try {
+              messageTimestamp = DateTime.parse(msg['created_at'].toString());
+            } catch (e) {
+              dev.log('Error parsing created_at: $e', name: 'AiAssistant');
+            }
+          }
+
           if (content.isNotEmpty) {
             _chatMessages.add(ChatMessage(
               text: content,
-              timestamp: DateTime.now(),
+              timestamp: messageTimestamp ?? DateTime.now(),
               isAi: role == 'assistant' || role == 'ai',
             ));
           }

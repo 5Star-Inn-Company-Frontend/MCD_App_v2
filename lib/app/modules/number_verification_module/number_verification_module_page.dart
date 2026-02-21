@@ -112,17 +112,32 @@ class NumberVerificationModulePage
                     isLoading: controller.isLoading.value,
                   )),
 
-              // recent verified numbers
+              // beneficiaries section
               Obx(() {
-                if (controller.recentNumbers.isEmpty) {
+                if (controller.isLoadingBeneficiaries.value) {
+                  return Column(
+                    children: [
+                      const Gap(30),
+                      const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                final filtered = controller.filteredBeneficiaries;
+                if (filtered.isEmpty) {
                   return const SizedBox.shrink();
                 }
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Gap(30),
                     TextSemiBold(
-                      "Recent",
+                      "Beneficiaries",
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -131,14 +146,14 @@ class NumberVerificationModulePage
                       height: 100,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
-                        itemCount: controller.recentNumbers.length,
+                        itemCount: filtered.length,
                         separatorBuilder: (_, __) => const Gap(16),
                         itemBuilder: (context, index) {
-                          final item = controller.recentNumbers[index];
-                          final phone = item['phone'] ?? '';
-                          final network = item['network'] ?? '';
+                          final beneficiary = filtered[index];
+                          final phone = beneficiary['phone']?.toString() ?? '';
+                          final network = beneficiary['network']?.toString() ?? '';
                           return GestureDetector(
-                            onTap: () => controller.selectRecentNumber(item),
+                            onTap: () => controller.selectBeneficiary(beneficiary),
                             child: Column(
                               children: [
                                 Container(
@@ -154,7 +169,7 @@ class NumberVerificationModulePage
                                       child: Image.asset(
                                         _getNetworkLogo(network),
                                         fit: BoxFit.contain,
-                                        errorBuilder: (_, __, ___) => Icon(
+                                        errorBuilder: (_, __, ___) => const Icon(
                                           Icons.phone_android,
                                           color: Colors.white,
                                         ),
@@ -165,7 +180,7 @@ class NumberVerificationModulePage
                                 const Gap(8),
                                 Text(
                                   phone,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 11,
                                     fontFamily: AppFonts.manRope,
                                     color: AppColors.background,
@@ -180,6 +195,75 @@ class NumberVerificationModulePage
                   ],
                 );
               }),
+
+              // recent verified numbers - COMMENTED OUT (replaced by beneficiaries)
+              // Obx(() {
+              //   if (controller.recentNumbers.isEmpty) {
+              //     return const SizedBox.shrink();
+              //   }
+              //   return Column(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       const Gap(30),
+              //       TextSemiBold(
+              //         "Recent",
+              //         fontSize: 16,
+              //         fontWeight: FontWeight.w600,
+              //       ),
+              //       const Gap(15),
+              //       SizedBox(
+              //         height: 100,
+              //         child: ListView.separated(
+              //           scrollDirection: Axis.horizontal,
+              //           itemCount: controller.recentNumbers.length,
+              //           separatorBuilder: (_, __) => const Gap(16),
+              //           itemBuilder: (context, index) {
+              //             final item = controller.recentNumbers[index];
+              //             final phone = item['phone'] ?? '';
+              //             final network = item['network'] ?? '';
+              //             return GestureDetector(
+              //               onTap: () => controller.selectRecentNumber(item),
+              //               child: Column(
+              //                 children: [
+              //                   Container(
+              //                     width: 56,
+              //                     height: 56,
+              //                     decoration: BoxDecoration(
+              //                       shape: BoxShape.circle,
+              //                       color: _getNetworkColor(network),
+              //                     ),
+              //                     child: ClipOval(
+              //                       child: Padding(
+              //                         padding: const EdgeInsets.all(8),
+              //                         child: Image.asset(
+              //                           _getNetworkLogo(network),
+              //                           fit: BoxFit.contain,
+              //                           errorBuilder: (_, __, ___) => Icon(
+              //                             Icons.phone_android,
+              //                             color: Colors.white,
+              //                           ),
+              //                         ),
+              //                       ),
+              //                     ),
+              //                   ),
+              //                   const Gap(8),
+              //                   Text(
+              //                     phone,
+              //                     style: TextStyle(
+              //                       fontSize: 11,
+              //                       fontFamily: AppFonts.manRope,
+              //                       color: AppColors.background,
+              //                     ),
+              //                   ),
+              //                 ],
+              //               ),
+              //             );
+              //           },
+              //         ),
+              //       ),
+              //     ],
+              //   );
+              // }),
 
               const Spacer(),
               Container(

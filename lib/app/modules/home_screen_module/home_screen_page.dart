@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:marquee/marquee.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_page.dart';
@@ -41,23 +42,23 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                           colorFilter: const ColorFilter.mode(
                               Colors.black, BlendMode.srcIn),
                         ))),
-                const Gap(10),
-                TouchableOpacity(
-                    child: InkWell(
-                        onTap: () {
-                          // Get.toNamed(Routes.VIRTUAL_CARD_DETAILS);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const VirtualCardHomePage(),
-                            ),
-                          );
-                        },
-                        child: SvgPicture.asset(
-                          'assets/icons/bank-card-two.svg',
-                          colorFilter: const ColorFilter.mode(
-                              Colors.black, BlendMode.srcIn),
-                        ))),
+                // const Gap(10),
+                // TouchableOpacity(
+                //     child: InkWell(
+                //         onTap: () {
+                //           // Get.toNamed(Routes.VIRTUAL_CARD_DETAILS);
+                //           Navigator.push(
+                //             context,
+                //             MaterialPageRoute(
+                //               builder: (context) => const VirtualCardHomePage(),
+                //             ),
+                //           );
+                //         },
+                //         child: SvgPicture.asset(
+                //           'assets/icons/bank-card-two.svg',
+                //           colorFilter: const ColorFilter.mode(
+                //               Colors.black, BlendMode.srcIn),
+                //         ))),
                 const Gap(10),
                 // TouchableOpacity(
                 //     child: InkWell(
@@ -831,7 +832,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
       children: [
         Text(
           amount,
-          style: const TextStyle(
+          style: GoogleFonts.plusJakartaSans(
               color: AppColors.white,
               fontSize: 12,
               fontWeight: FontWeight.w500),

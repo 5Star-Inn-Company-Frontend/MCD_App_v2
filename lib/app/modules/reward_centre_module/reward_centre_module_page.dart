@@ -39,7 +39,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                   },
                   child: AspectRatio(
                       aspectRatio: 3 / 2,
-                      child: _boxCard('assets/icons/hold-seeds-filled.png',
+                      child: _boxCard('assets/images/reward_centre/free-money.png',
                           "Free Money", 'Watch advert and get paid for it')),
                 ),
               if (_isPromoEnabled())
@@ -49,7 +49,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                   },
                   child: AspectRatio(
                       aspectRatio: 3 / 2,
-                      child: _boxCard('assets/icons/hold-seeds-filled.png',
+                      child: _boxCard('assets/images/reward_centre/promo-code.png',
                           "Promo Code", 'Watch advert and get promo code')),
                 ),
               if (controller.service['spinwin'] == '1')
@@ -59,7 +59,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                   },
                   child: AspectRatio(
                       aspectRatio: 3 / 2,
-                      child: _boxCard('assets/icons/hold-seeds-filled.png',
+                      child: _boxCard('assets/images/reward_centre/spinwin.png',
                           "Spin & Win", 'Spin and win airtime,data and more')),
                 ),
               if (controller.service['predictwin'] == '1')
@@ -70,7 +70,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                   child: AspectRatio(
                       aspectRatio: 3 / 2,
                       child: _boxCard(
-                          'assets/icons/hold-seeds-filled.png',
+                          'assets/images/reward_centre/spinwin.png',
                           "Predict and Win",
                           'Predict match outcomes and win rewards')),
                 ),
@@ -81,7 +81,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                 child: AspectRatio(
                     aspectRatio: 3 / 5,
                     child: _boxCard(
-                        'assets/icons/hold-seeds-filled.png',
+                        'assets/images/reward_centre/leaderboard.png',
                         "Leaderboard",
                         'Earn extra rewards and climb to ranks to become a to MCD customer')),
               ),
@@ -91,7 +91,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                 },
                 child: AspectRatio(
                     aspectRatio: 3 / 2,
-                    child: _boxCard('assets/icons/hold-seeds-filled.png',
+                    child: _boxCard('assets/images/reward_centre/game-centre.png',
                         "Game Centre", 'Play games and earn money')),
               ),
             ],
