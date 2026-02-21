@@ -119,15 +119,26 @@ class AssistantScreenController extends GetxController {
           if (msg['timestamp'] != null) {
             try {
               messageTimestamp = DateTime.parse(msg['timestamp'].toString());
+              dev.log('Parsed timestamp: $messageTimestamp from field "timestamp"', name: 'AiAssistant');
             } catch (e) {
               dev.log('Error parsing timestamp: $e', name: 'AiAssistant');
+            }
+          } else if (msg['createdAt'] != null) {
+            try {
+              messageTimestamp = DateTime.parse(msg['createdAt'].toString());
+              dev.log('Parsed timestamp: $messageTimestamp from field "createdAt"', name: 'AiAssistant');
+            } catch (e) {
+              dev.log('Error parsing createdAt: $e', name: 'AiAssistant');
             }
           } else if (msg['created_at'] != null) {
             try {
               messageTimestamp = DateTime.parse(msg['created_at'].toString());
+              dev.log('Parsed timestamp: $messageTimestamp from field "created_at"', name: 'AiAssistant');
             } catch (e) {
               dev.log('Error parsing created_at: $e', name: 'AiAssistant');
             }
+          } else {
+            dev.log('No timestamp field found in message: ${msg.keys}', name: 'AiAssistant');
           }
 
           if (content.isNotEmpty) {
