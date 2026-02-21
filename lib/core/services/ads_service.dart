@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:advert/advert.dart';
 import 'dart:developer' as dev;
+import 'dart:io';
+
+import 'package:advert/advert.dart';
+import 'package:flutter/material.dart';
 
 class AdsService {
   static final AdsService _instance = AdsService._internal();
@@ -79,6 +80,21 @@ class AdsService {
     } catch (e) {
       dev.log('Error showing banner ad: $e');
     }
+  }
+
+  Widget showBannerAdWidget() {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+    }
+
+    try {
+      return _advertPlugin.adsProv.showBannerAd();
+      dev.log('Banner ad shown');
+    } catch (e) {
+      dev.log('Error showing banner ad: $e');
+    }
+
+    return Container();
   }
 
   void showInterstitialAd() {

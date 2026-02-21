@@ -2,6 +2,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/giveaway_module/models/giveaway_model.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
+
 import './giveaway_module_controller.dart';
 
 class GiveawayModulePage extends GetView<GiveawayModuleController> {
@@ -82,6 +83,8 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                           ],
                         ),
                       ),
+                      const Gap(5),
+                      controller.adsService.showBannerAdWidget(),
                       const Gap(30),
                       TextSemiBold(
                         "All Giveaways",
@@ -1116,6 +1119,10 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                       ),
                     ),
                   const Gap(20),
+                  const Gap(6),
+                  controller.adsService.showBannerAdWidget(),
+                  const Gap(6),
+                  controller.adsService.showBannerAdWidget(),
                 ],
               ),
             );

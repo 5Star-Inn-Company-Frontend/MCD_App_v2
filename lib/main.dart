@@ -1,19 +1,19 @@
+import 'dart:developer' as dev;
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/app.dart';
+import 'package:mcd/core/controllers/payment_config_controller.dart';
+import 'package:mcd/core/controllers/service_status_controller.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/services/ads_service.dart';
-import 'package:mcd/core/services/device_info_service.dart';
-import 'package:mcd/core/services/connectivity_service.dart';
 import 'package:mcd/core/services/app_lifecycle_service.dart';
-import 'package:mcd/core/controllers/service_status_controller.dart';
-import 'package:mcd/core/controllers/payment_config_controller.dart';
+import 'package:mcd/core/services/connectivity_service.dart';
+import 'package:mcd/core/services/device_info_service.dart';
 import 'package:mcd/firebase_options.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'dart:developer' as dev;
 
 // Background message handler
 @pragma('vm:entry-point')

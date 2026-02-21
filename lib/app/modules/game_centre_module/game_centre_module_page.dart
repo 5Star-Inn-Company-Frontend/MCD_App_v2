@@ -1,10 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:gap/gap.dart';
+import 'package:get/get.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/core/constants/fonts.dart';
+
 import './game_centre_module_controller.dart';
 
 class GameCentreModulePage extends GetView<GameCentreModuleController> {
@@ -135,6 +136,9 @@ class GameCentreModulePage extends GetView<GameCentreModuleController> {
               ),
               const Gap(20),
               ...controller.games.map((game) => _buildGameCard(game)).toList(),
+              controller.adsService.showBannerAdWidget(),
+              const Gap(20),
+              controller.adsService.showBannerAdWidget()
             ],
           ),
         );

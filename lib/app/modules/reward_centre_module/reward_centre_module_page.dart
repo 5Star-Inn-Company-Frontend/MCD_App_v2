@@ -1,5 +1,6 @@
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
+
 import './reward_centre_module_controller.dart';
 
 class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
@@ -42,16 +43,15 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                       child: _boxCard('assets/images/reward_centre/free-money.png',
                           "Free Money", 'Watch advert and get paid for it')),
                 ),
-              if (_isPromoEnabled())
-                InkWell(
-                  onTap: () {
-                    controller.tryWinPromoCode();
-                  },
-                  child: AspectRatio(
-                      aspectRatio: 3 / 2,
-                      child: _boxCard('assets/images/reward_centre/promo-code.png',
-                          "Promo Code", 'Watch advert and get promo code')),
-                ),
+              InkWell(
+                onTap: () {
+                  controller.tryWinPromoCode();
+                },
+                child: AspectRatio(
+                    aspectRatio: 3 / 2,
+                    child: _boxCard('assets/images/reward_centre/promo-code.png',
+                        "Promo Code", 'Watch advert and get promo code')),
+              ),
               if (controller.service['spinwin'] == '1')
                 InkWell(
                   onTap: () {
@@ -94,6 +94,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                     child: _boxCard('assets/images/reward_centre/game-centre.png',
                         "Game Centre", 'Play games and earn money')),
               ),
+              controller.adsService.showBannerAdWidget()
             ],
           ),
         );

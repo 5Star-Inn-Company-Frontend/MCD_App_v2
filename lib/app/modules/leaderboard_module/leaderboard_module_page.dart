@@ -96,6 +96,8 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
                           width: double.infinity, height: 70, borderRadius: 8),
                     ),
                   ),
+                  Gap(5),
+                  controller.adsService.showBannerAdWidget()
                 ],
               ),
             ),
@@ -235,7 +237,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
                     : null,
               ),
               const Gap(8),
-               TextSemiBold(
+              TextSemiBold(
                 user.fullName,
                 fontSize: 12,
                 color: AppColors.white,
