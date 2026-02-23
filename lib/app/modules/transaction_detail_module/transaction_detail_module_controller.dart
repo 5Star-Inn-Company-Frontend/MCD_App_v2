@@ -53,6 +53,18 @@ class TransactionDetailModuleController extends GetxController {
   String get customerAddress => _getCustomerAddress();
   String get kwUnits => _getKwUnits();
   String get transactionId => transaction?.ref ?? 'N/A';
+  
+  // NIN Validation specific fields
+  String get ninSurname => _getNinField('surname');
+  String get ninFirstName => _getNinField('firstName');
+  String get ninMiddleName => _getNinField('middleName');
+  String get ninGender => _getNinField('gender');
+  String get ninPhoneNumber => _getNinField('phoneNumber');
+  String get ninStateOfOrigin => _getNinField('stateOfOrigin');
+  String get ninStateOfResidence => _getNinField('stateOfResidence');
+  String get ninEducationalLevel => _getNinField('educationalLevel');
+  String get ninMaritalStatus => _getNinField('maritalStatus');
+  String get ninProfession => _getNinField('profession');
   String get packageName {
     if (legacyPackageName != null &&
         legacyPackageName!.isNotEmpty &&
@@ -143,6 +155,14 @@ class TransactionDetailModuleController extends GetxController {
     legacyPackageName = arguments['packageName'];
     legacyPaymentMethod = arguments['paymentMethod'];
     legacyBillerName = arguments['billerName'];
+
+    // Check if server response data was passed (e.g., from NIN validation)
+    if (arguments['serverResponse'] != null) {
+      _detailedTransaction.value = {
+        'server_response': arguments['serverResponse']
+      };
+      dev.log('Using passed server response data', name: 'TransactionDetail');
+    }
 
     // Create a mock transaction from old format
     transaction = Transaction(
@@ -278,6 +298,9 @@ class TransactionDetailModuleController extends GetxController {
       } else {
         return 'assets/images/history/cable.png';
       }
+    } else if (code.contains('nin') || name.contains('nin')) {
+      // NIN Validation
+      return 'assets/images/nin.png';
     } else if (transaction!.isCredit) {
       return 'assets/images/mcdlogo.png';
     }
@@ -326,6 +349,36 @@ class TransactionDetailModuleController extends GetxController {
       if (word.isEmpty) return word;
       return word[0].toUpperCase() + word.substring(1).toLowerCase();
     }).join(' ');
+  }
+
+  // Helper method to get NIN validation fields
+  String _getNinField(String fieldName) {
+    if (transaction == null) return 'N/A';
+    
+    final code = transaction!.code.toLowerCase();
+    if (!code.contains('nin')) return 'N/A';
+    
+    if (detailedTransaction != null && detailedTransaction!['server_response'] != null) {
+      try {
+        var serverResponse = detailedTransaction!['server_response'];
+        
+        // Parse JSON string if needed
+        if (serverResponse is String) {
+          serverResponse = jsonDecode(serverResponse);
+        }
+        
+        if (serverResponse is Map) {
+          final value = serverResponse[fieldName];
+          if (value != null && value.toString().isNotEmpty && value.toString() != 'null') {
+            return value.toString();
+          }
+        }
+      } catch (e) {
+        dev.log('Error parsing NIN field $fieldName from server_response', name: 'TransactionDetail', error: e);
+      }
+    }
+    
+    return 'N/A';
   }
 
   String _getCustomerName() {

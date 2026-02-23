@@ -38,7 +38,7 @@ class NinValidationModuleController extends GetxController {
           'paymentType': PaymentType.ninValidation,
           'paymentData': {
             'ninNumber': ninController.text,
-            'amount': '2500',
+            'amount': '100',
           },
         },
       );

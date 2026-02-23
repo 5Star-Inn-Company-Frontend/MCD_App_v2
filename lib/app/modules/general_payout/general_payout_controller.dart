@@ -347,7 +347,7 @@ class GeneralPayoutController extends GetxController {
         'value':
             '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0)}'
       },
-      {'label': 'NIN', 'value': paymentData['nin'] ?? 'N/A'},
+      {'label': 'NIN', 'value': paymentData['ninNumber'] ?? 'N/A'},
     ];
   }
 
@@ -2277,6 +2277,13 @@ class GeneralPayoutController extends GetxController {
       token = data['Token']?.toString() ?? data['data']?['Token']?.toString();
     }
 
+    // Extract server response data for NIN validation
+    Map<String, dynamic>? serverResponseData;
+    if (paymentType == PaymentType.ninValidation && data['data'] != null) {
+      serverResponseData = data['data'];
+      dev.log('Passing NIN validation data to receipt: $serverResponseData', name: 'GeneralPayout');
+    }
+
     Get.offNamed(
       Routes.TRANSACTION_DETAIL_MODULE,
       arguments: {
@@ -2294,6 +2301,7 @@ class GeneralPayoutController extends GetxController {
         'packageName':
             paymentData['examName'] ?? paymentData['packageName'] ?? 'N/A',
         'billerName': _getBillerNameForPayment(),
+        'serverResponse': serverResponseData, // Pass NIN validation data
       },
     );
   }

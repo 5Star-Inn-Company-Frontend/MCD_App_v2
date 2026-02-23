@@ -374,12 +374,14 @@ class TransactionDetailModulePage
                                   .contains('bet')) ...[
                             if (controller.network.isNotEmpty)
                               itemRow("Betting Platform", controller.network),
-                            if (controller.initialAmount != 'N/A')
-                              itemRow("Initial Amount", "₦${controller.initialAmount}"),
-                            if (controller.finalAmount != 'N/A')
-                              itemRow("Final Amount", "₦${controller.finalAmount}"),
                             // itemRow("Account ID", controller.phoneNumber),
                           ],
+
+                          // Balance information (for all services)
+                          if (controller.initialAmount != 'N/A')
+                            itemRow("Initial Balance", "₦${controller.initialAmount}"),
+                          if (controller.finalAmount != 'N/A')
+                            itemRow("Final Balance", "₦${controller.finalAmount}"),
 
                           // JAMB-specific fields
                           if (controller.paymentType.toLowerCase() == "jamb" ||
@@ -407,30 +409,96 @@ class TransactionDetailModulePage
                           if (controller.paymentType == "NIN Validation") ...[
                             itemRow("NIN Number", controller.userId),
                             itemRow("Service Type", controller.packageName),
-                            Container(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 10),
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Row(
+                            
+                            // NIN Details Section
+                            Obx(() {
+                              // Check if any NIN data is available
+                              final hasNinData = controller.ninSurname != 'N/A' ||
+                                  controller.ninFirstName != 'N/A' ||
+                                  controller.ninMiddleName != 'N/A';
+                              
+                              if (!hasNinData) {
+                                // Show pending message
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 10),
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.access_time,
+                                          color: AppColors.primaryColor, size: 16),
+                                      const Gap(8),
+                                      Expanded(
+                                        child: Text(
+                                          "Response will be available within 24 hours",
+                                          style: TextStyle(
+                                              fontSize: 13,
+                                              color: AppColors.primaryColor),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                              
+                              // Show NIN data
+                              return Column(
                                 children: [
-                                  Icon(Icons.access_time,
-                                      color: AppColors.primaryColor, size: 16),
-                                  const Gap(8),
-                                  Expanded(
-                                    child: Text(
-                                      "Response will be available within 24 hours",
-                                      style: TextStyle(
-                                          fontSize: 13,
-                                          color: AppColors.primaryColor),
+                                  // Header
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 10),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.successBgColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.check_circle,
+                                            color: Colors.green, size: 20),
+                                        const Gap(8),
+                                        Expanded(
+                                          child: Text(
+                                            "NIN Validation Successful",
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.green),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
+                                  
+                                  // Personal Information
+                                  if (controller.ninSurname != 'N/A')
+                                    itemRow("Surname", controller.ninSurname),
+                                  if (controller.ninFirstName != 'N/A')
+                                    itemRow("First Name", controller.ninFirstName),
+                                  if (controller.ninMiddleName != 'N/A')
+                                    itemRow("Middle Name", controller.ninMiddleName),
+                                  if (controller.ninGender != 'N/A')
+                                    itemRow("Gender", controller.ninGender),
+                                  if (controller.ninPhoneNumber != 'N/A')
+                                    itemRow("Phone Number", controller.ninPhoneNumber),
+                                  if (controller.ninStateOfOrigin != 'N/A')
+                                    itemRow("State of Origin", controller.ninStateOfOrigin),
+                                  if (controller.ninStateOfResidence != 'N/A')
+                                    itemRow("State of Residence", controller.ninStateOfResidence),
+                                  if (controller.ninEducationalLevel != 'N/A')
+                                    itemRow("Educational Level", controller.ninEducationalLevel),
+                                  if (controller.ninMaritalStatus != 'N/A')
+                                    itemRow("Marital Status", controller.ninMaritalStatus),
+                                  if (controller.ninProfession != 'N/A')
+                                    itemRow("Profession", controller.ninProfession),
                                 ],
-                              ),
-                            ),
+                              );
+                            }),
                           ],
 
                           itemRow("Payment Type", controller.paymentType),

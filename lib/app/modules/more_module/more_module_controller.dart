@@ -1,11 +1,13 @@
 import 'package:mcd/core/import/imports.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:get_storage/get_storage.dart';
 
 class MoreModuleController extends GetxController
     with GetSingleTickerProviderStateMixin {
   final LoginScreenController authController =
       Get.find<LoginScreenController>();
+  final box = GetStorage();
 
   late TabController tabController;
 
@@ -47,8 +49,14 @@ class MoreModuleController extends GetxController
     super.onClose();
   }
 
-  // get user's referral code (username)
+  // get user's referral code (username) from local storage
   String getReferralCode() {
+    // First try to get from local storage (faster, no API wait)
+    final storedUsername = box.read('biometric_username_real');
+    if (storedUsername != null && storedUsername.toString().isNotEmpty) {
+      return storedUsername.toString();
+    }
+    // Fallback to dashboard data if local storage is empty
     return authController.dashboardData?.user.userName ?? '';
   }
 

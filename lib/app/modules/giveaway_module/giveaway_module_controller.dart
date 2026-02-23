@@ -462,7 +462,8 @@ class GiveawayModuleController extends GetxController {
 
       switch (_selectedType.value) {
         case 'airtime':
-          finalTypeCode = 'airtime';
+          // Use the selected network provider (e.g., mtn, glo, airtel, 9mobile)
+          finalTypeCode = _selectedTypeCode.value ?? '';
           break;
         case 'data':
           if (selectedDataPlan.value != null) {
@@ -470,6 +471,7 @@ class GiveawayModuleController extends GetxController {
           }
           break;
         case 'electricity':
+          // Use the selected electricity provider (e.g., IKEDC, EKEDC, etc.)
           if (selectedElectricityProvider.value != null) {
             finalTypeCode = selectedElectricityProvider.value!['code'] ?? '';
           }
@@ -482,7 +484,10 @@ class GiveawayModuleController extends GetxController {
           }
           break;
         case 'betting_topup':
-          finalTypeCode = 'betting';
+          // Use the selected betting provider (e.g., bet9ja, sportybet, betking, etc.)
+          if (selectedBettingProvider.value != null) {
+            finalTypeCode = selectedBettingProvider.value!['code'] ?? '';
+          }
           break;
         default:
           finalTypeCode = _selectedTypeCode.value ?? '';
@@ -538,6 +543,7 @@ class GiveawayModuleController extends GetxController {
 
       if (success) {
         _clearForm();
+        await fetchGiveaways(); // Refresh the giveaway list
         Get.offNamed(Routes.GIVEAWAY_MODULE);
       }
 
