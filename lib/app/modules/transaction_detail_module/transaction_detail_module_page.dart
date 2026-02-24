@@ -297,7 +297,12 @@ class TransactionDetailModulePage
                                   "reversal" &&
                               !controller.paymentType
                                   .toLowerCase()
-                                  .contains('reversal') 
+                                  .contains('reversal') &&
+                              controller.paymentType.toLowerCase() !=
+                                  "predictwin" &&
+                              !controller.paymentType
+                                  .toLowerCase()
+                                  .contains('predictwin') 
                             )
                             itemRow("Phone Number", controller.phoneNumber),
 

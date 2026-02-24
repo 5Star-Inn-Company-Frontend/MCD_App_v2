@@ -620,7 +620,307 @@ class GiveawayModuleController extends GetxController {
     }
   }
 
-  // Show Ad Dialog before claiming
+  // Show Ad Dialog first (new flow)
+  void showAdClaimDialogFirst(int giveawayId, String giveawayType, BuildContext context) {
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.play_arrow_rounded,
+                  color: AppColors.primaryColor,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Watch Ad to Claim',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: AppFonts.manRope,
+                  color: AppColors.textPrimaryColor,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'To claim this giveaway, please watch some ads.', 
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.primaryGrey2,
+                  fontFamily: AppFonts.manRope,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Get.back(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        side: const BorderSide(color: AppColors.primaryGrey),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: AppColors.primaryGrey,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: AppFonts.manRope,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back(); // Close ad dialog
+                        _showRewardedAdThenRecipient(giveawayId, giveawayType, context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Watch Ad',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: AppFonts.manRope,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  // Show rewarded ad then recipient dialog
+  Future<void> _showRewardedAdThenRecipient(int giveawayId, String giveawayType, BuildContext context) async {
+    // Show loading indicator
+    Get.dialog(
+      const Center(
+        child: CircularProgressIndicator(
+          color: AppColors.primaryColor,
+        ),
+      ),
+      barrierDismissible: false,
+    );
+
+    try {
+      final success = await adsService.showRewardedAd(
+        onRewarded: () {
+          // Ad watched successfully
+        },
+      );
+
+      Get.back(); // Close loading indicator
+
+      if (success) {
+        // Ad watched successfully, now show recipient dialog
+        _showRecipientDialogAfterAd(context, giveawayId, giveawayType);
+      } else {
+        Get.snackbar(
+          'Ad Failed',
+          'Failed to load ad. Please try again later.',
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.white,
+        );
+      }
+    } catch (e) {
+      Get.back(); // Close loading
+      Get.snackbar('Error', 'An error occurred: $e');
+    }
+  }
+
+  // Show recipient dialog after ad is watched
+  void _showRecipientDialogAfterAd(BuildContext context, int giveawayId, String giveawayType) {
+    String inputLabel;
+    String inputHint;
+    TextInputType keyboardType;
+
+    switch (giveawayType.toLowerCase()) {
+      case 'airtime':
+      case 'data':
+        inputLabel = 'Phone Number';
+        inputHint = 'Enter phone number';
+        keyboardType = TextInputType.phone;
+        break;
+      case 'electricity':
+        inputLabel = 'Meter Number';
+        inputHint = 'Enter meter number';
+        keyboardType = TextInputType.number;
+        break;
+      case 'tv':
+        inputLabel = 'Smart Card Number';
+        inputHint = 'Enter smart card number';
+        keyboardType = TextInputType.number;
+        break;
+      case 'betting_topup':
+        inputLabel = 'Customer ID';
+        inputHint = 'Enter betting account ID';
+        keyboardType = TextInputType.text;
+        break;
+      default:
+        inputLabel = 'Recipient';
+        inputHint = 'Enter recipient details';
+        keyboardType = TextInputType.text;
+    }
+
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                inputLabel,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: AppFonts.manRope,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Enter the $inputLabel for the giveaway recipient',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.primaryGrey2,
+                  fontFamily: AppFonts.manRope,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: receiverController,
+                keyboardType: keyboardType,
+                decoration: InputDecoration(
+                  hintText: inputHint,
+                  hintStyle: const TextStyle(
+                    color: AppColors.primaryGrey2,
+                    fontFamily: AppFonts.manRope,
+                  ),
+                  filled: true,
+                  fillColor: AppColors.filledInputColor,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xffE5E5E5)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xffE5E5E5)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: AppColors.primaryColor),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        receiverController.clear();
+                        Get.back();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: const BorderSide(color: AppColors.primaryGrey),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: AppColors.primaryGrey,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final receiver = receiverController.text.trim();
+                        if (receiver.isEmpty) {
+                          Get.snackbar('Error', 'Please enter $inputLabel');
+                          return;
+                        }
+                        Get.back(); // Close dialog
+                        final claimed = await claimGiveaway(giveawayId, receiver);
+                        if (claimed) {
+                          receiverController.clear();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Claim',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  // Show Ad Dialog before claiming (old flow - kept for backward compatibility)
   void showAdClaimDialog(int giveawayId, String receiver) {
     // Close any previous dialogs (like the input dialog)
     if (Get.isDialogOpen ?? false) {
@@ -663,7 +963,7 @@ class GiveawayModuleController extends GetxController {
               ),
               const SizedBox(height: 8),
               const Text(
-                'To claim this giveaway, please watch a short video ad.', 
+                'To claim this giveaway, please watch some ads to support the creator.', 
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,

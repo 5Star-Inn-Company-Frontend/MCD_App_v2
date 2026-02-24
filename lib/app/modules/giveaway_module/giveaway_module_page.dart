@@ -1095,8 +1095,10 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                       width: double.infinity,
                       child: BusyButton(
                         title: "Claim",
-                        onTap: () => _showRecipientDialog(
-                            context, giveawayId, detail.giveaway.type),
+                        onTap: () {
+                          Get.back(); // Close detail sheet
+                          controller.showAdClaimDialogFirst(giveawayId, detail.giveaway.type, context);
+                        },
                       ),
                     )
                   else
