@@ -83,6 +83,7 @@ class TransactionDetailModuleController extends GetxController {
   String get status => transaction?.status ?? '';
   String get network => transaction?.networkProvider ?? '';
   String get quantity => transaction?.serverLog?.quantity ?? '1';
+  String get designType => transaction?.serverLog?.designType ?? 'N/A';
   String get initialAmount => transaction?.iWallet ?? 'N/A';
   String get finalAmount => transaction?.fWallet ?? 'N/A';
 

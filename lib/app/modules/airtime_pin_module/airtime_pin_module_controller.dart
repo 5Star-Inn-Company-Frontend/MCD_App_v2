@@ -18,6 +18,17 @@ class AirtimePinModuleController extends GetxController {
   
   final selectedNetwork = Rx<String?>(null);
   final isProcessing = false.obs;
+  final selectedDesign = 1.obs; // Default to design 1
+  
+  // Available designs
+  final designs = [
+    {'id': 1, 'name': 'Design 1', 'image': 'assets/images/epin/design-1.png'},
+    {'id': 2, 'name': 'Design 2', 'image': 'assets/images/epin/design-2.png'},
+    {'id': 3, 'name': 'Design 3', 'image': 'assets/images/epin/design-3.png'},
+    {'id': 4, 'name': 'Design 4', 'image': 'assets/images/epin/design-4.png'},
+    {'id': 5, 'name': 'Design 5', 'image': 'assets/images/epin/design-5.png'},
+    {'id': 6, 'name': 'Design 6', 'image': 'assets/images/epin/design-6.png'},
+  ];
   
   // Network providers
   final networks = [
@@ -53,6 +64,22 @@ class AirtimePinModuleController extends GetxController {
     dev.log('Network selected: $network', name: 'AirtimePin');
   }
 
+  void selectDesign(int designId) {
+    selectedDesign.value = designId;
+    dev.log('Design selected: $designId', name: 'AirtimePin');
+  }
+
+  Map<String, dynamic> get currentDesign {
+    return designs.firstWhere(
+      (design) => design['id'] == selectedDesign.value,
+      orElse: () => designs[0],
+    );
+  }
+
+  String get username {
+    return box.read('biometric_username_real') ?? 'User';
+  }
+
   void incrementQuantity() {
     int current = int.tryParse(quantityController.text) ?? 1;
     if (current < 10) {
@@ -76,6 +103,26 @@ class AirtimePinModuleController extends GetxController {
       Get.snackbar(
         "Validation Error",
         "Please select a network provider",
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+
+    if (selectedAmount.value.isEmpty) {
+      Get.snackbar(
+        "Validation Error",
+        "Please select an amount",
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+
+    if (selectedDesign.value == 0) {
+      Get.snackbar(
+        "Validation Error",
+        "Please select a design type",
         backgroundColor: AppColors.errorBgColor,
         colorText: AppColors.textSnackbarColor,
       );
@@ -120,6 +167,9 @@ class AirtimePinModuleController extends GetxController {
           'networkImage': selectedNetworkData['image'] ?? '',
           'amount': amountController.text,
           'quantity': quantityController.text,
+          'designId': selectedDesign.value,
+          'designName': currentDesign['name'] ?? '',
+          'designImage': currentDesign['image'] ?? '',
         },
       },
     );

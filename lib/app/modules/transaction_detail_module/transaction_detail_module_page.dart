@@ -316,6 +316,8 @@ class TransactionDetailModulePage
                               itemRow("Network", controller.network),
                             if (controller.quantity != '1')
                               itemRow("Quantity", controller.quantity),
+                            if (controller.designType != 'N/A' && controller.designType.isNotEmpty)
+                              itemRow("Design Type", controller.designType),
                           ],
 
                           // Data PIN-specific fields
@@ -328,6 +330,8 @@ class TransactionDetailModulePage
                               itemRow("Network", controller.network),
                             if (controller.quantity != '1')
                               itemRow("Quantity", controller.quantity),
+                            if (controller.designType != 'N/A' && controller.designType.isNotEmpty)
+                              itemRow("Design Type", controller.designType),
                           ],
 
                           // Data-specific fields

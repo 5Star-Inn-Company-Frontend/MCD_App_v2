@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:gap/gap.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/epin_module/data_pin/data_pin_controller.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
@@ -119,32 +121,34 @@ class DataPinFullPage extends GetView<DataPinController> {
                   color: Colors.black87,
                 ),
                 const Gap(8),
-                Obx(() => DropdownButtonFormField<String>(
-                  value: controller.selectedDesign.isEmpty ? null : controller.selectedDesign,
-                  decoration: textInputDecoration.copyWith(
-                    hintText: 'Select Type',
-                    hintStyle: const TextStyle(
-                      color: AppColors.primaryGrey2,
-                      fontFamily: AppFonts.manRope,
+                GestureDetector(
+                  onTap: () => _showDesignBottomSheet(context),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.primaryGrey2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Obx(() => Text(
+                          controller.selectedDesign.value == 0 
+                              ? 'Select Design'
+                              : controller.currentDesign['name'] ?? 'Select Design',
+                          style: TextStyle(
+                            color: controller.selectedDesign.value == 0 
+                                ? AppColors.primaryGrey2 
+                                : Colors.black87,
+                            fontFamily: AppFonts.manRope,
+                            fontSize: 14,
+                          ),
+                        )),
+                        const Icon(Icons.keyboard_arrow_down, color: AppColors.primaryGrey2),
+                      ],
                     ),
                   ),
-                  items: controller.designs.map((design) {
-                    return DropdownMenuItem(
-                      value: design,
-                      child: Text(
-                        design,
-                        style: const TextStyle(fontFamily: AppFonts.manRope),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: controller.selectDesign,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a design';
-                    }
-                    return null;
-                  },
-                )),
+                ),
                 const Gap(25),
                 
                 // quantity
@@ -201,6 +205,196 @@ class DataPinFullPage extends GetView<DataPinController> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showDesignBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.55,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
+        child: Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const Gap(20),
+            
+            // Title
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextSemiBold(
+                    'Select Design',
+                    fontSize: 18,
+                    color: Colors.black87,
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                    color: AppColors.primaryGrey,
+                  ),
+                ],
+              ),
+            ),
+            const Gap(10),
+            
+            // Designs List
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: controller.designs.map((design) {
+                    return Obx(() {
+                      final isSelected = controller.selectedDesign.value == design['id'];
+                      
+                      return GestureDetector(
+                        onTap: () {
+                          controller.selectDesign(design['id'] as int);
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          width: (MediaQuery.of(context).size.width - 56) / 2,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected 
+                                  ? AppColors.primaryColor 
+                                  : Colors.grey.shade300,
+                              width: isSelected ? 3 : 1,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: isSelected 
+                                      ? AppColors.primaryColor.withOpacity(0.1) 
+                                      : Colors.grey.shade50,
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(12),
+                                    topRight: Radius.circular(12),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      design['name'] as String,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: isSelected 
+                                            ? AppColors.primaryColor 
+                                            : Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Image.asset(
+                                design['image'] as String,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    });
+                  }).toList(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Widget _buildDesignOverlay(Map<String, dynamic> design, double cardWidth) {
+  //   final networkData = controller.selectedNetworkData;
+  //   final networkImage = networkData['image'] ?? '';
+  //   final username = controller.username;
+  //   final amount = controller.selectedDenomination.isNotEmpty 
+  //       ? controller.selectedDenomination 
+  //       : '100';
+
+  //   return Positioned.fill(
+  //     child: Container(
+  //       padding: EdgeInsets.symmetric(
+  //         horizontal: cardWidth * 0.08,
+  //         vertical: cardWidth * 0.12,
+  //       ),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           if (networkImage.isNotEmpty)
+  //             CachedNetworkImage(
+  //               imageUrl: networkImage,
+  //               width: 24,
+  //               height: 24,
+  //               fit: BoxFit.contain,
+  //               errorWidget: (context, url, error) => const SizedBox.shrink(),
+  //             ),
+  //           SizedBox(height: cardWidth * 0.08),
+  //           TextSemiBold(
+  //             username,
+  //             fontSize: cardWidth * 0.055,
+  //             color: Colors.black,
+  //           ),
+  //           const Spacer(),
+  //           _buildCardField('EPIN', '', cardWidth),
+  //           _buildCardField('CardNo', '', cardWidth),
+  //           _buildCardField('ExpiryDate', '', cardWidth),
+  //           _buildCardField('Serial No', '', cardWidth),
+  //           _buildCardField('Pin', amount, cardWidth),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  Widget _buildCardField(String label, String value, double cardWidth) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: cardWidth * 0.02),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          TextSemiBold(
+            '$label:',
+            fontSize: cardWidth * 0.045,
+            color: Colors.black87,
+          ),
+          TextSemiBold(
+            value,
+            fontSize: cardWidth * 0.045,
+            color: Colors.black87,
+          ),
+        ],
       ),
     );
   }

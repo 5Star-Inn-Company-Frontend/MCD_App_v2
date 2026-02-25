@@ -265,6 +265,7 @@ class ServerLog {
   final String? coded;
   final String paymentMethod;
   final String quantity;
+  final String? designType;
   final String wallet;
   final String country;
   final String? api;
@@ -288,6 +289,7 @@ class ServerLog {
     this.coded,
     required this.paymentMethod,
     required this.quantity,
+    this.designType,
     required this.wallet,
     required this.country,
     this.api,
@@ -313,6 +315,7 @@ class ServerLog {
       coded: json['coded'],
       paymentMethod: json['payment_method'] ?? '',
       quantity: json['quantity']?.toString() ?? '1',
+      designType: json['design_type'],
       wallet: json['wallet']?.toString() ?? '0',
       country: json['country'] ?? '',
       api: json['api'],

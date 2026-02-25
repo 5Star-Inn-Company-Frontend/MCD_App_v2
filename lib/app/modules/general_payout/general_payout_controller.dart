@@ -306,6 +306,7 @@ class GeneralPayoutController extends GetxController {
             '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0)}'
       },
       {'label': 'Quantity', 'value': paymentData['quantity'] ?? 'N/A'},
+      {'label': 'Design Type', 'value': paymentData['designName'] ?? 'N/A'},
     ];
   }
 
@@ -320,6 +321,7 @@ class GeneralPayoutController extends GetxController {
             '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0)}'
       },
       {'label': 'Quantity', 'value': paymentData['quantity'] ?? 'N/A'},
+      {'label': 'Design Type', 'value': paymentData['designType'] ?? 'N/A'},
     ];
   }
 

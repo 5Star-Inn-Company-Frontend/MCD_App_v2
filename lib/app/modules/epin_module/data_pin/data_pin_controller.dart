@@ -20,8 +20,7 @@ class DataPinController extends GetxController {
   final _selectedDenomination = ''.obs;
   String get selectedDenomination => _selectedDenomination.value;
 
-  final _selectedDesign = ''.obs;
-  String get selectedDesign => _selectedDesign.value;
+  final selectedDesign = 1.obs; // Default to design 1
 
   final TextEditingController quantityController = TextEditingController();
   
@@ -53,7 +52,16 @@ class DataPinController extends GetxController {
 
   final types = ['Type A', 'Type B', 'Type C', 'Type D'];
   final denominations = ['100', '200', '500'];
-  final designs = ['Design 1', 'Design 2', 'Design 3', 'Design 4'];
+  
+  // Available designs
+  final designs = [
+    {'id': 1, 'name': 'Design 1', 'image': 'assets/images/epin/design-1.png'},
+    {'id': 2, 'name': 'Design 2', 'image': 'assets/images/epin/design-2.png'},
+    {'id': 3, 'name': 'Design 3', 'image': 'assets/images/epin/design-3.png'},
+    {'id': 4, 'name': 'Design 4', 'image': 'assets/images/epin/design-4.png'},
+    {'id': 5, 'name': 'Design 5', 'image': 'assets/images/epin/design-5.png'},
+    {'id': 6, 'name': 'Design 6', 'image': 'assets/images/epin/design-6.png'},
+  ];
   
   @override
   void onInit() {
@@ -132,10 +140,20 @@ class DataPinController extends GetxController {
     }
   }
 
-  void selectDesign(String? design) {
-    if (design != null) {
-      _selectedDesign.value = design;
-    }
+  void selectDesign(int designId) {
+    selectedDesign.value = designId;
+    dev.log('Design selected: $designId', name: 'DataPin');
+  }
+
+  Map<String, dynamic> get currentDesign {
+    return designs.firstWhere(
+      (design) => design['id'] == selectedDesign.value,
+      orElse: () => designs[0],
+    );
+  }
+
+  String get username {
+    return box.read('biometric_username_real') ?? 'User';
   }
 
   void incrementQuantity() {
@@ -537,6 +555,11 @@ class DataPinController extends GetxController {
         return;
       }
 
+      if (selectedDesign.value == 0) {
+        Get.snackbar("Error", "Please select a design type.");
+        return;
+      }
+
       // Navigate to data pin payout page (using special route for data pin API)
       final selectedNetworkData = networks.firstWhere(
         (network) => network['code'] == _selectedNetwork.value,
@@ -560,7 +583,9 @@ class DataPinController extends GetxController {
             'networkName': selectedNetworkData['name'] ?? '',
             'networkCode': selectedNetworkData['code'] ?? '',
             'networkImage': selectedNetworkData['image'] ?? '',
-            'designType': _selectedDesign.isNotEmpty ? _selectedDesign.value : _selectedType.value,
+            'designId': selectedDesign.value,
+            'designName': currentDesign['name'] ?? '',
+            'designType': currentDesign['name'] ?? '',
             'quantity': quantityController.text.isNotEmpty ? quantityController.text : '1',
             'amount': _selectedDenomination.value.isNotEmpty ? _selectedDenomination.value : '100',
             'coded': codedValue,
