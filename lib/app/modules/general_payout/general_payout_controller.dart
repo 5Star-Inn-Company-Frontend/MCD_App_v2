@@ -2283,7 +2283,8 @@ class GeneralPayoutController extends GetxController {
     Map<String, dynamic>? serverResponseData;
     if (paymentType == PaymentType.ninValidation && data['data'] != null) {
       serverResponseData = data['data'];
-      dev.log('Passing NIN validation data to receipt: $serverResponseData', name: 'GeneralPayout');
+      dev.log('Passing NIN validation data to receipt: $serverResponseData',
+          name: 'GeneralPayout');
     }
 
     Get.offNamed(

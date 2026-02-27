@@ -66,6 +66,7 @@ class GeneralMarketPaymentService {
 
     Get.dialog(
       Dialog(
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -136,6 +137,7 @@ class GeneralMarketPaymentService {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        elevation: 0
                       ),
                       child: Text(
                         'Proceed',
