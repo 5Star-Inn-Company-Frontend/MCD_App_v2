@@ -36,22 +36,9 @@ class NumberVerificationModuleController extends GetxController {
   final beneficiaries = <Map<String, dynamic>>[].obs;
   final isLoadingBeneficiaries = false.obs;
 
-  // Filtered beneficiaries based on current context (Nigerian vs Foreign)
-  List<Map<String, dynamic>> get filteredBeneficiaries {
-    if (_isForeign) {
-      // Show only foreign numbers
-      return beneficiaries.where((b) {
-        final network = b['network']?.toString() ?? '';
-        return _isForeignNetwork(network);
-      }).toList();
-    } else {
-      // Show only Nigerian numbers
-      return beneficiaries.where((b) {
-        final network = b['network']?.toString() ?? '';
-        return !_isForeignNetwork(network);
-      }).toList();
-    }
-  }
+  // all beneficiaries regardless of type
+  List<Map<String, dynamic>> get filteredBeneficiaries =>
+      beneficiaries.toList();
 
   @override
   void onInit() {
@@ -117,23 +104,18 @@ class NumberVerificationModuleController extends GetxController {
         },
         (data) {
           dev.log('Beneficiaries response: $data', name: 'NumberVerification');
-          
+
           if (data['success'] == 1) {
             // Parse beneficiaries data
             if (data['data'] != null && data['data'] is List) {
               final List<dynamic> beneficiaryList = data['data'];
               beneficiaries.assignAll(
-                beneficiaryList.map((e) => Map<String, dynamic>.from(e)).toList(),
+                beneficiaryList
+                    .map((e) => Map<String, dynamic>.from(e))
+                    .toList(),
               );
               dev.log('Loaded ${beneficiaries.length} beneficiaries',
                   name: 'NumberVerification');
-              
-              Get.snackbar(
-                'Success',
-                'Loaded ${beneficiaries.length} beneficiaries',
-                backgroundColor: AppColors.successBgColor,
-                colorText: AppColors.textSnackbarColor,
-              );
             } else {
               dev.log('No beneficiaries found or invalid data format',
                   name: 'NumberVerification');
@@ -257,7 +239,9 @@ class NumberVerificationModuleController extends GetxController {
         'verifiedNetwork': network,
         'networkData': networkData,
         'isForeign': isForeign,
-        'countryCode': (countryCode?.isEmpty ?? true) ? (isForeign ? null : 'NG') : countryCode,
+        'countryCode': (countryCode?.isEmpty ?? true)
+            ? (isForeign ? null : 'NG')
+            : countryCode,
         'countryName': countryName,
       });
     } else {
@@ -273,41 +257,52 @@ class NumberVerificationModuleController extends GetxController {
     dev.log('Selected beneficiary: $phone ($network)',
         name: 'NumberVerification');
 
-    // Determine if this is a foreign number based on network name
     final isForeignBeneficiary = _isForeignNetwork(network);
 
-    // Create network data from beneficiary info
-    final networkData = {
-      'operatorName': network,
-    };
+    // prefer api-provided country code, fallback to deriving from network name
+    String? derivedCountryCode;
+    if (isForeignBeneficiary) {
+      derivedCountryCode = beneficiary['country_code']?.toString() ??
+          beneficiary['countryCode']?.toString() ??
+          _countryCodeFromNetwork(network);
+      dev.log(
+          'Derived country code for foreign beneficiary: $derivedCountryCode',
+          name: 'NumberVerification');
+    }
 
-    // If we're in the correct context (foreign vs Nigerian), navigate directly
-    if ((_isForeign && isForeignBeneficiary) || (!_isForeign && !isForeignBeneficiary)) {
-      if (_redirectTo != null && _redirectTo!.isNotEmpty) {
-        Get.offNamed(_redirectTo!, arguments: {
-          'verifiedNumber': phone,
-          'verifiedNetwork': network,
-          'networkData': networkData,
-          'isForeign': isForeignBeneficiary,
-          'countryCode': isForeignBeneficiary ? null : 'NG',
-        });
-      } else {
-        // Just fill the phone number field
-        phoneController.text = phone;
-      }
+    final networkData = {'operatorName': network};
+
+    if (_redirectTo != null && _redirectTo!.isNotEmpty) {
+      Get.offNamed(_redirectTo!, arguments: {
+        'verifiedNumber': phone,
+        'verifiedNetwork': network,
+        'networkData': networkData,
+        'isForeign': isForeignBeneficiary,
+        'countryCode': isForeignBeneficiary ? derivedCountryCode : 'NG',
+      });
     } else {
-      // Mismatch: show message
-      Get.snackbar(
-        'Notice',
-        isForeignBeneficiary
-            ? 'This is a foreign number. Please use the foreign airtime option.'
-            : 'This is a Nigerian number. Please use the regular airtime option.',
-        backgroundColor: AppColors.primaryColor,
-        colorText: Colors.white,
-      );
-      // Still fill the phone number
       phoneController.text = phone;
     }
+  }
+
+  // maps network name keywords to ISO country codes used by the foreign airtime API
+  String? _countryCodeFromNetwork(String network) {
+    final n = network.toUpperCase();
+    if (n.contains('UGANDA')) return 'UG';
+    if (n.contains('KENYA')) return 'KE';
+    if (n.contains('GHANA')) return 'GH';
+    if (n.contains('SOUTH AFRICA')) return 'ZA';
+    if (n.contains('TANZANIA')) return 'TZ';
+    if (n.contains('ZAMBIA')) return 'ZM';
+    if (n.contains('RWANDA')) return 'RW';
+    if (n.contains('SENEGAL')) return 'SN';
+    if (n.contains('COTE') || n.contains('IVORY')) return 'CI';
+    if (n.contains('CAMEROON')) return 'CM';
+    if (n.contains('BENIN')) return 'BJ';
+    if (n.contains('TOGO')) return 'TG';
+    if (n.contains('MALI')) return 'ML';
+    if (n.contains('NIGER')) return 'NE';
+    return null;
   }
 
   bool _isForeignNetwork(String network) {
