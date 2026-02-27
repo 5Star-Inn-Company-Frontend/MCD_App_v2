@@ -417,17 +417,20 @@ class SpinWinModuleController extends GetxController {
 
     try {
       // for (int i = 0; i < 5; i++) {
+
+      _showAdProgressDialog(_adsWatched.value, 5);
         dev.log('Playing ad ${_adsWatched.value}/5...', name: 'SpinWinModule');
 
         adsService.showspinAndWinAd(
           onRewarded: () {
             if (_adsWatched.value < 5) {
               _adsWatched.value += 1;
-              print("multiple advert ${_adsWatched.value}");
+              Get.back();
               return  _playAdsBeforeSpin( onSuccess: onSuccess, onFailed: onFailed);
             } else {
               print("multiple advert ${_adsWatched.value} finished");
               _adsWatched.value = 0;
+              Get.back();
               onSuccess();
             }
             dev.log('Ad ${_adsWatched.value}/5 completed', name: 'SpinWinModule');
@@ -445,6 +448,51 @@ class SpinWinModuleController extends GetxController {
     } finally {
       _isPlayingAds.value = false;
     }
+  }
+
+
+  void _showAdProgressDialog(int completed, int total) {
+    Get.dialog(
+      WillPopScope(
+        onWillPop: () async => false,
+        child: Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  color: AppColors.primaryColor,
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Watching Ads...',
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                      fontFamily: AppFonts.manRope
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Ad $completed of $total',
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600, fontFamily: AppFonts.manRope
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
   }
 
   // execute the actual spin and reward
