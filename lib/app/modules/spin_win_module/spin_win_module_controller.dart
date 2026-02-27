@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer' as dev;
+import 'package:advert/model/advertresponse.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
@@ -383,18 +384,20 @@ class SpinWinModuleController extends GetxController {
       } else {
         // no free spins - must watch 5 ads first
         dev.log('No free spins, playing 5 ads...', name: 'SpinWinModule');
-        final adsSuccess = await _playAdsBeforeSpin();
+        _playAdsBeforeSpin(
+          onSuccess: () async {
+            await _executeSpinWithReward();
+          },
+          onFailed: (){
+            Get.snackbar(
+              'Ads Required',
+              'You must complete all 5 ads to spin. Please try again.',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+          }
+        );
 
-        if (adsSuccess) {
-          await _executeSpinWithReward();
-        } else {
-          Get.snackbar(
-            'Ads Required',
-            'You must complete all 5 ads to spin. Please try again.',
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-          );
-        }
       }
     } catch (e) {
       dev.log('Exception while performing spin',
@@ -409,18 +412,25 @@ class SpinWinModuleController extends GetxController {
   }
 
   // play 5 ads before allowing spin
-  Future<bool> _playAdsBeforeSpin() async {
+  void _playAdsBeforeSpin({required Function onSuccess, required Function onFailed}) async {
     _isPlayingAds.value = true;
-    _adsWatched.value = 0;
 
     try {
-      for (int i = 0; i < 5; i++) {
-        dev.log('Playing ad ${i + 1}/5...', name: 'SpinWinModule');
+      // for (int i = 0; i < 5; i++) {
+        dev.log('Playing ad ${_adsWatched.value}/5...', name: 'SpinWinModule');
 
-        final success = await adsService.showspinAndWinAd(
+        adsService.showspinAndWinAd(
           onRewarded: () {
-            _adsWatched.value = i + 1;
-            dev.log('Ad ${i + 1}/5 completed', name: 'SpinWinModule');
+            if (_adsWatched.value < 5) {
+              _adsWatched.value += 1;
+              print("multiple advert ${_adsWatched.value}");
+              return  _playAdsBeforeSpin( onSuccess: onSuccess, onFailed: onFailed);
+            } else {
+              print("multiple advert ${_adsWatched.value} finished");
+              _adsWatched.value = 0;
+              onSuccess();
+            }
+            dev.log('Ad ${_adsWatched.value}/5 completed', name: 'SpinWinModule');
           },
           customData: {
             "username": box.read('username') ?? "",
@@ -428,21 +438,10 @@ class SpinWinModuleController extends GetxController {
             "type": "spin_win"
           },
         );
+      // }
 
-        if (!success) {
-          dev.log('Ad ${i + 1}/5 failed', name: 'SpinWinModule');
-          Get.snackbar(
-            'Ad Error',
-            'Failed to load ad ${i + 1}/5. Please try again.',
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-          );
-          return false;
-        }
-      }
-
-      dev.log('All 5 ads completed successfully', name: 'SpinWinModule');
-      return true;
+      // dev.log('All 5 ads completed successfully', name: 'SpinWinModule');
+      // return true;
     } finally {
       _isPlayingAds.value = false;
     }
