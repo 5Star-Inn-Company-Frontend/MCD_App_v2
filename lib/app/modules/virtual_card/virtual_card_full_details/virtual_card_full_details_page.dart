@@ -1,11 +1,15 @@
+import 'dart:convert';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:mcd/app/modules/virtual_card/models/virtual_card_model.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/app/widgets/shimmer_loading.dart';
+import 'package:mcd/core/constants/fonts.dart';
 import './virtual_card_full_details_controller.dart';
 
 class VirtualCardFullDetailsPage
@@ -38,28 +42,32 @@ class VirtualCardFullDetailsPage
             Expanded(
               flex: 1,
               child: Center(
-                child: TweenAnimationBuilder<double>(
-                  duration: const Duration(milliseconds: 500),
-                  tween: Tween(
-                    begin: 0.0,
-                    end: controller.isDetailsVisible.value ? 1.0 : 0.0,
-                  ),
-                  curve: Curves.easeInOut,
-                  builder: (context, value, child) {
+                child: AnimatedBuilder(
+                  animation: controller.flipAnimation,
+                  builder: (context, child) {
+                    final angle = controller.flipAnimation.value;
+                    final showBack = angle > math.pi / 2;
+
+                    // counter-rotate the back face so text reads correctly
+                    final displayAngle = showBack ? angle - math.pi : angle;
+
                     return Transform(
                       alignment: Alignment.center,
                       transform: Matrix4.identity()
-                        ..setEntry(3, 2, 0.001) // Perspective
-                        ..rotateY(value *
-                            1.5708), // 90 degrees rotation on Y-axis (flip sideways)
-                      child: _buildVirtualCard(
-                        cardNumber: controller.isDetailsVisible.value
-                            ? card.cardNumber
-                            : card.masked,
-                        color: _getCardColor(card.brand),
-                        brand: card.brand,
-                        isActive: card.status == 1,
-                      ),
+                        ..setEntry(3, 2, 0.001)
+                        ..rotateY(displayAngle),
+                      child: showBack
+                          ? _buildVirtualCardBack(
+                              card: card,
+                              color: _getCardColor(card.brand),
+                            )
+                          : _buildVirtualCard(
+                              cardNumber: card.masked,
+                              color: _getCardColor(card.brand),
+                              brand: card.brand,
+                              isActive: card.status == 1,
+                              cardHolderName: card.name,
+                            ),
                     );
                   },
                 ),
@@ -108,9 +116,7 @@ class VirtualCardFullDetailsPage
                 curve: Curves.easeOutCubic,
                 transform: Matrix4.translationValues(
                   0,
-                  controller.isDetailsVisible.value
-                      ? 0
-                      : -500,
+                  controller.isDetailsVisible.value ? 0 : -500,
                   0,
                 ),
                 child: AnimatedOpacity(
@@ -188,8 +194,7 @@ class VirtualCardFullDetailsPage
     );
   }
 
-  Widget _buildDetailRow(BuildContext context, String label, String value,
-      {bool showCopy = false}) {
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -320,6 +325,7 @@ class VirtualCardFullDetailsPage
     required Color color,
     required bool isActive,
     String? brand,
+    String? cardHolderName,
   }) {
     String formattedCardNumber = _formatCardNumber(cardNumber);
 
@@ -340,166 +346,57 @@ class VirtualCardFullDetailsPage
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-            // Base gradient background
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    color,
-                    color.withOpacity(0.85),
-                  ],
-                ),
+            // card background image
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/virtual_card/mycard.png',
+                fit: BoxFit.cover,
               ),
             ),
 
-            // Wave pattern layer 1 (darkest)
-            Positioned(
-              top: -100,
-              right: -50,
-              child: Container(
-                width: 400,
-                height: 300,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color.withOpacity(0.3),
-                ),
-              ),
-            ),
-
-            // Wave pattern layer 2
-            Positioned(
-              top: -80,
-              right: -80,
-              child: Container(
-                width: 350,
-                height: 280,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color.withOpacity(0.25),
-                ),
-              ),
-            ),
-
-            // Wave pattern layer 3 (lighter)
-            Positioned(
-              top: -60,
-              right: -100,
-              child: Container(
-                width: 300,
-                height: 250,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color.withOpacity(0.2),
-                ),
-              ),
-            ),
-
-            // Bottom wave layer 1
-            Positioned(
-              bottom: -150,
-              left: -100,
-              child: Container(
-                width: 350,
-                height: 300,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withOpacity(0.08),
-                ),
-              ),
-            ),
-
-            // Bottom wave layer 2
-            Positioned(
-              bottom: -120,
-              left: -50,
-              child: Container(
-                width: 300,
-                height: 250,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withOpacity(0.05),
-                ),
-              ),
-            ),
-
-            // Card content
+            // card content overlay
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Brand Logo and Contactless Icon
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      if (brand != null && brand.toLowerCase() == 'mastercard')
-                        // Mastercard logo (two circles)
-                        Row(
-                          children: [
-                            Container(
-                              width: 30,
-                              height: 30,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color(0xFFEB001B),
-                              ),
-                            ),
-                            Transform.translate(
-                              offset: const Offset(-12, 0),
-                              child: Container(
-                                width: 30,
-                                height: 30,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Color(0xFFF79E1B),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      else if (brand != null)
-                        TextBold(
-                          brand.toUpperCase(),
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        )
-                      else
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.credit_card,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                        ),
-                      const Icon(
-                        Icons.contactless_outlined,
-                        color: Colors.white,
-                        size: 32,
-                      ),
-                    ],
-                  ),
+                  // brand logo
+                  _buildBrandLogo(brand),
                   const Spacer(),
 
-                  // Card Number
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextSemiBold(
-                      formattedCardNumber,
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  // masked card number
+                  TextBold(
+                    formattedCardNumber,
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  const Gap(12),
+
+                  // card holder name
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextSemiBold(
+                              'Card Holder name',
+                              fontSize: 11.5,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                            const Gap(2),
+                            TextBold(
+                              cardHolderName ?? '',
+                              fontSize: 14,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -510,16 +407,171 @@ class VirtualCardFullDetailsPage
     );
   }
 
+  Widget _buildVirtualCardBack({
+    required VirtualCardModel card,
+    required Color color,
+  }) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30),
+      height: 220,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          children: [
+            // card background image
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/virtual_card/mycard.png',
+                fit: BoxFit.cover,
+              ),
+            ),
+
+            // magnetic stripe
+            Positioned(
+              top: 36,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 44,
+                color: Colors.black.withOpacity(0.85),
+              ),
+            ),
+
+            // cvv + expiry
+            Positioned(
+              bottom: 24,
+              left: 20,
+              right: 20,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  // cvv strip
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'CVV',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey.shade600,
+                            fontFamily: AppFonts.manRope,
+                          ),
+                        ),
+                        Text(
+                          card.cvv.isNotEmpty ? card.cvv : '•••',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                            fontFamily: AppFonts.manRope,
+                            letterSpacing: 3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Gap(10),
+
+                  // expiry date
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        card.expiryDate.isNotEmpty
+                            ? 'Exp: ${card.expiryDate}'
+                            : '',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: AppFonts.manRope,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBrandLogo(String? brand) {
+    if (brand == null) {
+      return const SizedBox(height: 30);
+    }
+    switch (brand.toLowerCase()) {
+      case 'visa':
+        return TextBold(
+          'VISA',
+          fontSize: 22,
+          color: Colors.white,
+          fontWeight: FontWeight.w800,
+        );
+      case 'mastercard':
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0xFFEB001B),
+              ),
+            ),
+            Transform.translate(
+              offset: const Offset(-10, 0),
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFFF79E1B),
+                ),
+              ),
+            ),
+          ],
+        );
+      default:
+        return TextBold(
+          brand.toUpperCase(),
+          fontSize: 18,
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
+        );
+    }
+  }
+
   String _formatCardNumber(String cardNumber) {
     String cleaned = cardNumber.replaceAll(RegExp(r'[\s\-\*]'), '');
-    
+
     if (cardNumber.contains('*')) {
       if (cardNumber.split(' ').length == 4) {
         return cardNumber;
       }
       return cardNumber.replaceAll(RegExp(r'\s+'), ' ').trim();
     }
-    
+
     if (cleaned.length >= 16) {
       return '${cleaned.substring(0, 4)} ${cleaned.substring(4, 8)} ${cleaned.substring(8, 12)} ${cleaned.substring(12, 16)}';
     } else if (cleaned.length >= 12) {
@@ -529,49 +581,41 @@ class VirtualCardFullDetailsPage
     } else if (cleaned.length >= 4) {
       return '${cleaned.substring(0, 4)} ${cleaned.substring(4)}';
     }
-    
+
     return cardNumber;
   }
 
   String _formatAddress(String? address) {
     if (address == null || address.isEmpty) return 'N/A';
-    
+
     try {
-      // Try to parse as JSON
-      final addressData = address.startsWith('{') 
-          ? address 
-          : address;
-      
-      // Parse the JSON string
-      final Map<String, dynamic> addressMap = {};
-      final cleanAddress = addressData.replaceAll('{', '').replaceAll('}', '').replaceAll('"', '');
-      final parts = cleanAddress.split(',');
-      
-      for (var part in parts) {
-        final keyValue = part.split(':');
-        if (keyValue.length == 2) {
-          addressMap[keyValue[0].trim()] = keyValue[1].trim();
-        }
+      dynamic decoded = jsonDecode(address);
+
+      // handle double-encoded json strings
+      if (decoded is String) {
+        decoded = jsonDecode(decoded);
       }
-      
-      // Format address components
-      final street = addressMap['street'] ?? '';
-      final city = addressMap['city'] ?? '';
-      final state = addressMap['state'] ?? '';
-      final country = addressMap['country'] ?? '';
-      final postalCode = addressMap['postal_code'] ?? '';
-      
-      // Build formatted address string
-      List<String> addressParts = [];
-      if (street.isNotEmpty) addressParts.add(street);
-      if (city.isNotEmpty) addressParts.add(city);
-      if (state.isNotEmpty) addressParts.add(state);
-      if (country.isNotEmpty) addressParts.add(country);
-      if (postalCode.isNotEmpty) addressParts.add(postalCode);
-      
-      return addressParts.isEmpty ? 'N/A' : addressParts.join(', ');
+
+      if (decoded is Map<String, dynamic>) {
+        final street = decoded['street']?.toString() ?? '';
+        final city = decoded['city']?.toString() ?? '';
+        final state = decoded['state']?.toString() ?? '';
+        final country = decoded['country']?.toString() ?? '';
+        final postalCode = decoded['postal_code']?.toString() ?? '';
+
+        List<String> addressParts = [];
+        if (street.isNotEmpty) addressParts.add(street);
+        if (city.isNotEmpty) addressParts.add(city);
+        if (state.isNotEmpty) addressParts.add(state);
+        if (country.isNotEmpty) addressParts.add(country);
+        if (postalCode.isNotEmpty) addressParts.add(postalCode);
+
+        return addressParts.isEmpty ? 'N/A' : addressParts.join(', ');
+      }
+
+      return address;
     } catch (e) {
-      // If parsing fails, return the original address
+      // not json, return as-is
       return address;
     }
   }

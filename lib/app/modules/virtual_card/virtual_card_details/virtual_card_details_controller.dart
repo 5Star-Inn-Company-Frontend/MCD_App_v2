@@ -12,29 +12,41 @@ class VirtualCardDetailsController extends GetxController {
 
   final pageController = PageController();
   final isCardDetailsHidden = true.obs;
-  final cardBalances = <int, double>{}.obs; // Map of card ID to balance
+  final cardBalances = <int, double>{}.obs;
+  final cardBalanceLoading = <int, bool>{}.obs;
+  final cards = <VirtualCardModel>[].obs;
   final isFetchingCards = false.obs;
-  final isFetchingBalance = false.obs;
   final isFreezing = false.obs;
   final isUnfreezing = false.obs;
   final isDeleting = false.obs;
   final currentCardIndex = 0.obs;
 
-  final cards = <VirtualCardModel>[].obs;
-  VirtualCardModel? get currentCard => cards.isNotEmpty ? cards[currentCardIndex.value] : null;
-  double get currentBalance => currentCard != null ? (cardBalances[currentCard!.id] ?? 0.0) : 0.0;
+  VirtualCardModel? get currentCard =>
+      cards.isNotEmpty ? cards[currentCardIndex.value] : null;
+  double get currentBalance =>
+      currentCard != null ? (cardBalances[currentCard!.id] ?? 0.0) : 0.0;
+  bool get isCurrentBalanceLoading => currentCard != null
+      ? (cardBalanceLoading[currentCard!.id] ?? false)
+      : false;
 
   @override
   void onInit() {
     super.onInit();
     fetchAllCards();
-    
-    // Listen to carousel changes and fetch balance for the current card
+
+    // re-fetch balance when swiping to a different card
     ever(currentCardIndex, (index) {
       if (currentCard != null) {
         fetchCardBalance(currentCard!.id);
       }
     });
+  }
+
+  // call this whenever returning to this screen from a sub-screen
+  void refreshAllBalances() {
+    for (final card in cards) {
+      fetchCardBalance(card.id);
+    }
   }
 
   @override
@@ -54,7 +66,8 @@ class VirtualCardDetailsController extends GetxController {
         return;
       }
 
-      final result = await apiService.getrequest('${transactionUrl}virtual-card/list');
+      final result =
+          await apiService.getrequest('${transactionUrl}virtual-card/list');
 
       result.fold(
         (failure) {
@@ -71,13 +84,13 @@ class VirtualCardDetailsController extends GetxController {
             final response = VirtualCardListResponse.fromJson(data);
             cards.value = response.data;
             dev.log('Success: ${cards.length} cards loaded');
-            
+
             // Navigate to home screen if no cards exist
             if (cards.isEmpty) {
               Get.offNamed('/virtual_card_home');
               return;
             }
-            
+
             // Fetch balance for all cards
             for (var card in cards) {
               fetchCardBalance(card.id);
@@ -96,6 +109,8 @@ class VirtualCardDetailsController extends GetxController {
 
   Future<void> fetchCardBalance(int cardId) async {
     try {
+      cardBalanceLoading[cardId] = true;
+      cardBalanceLoading.refresh();
       dev.log('Fetching balance for card $cardId');
 
       final transactionUrl = box.read('transaction_service_url');
@@ -113,14 +128,13 @@ class VirtualCardDetailsController extends GetxController {
         },
         (data) {
           if (data['success'] == 1) {
-            // Parse the balance from "USD 13" format
             String balanceString = data['data']?.toString() ?? '0';
-            // Remove currency prefix and parse the number
-            String numericBalance = balanceString.replaceAll(RegExp(r'[^0-9.]'), '').trim();
+            String numericBalance =
+                balanceString.replaceAll(RegExp(r'[^0-9.]'), '').trim();
             cardBalances[cardId] = double.tryParse(numericBalance) ?? 0.0;
-            // Force UI update
             cardBalances.refresh();
-            dev.log('Success: Balance for card $cardId loaded - \$${cardBalances[cardId]}');
+            dev.log(
+                'Success: Balance for card $cardId - \$${cardBalances[cardId]}');
           } else {
             dev.log('Error: ${data['message']}');
           }
@@ -128,6 +142,9 @@ class VirtualCardDetailsController extends GetxController {
       );
     } catch (e) {
       dev.log('Error: $e');
+    } finally {
+      cardBalanceLoading[cardId] = false;
+      cardBalanceLoading.refresh();
     }
   }
 

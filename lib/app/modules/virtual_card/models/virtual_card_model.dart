@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class VirtualCardModel {
   final int id;
   final String userName;
@@ -50,11 +52,13 @@ class VirtualCardModel {
       cvv: json['ccv']?.toString() ?? '',
       currency: json['currency']?.toString() ?? 'USD',
       status: json['status'] ?? 1,
-      address: json['address']?.toString(),
-      createdAt: json['created_at'] != null 
+      address: json['address'] is Map
+          ? jsonEncode(json['address'])
+          : json['address']?.toString(),
+      createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now()
           : DateTime.now(),
-      updatedAt: json['updated_at'] != null 
+      updatedAt: json['updated_at'] != null
           ? DateTime.tryParse(json['updated_at'].toString()) ?? DateTime.now()
           : DateTime.now(),
     );

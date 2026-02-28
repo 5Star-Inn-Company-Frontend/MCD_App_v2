@@ -572,6 +572,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
             'route': Routes.DATA_PIN,
             'serviceKey': 'data_pin'
           },
+          {'title': 'Recharge Pin', 'route': '', 'serviceKey': 'rechargecard'},
         ];
 
         return Container(
@@ -593,12 +594,24 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                   opacity: isAvailable ? 1.0 : 0.5,
                   child: TouchableOpacity(
                     onTap: () async {
+                      final serviceKey = option['serviceKey'] as String;
+                      final title = option['title'] as String;
+                      final route = option['route'] as String;
+
                       await controller.checkAndNavigate(
-                        option['serviceKey'] as String,
-                        serviceName: option['title'] as String,
+                        serviceKey,
+                        serviceName: title,
                         onAvailable: () {
                           Navigator.pop(context);
-                          Get.toNamed(option['route'] as String);
+                          if (serviceKey == 'rechargecard') {
+                            launchUrl(
+                              Uri.parse(
+                                  'https://rechargecardportal.5starcompany.com.ng/authentication/login'),
+                              mode: LaunchMode.externalApplication,
+                            );
+                          } else {
+                            Get.toNamed(route);
+                          }
                         },
                       );
                     },

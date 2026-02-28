@@ -15,7 +15,7 @@ class VirtualCardHomePage extends GetView<VirtualCardHomeController> {
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () => Get.back(),
+            onPressed: () => Get.offAllNamed(Routes.HOME_SCREEN),
           ),
           title: TextSemiBold(
             'Virtual Card',

@@ -86,6 +86,12 @@ class GeneralPayoutController extends GetxController {
   final isMultipleAirtime = false.obs;
   final multipleAirtimeList = <Map<String, dynamic>>[].obs;
 
+  // paystack 1.5% fee applied on top of transaction amount
+  static const double paystackFeeRate = 0.015;
+
+  // exposes base transaction amount for UI fee display
+  double get transactionAmount => _getTransactionAmount();
+
   // Paystack keys (from config or fallback)
   String get paystackPublicKey =>
       box.read('paystack_public_key') ??
@@ -939,7 +945,13 @@ class GeneralPayoutController extends GetxController {
 
       Charge charge = Charge();
       charge.card = _getCardFromUI();
-      charge.amount = _currentAmount * 100; // convert to kobo
+      // apply 1.5% paystack fee on top of base amount
+      final amountWithFee =
+          (_currentAmount * (1 + paystackFeeRate) * 100).round();
+      charge.amount = amountWithFee; // in kobo
+      dev.log(
+          'Paystack charge: base=₦$_currentAmount fee=₦${(_currentAmount * paystackFeeRate).toStringAsFixed(2)} total=₦${(_currentAmount * (1 + paystackFeeRate)).toStringAsFixed(2)}',
+          name: 'GeneralPayout');
       charge.email = userEmail;
       charge.reference = _currentReference;
       charge.putCustomField('Charged From', 'MCD App');

@@ -10,7 +10,8 @@ import 'package:mcd/app/widgets/shimmer_loading.dart';
 import 'package:mcd/core/constants/fonts.dart';
 import './virtual_card_transactions_controller.dart';
 
-class VirtualCardTransactionsPage extends GetView<VirtualCardTransactionsController> {
+class VirtualCardTransactionsPage
+    extends GetView<VirtualCardTransactionsController> {
   const VirtualCardTransactionsPage({super.key});
 
   @override
@@ -28,16 +29,16 @@ class VirtualCardTransactionsPage extends GetView<VirtualCardTransactionsControl
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Gap(20),
-            
+
             // Virtual Card Display
             Obx(() {
               if (controller.cardModel == null) {
                 return const SizedBox.shrink();
               }
-              
+
               final card = controller.cardModel!;
               final balance = controller.cardBalance.value;
-              
+
               return TweenAnimationBuilder<double>(
                 duration: const Duration(milliseconds: 600),
                 tween: Tween(begin: 0.0, end: 1.0),
@@ -57,11 +58,12 @@ class VirtualCardTransactionsPage extends GetView<VirtualCardTransactionsControl
                   color: _getCardColor(card.brand),
                   brand: card.brand,
                   isActive: card.status == 1,
+                  cardHolderName: card.name,
                 ),
               );
             }),
             const Gap(30),
-            
+
             Text(
               'Transactions',
               style: TextStyle(
@@ -71,7 +73,7 @@ class VirtualCardTransactionsPage extends GetView<VirtualCardTransactionsControl
                 fontFamily: AppFonts.manRope,
               ),
             ),
-        
+
             Expanded(
               child: Obx(() {
                 if (controller.isLoading.value) {
@@ -118,8 +120,9 @@ class VirtualCardTransactionsPage extends GetView<VirtualCardTransactionsControl
 
   Widget _buildTransactionItem(VirtualCardTransactionModel transaction) {
     final isDebit = transaction.type.toLowerCase() == 'debit';
-    final formattedDate = DateFormat('MMM dd, yyyy hh:mm a').format(transaction.createdAt);
-    
+    final formattedDate =
+        DateFormat('MMM dd, yyyy hh:mm a').format(transaction.createdAt);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -143,12 +146,11 @@ class VirtualCardTransactionsPage extends GetView<VirtualCardTransactionsControl
               ],
             ),
           ),
+          Gap(10),
           TextBold(
             '${isDebit ? '-' : '+'}\$${transaction.amount.toStringAsFixed(2)}',
             fontSize: 16,
-            color: isDebit 
-                ? const Color(0xFFF44336) 
-                : AppColors.primaryColor,
+            color: isDebit ? const Color(0xFFF44336) : AppColors.primaryColor,
           ),
         ],
       ),
@@ -161,6 +163,7 @@ class VirtualCardTransactionsPage extends GetView<VirtualCardTransactionsControl
     required Color color,
     required bool isActive,
     String? brand,
+    String? cardHolderName,
   }) {
     String formattedCardNumber = _formatCardNumber(cardNumber);
 
@@ -181,175 +184,64 @@ class VirtualCardTransactionsPage extends GetView<VirtualCardTransactionsControl
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-            // Base gradient background
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    color,
-                    color.withOpacity(0.85),
-                  ],
-                ),
+            // card background image
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/virtual_card/mycard.png',
+                fit: BoxFit.cover,
               ),
             ),
 
-            // Wave pattern layer 1 (darkest)
-            Positioned(
-              top: -100,
-              right: -50,
-              child: Container(
-                width: 400,
-                height: 300,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color.withOpacity(0.3),
-                ),
-              ),
-            ),
-
-            // Wave pattern layer 2
-            Positioned(
-              top: -80,
-              right: -80,
-              child: Container(
-                width: 350,
-                height: 280,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color.withOpacity(0.25),
-                ),
-              ),
-            ),
-
-            // Wave pattern layer 3 (lighter)
-            Positioned(
-              top: -60,
-              right: -100,
-              child: Container(
-                width: 300,
-                height: 250,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color.withOpacity(0.2),
-                ),
-              ),
-            ),
-
-            // Bottom wave layer 1
-            Positioned(
-              bottom: -150,
-              left: -100,
-              child: Container(
-                width: 350,
-                height: 300,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withOpacity(0.08),
-                ),
-              ),
-            ),
-
-            // Bottom wave layer 2
-            Positioned(
-              bottom: -120,
-              left: -50,
-              child: Container(
-                width: 300,
-                height: 250,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withOpacity(0.05),
-                ),
-              ),
-            ),
-
-            // Card content
+            // card content overlay
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Brand Logo and Contactless Icon
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      if (brand != null && brand.toLowerCase() == 'mastercard')
-                        // Mastercard logo (two circles)
-                        Row(
-                          children: [
-                            Container(
-                              width: 30,
-                              height: 30,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color(0xFFEB001B),
-                              ),
-                            ),
-                            Transform.translate(
-                              offset: const Offset(-12, 0),
-                              child: Container(
-                                width: 30,
-                                height: 30,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Color(0xFFF79E1B),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      else if (brand != null)
-                        TextBold(
-                          brand.toUpperCase(),
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        )
-                      else
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.credit_card,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                        ),
-                      const Icon(
-                        Icons.contactless_outlined,
-                        color: Colors.white,
-                        size: 32,
-                      ),
-                    ],
-                  ),
+                  // brand logo
+                  _buildBrandLogo(brand),
                   const Spacer(),
 
-                  // Balance
+                  // masked card number
                   TextBold(
-                    balance,
-                    fontSize: 32,
+                    formattedCardNumber,
+                    fontSize: 20,
                     color: Colors.white,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
-                  const Gap(16),
+                  const Gap(12),
 
-                  // Card Number
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextSemiBold(
-                      formattedCardNumber,
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  // card holder name + balance
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextSemiBold(
+                              'Card Holder name',
+                              fontSize: 11.5,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                            const Gap(2),
+                            TextBold(
+                              cardHolderName ?? '',
+                              fontSize: 14,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      ),
+                      TextBold(
+                        balance,
+                        fontSize: 22,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -360,34 +252,58 @@ class VirtualCardTransactionsPage extends GetView<VirtualCardTransactionsControl
     );
   }
 
-  String _formatCardNumber(String cardNumber) {
-    String cleaned = cardNumber.replaceAll(RegExp(r'[\s\-\*]'), '');
-    
-    if (cardNumber.contains('*')) {
-      if (cardNumber.split(' ').length == 4) {
-        return cardNumber;
-      }
-      return cardNumber.replaceAll(RegExp(r'\s+'), ' ').trim();
+  Widget _buildBrandLogo(String? brand) {
+    if (brand == null) {
+      return const SizedBox(height: 30);
     }
-    
-    if (cleaned.length >= 16) {
-      return '${cleaned.substring(0, 4)} ${cleaned.substring(4, 8)} ${cleaned.substring(8, 12)} ${cleaned.substring(12, 16)}';
-    } else if (cleaned.length >= 12) {
-      return '${cleaned.substring(0, 4)} ${cleaned.substring(4, 8)} ${cleaned.substring(8, 12)} ${cleaned.substring(12)}';
-    } else if (cleaned.length >= 8) {
-      return '${cleaned.substring(0, 4)} ${cleaned.substring(4, 8)} ${cleaned.substring(8)}';
-    } else if (cleaned.length >= 4) {
-      return '${cleaned.substring(0, 4)} ${cleaned.substring(4)}';
+    switch (brand.toLowerCase()) {
+      case 'visa':
+        return TextBold(
+          'VISA',
+          fontSize: 22,
+          color: Colors.white,
+          fontWeight: FontWeight.w800,
+        );
+      case 'mastercard':
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0xFFEB001B),
+              ),
+            ),
+            Transform.translate(
+              offset: const Offset(-10, 0),
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFFF79E1B),
+                ),
+              ),
+            ),
+          ],
+        );
+      default:
+        return TextBold(
+          brand.toUpperCase(),
+          fontSize: 18,
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
+        );
     }
-    
-    return cardNumber;
   }
 
   Color _getCardColor(String? brand) {
     if (brand == null) return Colors.blueGrey;
     switch (brand.toLowerCase()) {
       case 'visa':
-        return const Color(0xFF1E3A8A); // Blue
+        return const Color(0xFF1E3A8A);
       case 'mastercard':
         return AppColors.primaryGreen;
       case 'verve':
@@ -438,5 +354,28 @@ class VirtualCardTransactionsPage extends GetView<VirtualCardTransactionsControl
         },
       ),
     );
+  }
+
+  String _formatCardNumber(String cardNumber) {
+    String cleaned = cardNumber.replaceAll(RegExp(r'[\s\-\*]'), '');
+
+    if (cardNumber.contains('*')) {
+      if (cardNumber.split(' ').length == 4) {
+        return cardNumber;
+      }
+      return cardNumber.replaceAll(RegExp(r'\s+'), ' ').trim();
+    }
+
+    if (cleaned.length >= 16) {
+      return '${cleaned.substring(0, 4)} ${cleaned.substring(4, 8)} ${cleaned.substring(8, 12)} ${cleaned.substring(12, 16)}';
+    } else if (cleaned.length >= 12) {
+      return '${cleaned.substring(0, 4)} ${cleaned.substring(4, 8)} ${cleaned.substring(8, 12)} ${cleaned.substring(12)}';
+    } else if (cleaned.length >= 8) {
+      return '${cleaned.substring(0, 4)} ${cleaned.substring(4, 8)} ${cleaned.substring(8)}';
+    } else if (cleaned.length >= 4) {
+      return '${cleaned.substring(0, 4)} ${cleaned.substring(4)}';
+    }
+
+    return cardNumber;
   }
 }

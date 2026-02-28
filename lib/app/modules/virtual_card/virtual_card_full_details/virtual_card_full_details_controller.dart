@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+import 'package:flutter/animation.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/virtual_card/models/virtual_card_model.dart';
@@ -5,10 +7,10 @@ import 'package:mcd/app/modules/virtual_card/virtual_card_details/virtual_card_d
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/app/styles/app_colors.dart';
-import 'package:mcd/app/modules/virtual_card/virtual_card_home/virtual_card_home_controller.dart';
 import 'dart:developer' as dev;
 
-class VirtualCardFullDetailsController extends GetxController {
+class VirtualCardFullDetailsController extends GetxController
+    with GetSingleTickerProviderStateMixin {
   final apiService = DioApiService();
   final box = GetStorage();
 
@@ -17,16 +19,27 @@ class VirtualCardFullDetailsController extends GetxController {
   final isDeleting = false.obs;
   final isFetching = false.obs;
 
+  late final AnimationController flipController;
+  late final Animation<double> flipAnimation;
+
   int? cardId;
 
   @override
   void onInit() {
     super.onInit();
+
+    flipController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    flipAnimation = Tween<double>(begin: 0, end: math.pi).animate(
+      CurvedAnimation(parent: flipController, curve: Curves.easeInOut),
+    );
+
     final args = Get.arguments;
     if (args != null && args['cardModel'] != null) {
       card.value = args['cardModel'];
       cardId = card.value!.id;
-      // Fetch full details including sensitive info
       fetchCardDetails(cardId!);
     } else if (args != null && args['cardId'] != null) {
       cardId = args['cardId'];
@@ -62,6 +75,7 @@ class VirtualCardFullDetailsController extends GetxController {
           if (data['success'] == 1) {
             card.value = VirtualCardModel.fromJson(data['data']);
             dev.log('Success: Card details loaded');
+            dev.log('Card details: ${card.value!.toJson()}');
           } else {
             dev.log('Error: ${data['message']}');
             Get.snackbar(
@@ -81,7 +95,13 @@ class VirtualCardFullDetailsController extends GetxController {
   }
 
   void toggleDetails() {
-    isDetailsVisible.value = !isDetailsVisible.value;
+    if (flipController.isCompleted) {
+      flipController.reverse();
+      isDetailsVisible.value = false;
+    } else {
+      flipController.forward();
+      isDetailsVisible.value = true;
+    }
   }
 
   Future<void> deleteCard() async {
@@ -125,7 +145,8 @@ class VirtualCardFullDetailsController extends GetxController {
               Get.find<VirtualCardDetailsController>().fetchAllCards();
             }
 
-            Get.until((route) => route.settings.name == Routes.VIRTUAL_CARD_DETAILS);
+            Get.until(
+                (route) => route.settings.name == Routes.VIRTUAL_CARD_DETAILS);
             // Or just close enough
             // Get.close(2);
           } else {

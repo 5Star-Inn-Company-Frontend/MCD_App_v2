@@ -10,6 +10,7 @@ import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
 import 'package:mcd/app/widgets/touchableOpacity.dart';
 import 'package:mcd/core/constants/fonts.dart';
+import 'package:mcd/core/services/general_market_payment_service.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
 
 class GeneralPayoutPage extends GetView<GeneralPayoutController> {
@@ -629,93 +630,157 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                 const Divider(height: 1),
                 Opacity(
                   opacity: isGeneralMarketAvailable ? 1.0 : 0.4,
-                  child: RadioListTile<int>(
-                    title: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'General Market (₦${AmountUtil.formatFigure(double.tryParse(controller.gmBalance.value) ?? 0)})',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14,
-                              color: isGeneralMarketAvailable
-                                  ? Colors.black
-                                  : Colors.grey,
-                            ),
-                          ),
-                        ),
-                        if (!isGeneralMarketAvailable)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Text(
-                              'Unavailable',
-                              style: TextStyle(
-                                fontFamily: AppFonts.manRope,
-                                fontSize: 10,
-                                color: Colors.grey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RadioListTile<int>(
+                        title: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'General Market (₦${AmountUtil.formatFigure(double.tryParse(controller.gmBalance.value) ?? 0)})',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 14,
+                                  color: isGeneralMarketAvailable
+                                      ? Colors.black
+                                      : Colors.grey,
+                                ),
                               ),
                             ),
+                            if (!isGeneralMarketAvailable)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'Unavailable',
+                                  style: TextStyle(
+                                    fontFamily: AppFonts.manRope,
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        value: 2,
+                        groupValue: controller.selectedPaymentMethod.value,
+                        onChanged: isGeneralMarketAvailable
+                            ? (value) => controller.selectPaymentMethod(value)
+                            : null,
+                        controlAffinity: ListTileControlAffinity.trailing,
+                        contentPadding: EdgeInsets.zero,
+                        activeColor: const Color(0xFF5ABB7B),
+                      ),
+                      if (isGeneralMarketAvailable)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4, bottom: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(Icons.info_outline,
+                                  size: 14, color: Colors.red),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  'FREE for use. But expect ${GeneralMarketPaymentService.requiredAdsCount} ads while the server is processing your order',
+                                  style: const TextStyle(
+                                    fontFamily: AppFonts.manRope,
+                                    fontSize: 11,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                      ],
-                    ),
-                    value: 2,
-                    groupValue: controller.selectedPaymentMethod.value,
-                    onChanged: isGeneralMarketAvailable
-                        ? (value) => controller.selectPaymentMethod(value)
-                        : null,
-                    controlAffinity: ListTileControlAffinity.trailing,
-                    contentPadding: EdgeInsets.zero,
-                    activeColor: const Color(0xFF5ABB7B),
+                        ),
+                    ],
                   ),
                 ),
                 const Divider(height: 1),
                 Opacity(
                   opacity: isPaystackAvailable ? 1.0 : 0.4,
-                  child: RadioListTile<int>(
-                    title: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Paystack',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14,
-                              color: isPaystackAvailable
-                                  ? Colors.black
-                                  : Colors.grey,
-                            ),
-                          ),
-                        ),
-                        if (!isPaystackAvailable)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: const Text(
-                              'Unavailable',
-                              style: TextStyle(
-                                fontFamily: AppFonts.manRope,
-                                fontSize: 10,
-                                color: Colors.grey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RadioListTile<int>(
+                        title: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Paystack (1.5% Fee)',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 14,
+                                  color: isPaystackAvailable
+                                      ? Colors.black
+                                      : Colors.grey,
+                                ),
                               ),
                             ),
-                          ),
-                      ],
-                    ),
-                    value: 3,
-                    groupValue: controller.selectedPaymentMethod.value,
-                    onChanged: isPaystackAvailable
-                        ? (value) => controller.selectPaymentMethod(value)
-                        : null,
-                    controlAffinity: ListTileControlAffinity.trailing,
-                    contentPadding: EdgeInsets.zero,
-                    activeColor: const Color(0xFF5ABB7B),
+                            if (!isPaystackAvailable)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: const Text(
+                                  'Unavailable',
+                                  style: TextStyle(
+                                    fontFamily: AppFonts.manRope,
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        value: 3,
+                        groupValue: controller.selectedPaymentMethod.value,
+                        onChanged: isPaystackAvailable
+                            ? (value) => controller.selectPaymentMethod(value)
+                            : null,
+                        controlAffinity: ListTileControlAffinity.trailing,
+                        contentPadding: EdgeInsets.zero,
+                        activeColor: const Color(0xFF5ABB7B),
+                      ),
+                      if (controller.selectedPaymentMethod.value == 3 &&
+                          isPaystackAvailable)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4, bottom: 10),
+                          child: Builder(builder: (_) {
+                            final base = controller.transactionAmount;
+                            final fee =
+                                base * GeneralPayoutController.paystackFeeRate;
+                            final total = base + fee;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Fee: ₦${AmountUtil.formatFigure(fee)}',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 13,
+                                    color: Colors.orange,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Total Fee: ₦${AmountUtil.formatFigure(total)}',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
+                        ),
+                    ],
                   ),
                 ),
               ],

@@ -6,7 +6,6 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: const PaylonyAppBarTwo(
         title: "Virtual Card",
@@ -31,7 +30,8 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
 
             // Card Display with Carousel
             Obx(() {
-              if (controller.cards.isEmpty && controller.isFetchingCards.value) {
+              if (controller.cards.isEmpty &&
+                  controller.isFetchingCards.value) {
                 return const Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 100),
@@ -62,18 +62,24 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                       itemCount: controller.cards.length,
                       itemBuilder: (context, index) {
                         final card = controller.cards[index];
-                        
+
                         return Obx(() {
-                          final balance = controller.cardBalances[card.id] ?? 0.0;
-                          
+                          final balance =
+                              controller.cardBalances[card.id] ?? 0.0;
+                          final isLoading =
+                              controller.cardBalanceLoading[card.id] ?? false;
+
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 10),
                             child: _buildVirtualCard(
-                              balance: '\$${balance.toStringAsFixed(2)}',
+                              balance: isLoading
+                                  ? '...'
+                                  : '\$${balance.toStringAsFixed(2)}',
                               cardNumber: card.masked,
                               color: _getCardColor(card.brand),
                               brand: card.brand,
                               isActive: card.status == 1,
+                              cardHolderName: card.name,
                             ),
                           );
                         });
@@ -81,7 +87,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                     ),
                   ),
                   const Gap(16),
-                  
+
                   // Carousel Indicators
                   if (controller.cards.length > 1)
                     Row(
@@ -89,7 +95,8 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                       children: List.generate(
                         controller.cards.length,
                         (index) => Obx(() {
-                          final isActive = controller.currentCardIndex.value == index;
+                          final isActive =
+                              controller.currentCardIndex.value == index;
                           return AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
                             margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -131,11 +138,13 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                     label: 'Transactions',
                     onTap: () {
                       if (controller.currentCard != null) {
-                        Get.toNamed(Routes.VIRTUAL_CARD_TRANSACTIONS,
-                            arguments: {
-                              'cardId': controller.currentCard!.id,
-                              'cardModel': controller.currentCard,
-                            });
+                        Get.toNamed(
+                          Routes.VIRTUAL_CARD_TRANSACTIONS,
+                          arguments: {
+                            'cardId': controller.currentCard!.id,
+                            'cardModel': controller.currentCard,
+                          },
+                        )?.then((_) => controller.refreshAllBalances());
                       }
                     },
                   ),
@@ -155,8 +164,10 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                     label: 'Details',
                     onTap: () {
                       if (controller.currentCard != null) {
-                        Get.toNamed(Routes.VIRTUAL_CARD_FULL_DETAILS,
-                            arguments: {'cardModel': controller.currentCard});
+                        Get.toNamed(
+                          Routes.VIRTUAL_CARD_FULL_DETAILS,
+                          arguments: {'cardModel': controller.currentCard},
+                        )?.then((_) => controller.refreshAllBalances());
                       }
                     },
                   ),
@@ -173,7 +184,8 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                 onPressed: () {
                   if (controller.currentCard != null) {
                     Get.toNamed(Routes.VIRTUAL_CARD_TOP_UP,
-                        arguments: {'cardId': controller.currentCard!.id});
+                            arguments: {'cardId': controller.currentCard!.id})
+                        ?.then((_) => controller.refreshAllBalances());
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -235,6 +247,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
     required Color color,
     required bool isActive,
     String? brand,
+    String? cardHolderName,
   }) {
     String formattedCardNumber = _formatCardNumber(cardNumber);
 
@@ -255,175 +268,64 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-            // Base gradient background
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    color,
-                    color.withOpacity(0.85),
-                  ],
-                ),
+            // card background image
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/virtual_card/mycard.png',
+                fit: BoxFit.cover,
               ),
             ),
 
-            // Wave pattern layer 1 (darkest)
-            Positioned(
-              top: -100,
-              right: -50,
-              child: Container(
-                width: 400,
-                height: 300,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color.withOpacity(0.3),
-                ),
-              ),
-            ),
-
-            // Wave pattern layer 2
-            Positioned(
-              top: -80,
-              right: -80,
-              child: Container(
-                width: 350,
-                height: 280,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color.withOpacity(0.25),
-                ),
-              ),
-            ),
-
-            // Wave pattern layer 3 (lighter)
-            Positioned(
-              top: -60,
-              right: -100,
-              child: Container(
-                width: 300,
-                height: 250,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color.withOpacity(0.2),
-                ),
-              ),
-            ),
-
-            // Bottom wave layer 1
-            Positioned(
-              bottom: -150,
-              left: -100,
-              child: Container(
-                width: 350,
-                height: 300,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withOpacity(0.08),
-                ),
-              ),
-            ),
-
-            // Bottom wave layer 2
-            Positioned(
-              bottom: -120,
-              left: -50,
-              child: Container(
-                width: 300,
-                height: 250,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withOpacity(0.05),
-                ),
-              ),
-            ),
-
-            // Card content
+            // card content overlay
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Brand Logo and Contactless Icon
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      if (brand != null && brand.toLowerCase() == 'mastercard')
-                        // Mastercard logo (two circles)
-                        Row(
-                          children: [
-                            Container(
-                              width: 30,
-                              height: 30,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color(0xFFEB001B),
-                              ),
-                            ),
-                            Transform.translate(
-                              offset: const Offset(-12, 0),
-                              child: Container(
-                                width: 30,
-                                height: 30,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Color(0xFFF79E1B),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      else if (brand != null)
-                        TextBold(
-                          brand.toUpperCase(),
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        )
-                      else
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.credit_card,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                        ),
-                      const Icon(
-                        Icons.contactless_outlined,
-                        color: Colors.white,
-                        size: 32,
-                      ),
-                    ],
-                  ),
+                  // brand logo
+                  _buildBrandLogo(brand),
                   const Spacer(),
 
-                  // Balance
+                  // masked card number
                   TextBold(
-                    balance,
-                    fontSize: 32,
+                    formattedCardNumber,
+                    fontSize: 20,
                     color: Colors.white,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                   ),
-                  const Gap(16),
+                  const Gap(12),
 
-                  // Card Number
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextSemiBold(
-                      formattedCardNumber,
-                      fontSize: 18,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  // card holder name + balance
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextSemiBold(
+                              'Card Holder name',
+                              fontSize: 11.5,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                            const Gap(2),
+                            TextBold(
+                              cardHolderName ?? '',
+                              fontSize: 14,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ],
+                        ),
+                      ),
+                      TextBold(
+                        balance,
+                        fontSize: 22,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -434,16 +336,63 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
     );
   }
 
+  Widget _buildBrandLogo(String? brand) {
+    if (brand == null) {
+      return const SizedBox(height: 30);
+    }
+    switch (brand.toLowerCase()) {
+      case 'visa':
+        return TextBold(
+          'VISA',
+          fontSize: 22,
+          color: Colors.white,
+          fontWeight: FontWeight.w800,
+        );
+      case 'mastercard':
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 28,
+              height: 28,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0xFFEB001B),
+              ),
+            ),
+            Transform.translate(
+              offset: const Offset(-10, 0),
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFFF79E1B),
+                ),
+              ),
+            ),
+          ],
+        );
+      default:
+        return TextBold(
+          brand.toUpperCase(),
+          fontSize: 18,
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
+        );
+    }
+  }
+
   String _formatCardNumber(String cardNumber) {
     String cleaned = cardNumber.replaceAll(RegExp(r'[\s\-\*]'), '');
-    
+
     if (cardNumber.contains('*')) {
       if (cardNumber.split(' ').length == 4) {
         return cardNumber;
       }
       return cardNumber.replaceAll(RegExp(r'\s+'), ' ').trim();
     }
-    
+
     if (cleaned.length >= 16) {
       return '${cleaned.substring(0, 4)} ${cleaned.substring(4, 8)} ${cleaned.substring(8, 12)} ${cleaned.substring(12, 16)}';
     } else if (cleaned.length >= 12) {
@@ -453,7 +402,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
     } else if (cleaned.length >= 4) {
       return '${cleaned.substring(0, 4)} ${cleaned.substring(4)}';
     }
-    
+
     return cardNumber;
   }
 
@@ -544,10 +493,10 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
 
   void _showFreezeDialog(BuildContext context) {
     if (controller.currentCard == null) return;
-    
+
     final card = controller.currentCard!;
     final isActive = card.status == 1;
-    
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -597,14 +546,14 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                   const Gap(12),
                   Expanded(
                     child: Obx(() {
-                      final isLoading = controller.isFreezing.value || 
-                                       controller.isUnfreezing.value;
+                      final isLoading = controller.isFreezing.value ||
+                          controller.isUnfreezing.value;
                       return ElevatedButton(
                         onPressed: isLoading
                             ? null
                             : () async {
                                 Get.back(); // Close confirmation dialog
-                                
+
                                 if (isActive) {
                                   await controller.freezeCard(card.id);
                                 } else {
@@ -634,7 +583,7 @@ class VirtualCardDetailsPage extends GetView<VirtualCardDetailsController> {
                               ),
                       );
                     }),
-                    ),
+                  ),
                 ],
               ),
             ],
