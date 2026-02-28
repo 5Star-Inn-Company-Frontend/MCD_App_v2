@@ -421,7 +421,7 @@ class SpinWinModuleController extends GetxController {
       _showAdProgressDialog(_adsWatched.value, 5);
         dev.log('Playing ad ${_adsWatched.value}/5...', name: 'SpinWinModule');
 
-        adsService.showspinAndWinAd(
+       var result = await adsService.showspinAndWinAd(
           onRewarded: () {
             if (_adsWatched.value < 5) {
               _adsWatched.value += 1;
@@ -441,6 +441,11 @@ class SpinWinModuleController extends GetxController {
             "type": "spin_win"
           },
         );
+
+       if (!result) {
+         Get.back();
+         onFailed();
+       }
       // }
 
       // dev.log('All 5 ads completed successfully', name: 'SpinWinModule');
