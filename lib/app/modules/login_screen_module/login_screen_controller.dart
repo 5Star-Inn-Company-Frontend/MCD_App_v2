@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
+import 'package:mcd/app/modules/foreign_airtime_module/country_selection_controller.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -474,7 +475,7 @@ class LoginScreenController extends GetxController {
 
   /// navigate to home after successful login
   Future<void> handleLoginSuccess() async {
-    // Fetch fresh service status after successful login
+    // fetch fresh service status
     try {
       final serviceStatusController = Get.find<ServiceStatusController>();
       dev.log('Fetching fresh service status after login', name: 'Login');
@@ -483,8 +484,88 @@ class LoginScreenController extends GetxController {
       dev.log('Error fetching service status after login: $e', name: 'Login');
     }
 
+    // pre-warm countries cache — fire and forget, doesn't block navigation
+    _prefetchCountries();
+
     await fetchDashboard(force: true);
     Get.offAllNamed(Routes.HOME_SCREEN);
+  }
+
+  void _prefetchCountries() {
+    try {
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null || transactionUrl.isEmpty) return;
+
+      // reuse CountrySelectionController if already registered, else create temp instance
+      CountrySelectionController? ctrl;
+      try {
+        ctrl = Get.find<CountrySelectionController>();
+      } catch (_) {
+        ctrl = null;
+      }
+
+      if (ctrl != null) {
+        ctrl.fetchCountries();
+      } else {
+        // standalone fetch — write directly to storage without a controller
+        _fetchAndCacheCountries(transactionUrl);
+      }
+    } catch (e) {
+      dev.log('Countries prefetch error: $e', name: 'Login');
+    }
+  }
+
+  Future<void> _fetchAndCacheCountries(String transactionUrl) async {
+    const cacheKey = 'cached_countries';
+    const cacheTsKey = 'cached_countries_ts';
+    const ttlHours = 24;
+
+    // skip if still fresh
+    final tsRaw = box.read(cacheTsKey);
+    if (tsRaw != null) {
+      final ts = DateTime.tryParse(tsRaw as String);
+      if (ts != null &&
+          DateTime.now().difference(ts).inHours < ttlHours &&
+          box.read(cacheKey) != null) {
+        dev.log('Countries cache still valid, skipping prefetch',
+            name: 'Login');
+        return;
+      }
+    }
+
+    try {
+      dev.log('Pre-fetching countries after login...', name: 'Login');
+      final result =
+          await apiService.getrequest('${transactionUrl}airtime/countries');
+
+      result.fold(
+        (failure) {
+          dev.log('Countries prefetch failed: ${failure.message}',
+              name: 'Login');
+        },
+        (data) {
+          if (data['success'] == 1 && data['data'] is List) {
+            final List<dynamic> raw = data['data'];
+            // store minimal fields needed for ISO lookup
+            final encoded = jsonEncode(raw
+                .map((e) => {
+                      'code': e['isoName'] ?? '',
+                      'name': e['name'] ?? '',
+                      'flag': e['flag'] ?? '',
+                      'currency': e['currencyCode'] ?? '',
+                      'callingCodes': e['callingCodes'] ?? [],
+                    })
+                .toList());
+            box.write(cacheKey, encoded);
+            box.write(cacheTsKey, DateTime.now().toIso8601String());
+            dev.log('Countries cached after login (${raw.length} entries)',
+                name: 'Login');
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Countries prefetch exception: $e', name: 'Login');
+    }
   }
 
   Future<void> handleSignIn(BuildContext context) async {

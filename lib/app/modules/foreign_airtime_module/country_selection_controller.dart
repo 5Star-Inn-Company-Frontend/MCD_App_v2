@@ -1,13 +1,18 @@
+import 'dart:convert';
+import 'dart:developer' as dev;
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/foreign_airtime_module/models/foreign_airtime_model.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
-import 'dart:developer' as dev;
 
 class CountrySelectionController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
+
+  static const _cacheKey = 'cached_countries';
+  static const _cacheTsKey = 'cached_countries_ts';
+  static const _cacheTtlHours = 24;
 
   // Observables
   final isLoading = true.obs;
@@ -35,11 +40,19 @@ class CountrySelectionController extends GetxController {
     fetchCountries();
   }
 
-  Future<void> fetchCountries() async {
+  Future<void> fetchCountries({bool forceRefresh = false}) async {
     try {
       isLoading.value = true;
       errorMessage.value = null;
-      dev.log('Fetching countries list...', name: 'ForeignAirtime');
+
+      // serve from cache if valid and not forced
+      if (!forceRefresh && _isCacheValid()) {
+        _loadFromCache();
+        isLoading.value = false;
+        return;
+      }
+
+      dev.log('Fetching countries from network...', name: 'ForeignAirtime');
 
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null || transactionUrl.isEmpty) {
@@ -57,7 +70,13 @@ class CountrySelectionController extends GetxController {
         (failure) {
           dev.log('Failed to fetch countries',
               name: 'ForeignAirtime', error: failure.message);
-          errorMessage.value = failure.message;
+          // fall back to stale cache if available
+          if (_hasCache()) {
+            dev.log('Using stale cache as fallback', name: 'ForeignAirtime');
+            _loadFromCache();
+          } else {
+            errorMessage.value = failure.message;
+          }
           isLoading.value = false;
         },
         (data) {
@@ -68,6 +87,7 @@ class CountrySelectionController extends GetxController {
             countries.value = response.countries;
             dev.log('Fetched ${countries.length} countries',
                 name: 'ForeignAirtime');
+            _writeCache();
           } else {
             errorMessage.value = data['message'] ?? 'Failed to fetch countries';
           }
@@ -79,6 +99,48 @@ class CountrySelectionController extends GetxController {
       dev.log('Error fetching countries', name: 'ForeignAirtime', error: e);
       errorMessage.value = 'An error occurred while fetching countries';
       isLoading.value = false;
+    }
+  }
+
+  bool _hasCache() => box.read(_cacheKey) != null;
+
+  bool _isCacheValid() {
+    final raw = box.read(_cacheKey);
+    final tsRaw = box.read(_cacheTsKey);
+    if (raw == null || tsRaw == null) return false;
+    final ts = DateTime.tryParse(tsRaw as String);
+    if (ts == null) return false;
+    return DateTime.now().difference(ts).inHours < _cacheTtlHours;
+  }
+
+  void _loadFromCache() {
+    try {
+      final raw = box.read(_cacheKey) as String;
+      final List<dynamic> decoded = jsonDecode(raw);
+      countries.value = decoded
+          .map((e) => CountryModel.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+      dev.log('Loaded ${countries.length} countries from cache',
+          name: 'ForeignAirtime');
+    } catch (e) {
+      dev.log('Cache parse error, will refetch',
+          name: 'ForeignAirtime', error: e);
+      // clear bad cache
+      box.remove(_cacheKey);
+      box.remove(_cacheTsKey);
+    }
+  }
+
+  void _writeCache() {
+    try {
+      final encoded = jsonEncode(countries.map((c) => c.toJson()).toList());
+      box.write(_cacheKey, encoded);
+      box.write(_cacheTsKey, DateTime.now().toIso8601String());
+      dev.log('Countries cached (${countries.length} entries)',
+          name: 'ForeignAirtime');
+    } catch (e) {
+      dev.log('Failed to write countries cache',
+          name: 'ForeignAirtime', error: e);
     }
   }
 

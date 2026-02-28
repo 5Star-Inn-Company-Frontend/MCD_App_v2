@@ -156,13 +156,9 @@ class NumberVerificationModulePage
                             onTap: () => controller.selectBeneficiary(beneficiary),
                             child: Column(
                               children: [
-                                Container(
+                                SizedBox(
                                   width: 56,
                                   height: 56,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: _getNetworkColor(network),
-                                  ),
                                   child: ClipOval(
                                     child: Padding(
                                       padding: const EdgeInsets.all(8),
@@ -196,7 +192,7 @@ class NumberVerificationModulePage
                 );
               }),
 
-              // recent verified numbers - COMMENTED OUT (replaced by beneficiaries)
+              // recent verified numbers - replaced by beneficiaries
               // Obx(() {
               //   if (controller.recentNumbers.isEmpty) {
               //     return const SizedBox.shrink();
@@ -228,10 +224,6 @@ class NumberVerificationModulePage
               //                   Container(
               //                     width: 56,
               //                     height: 56,
-              //                     decoration: BoxDecoration(
-              //                       shape: BoxShape.circle,
-              //                       color: _getNetworkColor(network),
-              //                     ),
               //                     child: ClipOval(
               //                       child: Padding(
               //                         padding: const EdgeInsets.all(8),
@@ -295,20 +287,5 @@ class NumberVerificationModulePage
         ),
       ),
     );
-  }
-
-  Color _getNetworkColor(String network) {
-    final normalized = network.toLowerCase();
-    if (normalized.contains('mtn')) {
-      return const Color(0xFFFECB00); // mtn yellow
-    } else if (normalized.contains('airtel')) {
-      return const Color(0xFFED1C24); // airtel red
-    } else if (normalized.contains('glo')) {
-      return const Color(0xFF50B651); // glo green
-    } else if (normalized.contains('9mobile') ||
-        normalized.contains('etisalat')) {
-      return const Color(0xFF006837); // 9mobile green
-    }
-    return AppColors.primaryColor;
   }
 }

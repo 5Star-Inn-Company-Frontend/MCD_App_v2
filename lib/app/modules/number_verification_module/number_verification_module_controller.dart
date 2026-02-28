@@ -257,18 +257,30 @@ class NumberVerificationModuleController extends GetxController {
     dev.log('Selected beneficiary: $phone ($network)',
         name: 'NumberVerification');
 
-    final isForeignBeneficiary = _isForeignNetwork(network);
+    // prefer api-provided country code
+    String storedCode = (beneficiary['country_code']?.toString() ??
+            beneficiary['countryCode']?.toString() ??
+            '')
+        .toUpperCase();
 
-    // prefer api-provided country code, fallback to deriving from network name
-    String? derivedCountryCode;
-    if (isForeignBeneficiary) {
-      derivedCountryCode = beneficiary['country_code']?.toString() ??
-          beneficiary['countryCode']?.toString() ??
-          _countryCodeFromNetwork(network);
-      dev.log(
-          'Derived country code for foreign beneficiary: $derivedCountryCode',
-          name: 'NumberVerification');
+    // api doesn't return country_code for beneficiaries — derive from network name
+    if (storedCode.isEmpty) {
+      storedCode = _countryCodeFromNetworkName(network) ?? '';
+      if (storedCode.isNotEmpty) {
+        dev.log(
+            'Derived country code from network name "$network": $storedCode',
+            name: 'NumberVerification');
+      }
     }
+
+    final foreignCodes = _cachedForeignIsoCodes();
+    final isForeignBeneficiary = storedCode.isNotEmpty &&
+        storedCode != 'NG' &&
+        foreignCodes.contains(storedCode);
+
+    dev.log(
+        'Beneficiary country_code: "$storedCode" isForeign: $isForeignBeneficiary',
+        name: 'NumberVerification');
 
     final networkData = {'operatorName': network};
 
@@ -278,49 +290,52 @@ class NumberVerificationModuleController extends GetxController {
         'verifiedNetwork': network,
         'networkData': networkData,
         'isForeign': isForeignBeneficiary,
-        'countryCode': isForeignBeneficiary ? derivedCountryCode : 'NG',
+        'countryCode': isForeignBeneficiary ? storedCode : 'NG',
       });
     } else {
       phoneController.text = phone;
     }
   }
 
-  // maps network name keywords to ISO country codes used by the foreign airtime API
-  String? _countryCodeFromNetwork(String network) {
-    final n = network.toUpperCase();
-    if (n.contains('UGANDA')) return 'UG';
-    if (n.contains('KENYA')) return 'KE';
-    if (n.contains('GHANA')) return 'GH';
-    if (n.contains('SOUTH AFRICA')) return 'ZA';
-    if (n.contains('TANZANIA')) return 'TZ';
-    if (n.contains('ZAMBIA')) return 'ZM';
-    if (n.contains('RWANDA')) return 'RW';
-    if (n.contains('SENEGAL')) return 'SN';
-    if (n.contains('COTE') || n.contains('IVORY')) return 'CI';
-    if (n.contains('CAMEROON')) return 'CM';
-    if (n.contains('BENIN')) return 'BJ';
-    if (n.contains('TOGO')) return 'TG';
-    if (n.contains('MALI')) return 'ML';
-    if (n.contains('NIGER')) return 'NE';
-    return null;
+  // returns a set of all foreign ISO codes from the cached countries list
+  Set<String> _cachedForeignIsoCodes() {
+    try {
+      final raw = box.read('cached_countries');
+      if (raw == null) return {};
+      final List<dynamic> decoded = jsonDecode(raw as String);
+      return decoded
+          .map((e) => (e['code'] ?? '').toString().toUpperCase())
+          .where((code) => code.isNotEmpty && code != 'NG')
+          .toSet();
+    } catch (e) {
+      dev.log('Error reading cached countries',
+          name: 'NumberVerification', error: e);
+      return {};
+    }
   }
 
-  bool _isForeignNetwork(String network) {
-    final normalized = network.toUpperCase();
-    // Check if network name contains country/foreign indicators
-    return normalized.contains('UGANDA') ||
-        normalized.contains('KENYA') ||
-        normalized.contains('GHANA') ||
-        normalized.contains('SOUTH AFRICA') ||
-        // Add more foreign indicators
-        (!normalized.contains('MTN') &&
-            !normalized.contains('AIRTEL') &&
-            !normalized.contains('GLO') &&
-            !normalized.contains('9MOBILE') &&
-            !normalized.contains('ETISALAT')) ||
-        // Or if it's MTN/AIRTEL but with country suffix
-        (normalized.contains('MTN') && normalized != 'MTN') ||
-        (normalized.contains('AIRTEL') && normalized != 'AIRTEL');
+  // matches network name against cached country names to derive an ISO code
+  // e.g. "MTN UGANDA" -> searches cache for "UGANDA" -> returns "UG"
+  String? _countryCodeFromNetworkName(String network) {
+    try {
+      final raw = box.read('cached_countries');
+      if (raw == null) return null;
+      final List<dynamic> decoded = jsonDecode(raw as String);
+      final normalized = network.toUpperCase();
+      for (final entry in decoded) {
+        final countryName = (entry['name'] ?? '').toString().toUpperCase();
+        final code = (entry['code'] ?? '').toString().toUpperCase();
+        if (code == 'NG' || countryName.isEmpty) continue;
+        if (normalized.contains(countryName)) {
+          return code;
+        }
+      }
+      return null;
+    } catch (e) {
+      dev.log('Error deriving country code from network name',
+          name: 'NumberVerification', error: e);
+      return null;
+    }
   }
 
   void onPhoneInputChanged(String value) {
