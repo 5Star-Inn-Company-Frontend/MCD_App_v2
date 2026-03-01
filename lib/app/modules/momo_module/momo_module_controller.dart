@@ -2,7 +2,7 @@ import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:get_storage/get_storage.dart';
 import 'dart:developer' as dev;
-import 'package:mcd/app/modules/foreign_airtime_module/models/foreign_airtime_model.dart';
+
 import 'dart:math';
 
 class MomoModuleController extends GetxController {
@@ -14,6 +14,17 @@ class MomoModuleController extends GetxController {
   final selectedCurrency = Rxn<String>();
   final selectedProvider = Rxn<Map<String, dynamic>>();
   final selectedCountryCode = ''.obs;
+
+  // currency to country calling code map
+  static const currencyCountryCodeMap = <String, String>{
+    'KES': '254', // Kenya
+    'UGX': '256', // Uganda
+    'GHS': '233', // Ghana
+    'ZMW': '260', // Zambia
+    'XAF': '237', // Cameroon (Central African CFA)
+    'XOF': '221', // Senegal (West African CFA)
+    'ZAR': '27', // South Africa
+  };
 
   final phoneController = TextEditingController();
   final amountController = TextEditingController();
@@ -55,7 +66,6 @@ class MomoModuleController extends GetxController {
 
       if (transactionUrl == null) {
         dev.log('transaction URL not found', name: 'MomoModule');
-        // Fallback or just return
         return;
       }
 
@@ -91,6 +101,10 @@ class MomoModuleController extends GetxController {
     selectedCurrency.value = value;
     selectedProvider.value = null;
     providers.clear();
+
+    // auto-match country code from currency
+    selectedCountryCode.value = currencyCountryCodeMap[value] ?? '';
+
     fetchProviders(value);
     fetchExchangeRate(value);
   }
@@ -154,20 +168,6 @@ class MomoModuleController extends GetxController {
     }
   }
 
-  Future<void> selectCountryCode() async {
-    final result = await Get.toNamed(
-      Routes.COUNTRY_SELECTION,
-      arguments: {'returnResult': true},
-    );
-
-    if (result != null && result is CountryModel) {
-      String code =
-          result.callingCodes.isNotEmpty ? result.callingCodes.first : '';
-      code = code.replaceAll('+', '');
-      selectedCountryCode.value = code;
-    }
-  }
-
   Future<void> proceed() async {
     if (!formKey.currentState!.validate()) return;
     if (selectedCurrency.value == null || selectedProvider.value == null) {
@@ -177,7 +177,7 @@ class MomoModuleController extends GetxController {
     }
 
     if (selectedCountryCode.value.isEmpty) {
-      Get.snackbar('Error', 'Please select a country code',
+      Get.snackbar('Error', 'Unsupported currency for country code mapping',
           backgroundColor: AppColors.errorBgColor, colorText: AppColors.white);
       return;
     }
@@ -207,12 +207,17 @@ class MomoModuleController extends GetxController {
     // Generate Reference
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final random = Random().nextInt(9999);
-    final ref = 'MCD_FW_MOMO$timestamp$random';
+    final ref = 'MCD2_FW_MOMO$timestamp$random';
 
     final url = '${transactionUrl}payment/momo/initiate';
+    dev.log(url, name: 'MomoModule');
 
-    // Construct phone number
-    final phone = '${selectedCountryCode.value}${phoneController.text}';
+    // strip leading zero and prepend country code
+    var rawPhone = phoneController.text;
+    if (rawPhone.startsWith('0')) {
+      rawPhone = rawPhone.substring(1);
+    }
+    final phone = '${selectedCountryCode.value}$rawPhone';
 
     // Get provider code/name
     final providerCode = selectedProvider.value?['code'] ??

@@ -487,6 +487,9 @@ class LoginScreenController extends GetxController {
     // pre-warm countries cache — fire and forget, doesn't block navigation
     _prefetchCountries();
 
+    // pre-warm banks cache — fire and forget
+    _prefetchBanks();
+
     await fetchDashboard(force: true);
     Get.offAllNamed(Routes.HOME_SCREEN);
   }
@@ -565,6 +568,72 @@ class LoginScreenController extends GetxController {
       );
     } catch (e) {
       dev.log('Countries prefetch exception: $e', name: 'Login');
+    }
+  }
+
+  void _prefetchBanks() {
+    try {
+      final transactionUrl = box.read('transaction_service_url');
+      if (transactionUrl == null || transactionUrl.isEmpty) return;
+      _fetchAndCacheBanks(transactionUrl);
+    } catch (e) {
+      dev.log('Banks prefetch error: $e', name: 'Login');
+    }
+  }
+
+  Future<void> _fetchAndCacheBanks(String transactionUrl) async {
+    const cacheKey = 'cached_banks';
+    const cacheTsKey = 'cached_banks_ts';
+    const ttlHours = 24;
+
+    // skip if still fresh
+    final tsRaw = box.read(cacheTsKey);
+    if (tsRaw != null) {
+      final ts = DateTime.tryParse(tsRaw as String);
+      if (ts != null &&
+          DateTime.now().difference(ts).inHours < ttlHours &&
+          box.read(cacheKey) != null) {
+        dev.log('Banks cache still valid, skipping prefetch', name: 'Login');
+        return;
+      }
+    }
+
+    try {
+      dev.log('Pre-fetching banks after login...', name: 'Login');
+      final result = await apiService.getrequest('${transactionUrl}banklist');
+
+      result.fold(
+        (failure) {
+          dev.log('Banks prefetch failed: ${failure.message}', name: 'Login');
+        },
+        (data) {
+          // handle both response formats
+          List<dynamic>? bankList;
+          if (data['success'] == 1 && data['data'] != null) {
+            bankList = data['data'];
+          } else if (data['requestSuccessful'] == true &&
+              data['responseBody'] != null) {
+            bankList = data['responseBody'];
+          }
+
+          if (bankList != null) {
+            final encoded = jsonEncode(bankList
+                .map((e) => {
+                      'name': e['name'] ?? '',
+                      'code': e['code'] ?? '',
+                      'ussdTemplate': e['ussdTemplate'],
+                      'baseUssdCode': e['baseUssdCode'],
+                    })
+                .toList());
+            box.write(cacheKey, encoded);
+            box.write(cacheTsKey, DateTime.now().toIso8601String());
+            dev.log('Banks cached after login (${bankList.length} entries)',
+                name: 'Login');
+          }
+        },
+      );
+    } catch (e) {
+      dev.log('Banks prefetch exception: $e', name: 'Login');
     }
   }
 

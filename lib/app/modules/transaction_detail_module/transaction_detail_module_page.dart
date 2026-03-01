@@ -92,20 +92,21 @@ class TransactionDetailModulePage
                           Builder(
                             builder: (context) {
                               final status = controller.status.toLowerCase();
-                              final isSuccessful = status == 'successful' || 
-                                                   status == 'success' || 
-                                                   status == 'delivered';
-                              final isPending = status == 'pending' || 
-                                               status == 'processing';
-                              final isReversed = status == 'reversed' || 
-                                                status == 'reversal';
-                              final isFailed = status == 'failed' || 
-                                              status == 'error';
-                              
+                              final isSuccessful = status == 'successful' ||
+                                  status == 'success' ||
+                                  status == 'delivered';
+                              final isPending =
+                                  status == 'pending' || status == 'processing';
+                              final isReversed =
+                                  status == 'reversed' || status == 'reversal';
+                              final isFailed =
+                                  status == 'failed' || status == 'error';
+
                               Color statusColor = AppColors.primaryColor;
-                              IconData statusIcon = Icons.check_circle_outline_outlined;
+                              IconData statusIcon =
+                                  Icons.check_circle_outline_outlined;
                               String statusText = 'Successful';
-                              
+
                               if (isPending) {
                                 statusColor = Colors.orange;
                                 statusIcon = Icons.pending_outlined;
@@ -119,7 +120,7 @@ class TransactionDetailModulePage
                                 statusIcon = Icons.cancel_outlined;
                                 statusText = 'Failed';
                               }
-                              
+
                               return Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -251,8 +252,7 @@ class TransactionDetailModulePage
                         children: [
                           itemRow("User ID", controller.userId),
                           // Show Meter Number for electricity, Phone Number for others
-                          if (controller.paymentType.toLowerCase() ==
-                                  "electricity" ||
+                          if (controller.paymentType.toLowerCase() == "electricity" ||
                               controller.paymentType
                                   .toLowerCase()
                                   .contains('electric'))
@@ -302,8 +302,16 @@ class TransactionDetailModulePage
                                   "predictwin" &&
                               !controller.paymentType
                                   .toLowerCase()
-                                  .contains('predictwin') 
-                            )
+                                  .contains('predictwin') &&
+                              controller.paymentType.toLowerCase() != "momo" &&
+                              !controller.paymentType
+                                  .toLowerCase()
+                                  .contains('momo') &&
+                              controller.paymentType.toLowerCase() !=
+                                  "nin validation" &&
+                              !controller.paymentType
+                                  .toLowerCase()
+                                  .contains('nin validation'))
                             itemRow("Phone Number", controller.phoneNumber),
 
                           // Airtime PIN-specific fields
@@ -316,7 +324,8 @@ class TransactionDetailModulePage
                               itemRow("Network", controller.network),
                             if (controller.quantity != '1')
                               itemRow("Quantity", controller.quantity),
-                            if (controller.designType != 'N/A' && controller.designType.isNotEmpty)
+                            if (controller.designType != 'N/A' &&
+                                controller.designType.isNotEmpty)
                               itemRow("Design Type", controller.designType),
                           ],
 
@@ -330,7 +339,8 @@ class TransactionDetailModulePage
                               itemRow("Network", controller.network),
                             if (controller.quantity != '1')
                               itemRow("Quantity", controller.quantity),
-                            if (controller.designType != 'N/A' && controller.designType.isNotEmpty)
+                            if (controller.designType != 'N/A' &&
+                                controller.designType.isNotEmpty)
                               itemRow("Design Type", controller.designType),
                           ],
 
@@ -363,10 +373,12 @@ class TransactionDetailModulePage
                                   .contains('electric')) ...[
                             itemRow("Biller Name", controller.name),
                             Obx(() => controller.customerName != 'N/A'
-                                ? itemRow("Customer Name", controller.customerName)
+                                ? itemRow(
+                                    "Customer Name", controller.customerName)
                                 : const SizedBox.shrink()),
                             Obx(() => controller.customerAddress != 'N/A'
-                                ? itemRow("Customer Address", controller.customerAddress)
+                                ? itemRow("Customer Address",
+                                    controller.customerAddress)
                                 : const SizedBox.shrink()),
                             Obx(() => controller.kwUnits != 'N/A'
                                 ? itemRow("Units", controller.kwUnits)
@@ -388,9 +400,11 @@ class TransactionDetailModulePage
 
                           // Balance information (for all services)
                           if (controller.initialAmount != 'N/A')
-                            itemRow("Initial Balance", "₦${controller.initialAmount}"),
+                            itemRow("Initial Balance",
+                                "₦${controller.initialAmount}"),
                           if (controller.finalAmount != 'N/A')
-                            itemRow("Final Balance", "₦${controller.finalAmount}"),
+                            itemRow(
+                                "Final Balance", "₦${controller.finalAmount}"),
 
                           // JAMB-specific fields
                           if (controller.paymentType.toLowerCase() == "jamb" ||
@@ -415,31 +429,38 @@ class TransactionDetailModulePage
                           ],
 
                           // NIN Validation-specific fields
-                          if (controller.paymentType == "NIN Validation") ...[
-                            itemRow("NIN Number", controller.userId),
-                            itemRow("Service Type", controller.packageName),
-                            
+                          if (controller.paymentType
+                              .toLowerCase()
+                              .contains('nin')) ...[
+                            itemRow(
+                                "NIN Number",
+                                controller.ninNin != 'N/A'
+                                    ? controller.ninNin
+                                    : controller.phoneNumber),
+
                             // NIN Details Section
                             Obx(() {
-                              // Check if any NIN data is available
-                              final hasNinData = controller.ninSurname != 'N/A' ||
-                                  controller.ninFirstName != 'N/A' ||
-                                  controller.ninMiddleName != 'N/A';
-                              
+                              // check if any NIN data is available
+                              final hasNinData =
+                                  controller.ninSurname != 'N/A' ||
+                                      controller.ninFirstName != 'N/A' ||
+                                      controller.ninMiddleName != 'N/A';
+
                               if (!hasNinData) {
-                                // Show pending message
                                 return Container(
                                   margin: const EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 10),
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primaryColor.withOpacity(0.1),
+                                    color:
+                                        AppColors.primaryColor.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(5),
                                   ),
                                   child: Row(
                                     children: [
                                       Icon(Icons.access_time,
-                                          color: AppColors.primaryColor, size: 16),
+                                          color: AppColors.primaryColor,
+                                          size: 16),
                                       const Gap(8),
                                       Expanded(
                                         child: Text(
@@ -453,58 +474,30 @@ class TransactionDetailModulePage
                                   ),
                                 );
                               }
-                              
-                              // Show NIN data
+
                               return Column(
                                 children: [
-                                  // Header
-                                  Container(
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 10),
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.successBgColor,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.check_circle,
-                                            color: Colors.green, size: 20),
-                                        const Gap(8),
-                                        Expanded(
-                                          child: Text(
-                                            "NIN Validation Successful",
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.green),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  
-                                  // Personal Information
-                                  if (controller.ninSurname != 'N/A')
-                                    itemRow("Surname", controller.ninSurname),
-                                  if (controller.ninFirstName != 'N/A')
-                                    itemRow("First Name", controller.ninFirstName),
-                                  if (controller.ninMiddleName != 'N/A')
-                                    itemRow("Middle Name", controller.ninMiddleName),
-                                  if (controller.ninGender != 'N/A')
-                                    itemRow("Gender", controller.ninGender),
-                                  if (controller.ninPhoneNumber != 'N/A')
-                                    itemRow("Phone Number", controller.ninPhoneNumber),
-                                  if (controller.ninStateOfOrigin != 'N/A')
-                                    itemRow("State of Origin", controller.ninStateOfOrigin),
-                                  if (controller.ninStateOfResidence != 'N/A')
-                                    itemRow("State of Residence", controller.ninStateOfResidence),
-                                  if (controller.ninEducationalLevel != 'N/A')
-                                    itemRow("Educational Level", controller.ninEducationalLevel),
-                                  if (controller.ninMaritalStatus != 'N/A')
-                                    itemRow("Marital Status", controller.ninMaritalStatus),
-                                  if (controller.ninProfession != 'N/A')
-                                    itemRow("Profession", controller.ninProfession),
+                                  itemRow("Surname", controller.ninSurname),
+                                  itemRow(
+                                      "First Name", controller.ninFirstName),
+                                  itemRow(
+                                      "Middle Name", controller.ninMiddleName),
+                                  itemRow("Gender",
+                                      controller.ninGender.toUpperCase()),
+                                  itemRow(
+                                      "Date of Birth", controller.ninBirthDate),
+                                  itemRow("Phone Number",
+                                      controller.ninPhoneNumber),
+                                  itemRow("State of Origin",
+                                      controller.ninStateOfOrigin),
+                                  itemRow("State of Residence",
+                                      controller.ninStateOfResidence),
+                                  itemRow("Educational Level",
+                                      controller.ninEducationalLevel),
+                                  itemRow("Marital Status",
+                                      controller.ninMaritalStatus),
+                                  itemRow(
+                                      "Profession", controller.ninProfession),
                                 ],
                               );
                             }),

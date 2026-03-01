@@ -7,6 +7,7 @@ import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/app/modules/ussd_topup_module/ussd_topup_module_controller.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
+import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/core/constants/fonts.dart';
 
 class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
@@ -21,11 +22,86 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
         centerTitle: false,
       ),
       body: SafeArea(
-        child: _buildFormView(),
+        child: Obx(() {
+          if (!controller.hasVirtualAccount.value) {
+            return _buildKycPrompt();
+          }
+          return _buildFormView();
+        }),
       ),
     );
   }
-  
+
+  Widget _buildKycPrompt() {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Gap(20),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.primaryColor.withOpacity(0.3),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: AppColors.primaryColor,
+                      size: 24,
+                    ),
+                    const Gap(8),
+                    Expanded(
+                      child: TextSemiBold(
+                        "Complete KYC to Use USSD Top-up",
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(12),
+                TextSemiBold(
+                  "You need to complete your KYC verification to get a dedicated bank account for USSD top-up.",
+                  fontSize: 14,
+                  color: AppColors.primaryGrey2,
+                ),
+                const Gap(16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Get.toNamed(Routes.KYC_UPDATE_MODULE),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: TextSemiBold(
+                      "Complete KYC Verification",
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildFormView() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
@@ -34,8 +110,16 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Gap(10),
-            
+            Text(
+              'Enter your bank and the amount to generate a USSD code quickly',
+              style: TextStyle(
+                fontFamily: AppFonts.manRope,
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+            ),
+            const Gap(24),
+
             // Bank Selection
             TextSemiBold(
               'Select Bank',
@@ -44,138 +128,41 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
             ),
             const SizedBox(height: 8),
             Obx(() => InkWell(
-              onTap: () => _showBankSelectionBottomSheet(),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppColors.primaryGrey2.withOpacity(0.3),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                        controller.selectedBank.value,
-                        style: TextStyle(
-                          fontFamily: AppFonts.manRope,
-                          fontSize: 14,
-                          color: controller.selectedBank.value == 'Choose bank'
-                              ? AppColors.primaryGrey2.withOpacity(0.5)
-                              : Colors.black,
-                        ),
+                  onTap: () => _showBankSelectionBottomSheet(),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: AppColors.primaryGrey2.withOpacity(0.3),
+                      ),
                     ),
-                    Icon(
-                        Icons.keyboard_arrow_down,
-                        color: AppColors.primaryGrey2,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          controller.selectedBank.value,
+                          style: TextStyle(
+                            fontFamily: AppFonts.manRope,
+                            fontSize: 14,
+                            color:
+                                controller.selectedBank.value == 'Choose bank'
+                                    ? AppColors.primaryGrey2.withOpacity(0.5)
+                                    : Colors.black,
+                          ),
+                        ),
+                        Icon(
+                          Icons.keyboard_arrow_down,
+                          color: AppColors.primaryGrey2,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-            )),
-            const SizedBox(height: 20),
-            
-            // Account Number
-            TextSemiBold(
-              'Enter Account Number',
-              fontSize: 14,
-              color: AppColors.primaryGrey2,
-            ),
-            const Gap(8),
-            TextFormField(
-              controller: controller.accountNumberController,
-              keyboardType: TextInputType.number,
-              maxLength: 10,
-              style: TextStyle(fontFamily: AppFonts.manRope),
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(
-                hintText: 'Enter account number',
-                hintStyle: TextStyle(fontFamily: AppFonts.manRope, color: AppColors.primaryGrey2.withOpacity(0.5)),
-                counterText: '',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: AppColors.primaryGrey2.withOpacity(0.3)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: AppColors.primaryGrey2.withOpacity(0.3)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
-                ),
-              ),
-              onChanged: (value) {
-                if (value.length == 10) {
-                  controller.validateAccountNumber();
-                }
-              },
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter account number';
-                }
-                if (value.length != 10) {
-                  return 'Account number must be 10 digits';
-                }
-                return null;
-              },
-            ),
-            
-            // Account Name Display
-            Obx(() {
-              if (controller.isValidatingAccount.value) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Row(
-                    children: [
-                      const SizedBox(
-                        width: 12,
-                        height: 12,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.primaryColor,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      TextSemiBold(
-                        'Validating account...',
-                        fontSize: 12,
-                        color: AppColors.primaryGrey2,
-                      ),
-                    ],
                   ),
-                );
-              }
-              
-              if (controller.accountName.value.isNotEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.check_circle,
-                        size: 16,
-                        color: AppColors.primaryColor,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextSemiBold(
-                          controller.accountName.value,
-                          fontSize: 12,
-                          color: AppColors.primaryColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              
-              return const SizedBox.shrink();
-            }),
+                )),
             const SizedBox(height: 20),
-            
+
             // Amount
             TextSemiBold(
               'Enter Amount',
@@ -190,18 +177,23 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
                 hintText: 'Enter amount',
-                hintStyle: TextStyle(fontFamily: AppFonts.manRope, color: AppColors.primaryGrey2.withOpacity(0.5)),
+                hintStyle: TextStyle(
+                    fontFamily: AppFonts.manRope,
+                    color: AppColors.primaryGrey2.withOpacity(0.5)),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: AppColors.primaryGrey2.withOpacity(0.3)),
+                  borderSide: BorderSide(
+                      color: AppColors.primaryGrey2.withOpacity(0.3)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: AppColors.primaryGrey2.withOpacity(0.3)),
+                  borderSide: BorderSide(
+                      color: AppColors.primaryGrey2.withOpacity(0.3)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+                  borderSide:
+                      const BorderSide(color: AppColors.primaryColor, width: 2),
                 ),
               ),
               validator: (value) {
@@ -216,32 +208,30 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
               },
             ),
             const SizedBox(height: 40),
-            
+
             // Generate Button
             Obx(() => BusyButton(
-              title: 'Generate USSD Code',
-              isLoading: controller.isGeneratingCode.value,
-              onTap: () => controller.generateCode(),
-            )),
+                  title: 'Generate USSD Code',
+                  isLoading: controller.isGeneratingCode.value,
+                  onTap: () => controller.generateCode(),
+                )),
             const SizedBox(height: 30),
-            
-            // Generated Code Section (shown after generation)
+
+            // Generated Code Section
             Obx(() {
               if (controller.generatedCode.value.isEmpty) {
                 return const SizedBox.shrink();
               }
-              
+
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Divider
                   Divider(
                     color: AppColors.primaryGrey2.withOpacity(0.2),
                     thickness: 1,
                   ),
                   const SizedBox(height: 20),
-                  
-                  // Success Icon and Title
+
                   Row(
                     children: [
                       Container(
@@ -278,7 +268,7 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  
+
                   // USSD Code Display
                   Container(
                     padding: const EdgeInsets.all(20),
@@ -310,18 +300,14 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  
-                  // Action Buttons Row
+
+                  // Action Buttons
                   Row(
                     children: [
-                      // Copy Button
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () => controller.copyCode(),
-                          icon: const Icon(
-                            Icons.copy,
-                            size: 20,
-                          ),
+                          icon: const Icon(Icons.copy, size: 20),
                           label: const Text(
                             'Copy Code',
                             style: TextStyle(
@@ -344,14 +330,10 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      // Dial Button
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () => controller.dialCode(),
-                          icon: const Icon(
-                            Icons.phone,
-                            size: 20,
-                          ),
+                          icon: const Icon(Icons.phone, size: 20),
                           label: const Text(
                             'Dial Code',
                             style: TextStyle(
@@ -374,15 +356,11 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  
-                  // Close/Clear Button
+
                   Center(
                     child: TextButton.icon(
                       onPressed: () => controller.clearGeneratedCode(),
-                      icon: const Icon(
-                        Icons.close,
-                        size: 18,
-                      ),
+                      icon: const Icon(Icons.close, size: 18),
                       label: TextSemiBold(
                         'Clear Code',
                         fontSize: 13,
@@ -402,7 +380,7 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
       ),
     );
   }
-  
+
   void _showBankSelectionBottomSheet() {
     Get.bottomSheet(
       Container(
@@ -416,7 +394,6 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
         ),
         child: Column(
           children: [
-            // Header
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -442,7 +419,7 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
                 ],
               ),
             ),
-            
+
             // Search Field
             Padding(
               padding: const EdgeInsets.all(16),
@@ -477,7 +454,7 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
                 ),
               ),
             ),
-            
+
             // Banks List
             Expanded(
               child: Obx(() {
@@ -488,9 +465,9 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
                     ),
                   );
                 }
-                
+
                 final banks = controller.filteredBanks;
-                
+
                 if (banks.isEmpty) {
                   return Center(
                     child: Column(
@@ -511,7 +488,7 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
                     ),
                   );
                 }
-                
+
                 return ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: banks.length,
