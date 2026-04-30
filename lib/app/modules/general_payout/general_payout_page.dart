@@ -701,19 +701,42 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                       if (isGeneralMarketAvailable)
                         Padding(
                           padding: const EdgeInsets.only(left: 4, bottom: 8),
-                          child: Row(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.info_outline,
-                                  size: 14, color: Colors.red),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  'FREE for use. But expect ${GeneralMarketPaymentService.requiredAdsCount} ads while the server is processing your order',
-                                  style: const TextStyle(
-                                    fontFamily: AppFonts.manRope,
-                                    fontSize: 11,
-                                    color: Colors.red,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(Icons.info_outline,
+                                      size: 14, color: Colors.red),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      'FREE for use. But expect ${GeneralMarketPaymentService.requiredAdsCount} ad sessions while the server is processing your order',
+                                      style: const TextStyle(
+                                        fontFamily: AppFonts.manRope,
+                                        fontSize: 11,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 18, top: 4),
+                                child: InkWell(
+                                  onTap: () {
+                                    GeneralMarketPaymentService.showTermsDialog(Get.context!);
+                                  },
+                                  child: const Text(
+                                    'View Terms & Conditions',
+                                    style: TextStyle(
+                                      fontFamily: AppFonts.manRope,
+                                      fontSize: 11,
+                                      color: AppColors.primaryColor,
+                                      decoration: TextDecoration.underline,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                               ),

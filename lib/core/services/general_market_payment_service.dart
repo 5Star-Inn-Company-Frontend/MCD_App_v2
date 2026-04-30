@@ -12,10 +12,16 @@ class GeneralMarketPaymentService {
 
   final AdsService _adsService = AdsService();
   static const int minimumGMBalance = 300;
-  static const int requiredAdsCount = 3;
+  static const int requiredAdsCount = 2;
 
   bool _isProcessingPayment = false;
   bool get isProcessingPayment => _isProcessingPayment;
+
+  void forceCancelPayment() {
+    _isProcessingPayment = false;
+    _adsService.forceResetAdState();
+    dev.log('Force cancelled GM Payment and reset ad state.');
+  }
 
   Future<bool> processGeneralMarketPayment({
     required double amount,
@@ -24,9 +30,14 @@ class GeneralMarketPaymentService {
     required Function(String) onPaymentFailed,
   }) async {
     if (_isProcessingPayment) {
-      dev.log('Error: Payment already in progress');
-      onPaymentFailed('Payment already in progress. Please wait.');
-      return false;
+      if (!_adsService.isCurrentlyShowingAds()) {
+        dev.log('Recovering from stuck payment state: ads are not actually showing');
+        _isProcessingPayment = false;
+      } else {
+        dev.log('Error: Payment already in progress');
+        onPaymentFailed('Payment already in progress. Please wait.');
+        return false;
+      }
     }
 
     if (currentGMBalance < minimumGMBalance) {
@@ -56,13 +67,18 @@ class GeneralMarketPaymentService {
       maxAds: requiredAdsCount,
       onAdCompleted: () async {
         dev.log('Success: All ads watched, processing payment');
+        _isProcessingPayment = false;
         await onPaymentSuccess();
         return ;
       },
-      reason: "Use general Market"
+      onAdFailed: (error) {
+        dev.log('Failed: Ad sequence aborted or failed');
+        _isProcessingPayment = false;
+        onPaymentFailed(error);
+      },
+      reason: "Use general Market with 2 ad sessions"
     );
 
-    _isProcessingPayment = false;
     return true;
 
   }
@@ -208,18 +224,74 @@ class GeneralMarketPaymentService {
     );
   }
 
-  void _updateAdProgressDialog(int completed, int total) {
-    if (Get.isDialogOpen == true) {
-      Get.back();
-      _showAdProgressDialog(completed, total);
-    }
-  }
-
   static bool canUseGeneralMarket(double gmBalance) {
     return gmBalance >= minimumGMBalance;
   }
 
   static String getMinimumBalanceErrorMessage() {
     return 'Minimum General Market balance of ₦$minimumGMBalance required to use this payment method';
+  }
+
+  static void showTermsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'General Market',
+                style: TextStyle(
+                  fontFamily: 'plusJakartaSans',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'General Market get funded by buying data and using free money.\n\n'
+                'The fund is available to everyone for use but subject to terms and conditions.\n\n'
+                '1. You must have bought data on the day you want to use it.\n\n'
+                '2. On checkout with General Market option, advertisement will be displayed before your request will be processed.\n\n'
+                '3. In case someone checkout before you, your request will not be served.\n\n'
+                '4. The minimum balance is ₦300.\n\n'
+                '5. You must be clicking on free money once in a while to keep general market active',
+                style: TextStyle(
+                  fontFamily: 'ManRope',
+                  fontSize: 14,
+                  color: Colors.black87,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text(
+                        'OK',
+                        style: TextStyle(
+                          fontFamily: 'plusJakartaSans',
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

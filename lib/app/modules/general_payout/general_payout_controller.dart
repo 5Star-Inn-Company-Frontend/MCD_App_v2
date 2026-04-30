@@ -1243,12 +1243,36 @@ class GeneralPayoutController extends GetxController {
       onPaymentFailed: (errorMessage) {
         dev.log('GM payment failed: $errorMessage', name: 'GeneralPayout');
         isPaying.value = false;
-        Get.snackbar(
-          'Payment Failed',
-          errorMessage,
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
+        
+        if (errorMessage.contains('already in progress')) {
+          Get.snackbar(
+            'Payment Stuck?',
+            errorMessage,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+            duration: const Duration(seconds: 5),
+            mainButton: TextButton(
+              onPressed: () {
+                GeneralMarketPaymentService().forceCancelPayment();
+                Get.back(); // close snackbar
+                Get.snackbar(
+                  'Reset Successful', 
+                  'State cleared. You can try your payment again.', 
+                  backgroundColor: AppColors.successBgColor, 
+                  colorText: AppColors.textSnackbarColor
+                );
+              },
+              child: const Text('FORCE CANCEL', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          );
+        } else {
+          Get.snackbar(
+            'Payment Failed',
+            errorMessage,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        }
       },
     );
 

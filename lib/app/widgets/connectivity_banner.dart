@@ -122,6 +122,7 @@ class _BackOnlineBanner extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: const [
               Icon(Icons.wifi_rounded, color: Colors.white, size: 20),
               SizedBox(width: 10),

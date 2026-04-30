@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:advert/advert.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class AdsService {
   static final AdsService _instance = AdsService._internal();
@@ -224,6 +225,7 @@ class AdsService {
     required int maxAds,
     Map<String, String>? customData,
         VoidCallback? onAdCompleted,
+        Function(String)? onAdFailed,
         required String reason
   }) async {
     if (!_isInitialized) {
@@ -240,19 +242,54 @@ class AdsService {
       final defaultCustomData =
           customData ?? {"username": "", "platform": "", "type": ""};
 
+      bool sequenceCompleted = false;
+
       _advertPlugin.adsProv.startAdSequence(
         context,
         total: maxAds,
-        adType: 'googleMergeRewarded',
+        adType: 'mergeRewarded',
         reason: reason,
         customData: defaultCustomData,
-        onComplete: onAdCompleted ?? (){},
+        onComplete: () {
+          sequenceCompleted = true;
+          if (onAdCompleted != null) onAdCompleted();
+        },
       );
+
+      // Watch for premature abortion (e.g. ad failed to load)
+      // The advert plugin sets isShowingAds to false if it fails internally
+      Worker? watcher;
+      watcher = ever(_advertPlugin.adsProv.isShowingAds, (isShowing) {
+        if (!isShowing) {
+          // Delay by one tick because the advert plugin sets isShowingAds = false 
+          // a microsecond BEFORE it triggers the onComplete callback.
+          Future.microtask(() {
+            if (!sequenceCompleted) {
+              dev.log('Ad sequence failed or was aborted prematurely.');
+              if (onAdFailed != null) {
+                onAdFailed('Ads are currently unavailable. Please try again later.');
+              }
+            }
+          });
+          watcher?.dispose();
+        }
+      });
     } catch (e) {
       dev.log('Error showing multiple rewarded ads: $e');
+      if (onAdFailed != null) {
+        onAdFailed('An error occurred while loading ads.');
+      }
       return ;
     }
   }
 
   bool get isInitialized => _isInitialized;
+
+  bool isCurrentlyShowingAds() {
+    return _advertPlugin.adsProv.isShowingAds.value;
+  }
+
+  void forceResetAdState() {
+    _advertPlugin.adsProv.isShowingAds.value = false;
+  }
 }
