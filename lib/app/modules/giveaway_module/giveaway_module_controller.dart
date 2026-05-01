@@ -14,6 +14,7 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'models/giveaway_model.dart';
 import 'package:mcd/core/services/ads_service.dart';
 import 'package:mcd/core/services/deep_link_service.dart';
+import 'widgets/giveaway_detail_sheet.dart';
 
 class GiveawayModuleController extends GetxController {
   final apiService = DioApiService();
@@ -129,7 +130,23 @@ class GiveawayModuleController extends GetxController {
     _handleDeepLinkArguments();
   }
 
+  @override
+  void onReady() {
+    super.onReady();
+    // onReady fires after the page is fully pushed onto the navigator stack.
+    // this is the correct place to trigger the bottom sheet from deep link args.
+    _openDeepLinkSheetIfNeeded();
+  }
+
   void _handleDeepLinkArguments() {
+    // only parse and store the id — do not navigate yet
+    // actual sheet trigger happens in onReady()
+    final args = Get.arguments as Map<String, dynamic>?;
+    if (args == null) return;
+    dev.log('giveaway module received args: $args', name: 'GiveawayModule');
+  }
+
+  void _openDeepLinkSheetIfNeeded() {
     final args = Get.arguments as Map<String, dynamic>?;
     if (args == null || args['id'] == null) return;
 
@@ -138,30 +155,15 @@ class GiveawayModuleController extends GetxController {
         : int.tryParse(args['id'].toString()) ?? 0;
     if (giveawayId == 0) return;
 
-    late final Worker worker;
-    worker = ever<bool>(_isLoading, (loading) {
-      if (!loading && _giveaways.isNotEmpty) {
-        worker.dispose();
-        final match = _giveaways.firstWhereOrNull((g) => g.id == giveawayId);
+    dev.log('opening detail sheet for deep link: $giveawayId',
+        name: 'GiveawayModule');
 
-        if (match == null || match.status != 1) {
-          Get.snackbar(
-            'Unavailable',
-            match == null
-                ? 'This giveaway was not found'
-                : 'This giveaway has ended or been fully claimed',
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-          );
-          return;
-        }
-
-        final ctx = Get.context;
-        if (ctx != null) {
-          showAdClaimDialogFirst(giveawayId, match.type, ctx);
-        }
-      }
-    });
+    // import is in controller already via widgets/giveaway_detail_sheet.dart
+    Get.bottomSheet(
+      GiveawayDetailSheet(giveawayId: giveawayId),
+      isScrollControlled: true,
+      ignoreSafeArea: false,
+    );
   }
 
   @override
@@ -767,8 +769,20 @@ class GiveawayModuleController extends GetxController {
   }
 
   // Show Ad Dialog first
-  void showAdClaimDialogFirst(
-      int giveawayId, String giveawayType, BuildContext context) {
+  Future<void> showAdClaimDialogFirst(
+      int giveawayId, String giveawayType, BuildContext context) async {
+    // SECURITY: Double check status before showing ad
+    final latestDetail = await fetchGiveawayDetail(giveawayId);
+    if (latestDetail == null || latestDetail.completed || latestDetail.giveaway.status != 1) {
+      Get.snackbar(
+        'Expired',
+        'Sorry, this giveaway has just been fully claimed.',
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
     Get.dialog(
       Dialog(
         backgroundColor: Colors.white,

@@ -6,7 +6,7 @@ import '../../routes/app_pages.dart';
 import '../../../core/services/deep_link_service.dart';
 
 class SplashScreenController extends GetxController {
-  var _obj = ''.obs;
+  final _obj = ''.obs;
   set obj(value) => _obj.value = value;
   get obj => _obj.value;
 
@@ -15,7 +15,7 @@ class SplashScreenController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    dev.log("SplashScreenController initialized");
+    dev.log('SplashScreenController initialized', name: 'Splash');
     checkAuth();
   }
 
@@ -23,22 +23,22 @@ class SplashScreenController extends GetxController {
     await Future.delayed(const Duration(seconds: 2));
 
     final token = box.read('token');
-    dev.log("Token check: ${token != null ? 'exists' : 'null'}");
+    dev.log('Token check: ${token != null ? 'exists' : 'null'}', name: 'Splash');
 
     if (token != null && token.toString().isNotEmpty) {
-      dev.log("Token found, navigating to HOME_SCREEN");
+      dev.log('navigating to HOME_SCREEN', name: 'Splash');
       Get.offAllNamed(Routes.HOME_SCREEN);
     } else {
-      dev.log("No token found, navigating to LOGIN_SCREEN");
+      dev.log('navigating to LOGIN_SCREEN', name: 'Splash');
       Get.offAllNamed(Routes.LOGIN_SCREEN);
     }
 
-    // check for any pending deep links
+
     try {
       final deepLinkService = Get.find<DeepLinkService>();
       deepLinkService.consumePendingDeepLink();
     } catch (e) {
-      dev.log('Error consuming deep link from splash: $e', name: 'Splash');
+      dev.log('error consuming pending deep link: $e', name: 'Splash');
     }
   }
 }

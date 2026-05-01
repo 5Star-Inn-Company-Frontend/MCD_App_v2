@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer' as dev;
-import 'dart:ui';
 import 'package:app_links/app_links.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
@@ -11,56 +11,53 @@ class DeepLinkService extends GetxService {
   StreamSubscription<Uri>? _linkSubscription;
   final _box = GetStorage();
 
-  // centralized deep link domain
   static const String deepLinkDomain = 'mcd.5starcompany.com.ng';
   static const String claimPath = '/giveaway/claim';
-
-  // storage keys for pending deep link
   static const String _pendingIdKey = 'pending_deeplink_giveaway_id';
   static const String _pendingRouteKey = 'pending_deeplink_route';
 
   Future<DeepLinkService> init() async {
     _appLinks = AppLinks();
-
-    // check initial link when app starts
-    _checkInitialLink();
-
-    // setup listener for runtime links
     _setupDeepLinkListener();
+
+    // cold start: always persist to storage, never navigate here.
+    // the navigator doesn't exist yet at this point in main().
+    await _persistInitialLink();
 
     return this;
   }
 
-  /// build a shareable claim link
   static String buildClaimLink(int giveawayId) {
     return 'https://$deepLinkDomain$claimPath?id=$giveawayId';
   }
 
-  /// save a pending giveaway ID and optional route for later consumption.
-  void savePendingGiveawayId(int id, {String? route}) {
-    dev.log('saving pending giveaway id: $id, route: $route', name: 'DeepLink');
+  void savePendingGiveawayId(int id, {String route = Routes.GIVEAWAY_MODULE}) {
+    dev.log('saving pending link: id=$id route=$route', name: 'DeepLink');
     _box.write(_pendingIdKey, id);
-    if (route != null) {
-      _box.write(_pendingRouteKey, route);
-    } else {
-      _box.remove(_pendingRouteKey);
-    }
+    _box.write(_pendingRouteKey, route);
   }
 
-  Future<void> _checkInitialLink() async {
+  /// on cold start, only persist — do not touch the navigator
+  Future<void> _persistInitialLink() async {
     try {
-      final initialUri = await _appLinks.getInitialLink();
-      if (initialUri != null) {
-        handleDeepLink(initialUri);
+      final uri = await _appLinks.getInitialLink();
+      if (uri == null) return;
+      dev.log('initial link found: $uri', name: 'DeepLink');
+
+      final id = _extractGiveawayId(uri);
+      if (id != null) {
+        savePendingGiveawayId(id);
+        dev.log('initial link persisted: $id', name: 'DeepLink');
       }
     } catch (e) {
-      dev.log('error checking initial link: $e', name: 'DeepLink');
+      dev.log('error persisting initial link: $e', name: 'DeepLink');
     }
   }
 
   void _setupDeepLinkListener() {
     _linkSubscription = _appLinks.uriLinkStream.listen(
       (uri) {
+        dev.log('runtime link received: $uri', name: 'DeepLink');
         handleDeepLink(uri);
       },
       onError: (err) {
@@ -70,86 +67,81 @@ class DeepLinkService extends GetxService {
     dev.log('deep link listener started', name: 'DeepLink');
   }
 
-  void handleDeepLink(Uri uri) {
-    dev.log('handling deep link: $uri', name: 'DeepLink');
-
-    // supports mcd://giveaway/claim and https://mcd.com/giveaway/claim
+  int? _extractGiveawayId(Uri uri) {
     final bool isClaimLink = uri.path.contains(claimPath) ||
         (uri.host == 'giveaway' && uri.path.contains('/claim'));
+    if (!isClaimLink) return null;
 
-    if (isClaimLink) {
-      final rawId = uri.queryParameters['id'];
-      if (rawId == null) return;
+    final rawId = uri.queryParameters['id'];
+    if (rawId == null) return null;
+    return int.tryParse(rawId);
+  }
 
-      final id = int.tryParse(rawId);
-      if (id == null) {
-        dev.log('invalid giveaway id in deep link: $rawId', name: 'DeepLink');
-        return;
-      }
-
-      _navigateWithAuthCheck(id);
-    }
+  /// called for runtime links only (app already running)
+  void handleDeepLink(Uri uri) {
+    dev.log('handling runtime deep link: $uri', name: 'DeepLink');
+    final id = _extractGiveawayId(uri);
+    if (id == null) return;
+    _navigateWithAuthCheck(id);
   }
 
   void _navigateWithAuthCheck(int id) {
     final token = _box.read('token');
     final String currentRoute = Get.currentRoute;
-
-    // if we are still on splash screen or initializing, always defer
     final bool isInitializing =
         currentRoute == Routes.SPLASH_SCREEN || currentRoute.isEmpty;
 
     if (isInitializing) {
-      dev.log('app initializing, deferring deep link navigation: $id',
-          name: 'DeepLink');
-      savePendingGiveawayId(id, route: Routes.GIVEAWAY_MODULE);
+      dev.log('navigator not ready, deferring: $id', name: 'DeepLink');
+      savePendingGiveawayId(id);
       return;
     }
 
     if (token == null || token.toString().isEmpty) {
-      dev.log('user not logged in, saving pending deep link', name: 'DeepLink');
-
-      // persist the giveaway id so we can navigate after login
-      savePendingGiveawayId(id, route: Routes.GIVEAWAY_MODULE);
-
+      dev.log('not logged in, deferring and redirecting to login', name: 'DeepLink');
+      savePendingGiveawayId(id);
       Get.snackbar(
         'Login Required',
         'Please login to claim your giveaway',
-        backgroundColor: const Color(0xffE5E5E5),
+        snackPosition: SnackPosition.BOTTOM,
       );
       Get.toNamed(Routes.LOGIN_SCREEN);
     } else {
       dev.log('navigating to giveaway module: $id', name: 'DeepLink');
-      Get.toNamed(Routes.GIVEAWAY_MODULE, arguments: {'id': id});
+      Get.toNamed(Routes.GIVEAWAY_MODULE,
+          arguments: {'id': id, 'giveaway_id': id});
     }
   }
 
-  /// check and consume any pending deep link.
-  /// call this after splash screen or login.
+  /// consume a pending deep link after navigation is fully settled.
+  /// call this only from stable routes (home, login), not during transitions.
   bool consumePendingDeepLink() {
     final pendingId = _box.read(_pendingIdKey);
-    if (pendingId != null) {
-      final String targetRoute =
-          _box.read(_pendingRouteKey) ?? Routes.GIVEAWAY_MODULE;
-      _box.remove(_pendingIdKey);
-      _box.remove(_pendingRouteKey);
+    if (pendingId == null) return false;
 
-      dev.log('consuming pending giveaway $pendingId for route $targetRoute',
-          name: 'DeepLink');
+    final String targetRoute =
+        _box.read(_pendingRouteKey) ?? Routes.GIVEAWAY_MODULE;
 
-      // schedule navigation to avoid conflicts with current navigation
-      Future.delayed(const Duration(milliseconds: 500), () {
-        // use arguments map consistently
-        final args = {
+    // remove before scheduling to prevent double-consume
+    _box.remove(_pendingIdKey);
+    _box.remove(_pendingRouteKey);
+
+    dev.log('scheduling consume: id=$pendingId route=$targetRoute',
+        name: 'DeepLink');
+
+    // wait for the current frame + post-frame to fully settle,
+    // then wait one additional frame before pushing to avoid GlobalKey conflicts
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        dev.log('executing consume navigation: $pendingId', name: 'DeepLink');
+        Get.toNamed(targetRoute, arguments: {
           'id': pendingId,
           'giveaway_id': pendingId,
-        };
-
-        Get.toNamed(targetRoute, arguments: args);
+        });
       });
-      return true;
-    }
-    return false;
+    });
+
+    return true;
   }
 
   @override
