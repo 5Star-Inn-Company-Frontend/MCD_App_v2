@@ -114,7 +114,8 @@ class NumberVerificationModulePage
 
               // beneficiaries section
               Obx(() {
-                if (controller.isLoadingBeneficiaries.value) {
+                if (controller.isLoadingBeneficiaries.value &&
+                    controller.beneficiaries.isEmpty) {
                   return Column(
                     children: [
                       const Gap(30),

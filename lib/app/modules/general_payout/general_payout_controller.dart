@@ -62,6 +62,10 @@ class GeneralPayoutController extends GetxController {
   final cvvController = TextEditingController();
   final cardType = ''.obs;
   final isCardLoading = false.obs;
+  final cardNumberFocus = FocusNode();
+  final expiryMonthFocus = FocusNode();
+  final expiryYearFocus = FocusNode();
+  final cvvFocus = FocusNode();
   String _currentReference = '';
   String? _currentTxRef;
   int _currentAmount = 0;
@@ -136,6 +140,10 @@ class GeneralPayoutController extends GetxController {
     expiryYearController.dispose();
     cvvController.dispose();
     promoCodeController.dispose();
+    cardNumberFocus.dispose();
+    expiryMonthFocus.dispose();
+    expiryYearFocus.dispose();
+    cvvFocus.dispose();
     super.onClose();
   }
 
@@ -762,6 +770,12 @@ class GeneralPayoutController extends GetxController {
                             color: AppColors.primaryColor, width: 2),
                       ),
                     ),
+                    focusNode: cardNumberFocus,
+                    onChanged: (value) {
+                      if (value.replaceAll(' ', '').length >= 16) {
+                        expiryMonthFocus.requestFocus();
+                      }
+                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) return 'Required';
                       final cleaned = value.replaceAll(' ', '');
@@ -786,6 +800,12 @@ class GeneralPayoutController extends GetxController {
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: expiryMonthController,
+                              focusNode: expiryMonthFocus,
+                              onChanged: (value) {
+                                if (value.length >= 2) {
+                                  expiryYearFocus.requestFocus();
+                                }
+                              },
                               keyboardType: TextInputType.number,
                               maxLength: 2,
                               style:
@@ -837,6 +857,12 @@ class GeneralPayoutController extends GetxController {
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: expiryYearController,
+                              focusNode: expiryYearFocus,
+                              onChanged: (value) {
+                                if (value.length >= 2) {
+                                  cvvFocus.requestFocus();
+                                }
+                              },
                               keyboardType: TextInputType.number,
                               maxLength: 2,
                               style:
@@ -885,6 +911,7 @@ class GeneralPayoutController extends GetxController {
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: cvvController,
+                              focusNode: cvvFocus,
                               keyboardType: TextInputType.number,
                               maxLength: 3,
                               obscureText: true,
@@ -1024,7 +1051,37 @@ class GeneralPayoutController extends GetxController {
       dev.log('Invoking Paystack plugin.chargeCard...', name: 'GeneralPayout');
 
       final context = Get.context!;
+      
+      // Close the card input dialog so it doesn't block Paystack's OTP/3DS window
+      Get.back();
+      
+      // show "Verifying" overlay so user knows we are still processing after OTP
+      Get.dialog(
+        const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: AppColors.white),
+              SizedBox(height: 16),
+              Text(
+                'Verifying Transaction...',
+                style: TextStyle(
+                  color: AppColors.white,
+                  fontSize: 16,
+                  fontFamily: AppFonts.manRope,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ],
+          ),
+        ),
+        barrierDismissible: false,
+      );
+      
       final response = await plugin.chargeCard(context, charge: charge);
+      
+      // close the "Verifying" overlay
+      if (Get.isDialogOpen ?? false) Get.back();
 
       dev.log('Paystack Response Received:', name: 'GeneralPayout');
       dev.log('Status: ${response.status}', name: 'GeneralPayout');
@@ -1293,7 +1350,7 @@ class GeneralPayoutController extends GetxController {
       return multipleAirtimeList.fold<double>(
           0, (sum, item) => sum + double.parse(item['amount']));
     }
-    // Cable amount comes from bouquet details, not paymentData['amount']
+    // cable amount comes from bouquet details, not paymentData['amount']
     if (paymentType == PaymentType.cable) {
       return double.tryParse(
               cableBouquetDetails['bouquetPrice']?.toString() ?? '0') ??
@@ -1793,6 +1850,31 @@ class GeneralPayoutController extends GetxController {
     );
   }
 
+  Future<void> _processBettingPayment() async {
+    final ref = txRef;
+    final body = {
+      "provider": paymentData['providerCode']?.toUpperCase() ?? '',
+      "number": paymentData['userId'] ?? '',
+      "amount": paymentData['amount']?.toString() ?? '0',
+      "payment": getPaymentMethodKey(),
+      "promo": promoCodeController.text.trim().isEmpty
+          ? "0"
+          : promoCodeController.text.trim(),
+      "ref": ref,
+    };
+
+    final amount =
+        double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0.0;
+
+    await _performHandshake(
+      endpoint: 'betting',
+      body: body,
+      amount: amount,
+      localRef: ref,
+      successMessage: "Betting deposit successful!",
+    );
+  }
+
   // Future<void> _processEpinPayment() async {
   //   final ref = txRef;
   //   final body = {
@@ -1805,13 +1887,11 @@ class GeneralPayoutController extends GetxController {
   //         promoCodeController.text.isEmpty ? "0" : promoCodeController.text,
   //     "ref": ref,
   //   };
-
   //   double amount =
   //       double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0;
   //   int quantity =
   //       int.tryParse((paymentData['quantity'] ?? '1').toString()) ?? 1;
   //   double totalAmount = amount * quantity;
-
   //   await _performHandshake(
   //     endpoint: 'airtimepin',
   //     body: body,
@@ -1825,12 +1905,10 @@ class GeneralPayoutController extends GetxController {
   //             .toIso8601String()
   //             .substring(0, 19)
   //             .replaceAll('T', ' ');
-
   //         Get.snackbar(
   //             "Success", data['message'] ?? "E-pin purchase successful!",
   //             backgroundColor: AppColors.successBgColor,
   //             colorText: AppColors.textSnackbarColor);
-
   //         Get.offNamed(
   //           Routes.EPIN_TRANSACTION_DETAIL,
   //           arguments: {
@@ -1952,14 +2030,22 @@ class GeneralPayoutController extends GetxController {
 
     if (data['success'] == 1 || data['success'] == true) {
       final transactionId = localRef ?? data['ref'] ?? data['trnx_id'] ?? 'N/A';
-      final token = data['token']?.toString() ??
-          data['data']?['token']?.toString() ??
-          data['Token']?.toString() ??
-          data['data']?['Token']?.toString();
+      // final token = data['token']?.toString() ??
+      //     data['data']?['token']?.toString() ??
+      //     data['Token']?.toString() ??
+      //     data['data']?['Token']?.toString();
 
       dev.log('Payment successful. Transaction ID: $transactionId',
           name: 'GeneralPayout');
       _currentTxRef = null; // clear reference on success
+
+      // invalidate beneficiaries cache on success for airtime/data
+      if (paymentType == PaymentType.airtime || paymentType == PaymentType.data) {
+        box.remove('cached_beneficiaries_airtime_ts');
+        dev.log('Beneficiaries cache timestamp cleared for refresh',
+            name: 'GeneralPayout');
+      }
+
       Get.snackbar(
           "Success", data['message'] ?? successMessage ?? "Payment successful!",
           backgroundColor: AppColors.successBgColor,
@@ -1977,11 +2063,10 @@ class GeneralPayoutController extends GetxController {
   }
 
   void _navigateToReceipt(
-      String transactionId, double amount, Map<String, dynamic> data) {
-    // Get the logged-in user's username
+    String transactionId, double amount, Map<String, dynamic> data) {
     final userId = box.read('biometric_username_real') ?? 'N/A';
 
-    // Extract token if present
+    // extract token if present
     String? token;
     if (data.containsKey('token') ||
         (data['data'] != null && data['data']['token'] != null)) {
@@ -1991,9 +2076,7 @@ class GeneralPayoutController extends GetxController {
       token = data['Token']?.toString() ?? data['data']?['Token']?.toString();
     }
 
-    // Extract server response data for all payment types
-    // This allows the detail screen to show fields like customerName,
-    // customerAddress, units etc. immediately after purchase
+    // extract server response data for all payment types
     dynamic serverResponseData;
     if (data['server_response'] != null) {
       serverResponseData = data['server_response'];
@@ -2022,7 +2105,7 @@ class GeneralPayoutController extends GetxController {
         'packageName':
             paymentData['examName'] ?? paymentData['packageName'] ?? 'N/A',
         'billerName': _getBillerNameForPayment(),
-        'serverResponse': serverResponseData, // Pass NIN validation data
+        'serverResponse': serverResponseData, // pass NIN validation data
       },
     );
   }
@@ -2038,28 +2121,5 @@ class GeneralPayoutController extends GetxController {
     }
   }
 
-  Future<void> _processBettingPayment() async {
-    final ref = txRef;
-    final body = {
-      "provider": paymentData['providerCode']?.toUpperCase() ?? '',
-      "number": paymentData['userId'] ?? '',
-      "amount": paymentData['amount']?.toString() ?? '0',
-      "payment": getPaymentMethodKey(),
-      "promo": promoCodeController.text.trim().isEmpty
-          ? "0"
-          : promoCodeController.text.trim(),
-      "ref": ref,
-    };
-
-    final amount =
-        double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0.0;
-
-    await _performHandshake(
-      endpoint: 'betting',
-      body: body,
-      amount: amount,
-      localRef: ref,
-      successMessage: "Betting deposit successful!",
-    );
-  }
+  
 }

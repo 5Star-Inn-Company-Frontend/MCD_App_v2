@@ -17,15 +17,18 @@ class PaymentConfigController extends GetxController {
     super.onInit();
     _loadCachedPaymentConfig();
 
-    // returning users have a persisted URL — fetch if no cached data
+    // always attempt background refresh if we have a URL
     final url = storage.read('transaction_service_url');
-    if (url != null && paymentMethodStatus.isEmpty) {
+    if (url != null) {
       fetchPaymentMethods();
     }
   }
 
   Future<void> fetchPaymentMethods() async {
-    isLoading.value = true;
+    // only show loader if we have no cached data
+    if (paymentMethodStatus.isEmpty) {
+      isLoading.value = true;
+    }
     errorMessage.value = '';
     dev.log('Fetching payment methods configuration', name: 'PaymentConfig');
 
@@ -86,7 +89,6 @@ class PaymentConfigController extends GetxController {
           
           // Cache the entire response
           storage.write('cached_payment_methods', data);
-          storage.write('payment_methods_timestamp', DateTime.now().toIso8601String());
         } else {
           dev.log('Payment methods fetch failed', name: 'PaymentConfig', error: data['message']);
           errorMessage.value = data['message'] ?? 'Failed to fetch payment methods';

@@ -18,30 +18,19 @@ class ServiceStatusController extends GetxController {
     super.onInit();
     _loadCachedStatus();
 
-    // returning users have a persisted URL — fetch if cache expired
+    // always attempt background refresh if we have a URL
     final url = storage.read('transaction_service_url');
-    if (url != null && (serviceStatus.value == null || _isCacheExpired())) {
+    if (url != null) {
       fetchServiceStatus();
     }
   }
 
-  /// Check if cached data is older than 24 hours
-  bool _isCacheExpired() {
-    final timestamp = storage.read('service_status_timestamp');
-    if (timestamp == null) return true;
-    
-    try {
-      final cachedTime = DateTime.parse(timestamp);
-      final difference = DateTime.now().difference(cachedTime);
-      return difference.inHours > 24;
-    } catch (e) {
-      dev.log('Error parsing cache timestamp: $e', name: 'ServiceStatus');
-      return true;
-    }
-  }
 
   Future<void> fetchServiceStatus() async {
-    isLoading.value = true;
+    // only show loader if we have no cached data
+    if (serviceStatus.value == null) {
+      isLoading.value = true;
+    }
     errorMessage.value = '';
 
     final transactionUrl = storage.read('transaction_service_url');
@@ -68,7 +57,6 @@ class ServiceStatusController extends GetxController {
           // Cache the service status
           if (model.data != null) {
             storage.write('cached_service_status', data);
-            storage.write('service_status_timestamp', DateTime.now().toIso8601String());
             dev.log('Service status cached successfully', name: 'ServiceStatus');
           }
         } else {
