@@ -214,8 +214,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
         return Icons.credit_card;
       case PaymentType.resultChecker:
         return Icons.school;
-      case PaymentType.epin:
-        return Icons.confirmation_number;
+      // case PaymentType.epin:
+      //   return Icons.confirmation_number;
       case PaymentType.betting:
         return Icons.sports_esports;
     }

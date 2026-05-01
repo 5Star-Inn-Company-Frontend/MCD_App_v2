@@ -33,6 +33,12 @@ class QrcodeTransferDetailsModuleController extends GetxController {
   final _isFetchingUserData = false.obs;
   bool get isFetchingUserData => _isFetchingUserData.value;
 
+  String? _currentTxRef;
+  String get txRef {
+    _currentTxRef ??= _generateReference();
+    return _currentTxRef!;
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -135,13 +141,14 @@ class QrcodeTransferDetailsModuleController extends GetxController {
   }
 
   Future<void> transfer() async {
+    if (_isLoading.value) return; // idempotency guard
     if (!formKey.currentState!.validate()) return;
 
     try {
       _isLoading.value = true;
 
       final amount = double.tryParse(amountController.text) ?? 0.0;
-      final ref = _generateReference();
+      final ref = txRef;
 
       if (amount <= 0) {
         Get.snackbar(
@@ -211,6 +218,8 @@ class QrcodeTransferDetailsModuleController extends GetxController {
               backgroundColor: AppColors.successBgColor,
               colorText: AppColors.textSnackbarColor,
             );
+
+            _currentTxRef = null; // Clear on success
 
             // Refresh dashboard to update balance
             try {

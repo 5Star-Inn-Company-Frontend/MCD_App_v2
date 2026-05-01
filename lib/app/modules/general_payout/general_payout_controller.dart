@@ -21,7 +21,6 @@ enum PaymentType {
   cable,
   airtimePin,
   dataPin,
-  epin,
   ninValidation,
   resultChecker,
   betting,
@@ -64,7 +63,13 @@ class GeneralPayoutController extends GetxController {
   final cardType = ''.obs;
   final isCardLoading = false.obs;
   String _currentReference = '';
+  String? _currentTxRef;
   int _currentAmount = 0;
+
+  String get txRef {
+    _currentTxRef ??= _generateReference();
+    return _currentTxRef!;
+  }
 
   // UI Data
   String serviceName = '';
@@ -117,6 +122,7 @@ class GeneralPayoutController extends GetxController {
     paymentData = args['paymentData'] ?? {};
 
     _initializePaymentTypeData();
+    _currentTxRef = null; // ensure clean state on init
     fetchBalances();
     fetchGMBalance();
     fetchPaymentMethodAvailability();
@@ -164,9 +170,6 @@ class GeneralPayoutController extends GetxController {
         break;
       case PaymentType.dataPin:
         _initializeDataPinData();
-        break;
-      case PaymentType.epin:
-        _initializeEpinData();
         break;
       case PaymentType.ninValidation:
         _initializeNinValidationData();
@@ -365,19 +368,19 @@ class GeneralPayoutController extends GetxController {
     ];
   }
 
-  void _initializeEpinData() {
-    serviceName = 'E-PIN';
-    serviceImage = paymentData['serviceImage'] ?? '';
-    detailsRows.value = [
-      {'label': 'Service', 'value': paymentData['serviceName'] ?? 'N/A'},
-      {
-        'label': 'Amount',
-        'value':
-            '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0)}'
-      },
-      {'label': 'Quantity', 'value': paymentData['quantity'] ?? 'N/A'},
-    ];
-  }
+  // void _initializeEpinData() {
+  //   serviceName = 'E-PIN';
+  //   serviceImage = paymentData['serviceImage'] ?? '';
+  //   detailsRows.value = [
+  //     {'label': 'Service', 'value': paymentData['serviceName'] ?? 'N/A'},
+  //     {
+  //       'label': 'Amount',
+  //       'value':
+  //           '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0)}'
+  //     },
+  //     {'label': 'Quantity', 'value': paymentData['quantity'] ?? 'N/A'},
+  //   ];
+  // }
 
   void _initializeNinValidationData() {
     serviceName = 'NIN Validation';
@@ -663,7 +666,7 @@ class GeneralPayoutController extends GetxController {
     }
   }
 
-  void _showCardInputDialog() {
+  Future<void> _showCardInputDialog() async {
     // clear previous inputs
     cardNumberController.clear();
     expiryMonthController.clear();
@@ -1034,6 +1037,7 @@ class GeneralPayoutController extends GetxController {
             name: 'GeneralPayout');
         // payment successful
         isCardLoading.value = false;
+        _currentTxRef = null; // clear reference on success
         Get.back(); // close dialog
 
         Get.snackbar(
@@ -1165,6 +1169,12 @@ class GeneralPayoutController extends GetxController {
   }
 
   void confirmAndPay() async {
+    if (isPaying.value) {
+      dev.log('Payment already in progress, ignoring click',
+          name: 'GeneralPayout');
+      return;
+    }
+
     isPaying.value = true;
     dev.log('Confirming payment for ${paymentType.name}',
         name: 'GeneralPayout');
@@ -1195,9 +1205,6 @@ class GeneralPayoutController extends GetxController {
           break;
         case PaymentType.dataPin:
           await _processDataPinPayment();
-          break;
-        case PaymentType.epin:
-          await _processEpinPayment();
           break;
         case PaymentType.ninValidation:
           await _processNinValidationPayment();
@@ -1319,9 +1326,6 @@ class GeneralPayoutController extends GetxController {
         case PaymentType.dataPin:
           await _processDataPinPayment();
           break;
-        case PaymentType.epin:
-          await _processEpinPayment();
-          break;
         case PaymentType.ninValidation:
           await _processNinValidationPayment();
           break;
@@ -1349,6 +1353,71 @@ class GeneralPayoutController extends GetxController {
     }
   }
 
+  Future<void> _performHandshake({
+    required String endpoint,
+    required Map<String, dynamic> body,
+    required double amount,
+    required String localRef,
+    String? successMessage,
+    Future<void> Function(Map<String, dynamic> data)? onServiceSuccess,
+  }) async {
+    final transactionUrl = box.read('transaction_service_url');
+    if (transactionUrl == null) {
+      Get.snackbar("Error", "Transaction URL not found.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
+      return;
+    }
+
+    dev.log('Sending handshake to $transactionUrl$endpoint',
+        name: 'GeneralPayout');
+    dev.log('Payload: $body', name: 'GeneralPayout');
+
+    final result =
+        await apiService.postrequest('$transactionUrl$endpoint', body);
+
+    await result.fold(
+      (failure) async {
+        dev.log('Handshake failed: $endpoint',
+            name: 'GeneralPayout', error: failure.message);
+        Get.snackbar("Payment Failed", failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
+      },
+      (data) async {
+        dev.log('Handshake response: $data', name: 'GeneralPayout');
+
+        if (getPaymentMethodKey() == 'paystack') {
+          if (data['success'] == 1 || data['success'] == true) {
+            dev.log('Handshake successful. Proceeding to Paystack charge.',
+                name: 'GeneralPayout');
+            _currentReference = localRef;
+            _currentAmount = amount.toInt();
+            await _showCardInputDialog();
+          } else {
+            dev.log('Handshake returned failure: ${data['message']}',
+                name: 'GeneralPayout');
+            Get.snackbar(
+                "Payment Failed", data['message'] ?? "Handshake failed",
+                backgroundColor: AppColors.errorBgColor,
+                colorText: AppColors.textSnackbarColor);
+          }
+        } else {
+          if (onServiceSuccess != null) {
+            await onServiceSuccess(data);
+          } else {
+            _handleServicePaymentResponse(
+              data,
+              amount,
+              successMessage: successMessage,
+              localRef: localRef,
+            );
+          }
+        }
+      },
+    );
+  }
+
   Future<void> _processAirtimePayment() async {
     final transactionUrl = box.read('transaction_service_url');
     if (transactionUrl == null) return;
@@ -1361,10 +1430,7 @@ class GeneralPayoutController extends GetxController {
   }
 
   Future<void> _processSingleAirtime(String transactionUrl) async {
-    final ref = _generateReference();
-    dev.log('Starting Single Airtime Flow', name: 'GeneralPayout');
-    dev.log('Generated Reference: $ref', name: 'GeneralPayout');
-
+    final ref = txRef;
     final provider = paymentData['provider'];
     final phoneNumber = paymentData['phoneNumber'];
     final amount = paymentData['amount'];
@@ -1384,54 +1450,12 @@ class GeneralPayoutController extends GetxController {
         "bonus": paymentData['bonus'].toString(),
     };
 
-    dev.log(
-        'Single airtime payment - Provider: ${provider?.network}, Amount: ₦$amount, Phone: $phoneNumber',
-        name: 'GeneralPayout');
-    dev.log('Sending handshake to ${transactionUrl}airtime',
-        name: 'GeneralPayout');
-    dev.log('Payload: $body', name: 'GeneralPayout');
-
-    final result =
-        await apiService.postrequest('${transactionUrl}airtime', body);
-    result.fold(
-      (failure) {
-        dev.log('Handshake failed',
-            name: 'GeneralPayout', error: failure.message);
-        Get.snackbar("Payment Failed", failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor);
-      },
-      (data) {
-        dev.log('Handshake response: $data', name: 'GeneralPayout');
-
-        if (getPaymentMethodKey() == 'paystack') {
-          if (data['success'] == 1 || data['success'] == true) {
-            dev.log('Handshake successful. Proceeding to Paystack charge.',
-                name: 'GeneralPayout');
-            _currentReference = ref;
-            _currentAmount = double.tryParse(amount.toString())?.toInt() ?? 0;
-            dev.log(
-                'Setting Paystack Context - Ref: $_currentReference, Amount: $_currentAmount',
-                name: 'GeneralPayout');
-            isPaying.value = false;
-            _showCardInputDialog();
-          } else {
-            dev.log('Handshake returned check failure: ${data['message']}',
-                name: 'GeneralPayout');
-            Get.snackbar(
-                "Payment Failed", data['message'] ?? "Handshake failed",
-                backgroundColor: AppColors.errorBgColor,
-                colorText: AppColors.textSnackbarColor);
-          }
-        } else {
-          _handleServicePaymentResponse(
-            data,
-            double.tryParse(amount.toString()) ?? 0.0,
-            successMessage: "Airtime purchase successful!",
-            localRef: ref,
-          );
-        }
-      },
+    await _performHandshake(
+      endpoint: 'airtime',
+      body: body,
+      amount: double.tryParse(amount.toString()) ?? 0.0,
+      localRef: ref,
+      successMessage: "Airtime purchase successful!",
     );
   }
 
@@ -1443,14 +1467,7 @@ class GeneralPayoutController extends GetxController {
       return;
     }
 
-    dev.log(
-        'Processing multiple airtime for ${multipleAirtimeList.length} numbers',
-        name: 'GeneralPayout');
-
-    final ref = _generateReference();
-    dev.log('Generated Reference: $ref', name: 'GeneralPayout');
-
-    // Build data array for all recipients
+    final ref = txRef;
     final dataArray = multipleAirtimeList.map((item) {
       final provider = item['provider'];
       final phoneNumber = item['phoneNumber'];
@@ -1477,46 +1494,16 @@ class GeneralPayoutController extends GetxController {
       "data": dataArray,
     };
 
-    dev.log(
-        'Sending Multiple Airtime request to ${transactionUrl}airtime-multiple',
-        name: 'GeneralPayout');
-    dev.log('Payload: $body', name: 'GeneralPayout');
+    final totalAmount = multipleAirtimeList.fold<double>(
+        0, (sum, item) => sum + double.parse(item['amount'].toString()));
 
-    final result =
-        await apiService.postrequest('${transactionUrl}airtime-multiple', body);
-
-    result.fold(
-      (failure) {
-        dev.log('Multiple airtime handshake failed',
-            name: 'GeneralPayout', error: failure.message);
-        Get.snackbar("Payment Failed", failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor);
-      },
-      (data) {
-        dev.log('Multiple airtime response: $data', name: 'GeneralPayout');
-
+    await _performHandshake(
+      endpoint: 'airtime-multiple',
+      body: body,
+      amount: totalAmount,
+      localRef: ref,
+      onServiceSuccess: (data) async {
         if (data['success'] == 1) {
-          if (getPaymentMethodKey() == 'paystack') {
-            dev.log('Handshake successful. Proceeding to Paystack charge.',
-                name: 'GeneralPayout');
-
-            double totalAmount = multipleAirtimeList.fold<double>(0,
-                (sum, item) => sum + double.parse(item['amount'].toString()));
-
-            _currentReference = ref;
-            _currentAmount = totalAmount.toInt();
-
-            dev.log(
-                'Setting Paystack Context - Ref=$_currentReference, Amount=$_currentAmount',
-                name: 'GeneralPayout');
-
-            isPaying.value = false;
-            _showCardInputDialog();
-            return;
-          }
-
-          dev.log('Multiple airtime payment successful', name: 'GeneralPayout');
           Get.snackbar(
             "Success",
             data['message'] ??
@@ -1525,14 +1512,10 @@ class GeneralPayoutController extends GetxController {
             colorText: AppColors.textSnackbarColor,
             duration: const Duration(seconds: 4),
           );
-
-          // Navigate back to home
           Future.delayed(const Duration(seconds: 2), () {
             Get.offAllNamed(Routes.HOME_SCREEN);
           });
         } else {
-          dev.log('Multiple airtime handshake failed',
-              name: 'GeneralPayout', error: data['message']);
           Get.snackbar(
               "Payment Failed", data['message'] ?? "An unknown error occurred.",
               backgroundColor: AppColors.errorBgColor,
@@ -1543,124 +1526,52 @@ class GeneralPayoutController extends GetxController {
   }
 
   Future<void> _processDataPayment() async {
-    final transactionUrl = box.read('transaction_service_url');
-    if (transactionUrl == null) {
-      dev.log('Transaction URL not found',
-          name: 'GeneralPayout', error: 'URL missing');
-      Get.snackbar("Error", "Transaction URL not found.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    final ref = _generateReference();
-    dev.log('Generated Reference: $ref', name: 'GeneralPayout');
-
-    final networkProvider = paymentData['networkProvider'];
+    final ref = txRef;
+    // final networkProvider = paymentData['networkProvider'];
     final dataPlan = paymentData['dataPlan'];
     final phoneNumber = paymentData['phoneNumber'];
-
     final isForeign = paymentData['isForeign'] == true;
-    final Map<String, dynamic> body;
 
-    if (isForeign) {
-      body = {
-        "name": dataPlan?.name ?? '',
-        "coded": dataPlan?.operatorId?.toString() ?? '',
-        "amount": dataPlan?.price ?? '',
-        "number": phoneNumber,
-        "payment": getPaymentMethodKey(),
-        "promo": promoCodeController.text.trim().isEmpty
-            ? "0"
-            : promoCodeController.text.trim(),
-        "ref": ref,
-        "country": paymentData['countryCode'] ?? "NG"
-      };
-    } else {
-      body = {
-        "coded": dataPlan?.coded ?? '',
-        "number": phoneNumber,
-        "payment": getPaymentMethodKey(),
-        "promo": promoCodeController.text.trim().isEmpty
-            ? "0"
-            : promoCodeController.text.trim(),
-        "ref": ref,
-        "country": "NG"
-      };
-    }
-
-    dev.log(
-        'Data payment - Provider: ${networkProvider?.name}, Plan: ${dataPlan?.name}, Phone: $phoneNumber',
-        name: 'GeneralPayout');
-    dev.log('Sending handshake to ${transactionUrl}data',
-        name: 'GeneralPayout');
-    dev.log('Payload: $body', name: 'GeneralPayout');
-
-    final result = await apiService.postrequest('${transactionUrl}data', body);
-    result.fold(
-      (failure) {
-        dev.log('Handshake failed',
-            name: 'GeneralPayout', error: failure.message);
-        Get.snackbar("Payment Failed", failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor);
-      },
-      (data) {
-        dev.log('Handshake response: $data', name: 'GeneralPayout');
-
-        final amount =
-            double.tryParse((dataPlan?.price ?? '0').toString()) ?? 0.0;
-
-        if (getPaymentMethodKey() == 'paystack') {
-          if (data['success'] == 1 || data['success'] == true) {
-            dev.log('Handshake successful. Proceeding to Paystack charge.',
-                name: 'GeneralPayout');
-            _currentReference = ref;
-            _currentAmount = amount.toInt();
-            dev.log(
-                'Setting Paystack Context - Ref: $_currentReference, Amount: $_currentAmount',
-                name: 'GeneralPayout');
-            isPaying.value = false;
-            _showCardInputDialog();
-          } else {
-            dev.log('Handshake returned check failure: ${data['message']}',
-                name: 'GeneralPayout');
-            Get.snackbar(
-                "Payment Failed", data['message'] ?? "Handshake failed",
-                backgroundColor: AppColors.errorBgColor,
-                colorText: AppColors.textSnackbarColor);
+    final Map<String, dynamic> body = isForeign
+        ? {
+            "name": dataPlan?.name ?? '',
+            "coded": dataPlan?.operatorId?.toString() ?? '',
+            "amount": dataPlan?.price ?? '',
+            "number": phoneNumber,
+            "payment": getPaymentMethodKey(),
+            "promo": promoCodeController.text.trim().isEmpty
+                ? "0"
+                : promoCodeController.text.trim(),
+            "ref": ref,
+            "country": paymentData['countryCode'] ?? "NG"
           }
-        } else {
-          _handleServicePaymentResponse(
-            data,
-            amount,
-            successMessage: "Data purchase successful!",
-            localRef: ref,
-          );
-        }
-      },
+        : {
+            "coded": dataPlan?.coded ?? '',
+            "number": phoneNumber,
+            "payment": getPaymentMethodKey(),
+            "promo": promoCodeController.text.trim().isEmpty
+                ? "0"
+                : promoCodeController.text.trim(),
+            "ref": ref,
+            "country": "NG"
+          };
+
+    final amount = double.tryParse((dataPlan?.price ?? '0').toString()) ?? 0.0;
+
+    await _performHandshake(
+      endpoint: 'data',
+      body: body,
+      amount: amount,
+      localRef: ref,
+      successMessage: "Data purchase successful!",
     );
   }
 
   Future<void> _processElectricityPayment() async {
-    final transactionUrl = box.read('transaction_service_url');
-    if (transactionUrl == null) {
-      dev.log('Transaction URL not found',
-          name: 'GeneralPayout', error: 'URL missing');
-      Get.snackbar("Error", "Transaction URL not found.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    final ref = _generateReference();
-    dev.log('Starting Electricity Payment Flow', name: 'GeneralPayout');
-    dev.log('Generated Reference: $ref', name: 'GeneralPayout');
-
+    final ref = txRef;
     final provider = paymentData['provider'];
     final meterNumber = paymentData['meterNumber'];
     final amount = paymentData['amount'];
-    final paymentTypeStr = paymentData['paymentType'];
 
     final body = {
       "provider": provider?.code?.toLowerCase() ?? '',
@@ -1673,121 +1584,48 @@ class GeneralPayoutController extends GetxController {
       "ref": ref,
     };
 
-    dev.log(
-        'Electricity payment - Provider: ${provider?.name}, Amount: ₦$amount, Type: $paymentTypeStr',
-        name: 'GeneralPayout');
-    dev.log('Sending handshake to ${transactionUrl}electricity',
-        name: 'GeneralPayout');
-    dev.log('Payload: $body', name: 'GeneralPayout');
+    final amountDouble = double.tryParse((amount ?? '0').toString()) ?? 0.0;
 
-    final result =
-        await apiService.postrequest('${transactionUrl}electricity', body);
-    result.fold(
-      (failure) {
-        dev.log('Handshake failed',
-            name: 'GeneralPayout', error: failure.message);
-        Get.snackbar("Payment Failed", failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor);
-      },
-      (data) {
-        dev.log('Handshake response: $data', name: 'GeneralPayout');
-
-        final amountDouble = double.tryParse((amount ?? '0').toString()) ?? 0.0;
-
-        if (getPaymentMethodKey() == 'paystack') {
-          if (data['success'] == 1 || data['success'] == true) {
-            dev.log('Handshake successful. Proceeding to Paystack charge.',
-                name: 'GeneralPayout');
-            _currentReference = ref;
-            _currentAmount = amountDouble.toInt();
-            dev.log(
-                'Setting Paystack Context - Ref: $_currentReference, Amount: $_currentAmount',
-                name: 'GeneralPayout');
-            isPaying.value = false;
-            _showCardInputDialog();
-          } else {
-            dev.log('Handshake returned check failure: ${data['message']}',
-                name: 'GeneralPayout');
-            Get.snackbar(
-                "Payment Failed", data['message'] ?? "Handshake failed",
-                backgroundColor: AppColors.errorBgColor,
-                colorText: AppColors.textSnackbarColor);
-          }
-        } else {
-          _handleServicePaymentResponse(
-            data,
-            amountDouble,
-            successMessage: "Electricity payment successful!",
-            localRef: ref,
-          );
-        }
-      },
+    await _performHandshake(
+      endpoint: 'electricity',
+      body: body,
+      amount: amountDouble,
+      localRef: ref,
+      successMessage: "Electricity payment successful!",
     );
   }
 
   Future<void> _processCablePayment() async {
-    // Validation
     if (isRenewalMode.value) {
-      // For renewal, check if we have valid bouquet information
       final currentBouquetCode =
           cableBouquetDetails['currentBouquetCode'] ?? 'UNKNOWN';
       if (currentBouquetCode == 'UNKNOWN') {
-        dev.log('Payment failed: Cannot renew. Invalid bouquet information',
-            name: 'GeneralPayout', error: 'Invalid bouquet');
         Get.snackbar("Error", "Cannot renew. Invalid bouquet information.",
             backgroundColor: AppColors.errorBgColor,
             colorText: AppColors.textSnackbarColor);
         return;
       }
-      dev.log(
-          'Processing renewal for current bouquet: ${cableBouquetDetails['currentBouquet']}',
-          name: 'GeneralPayout');
     } else if (!showPackageSelection.value ||
         selectedCablePackage.value == null) {
-      dev.log('Payment failed: No package selected',
-          name: 'GeneralPayout', error: 'Package missing');
       Get.snackbar("Error", "Please select a package.",
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor);
       return;
     }
 
-    final transactionUrl = box.read('transaction_service_url');
-    if (transactionUrl == null) {
-      dev.log('Transaction URL not found',
-          name: 'GeneralPayout', error: 'URL missing');
-      Get.snackbar("Error", "Transaction URL not found.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    // Use consistent reference generation
-    final ref = _generateReference();
-    dev.log('Starting Cable Payment Flow', name: 'GeneralPayout');
-    dev.log('Generated Reference: $ref', name: 'GeneralPayout');
-
-    final provider = paymentData['provider'];
+    final ref = txRef;
     final smartCardNumber = paymentData['smartCardNumber'];
 
-    // Determine the package code, name, and amount to use
     String packageCode;
-    String packageName;
     String packageAmount;
 
     if (isRenewalMode.value) {
-      // For renewal, use the current bouquet code and renewal amount
       packageCode = cableBouquetDetails['currentBouquetCode'] ?? 'UNKNOWN';
-      packageName = cableBouquetDetails['currentBouquet'] ?? 'N/A';
       packageAmount = cableBouquetDetails['renewalAmount'] ?? '0';
     } else {
-      // For new subscription, use selected package
       packageCode = selectedCablePackage.value?['code'] ??
           selectedCablePackage.value?['coded'] ??
           '';
-      packageName = selectedCablePackage.value?['name'] ?? 'N/A';
-      // Use bouquetPrice from cableBouquetDetails (already parsed by onCablePackageSelected)
       packageAmount = cableBouquetDetails['bouquetPrice'] ??
           selectedCablePackage.value?['amount']?.toString() ??
           '0';
@@ -1803,73 +1641,19 @@ class GeneralPayoutController extends GetxController {
       "ref": ref,
     };
 
-    dev.log(
-        'Cable payment - Provider: ${provider?.name}, Package: $packageName, Amount: ₦$packageAmount, Renewal: ${isRenewalMode.value}',
-        name: 'GeneralPayout');
-    dev.log('Sending handshake to ${transactionUrl}tv', name: 'GeneralPayout');
-    dev.log('Payload: $body', name: 'GeneralPayout');
+    final amount = double.tryParse((packageAmount).toString()) ?? 0.0;
 
-    final result = await apiService.postrequest('${transactionUrl}tv', body);
-
-    result.fold(
-      (failure) {
-        dev.log('Handshake failed',
-            name: 'GeneralPayout', error: failure.message);
-        Get.snackbar("Payment Failed", failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor);
-      },
-      (data) {
-        dev.log('Handshake response: $data', name: 'GeneralPayout');
-
-        final amount = double.tryParse((packageAmount).toString()) ?? 0.0;
-
-        if (getPaymentMethodKey() == 'paystack') {
-          if (data['success'] == 1 || data['success'] == true) {
-            dev.log('Handshake successful. Proceeding to Paystack charge.',
-                name: 'GeneralPayout');
-            _currentReference = ref;
-            _currentAmount = amount.toInt();
-            dev.log(
-                'Setting Paystack Context - Ref: $_currentReference, Amount: $_currentAmount',
-                name: 'GeneralPayout');
-            isPaying.value = false;
-            _showCardInputDialog();
-          } else {
-            dev.log('Handshake returned check failure: ${data['message']}',
-                name: 'GeneralPayout');
-            Get.snackbar(
-                "Payment Failed", data['message'] ?? "Handshake failed",
-                backgroundColor: AppColors.errorBgColor,
-                colorText: AppColors.textSnackbarColor);
-          }
-        } else {
-          _handleServicePaymentResponse(
-            data,
-            amount,
-            successMessage: "Cable subscription successful!",
-            localRef: ref,
-          );
-        }
-      },
+    await _performHandshake(
+      endpoint: 'tv',
+      body: body,
+      amount: amount,
+      localRef: ref,
+      successMessage: "Cable subscription successful!",
     );
   }
 
   Future<void> _processAirtimePinPayment() async {
-    final transactionUrl = box.read('transaction_service_url');
-    if (transactionUrl == null) {
-      dev.log('Transaction URL not found',
-          name: 'GeneralPayout', error: 'URL missing');
-      Get.snackbar("Error", "Transaction URL not found.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    // Use consistent reference generation
-    final ref = _generateReference();
-    dev.log('Generated Reference: $ref', name: 'GeneralPayout');
-
+    final ref = txRef;
     final body = {
       'provider': paymentData['networkCode']?.toUpperCase() ?? '',
       'amount': paymentData['amount'] ?? '',
@@ -1881,47 +1665,19 @@ class GeneralPayoutController extends GetxController {
       'number': '09031945519'
     };
 
-    dev.log('Sending handshake to ${transactionUrl}airtimepin',
-        name: 'GeneralPayout');
-    dev.log('Payload: $body', name: 'GeneralPayout');
+    double amount =
+        double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0;
+    int quantity =
+        int.tryParse((paymentData['quantity'] ?? '1').toString()) ?? 1;
+    double totalAmount = amount * quantity;
 
-    final response =
-        await apiService.postrequest('${transactionUrl}airtimepin', body);
-
-    response.fold(
-      (failure) {
-        dev.log('Airtime Pin handshake failed: ${failure.message}',
-            name: 'GeneralPayout');
-        Get.snackbar("Payment Failed", failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor);
-      },
-      (data) {
-        dev.log('Airtime Pin handshake response: $data', name: 'GeneralPayout');
+    await _performHandshake(
+      endpoint: 'airtimepin',
+      body: body,
+      amount: totalAmount,
+      localRef: ref,
+      onServiceSuccess: (data) async {
         if (data['success'] == 1) {
-          // Intercept Paystack flow
-          if (getPaymentMethodKey() == 'paystack') {
-            dev.log('Handshake successful. Proceeding to Paystack charge.',
-                name: 'GeneralPayout');
-
-            double amount =
-                double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0;
-            int quantity =
-                int.tryParse((paymentData['quantity'] ?? '1').toString()) ?? 1;
-            double totalAmount = amount * quantity;
-
-            _currentReference = ref;
-            _currentAmount = totalAmount.toInt();
-
-            dev.log(
-                'Setting Paystack Context - Ref=$_currentReference, Amount=$_currentAmount',
-                name: 'GeneralPayout');
-
-            isPaying.value = false;
-            _showCardInputDialog();
-            return;
-          }
-
           final transactionId = data['ref'] ?? data['trnx_id'] ?? ref;
           final token = data['token'] ?? 'N/A';
           final formattedDate = DateTime.now()
@@ -1929,22 +1685,15 @@ class GeneralPayoutController extends GetxController {
               .substring(0, 19)
               .replaceAll('T', ' ');
 
-          dev.log(
-              'Airtime Pin payment successful. Transaction ID: $transactionId',
-              name: 'GeneralPayout');
           Get.snackbar(
               "Success", data['message'] ?? "Airtime Pin purchase successful!",
               backgroundColor: AppColors.successBgColor,
               colorText: AppColors.textSnackbarColor);
 
-          // Persist designId & networkCode locally for history lookup
           final _designId = paymentData['designId'] ?? 1;
           final _networkCode = paymentData['networkCode'] ?? 'MTN';
           box.write('epin_design_$transactionId', _designId);
           box.write('epin_network_$transactionId', _networkCode);
-          dev.log(
-              'Saved epin design=$_designId, network=$_networkCode for ref=$transactionId',
-              name: 'GeneralPayout');
 
           Get.offNamed(
             Routes.TRANSACTION_DETAIL_MODULE,
@@ -1964,8 +1713,6 @@ class GeneralPayoutController extends GetxController {
             },
           );
         } else {
-          dev.log('Airtime Pin handshake failed',
-              name: 'GeneralPayout', error: data['message']);
           Get.snackbar(
               "Payment Failed",
               data['message'] ??
@@ -1978,19 +1725,7 @@ class GeneralPayoutController extends GetxController {
   }
 
   Future<void> _processDataPinPayment() async {
-    final transactionUrl = box.read('transaction_service_url');
-    if (transactionUrl == null) {
-      dev.log('Transaction URL not found',
-          name: 'GeneralPayout', error: 'URL missing');
-      Get.snackbar("Error", "Transaction URL not found.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    final ref = _generateReference();
-    dev.log('Generated Reference: $ref', name: 'GeneralPayout');
-
+    final ref = txRef;
     final body = {
       "coded": paymentData['coded'] ?? '',
       "payment": getPaymentMethodKey(),
@@ -2001,47 +1736,19 @@ class GeneralPayoutController extends GetxController {
       "quantity": paymentData['quantity'] ?? '1',
     };
 
-    dev.log('Sending handshake to ${transactionUrl}datapin',
-        name: 'GeneralPayout');
-    dev.log('Payload: $body', name: 'GeneralPayout');
+    double amount =
+        double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0;
+    int quantity =
+        int.tryParse((paymentData['quantity'] ?? '1').toString()) ?? 1;
+    double totalAmount = amount * quantity;
 
-    final result =
-        await apiService.postrequest('${transactionUrl}datapin', body);
-
-    result.fold(
-      (failure) {
-        dev.log('Data PIN handshake failed',
-            name: 'GeneralPayout', error: failure.message);
-        Get.snackbar("Payment Failed", failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor);
-      },
-      (data) {
-        dev.log('Data PIN handshake response: $data', name: 'GeneralPayout');
+    await _performHandshake(
+      endpoint: 'datapin',
+      body: body,
+      amount: totalAmount,
+      localRef: ref,
+      onServiceSuccess: (data) async {
         if (data['success'] == 1 || data['success'] == true) {
-          // Intercept Paystack flow
-          if (getPaymentMethodKey() == 'paystack') {
-            dev.log('Handshake successful. Proceeding to Paystack charge.',
-                name: 'GeneralPayout');
-
-            double amount =
-                double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0;
-            int quantity =
-                int.tryParse((paymentData['quantity'] ?? '1').toString()) ?? 1;
-            double totalAmount = amount * quantity;
-
-            _currentReference = ref;
-            _currentAmount = totalAmount.toInt();
-
-            dev.log(
-                'Setting Paystack Context - Ref=$_currentReference, Amount=$_currentAmount',
-                name: 'GeneralPayout');
-
-            isPaying.value = false;
-            _showCardInputDialog();
-            return;
-          }
-
           final transactionId = data['ref'] ?? data['trnx_id'] ?? ref;
           final token = data['token'] ?? 'N/A';
           final formattedDate = DateTime.now()
@@ -2049,21 +1756,15 @@ class GeneralPayoutController extends GetxController {
               .substring(0, 19)
               .replaceAll('T', ' ');
 
-          dev.log('Payment successful. Transaction ID: $transactionId',
-              name: 'GeneralPayout');
           Get.snackbar(
               "Success", data['message'] ?? "Data Pin purchase successful!",
               backgroundColor: AppColors.successBgColor,
               colorText: AppColors.textSnackbarColor);
 
-          // Persist designId & networkCode locally for history lookup
           final _designId = paymentData['designId'] ?? 1;
           final _networkCode = paymentData['networkCode'] ?? 'MTN';
           box.write('epin_design_$transactionId', _designId);
           box.write('epin_network_$transactionId', _networkCode);
-          dev.log(
-              'Saved epin design=$_designId, network=$_networkCode for ref=$transactionId',
-              name: 'GeneralPayout');
 
           Get.offNamed(
             Routes.TRANSACTION_DETAIL_MODULE,
@@ -2083,8 +1784,6 @@ class GeneralPayoutController extends GetxController {
             },
           );
         } else {
-          dev.log('Data PIN handshake failed',
-              name: 'GeneralPayout', error: data['message']);
           Get.snackbar(
               "Payment Failed", data['message'] ?? "An unknown error occurred.",
               backgroundColor: AppColors.errorBgColor,
@@ -2094,127 +1793,71 @@ class GeneralPayoutController extends GetxController {
     );
   }
 
-  Future<void> _processEpinPayment() async {
-    dev.log('Starting E-PIN payment flow...', name: 'GeneralPayout');
+  // Future<void> _processEpinPayment() async {
+  //   final ref = txRef;
+  //   final body = {
+  //     "provider": paymentData['networkCode']?.toUpperCase() ?? '',
+  //     "amount": paymentData['amount'] ?? '',
+  //     "number": paymentData['recipient'] ?? '',
+  //     "quantity": paymentData['quantity'] ?? '',
+  //     "payment": getPaymentMethodKey(),
+  //     "promo":
+  //         promoCodeController.text.isEmpty ? "0" : promoCodeController.text,
+  //     "ref": ref,
+  //   };
 
-    final transactionUrl = box.read('transaction_service_url');
-    if (transactionUrl == null) {
-      dev.log('Transaction URL not found',
-          name: 'GeneralPayout', error: 'URL missing');
-      Get.snackbar("Error", "Transaction URL not found.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
+  //   double amount =
+  //       double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0;
+  //   int quantity =
+  //       int.tryParse((paymentData['quantity'] ?? '1').toString()) ?? 1;
+  //   double totalAmount = amount * quantity;
 
-    final ref = _generateReference();
-    dev.log('Generated Reference: $ref', name: 'GeneralPayout');
+  //   await _performHandshake(
+  //     endpoint: 'airtimepin',
+  //     body: body,
+  //     amount: totalAmount,
+  //     localRef: ref,
+  //     onServiceSuccess: (data) async {
+  //       if (data['success'] == 1 || data['success'] == true) {
+  //         final transactionId = data['ref'] ?? data['trnx_id'] ?? ref;
+  //         final token = data['token'] ?? 'N/A';
+  //         final formattedDate = DateTime.now()
+  //             .toIso8601String()
+  //             .substring(0, 19)
+  //             .replaceAll('T', ' ');
 
-    final body = {
-      "provider": paymentData['networkCode']?.toUpperCase() ?? '',
-      "amount": paymentData['amount'] ?? '',
-      "number": paymentData['recipient'] ?? '',
-      "quantity": paymentData['quantity'] ?? '',
-      "payment": getPaymentMethodKey(),
-      "promo":
-          promoCodeController.text.isEmpty ? "0" : promoCodeController.text,
-      "ref": ref,
-    };
+  //         Get.snackbar(
+  //             "Success", data['message'] ?? "E-pin purchase successful!",
+  //             backgroundColor: AppColors.successBgColor,
+  //             colorText: AppColors.textSnackbarColor);
 
-    dev.log('Sending handshake to ${transactionUrl}airtimepin',
-        name: 'GeneralPayout');
-    dev.log('Payload: $body', name: 'GeneralPayout');
-
-    final result =
-        await apiService.postrequest('${transactionUrl}airtimepin', body);
-
-    result.fold(
-      (failure) {
-        dev.log('E-PIN handshake failed',
-            name: 'GeneralPayout', error: failure.message);
-        Get.snackbar("Payment Failed", failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor);
-      },
-      (data) {
-        dev.log('E-PIN handshake response: $data', name: 'GeneralPayout');
-
-        if (data['success'] == 1 || data['success'] == true) {
-          if (getPaymentMethodKey() == 'paystack') {
-            dev.log('Handshake successful. Proceeding to Paystack charge.',
-                name: 'GeneralPayout');
-
-            double amount =
-                double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0;
-            int quantity =
-                int.tryParse((paymentData['quantity'] ?? '1').toString()) ?? 1;
-            double totalAmount = amount * quantity;
-
-            _currentReference = ref;
-            _currentAmount = totalAmount.toInt();
-            dev.log(
-                'Setting Paystack Context - Ref: $_currentReference, Amount: $_currentAmount',
-                name: 'GeneralPayout');
-            isPaying.value = false;
-            _showCardInputDialog();
-            return;
-          }
-
-          final transactionId = data['ref'] ?? data['trnx_id'] ?? ref;
-          final token = data['token'] ?? 'N/A';
-          final formattedDate = DateTime.now()
-              .toIso8601String()
-              .substring(0, 19)
-              .replaceAll('T', ' ');
-
-          dev.log('Payment successful. Transaction ID: $transactionId',
-              name: 'GeneralPayout');
-          Get.snackbar(
-              "Success", data['message'] ?? "E-pin purchase successful!",
-              backgroundColor: AppColors.successBgColor,
-              colorText: AppColors.textSnackbarColor);
-
-          Get.offNamed(
-            Routes.EPIN_TRANSACTION_DETAIL,
-            arguments: {
-              'networkName': paymentData['networkName'] ?? '',
-              'networkImage': paymentData['networkImage'] ?? '',
-              'amount': paymentData['amount'] ?? '',
-              'designType': paymentData['designType'] ?? 'Standard',
-              'quantity': paymentData['quantity'] ?? '1',
-              'paymentMethod': getPaymentMethodDisplayName(),
-              'transactionId': transactionId,
-              'postedDate': formattedDate,
-              'transactionDate': formattedDate,
-              'token': token,
-            },
-          );
-        } else {
-          dev.log('E-PIN handshake failed',
-              name: 'GeneralPayout', error: data['message']);
-          Get.snackbar(
-              "Payment Failed", data['message'] ?? "An unknown error occurred.",
-              backgroundColor: AppColors.errorBgColor,
-              colorText: AppColors.textSnackbarColor);
-        }
-      },
-    );
-  }
+  //         Get.offNamed(
+  //           Routes.EPIN_TRANSACTION_DETAIL,
+  //           arguments: {
+  //             'networkName': paymentData['networkName'] ?? '',
+  //             'networkImage': paymentData['networkImage'] ?? '',
+  //             'amount': paymentData['amount'] ?? '',
+  //             'designType': paymentData['designType'] ?? 'Standard',
+  //             'quantity': paymentData['quantity'] ?? '1',
+  //             'paymentMethod': getPaymentMethodDisplayName(),
+  //             'transactionId': transactionId,
+  //             'postedDate': formattedDate,
+  //             'transactionDate': formattedDate,
+  //             'token': token,
+  //           },
+  //         );
+  //       } else {
+  //         Get.snackbar(
+  //             "Payment Failed", data['message'] ?? "An unknown error occurred.",
+  //             backgroundColor: AppColors.errorBgColor,
+  //             colorText: AppColors.textSnackbarColor);
+  //       }
+  //     },
+  //   );
+  // }
 
   Future<void> _processNinValidationPayment() async {
-    final transactionUrl = box.read('transaction_service_url');
-    if (transactionUrl == null) {
-      dev.log('Transaction URL not found',
-          name: 'GeneralPayout', error: 'URL missing');
-      Get.snackbar("Error", "Transaction URL not found.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    final ref = _generateReference();
-    dev.log('Generated Reference: $ref', name: 'GeneralPayout');
-
+    final ref = txRef;
     final body = {
       "number": paymentData['ninNumber'] ?? '',
       "ref": ref,
@@ -2223,87 +1866,37 @@ class GeneralPayoutController extends GetxController {
           promoCodeController.text.isEmpty ? "0" : promoCodeController.text,
     };
 
-    dev.log('Sending handshake to ${transactionUrl}ninvalidation',
-        name: 'GeneralPayout');
-    dev.log('Payload: $body', name: 'GeneralPayout');
+    final amount =
+        double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0.0;
 
-    final result =
-        await apiService.postrequest('${transactionUrl}ninvalidation', body);
+    await _performHandshake(
+      endpoint: 'ninvalidation',
+      body: body,
+      amount: amount,
+      localRef: ref,
+      onServiceSuccess: (data) async {
+        if (data['success'] == 1 || data['success'] == true) {
+          final transactionId = data['data']?['transaction_id'] ?? ref;
+          Get.snackbar(
+              "Success",
+              data['message'] ??
+                  "NIN validation request submitted successfully!",
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor);
 
-    result.fold(
-      (failure) {
-        dev.log('NIN handshake failed',
-            name: 'GeneralPayout', error: failure.message);
-        Get.snackbar("Payment Failed", failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor);
-      },
-      (data) {
-        dev.log('NIN handshake response: $data', name: 'GeneralPayout');
-
-        final amount =
-            double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0.0;
-
-        if (getPaymentMethodKey() == 'paystack') {
-          if (data['success'] == 1 || data['success'] == true) {
-            dev.log('NIN Handshake successful. Proceeding to Paystack charge.',
-                name: 'GeneralPayout');
-            _currentReference = ref;
-            _currentAmount = amount.toInt();
-            dev.log(
-                'Setting Paystack Context - Ref: $_currentReference, Amount: $_currentAmount',
-                name: 'GeneralPayout');
-            isPaying.value = false;
-            _showCardInputDialog();
-          } else {
-            dev.log('NIN Handshake returned check failure: ${data['message']}',
-                name: 'GeneralPayout');
-            Get.snackbar(
-                "Payment Failed", data['message'] ?? "Handshake failed",
-                backgroundColor: AppColors.errorBgColor,
-                colorText: AppColors.textSnackbarColor);
-          }
+          _navigateToReceipt(transactionId.toString(), amount, data);
         } else {
-          // Standard flow
-          if (data['success'] == 1 || data['success'] == true) {
-            final transactionId = data['data']?['transaction_id'] ?? ref;
-            dev.log('Payment successful. Transaction ID: $transactionId',
-                name: 'GeneralPayout');
-            Get.snackbar(
-                "Success",
-                data['message'] ??
-                    "NIN validation request submitted successfully!",
-                backgroundColor: AppColors.successBgColor,
-                colorText: AppColors.textSnackbarColor);
-
-            _navigateToReceipt(transactionId.toString(), amount, data);
-          } else {
-            dev.log('Payment unsuccessful',
-                name: 'GeneralPayout', error: data['message']);
-            Get.snackbar("Payment Failed",
-                data['message'] ?? "An unknown error occurred.",
-                backgroundColor: AppColors.errorBgColor,
-                colorText: AppColors.textSnackbarColor);
-          }
+          Get.snackbar("Payment Failed",
+              data['message'] ?? "An unknown error occurred.",
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor);
         }
       },
     );
   }
 
   Future<void> _processResultCheckerPayment() async {
-    final transactionUrl = box.read('transaction_service_url');
-    if (transactionUrl == null) {
-      dev.log('Transaction URL not found',
-          name: 'GeneralPayout', error: 'URL missing');
-      Get.snackbar("Error", "Transaction URL not found.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    final ref = _generateReference();
-    dev.log('Generated Reference: $ref', name: 'GeneralPayout');
-
+    final ref = txRef;
     final body = {
       "coded": paymentData['examCode']?.toUpperCase() ?? '',
       "quantity": paymentData['quantity'] ?? '1',
@@ -2314,69 +1907,29 @@ class GeneralPayoutController extends GetxController {
           promoCodeController.text.isEmpty ? "0" : promoCodeController.text,
     };
 
-    dev.log('Sending handshake to ${transactionUrl}resultchecker',
-        name: 'GeneralPayout');
-    dev.log('Payload: $body', name: 'GeneralPayout');
+    final amount =
+        double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0.0;
 
-    final result =
-        await apiService.postrequest('${transactionUrl}resultchecker', body);
-
-    result.fold(
-      (failure) {
-        dev.log('Result Checker handshake failed',
-            name: 'GeneralPayout', error: failure.message);
-        Get.snackbar("Payment Failed", failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor);
-      },
-      (data) {
-        dev.log('Result Checker handshake response: $data',
-            name: 'GeneralPayout');
-
-        final amount =
-            double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0.0;
-
-        if (getPaymentMethodKey() == 'paystack') {
-          if (data['success'] == 1 || data['success'] == true) {
-            dev.log(
-                'Result Checker Handshake successful. Proceeding to Paystack charge.',
-                name: 'GeneralPayout');
-            _currentReference = ref;
-            _currentAmount = amount.toInt();
-            dev.log(
-                'Setting Paystack Context - Ref: $_currentReference, Amount: $_currentAmount',
-                name: 'GeneralPayout');
-            isPaying.value = false;
-            _showCardInputDialog();
-          } else {
-            dev.log(
-                'Result Checker Handshake returned check failure: ${data['message']}',
-                name: 'GeneralPayout');
-            Get.snackbar(
-                "Payment Failed", data['message'] ?? "Handshake failed",
-                backgroundColor: AppColors.errorBgColor,
-                colorText: AppColors.textSnackbarColor);
-          }
+    await _performHandshake(
+      endpoint: 'resultchecker',
+      body: body,
+      amount: amount,
+      localRef: ref,
+      onServiceSuccess: (data) async {
+        if (data['success'] == 1 || data['success'] == true) {
+          final transactionId = data['data']?['transaction_id'] ?? ref;
+          Get.snackbar(
+              "Success",
+              data['message'] ??
+                  "Result Checker purchase successful! Check your email.",
+              backgroundColor: AppColors.successBgColor,
+              colorText: AppColors.textSnackbarColor);
+          _navigateToReceipt(transactionId.toString(), amount, data);
         } else {
-          if (data['success'] == 1 || data['success'] == true) {
-            final transactionId = data['data']?['transaction_id'] ?? ref;
-            dev.log('Payment successful. Transaction ID: $transactionId',
-                name: 'GeneralPayout');
-            Get.snackbar(
-                "Success",
-                data['message'] ??
-                    "Result Checker purchase successful! Check your email.",
-                backgroundColor: AppColors.successBgColor,
-                colorText: AppColors.textSnackbarColor);
-            _navigateToReceipt(transactionId.toString(), amount, data);
-          } else {
-            dev.log('Result Checker payment failed',
-                name: 'GeneralPayout', error: data['message']);
-            Get.snackbar("Payment Failed",
-                data['message'] ?? "An unknown error occurred.",
-                backgroundColor: AppColors.errorBgColor,
-                colorText: AppColors.textSnackbarColor);
-          }
+          Get.snackbar("Payment Failed",
+              data['message'] ?? "An unknown error occurred.",
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor);
         }
       },
     );
@@ -2388,12 +1941,9 @@ class GeneralPayoutController extends GetxController {
     String? successMessage,
     String? localRef,
   }) {
-    // Note: Paystack flow is now intercepted in individual process methods.
-    // This handler primarily serves Wallet and General Market flows, or non-Paystack success handling.
 
     final isPaystack = getPaymentMethodKey() == 'paystack';
 
-    // If we somehow got here with Paystack and it wasn't intercepted, logic remains for safety but logged
     if (isPaystack) {
       dev.log(
           'Warning: _handleServicePaymentResponse called for Paystack. Should have been intercepted.',
@@ -2409,6 +1959,7 @@ class GeneralPayoutController extends GetxController {
 
       dev.log('Payment successful. Transaction ID: $transactionId',
           name: 'GeneralPayout');
+      _currentTxRef = null; // clear reference on success
       Get.snackbar(
           "Success", data['message'] ?? successMessage ?? "Payment successful!",
           backgroundColor: AppColors.successBgColor,
@@ -2488,21 +2039,7 @@ class GeneralPayoutController extends GetxController {
   }
 
   Future<void> _processBettingPayment() async {
-    dev.log('Starting Betting Payment Flow', name: 'GeneralPayout');
-
-    final transactionUrl = box.read('transaction_service_url');
-    if (transactionUrl == null) {
-      dev.log('Transaction URL not found',
-          name: 'GeneralPayout', error: 'URL missing');
-      Get.snackbar("Error", "Transaction URL not found.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    final ref = _generateReference();
-    dev.log('Generated Reference: $ref', name: 'GeneralPayout');
-
+    final ref = txRef;
     final body = {
       "provider": paymentData['providerCode']?.toUpperCase() ?? '',
       "number": paymentData['userId'] ?? '',
@@ -2514,57 +2051,15 @@ class GeneralPayoutController extends GetxController {
       "ref": ref,
     };
 
-    dev.log('Sending Betting payment request to ${transactionUrl}betting',
-        name: 'GeneralPayout');
-    dev.log('Payload: $body', name: 'GeneralPayout');
+    final amount =
+        double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0.0;
 
-    final result =
-        await apiService.postrequest('${transactionUrl}betting', body);
-
-    result.fold(
-      (failure) {
-        dev.log('Betting handshake/payment failed',
-            name: 'GeneralPayout', error: failure.message);
-        Get.snackbar("Payment Failed", failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor);
-      },
-      (data) {
-        dev.log('Betting Response: $data', name: 'GeneralPayout');
-
-        final amount =
-            double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0.0;
-
-        if (getPaymentMethodKey() == 'paystack') {
-          if (data['success'] == 1 || data['success'] == true) {
-            dev.log(
-                'Betting Handshake successful. Proceeding to Paystack charge.',
-                name: 'GeneralPayout');
-            _currentReference = ref;
-            _currentAmount = amount.toInt();
-            dev.log(
-                'Setting Paystack Context - Ref: $_currentReference, Amount: $_currentAmount',
-                name: 'GeneralPayout');
-            isPaying.value = false;
-            _showCardInputDialog();
-          } else {
-            dev.log(
-                'Betting Handshake returned check failure: ${data['message']}',
-                name: 'GeneralPayout');
-            Get.snackbar(
-                "Payment Failed", data['message'] ?? "Handshake failed",
-                backgroundColor: AppColors.errorBgColor,
-                colorText: AppColors.textSnackbarColor);
-          }
-        } else {
-          _handleServicePaymentResponse(
-            data,
-            amount,
-            successMessage: "Betting deposit successful!",
-            localRef: ref,
-          );
-        }
-      },
+    await _performHandshake(
+      endpoint: 'betting',
+      body: body,
+      amount: amount,
+      localRef: ref,
+      successMessage: "Betting deposit successful!",
     );
   }
 }
