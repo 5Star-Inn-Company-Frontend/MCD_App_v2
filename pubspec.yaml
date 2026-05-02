@@ -91,7 +91,7 @@ dependencies:
   firebase_messaging: ^15.1.5
   paystack: ^0.0.2
   cached_network_image: ^3.4.1
-  flutter_dotenv: ^5.2.1
+  envied: ^0.5.4
   advert:
     git: https://github.com/odejinmi/advert.git
 #     path: ../advert
@@ -110,6 +110,8 @@ dependency_overrides:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  envied_generator: ^0.5.4
+  build_runner: ^2.4.13
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -147,7 +149,6 @@ flutter:
     - assets/images/epin/
     - assets/images/receipts_bg/
     - assets/icons/receipts/
-    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
