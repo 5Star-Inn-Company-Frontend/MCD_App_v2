@@ -3,7 +3,7 @@ import 'package:get_storage/get_storage.dart';
 import 'dart:developer' as dev;
 
 import '../../routes/app_pages.dart';
-import '../../../core/services/deep_link_service.dart';
+// import '../../../core/services/deep_link_service.dart';
 
 class SplashScreenController extends GetxController {
   final _obj = ''.obs;
@@ -34,11 +34,11 @@ class SplashScreenController extends GetxController {
     }
 
 
-    try {
-      final deepLinkService = Get.find<DeepLinkService>();
-      deepLinkService.consumePendingDeepLink();
-    } catch (e) {
-      dev.log('error consuming pending deep link: $e', name: 'Splash');
-    }
+    // try {
+    //   final deepLinkService = Get.find<DeepLinkService>();
+    //   deepLinkService.consumePendingDeepLink();
+    // } catch (e) {
+    //   dev.log('error consuming pending deep link: $e', name: 'Splash');
+    // }
   }
 }

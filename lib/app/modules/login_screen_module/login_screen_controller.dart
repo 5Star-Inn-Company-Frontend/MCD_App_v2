@@ -22,7 +22,7 @@ import '../../../core/controllers/service_status_controller.dart';
 import '../../../core/controllers/payment_config_controller.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
-import '../../../core/services/deep_link_service.dart';
+// import '../../../core/services/deep_link_service.dart';
 import '../../../core/utils/validator.dart';
 import '../../routes/app_pages.dart';
 /**
@@ -499,13 +499,12 @@ class LoginScreenController extends GetxController {
 
     Get.offAllNamed(Routes.HOME_SCREEN);
 
-    // consume any pending deep link saved before login
-    try {
-      final deepLinkService = Get.find<DeepLinkService>();
-      deepLinkService.consumePendingDeepLink();
-    } catch (e) {
-      dev.log('Error consuming pending deep link: $e', name: 'Login');
-    }
+    // try {
+    //   final deepLinkService = Get.find<DeepLinkService>();
+    //   deepLinkService.consumePendingDeepLink();
+    // } catch (e) {
+    //   dev.log('Error consuming pending deep link: $e', name: 'Login');
+    // }
   }
 
   void _prefetchCountries() {

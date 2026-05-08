@@ -1,6 +1,5 @@
 import 'dart:developer' as dev;
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
@@ -9,6 +8,7 @@ import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/controllers/service_status_controller.dart';
 import 'package:mcd/core/mixins/service_availability_mixin.dart';
 import 'package:mcd/core/services/notification_permission_service.dart';
+import 'package:mcd/core/services/deep_link_service.dart';
 
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
@@ -156,14 +156,20 @@ class HomeScreenController extends GetxController
     dev.log(
         "HomeScreenController ready, dashboardData: ${dashboardData != null ? 'loaded' : 'null'}");
 
-    // Check for notification permission (Android only)
-    _checkNotificationPermission();
+    _checkNotificationPermission(); // Check for notification permission (Android only)
 
     // // Show banner ad
     // AdsService().showBannerAd();
 
     // Check clipboard for phone number
     // _checkClipboardForPhoneNumber();
+
+    try {
+      final deepLinkService = Get.find<DeepLinkService>();
+      deepLinkService.consumePendingDeepLink();
+    } catch (e) {
+      dev.log('error consuming pending deep link: $e', name: 'HomeScreen');
+    }
   }
 
   Future<void> _checkNotificationPermission() async {

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer' as dev;
 import 'package:app_links/app_links.dart';
-import 'package:flutter/scheduler.dart';
+// import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
@@ -15,6 +15,7 @@ class DeepLinkService extends GetxService {
   static const String claimPath = '/giveaway/claim';
   static const String _pendingIdKey = 'pending_deeplink_giveaway_id';
   static const String _pendingRouteKey = 'pending_deeplink_route';
+  static const String _pendingTsKey = 'pending_deeplink_ts';
 
   Future<DeepLinkService> init() async {
     _appLinks = AppLinks();
@@ -35,6 +36,7 @@ class DeepLinkService extends GetxService {
     dev.log('saving pending link: id=$id route=$route', name: 'DeepLink');
     _box.write(_pendingIdKey, id);
     _box.write(_pendingRouteKey, route);
+    _box.write(_pendingTsKey, DateTime.now().toIso8601String());
   }
 
   /// on cold start, only persist — do not touch the navigator
@@ -108,8 +110,12 @@ class DeepLinkService extends GetxService {
       Get.toNamed(Routes.LOGIN_SCREEN);
     } else {
       dev.log('navigating to giveaway module: $id', name: 'DeepLink');
-      Get.toNamed(Routes.GIVEAWAY_MODULE,
-          arguments: {'id': id, 'giveaway_id': id});
+      final args = {'id': id, 'giveaway_id': id};
+      if (currentRoute == Routes.GIVEAWAY_MODULE) {
+        Get.offNamed(Routes.GIVEAWAY_MODULE, arguments: args);
+      } else {
+        Get.toNamed(Routes.GIVEAWAY_MODULE, arguments: args);
+      }
     }
   }
 
@@ -122,23 +128,35 @@ class DeepLinkService extends GetxService {
     final String targetRoute =
         _box.read(_pendingRouteKey) ?? Routes.GIVEAWAY_MODULE;
 
-    // remove before scheduling to prevent double-consume
+    final tsRaw = _box.read(_pendingTsKey);
     _box.remove(_pendingIdKey);
     _box.remove(_pendingRouteKey);
+    _box.remove(_pendingTsKey);
 
-    dev.log('scheduling consume: id=$pendingId route=$targetRoute',
+    if (tsRaw != null) {
+      final ts = DateTime.tryParse(tsRaw.toString());
+      if (ts != null && DateTime.now().difference(ts).inDays > 7) {
+        dev.log('pending deep link expired, discarding: $pendingId',
+            name: 'DeepLink');
+        return false;
+      }
+    }
+
+    dev.log('consuming pending deep link: id=$pendingId route=$targetRoute',
         name: 'DeepLink');
 
-    // wait for the current frame + post-frame to fully settle,
-    // then wait one additional frame before pushing to avoid GlobalKey conflicts
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        dev.log('executing consume navigation: $pendingId', name: 'DeepLink');
-        Get.toNamed(targetRoute, arguments: {
-          'id': pendingId,
-          'giveaway_id': pendingId,
-        });
-      });
+    // SchedulerBinding.instance.addPostFrameCallback((_) {
+    //   SchedulerBinding.instance.addPostFrameCallback((_) {
+    //     Get.toNamed(targetRoute, arguments: {
+    //       'id': pendingId,
+    //       'giveaway_id': pendingId,
+    //     });
+    //   });
+    // });
+
+    Get.toNamed(targetRoute, arguments: {
+      'id': pendingId,
+      'giveaway_id': pendingId,
     });
 
     return true;
