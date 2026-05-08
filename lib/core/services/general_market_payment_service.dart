@@ -12,7 +12,7 @@ class GeneralMarketPaymentService {
 
   final AdsService _adsService = AdsService();
   static const int minimumGMBalance = 300;
-  static const int requiredAdsCount = 2;
+  static const int requiredAdsCount = 1;
 
   bool _isProcessingPayment = false;
   bool get isProcessingPayment => _isProcessingPayment;
@@ -67,8 +67,8 @@ class GeneralMarketPaymentService {
       maxAds: requiredAdsCount,
       onAdCompleted: () async {
         dev.log('Success: All ads watched, processing payment');
-        _isProcessingPayment = false;
-        await onPaymentSuccess();
+        // _isProcessingPayment = false;
+        // await onPaymentSuccess();
         return ;
       },
       onAdFailed: (error) {
@@ -76,7 +76,13 @@ class GeneralMarketPaymentService {
         _isProcessingPayment = false;
         onPaymentFailed(error);
       },
-      reason: "Use general Market with 2 ad sessions"
+      reason: "Use general Market with 2 ad sessions",
+      onAdClicked: () async {
+        dev.log('Success: ads clicked, processing payment');
+        _isProcessingPayment = false;
+        await onPaymentSuccess();
+        return ;
+      }
     );
 
     return true;
