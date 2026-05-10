@@ -34,7 +34,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.9
-  local_auth: ^3.0.1
+  local_auth: ^2.3.0
   flutter_screenutil: 
   provider:
   logger:
@@ -45,7 +45,7 @@ dependencies:
   get_it:
   dartz:
   dio: ^5.9.2
-  connectivity_plus: ^7.1.1
+  connectivity_plus: ^6.1.2
   go_router:
   flutter_svg:
   gap:
@@ -63,7 +63,7 @@ dependencies:
   google_fonts:
   camera:
   permission_handler:
-  flutter_native_contact_picker: ^0.0.12
+  flutter_native_contact_picker: ^0.0.11
   photo_view:
   flutter_steps:
   flutter_portal:
@@ -93,13 +93,13 @@ dependencies:
   cached_network_image: ^3.4.1
   envied: ^0.5.4
   advert:
-#    git: https://github.com/odejinmi/advert.git
-     path: ../advert
+    git: https://github.com/odejinmi/advert.git
+#     path: ../advert
   socket_io_client: ^3.1.4
   flutter_markdown: ^0.7.7+1
   flutter_paystack_payment_plus: ^0.0.8
   flutter_native_splash: ^2.4.7
-  app_links: ^7.0.0
+  app_links: ^6.4.1
 #    path: ../sprint_check
 
 dependency_overrides:

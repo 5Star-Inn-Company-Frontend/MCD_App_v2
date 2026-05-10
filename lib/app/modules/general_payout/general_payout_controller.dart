@@ -1307,6 +1307,7 @@ class GeneralPayoutController extends GetxController {
       onPaymentFailed: (errorMessage) {
         dev.log('GM payment failed: $errorMessage', name: 'GeneralPayout');
         isPaying.value = false;
+        _currentTxRef = null;
         
         if (errorMessage.contains('already in progress')) {
           Get.snackbar(
@@ -1335,6 +1336,7 @@ class GeneralPayoutController extends GetxController {
             errorMessage,
             backgroundColor: AppColors.errorBgColor,
             colorText: AppColors.textSnackbarColor,
+            duration: const Duration(seconds: 3),
           );
         }
       },
@@ -2058,7 +2060,8 @@ class GeneralPayoutController extends GetxController {
       Get.snackbar(
           "Payment Failed", data['message'] ?? "An unknown error occurred.",
           backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
+          colorText: AppColors.textSnackbarColor,
+          duration: const Duration(seconds: 5));
     }
   }
 

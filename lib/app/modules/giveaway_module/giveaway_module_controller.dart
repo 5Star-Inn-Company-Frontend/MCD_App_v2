@@ -3,14 +3,11 @@ import 'dart:developer' as dev;
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
-import 'package:mcd/app/styles/app_colors.dart';
 import 'models/giveaway_model.dart';
 import 'package:mcd/core/services/ads_service.dart';
 import 'package:mcd/core/services/deep_link_service.dart';
@@ -773,7 +770,9 @@ class GiveawayModuleController extends GetxController {
       int giveawayId, String giveawayType, BuildContext context) async {
     // SECURITY: Double check status before showing ad
     final latestDetail = await fetchGiveawayDetail(giveawayId);
-    if (latestDetail == null || latestDetail.completed || latestDetail.giveaway.status != 1) {
+    if (latestDetail == null ||
+        latestDetail.completed ||
+        latestDetail.giveaway.status != 1) {
       Get.snackbar(
         'Expired',
         'Sorry, this giveaway has just been fully claimed.',

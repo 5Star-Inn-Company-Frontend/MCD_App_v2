@@ -6,7 +6,8 @@ import '../models/giveaway_model.dart';
 
 class GiveawayDetailSheet extends StatelessWidget {
   final int giveawayId;
-  final GiveawayModuleController controller = Get.find<GiveawayModuleController>();
+  final GiveawayModuleController controller =
+      Get.find<GiveawayModuleController>();
 
   GiveawayDetailSheet({super.key, required this.giveawayId});
 
@@ -44,17 +45,21 @@ class GiveawayDetailSheet extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline, size: 60, color: AppColors.primaryGrey2),
+                  const Icon(Icons.error_outline,
+                      size: 60, color: AppColors.primaryGrey2),
                   const Gap(16),
                   const Text(
                     'Failed to load giveaway details',
-                    style: TextStyle(fontFamily: AppFonts.manRope, fontSize: 16),
+                    style:
+                        TextStyle(fontFamily: AppFonts.manRope, fontSize: 16),
                   ),
                   const Gap(20),
                   ElevatedButton(
                     onPressed: () => Get.back(),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryColor),
-                    child: const Text('Close', style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor),
+                    child: const Text('Close',
+                        style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
@@ -62,7 +67,8 @@ class GiveawayDetailSheet extends StatelessWidget {
           }
 
           final detail = snapshot.data!;
-          final currentUsername = controller.box.read('biometric_username_real') ?? '';
+          final currentUsername =
+              controller.box.read('biometric_username_real') ?? '';
           final isOwnGiveaway = detail.giveaway.userName.trim().toLowerCase() ==
               currentUsername.trim().toLowerCase();
 
@@ -81,7 +87,8 @@ class GiveawayDetailSheet extends StatelessWidget {
                   const CircleAvatar(
                     radius: 50,
                     backgroundColor: Color(0xffF3FFF7),
-                    child: Icon(Icons.person, size: 50, color: AppColors.primaryGrey2),
+                    child: Icon(Icons.person,
+                        size: 50, color: AppColors.primaryGrey2),
                   ),
                 const Gap(12),
                 TextSemiBold(
@@ -92,7 +99,8 @@ class GiveawayDetailSheet extends StatelessWidget {
                 const Gap(8),
                 Text(
                   detail.giveaway.description,
-                  style: const TextStyle(fontSize: 14, color: AppColors.primaryGrey2),
+                  style: const TextStyle(
+                      fontSize: 14, color: AppColors.primaryGrey2),
                   textAlign: TextAlign.center,
                 ),
                 const Gap(20),
@@ -110,8 +118,7 @@ class GiveawayDetailSheet extends StatelessWidget {
                       const Divider(height: 20, color: Color(0xffE5E5E5)),
                       _detailRow('Provider', detail.giveaway.typeCode.toUpperCase()),
                       const Divider(height: 20, color: Color(0xffE5E5E5)),
-                      _detailRowAmount('Amount',
-                          '₦${AmountUtil.formatFigure(double.tryParse(detail.giveaway.amount.toString()) ?? 0)}'),
+                      _detailRowAmount('Amount', '₦${AmountUtil.formatFigure(double.tryParse(detail.giveaway.amount.toString()) ?? 0)}'),
                       const Divider(height: 20, color: Color(0xffE5E5E5)),
                       _detailRow('User', '${detail.requesters.length}/${detail.giveaway.quantity}'),
                     ],
@@ -161,7 +168,10 @@ class GiveawayDetailSheet extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         TextSemiBold(label, fontSize: 14, color: AppColors.primaryGrey2),
-        TextSemiBold(value, fontSize: 14, style: GoogleFonts.plusJakartaSans(), fontWeight: FontWeight.w600),
+        TextSemiBold(value,
+            fontSize: 14,
+            style: GoogleFonts.plusJakartaSans(),
+            fontWeight: FontWeight.w600),
       ],
     );
   }

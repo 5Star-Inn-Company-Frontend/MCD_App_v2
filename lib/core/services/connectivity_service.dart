@@ -117,9 +117,8 @@ class ConnectivityService extends GetxService {
         return 'Other';
       case ConnectivityResult.none:
         return 'No Connection';
-      case ConnectivityResult.satellite:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+      default:
+        return 'Other';
       }
   }
 
