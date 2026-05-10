@@ -166,6 +166,7 @@ class HomeScreenController extends GetxController
 
     try {
       final deepLinkService = Get.find<DeepLinkService>();
+      deepLinkService.markNavigationReady();
       deepLinkService.consumePendingDeepLink();
     } catch (e) {
       dev.log('error consuming pending deep link: $e', name: 'HomeScreen');

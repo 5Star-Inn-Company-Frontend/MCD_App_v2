@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer' as dev;
 import 'package:app_links/app_links.dart';
-// import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
@@ -17,19 +16,23 @@ class DeepLinkService extends GetxService {
   static const String _pendingRouteKey = 'pending_deeplink_route';
   static const String _pendingTsKey = 'pending_deeplink_ts';
 
+  bool _navigationReady = false;
+  Uri? _initialLinkUri;
+
   Future<DeepLinkService> init() async {
     _appLinks = AppLinks();
     _setupDeepLinkListener();
-
-    // cold start: always persist to storage, never navigate here.
-    // the navigator doesn't exist yet at this point in main().
     await _persistInitialLink();
-
     return this;
   }
 
   static String buildClaimLink(int giveawayId) {
     return 'https://$deepLinkDomain$claimPath?id=$giveawayId';
+  }
+
+  void markNavigationReady() {
+    _navigationReady = true;
+    dev.log('navigation marked ready', name: 'DeepLink');
   }
 
   void savePendingGiveawayId(int id, {String route = Routes.GIVEAWAY_MODULE}) {
@@ -39,12 +42,13 @@ class DeepLinkService extends GetxService {
     _box.write(_pendingTsKey, DateTime.now().toIso8601String());
   }
 
-  /// on cold start, only persist — do not touch the navigator
   Future<void> _persistInitialLink() async {
     try {
       final uri = await _appLinks.getInitialLink();
       if (uri == null) return;
       dev.log('initial link found: $uri', name: 'DeepLink');
+
+      _initialLinkUri = uri;
 
       final id = _extractGiveawayId(uri);
       if (id != null) {
@@ -56,10 +60,22 @@ class DeepLinkService extends GetxService {
     }
   }
 
+  bool _isDuplicateOfInitialLink(Uri uri) {
+    if (_initialLinkUri == null) return false;
+    return uri.toString() == _initialLinkUri.toString();
+  }
+
   void _setupDeepLinkListener() {
     _linkSubscription = _appLinks.uriLinkStream.listen(
       (uri) {
         dev.log('runtime link received: $uri', name: 'DeepLink');
+
+        if (_isDuplicateOfInitialLink(uri)) {
+          dev.log('duplicate of initial link, skipping', name: 'DeepLink');
+          _initialLinkUri = null;
+          return;
+        }
+
         handleDeepLink(uri);
       },
       onError: (err) {
@@ -79,11 +95,17 @@ class DeepLinkService extends GetxService {
     return int.tryParse(rawId);
   }
 
-  /// called for runtime links only (app already running)
   void handleDeepLink(Uri uri) {
-    dev.log('handling runtime deep link: $uri', name: 'DeepLink');
+    dev.log('handling deep link: $uri', name: 'DeepLink');
     final id = _extractGiveawayId(uri);
     if (id == null) return;
+
+    if (!_navigationReady) {
+      dev.log('navigation not ready, deferring: $id', name: 'DeepLink');
+      savePendingGiveawayId(id);
+      return;
+    }
+
     _navigateWithAuthCheck(id);
   }
 
@@ -119,8 +141,6 @@ class DeepLinkService extends GetxService {
     }
   }
 
-  /// consume a pending deep link after navigation is fully settled.
-  /// call this only from stable routes (home, login), not during transitions.
   bool consumePendingDeepLink() {
     final pendingId = _box.read(_pendingIdKey);
     if (pendingId == null) return false;
@@ -144,15 +164,6 @@ class DeepLinkService extends GetxService {
 
     dev.log('consuming pending deep link: id=$pendingId route=$targetRoute',
         name: 'DeepLink');
-
-    // SchedulerBinding.instance.addPostFrameCallback((_) {
-    //   SchedulerBinding.instance.addPostFrameCallback((_) {
-    //     Get.toNamed(targetRoute, arguments: {
-    //       'id': pendingId,
-    //       'giveaway_id': pendingId,
-    //     });
-    //   });
-    // });
 
     Get.toNamed(targetRoute, arguments: {
       'id': pendingId,
