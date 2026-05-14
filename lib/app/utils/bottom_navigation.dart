@@ -38,7 +38,10 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // New Modern Design
+    /// To switch to the modern design:
+    /// 1. Uncomment the [Container] block below.
+    /// 2. Comment out the [SizedBox] block further down.
+    /*
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 25),
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -67,9 +70,9 @@ class BottomNavigation extends StatelessWidget {
         ],
       ),
     );
+    */
 
-    /*
-    // Old Bottom Navigation Bar - Commented Out
+    // Old Bottom Navigation Bar
     return SizedBox(
         child: BottomNavigationBar(
       iconSize: 60,
@@ -146,7 +149,6 @@ class BottomNavigation extends StatelessWidget {
         ),
       ],
     ));
-    */
   }
 
   Widget _buildNavItem(BuildContext context, int index, String label,
