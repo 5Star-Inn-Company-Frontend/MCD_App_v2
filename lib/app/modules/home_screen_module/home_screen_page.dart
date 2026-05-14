@@ -1,21 +1,46 @@
 import 'dart:async';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:marquee/marquee.dart';
+// import 'package:marquee/marquee.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
-
 import '../../../core/import/imports.dart';
 import '../../utils/bottom_navigation.dart';
 import '../../widgets/app_bar.dart';
 import '../../widgets/shimmer_loading.dart';
+import 'widgets/image_slider_widget.dart';
+import 'widgets/scrolling_news_widget.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */
 
 class HomeScreenPage extends GetView<HomeScreenController> {
   const HomeScreenPage({super.key});
+
+  InlineSpan _getNewsSpan() {
+    return TextSpan(
+      children: [
+        TextSpan(
+          text: controller.dashboardData?.news ?? 'Welcome to Mega Cheap Data',
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+            color: Colors.grey.shade600,
+            fontFamily: AppFonts.manRope,
+          ),
+        ),
+        const WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: CircleAvatar(
+              radius: 4,
+              backgroundColor: AppColors.primaryColor,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,20 +51,52 @@ class HomeScreenPage extends GetView<HomeScreenController> {
       },
       child: Obx(() => Scaffold(
             appBar: PaylonyAppBar(
-              title:
-                  "Hello ${controller.dashboardData?.user.userName ?? 'User'} 👋🏼",
+              titleWidget: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Welcome back,",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: AppFonts.manRope,
+                    ),
+                  ),
+                  Text(
+                    "${controller.dashboardData?.user.userName ?? 'User'} 👋🏼",
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: AppFonts.manRope,
+                    ),
+                  ),
+                ],
+              ),
               elevation: 0,
               actions: [
-                TouchableOpacity(
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Color.fromARGB(255, 242, 242, 242),
+                      shape: BoxShape.circle,
+                    ),
                     child: InkWell(
                         onTap: () {
                           Get.toNamed(Routes.QRCODE_MODULE);
                         },
                         child: SvgPicture.asset(
                           'assets/icons/bx_scan.svg',
+                          height: 20,
+                          width: 20,
                           colorFilter: const ColorFilter.mode(
                               Colors.black, BlendMode.srcIn),
-                        ))),
+                        )),
+                  ),
+                ),
                 // const Gap(10),
                 // TouchableOpacity(
                 //     child: InkWell(
@@ -65,12 +122,26 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                 //         },
                 //         child: SvgPicture.asset(AppAsset.profileIicon))),
                 // const Gap(10),
-                TouchableOpacity(
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Color.fromARGB(255, 242, 242, 242),
+                      shape: BoxShape.circle,
+                    ),
                     child: InkWell(
                         onTap: () {
                           Get.toNamed(Routes.NOTIFICATION_MODULE);
                         },
-                        child: SvgPicture.asset(AppAsset.notificationIicon))),
+                        child: SvgPicture.asset(
+                          AppAsset.notificationIicon,
+                          height: 20,
+                          width: 20,
+                          colorFilter: const ColorFilter.mode(
+                              Colors.black, BlendMode.srcIn),
+                        )),
+                  ),
+                ),
                 const Gap(12)
               ],
             ),
@@ -83,8 +154,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                 child: ListView(
                   children: [
                     const Gap(10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
                       children: [
                         Obx(() => GestureDetector(
                               onTap: () {
@@ -92,21 +162,29 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                     arguments: {'initialTab': 1});
                               },
                               child: Container(
-                                width: screenWidth(context) * 0.4,
                                 padding: const EdgeInsets.symmetric(
-                                    vertical: 8, horizontal: 5),
+                                    vertical: 8, horizontal: 14),
                                 decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: AppColors.primaryGrey2),
-                                    borderRadius: BorderRadius.circular(6)),
+                                  color:
+                                      AppColors.primaryColor.withOpacity(0.08),
+                                  border: Border.all(
+                                      color: AppColors.primaryColor
+                                          .withOpacity(0.2)),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
+                                    // const Icon(
+                                    //   Icons.stars_rounded,
+                                    //   color: AppColors.primaryColor,
+                                    //   size: 18,
+                                    // ),
+                                    // const Gap(6),
                                     controller.isLoading &&
                                             controller.dashboardData == null
                                         ? const ShimmerLoading(
-                                            width: 60,
+                                            width: 50,
                                             height: 14,
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(4)),
@@ -121,12 +199,16 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                                 ? controller.dashboardData!.user
                                                     .referralPlan
                                                     .toUpperCase()
-                                                : "FREE",
-                                            fontSize: 14,
-                                            color: AppColors.background
-                                                .withOpacity(0.7),
+                                                : "FREE PLAN",
+                                            fontSize: 13,
+                                            color: AppColors.primaryColor,
                                           ),
-                                    const Icon(Icons.arrow_forward_ios_outlined)
+                                    const Gap(4),
+                                    const Icon(
+                                      Icons.chevron_right_rounded,
+                                      color: AppColors.primaryColor,
+                                      size: 18,
+                                    )
                                   ],
                                 ),
                               ),
@@ -135,184 +217,208 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                     ),
 
                     const Gap(30),
-                    Obx(() => Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 6),
-                          decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: const Color(0xff1B1B1B)),
-                              borderRadius: BorderRadius.circular(6)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              controller.isLoading &&
-                                      controller.dashboardData == null
-                                  ? const ShimmerLoading(
-                                      width: 100,
-                                      height: 20,
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(4)),
-                                    )
-                                  : RichText(
-                                      text: TextSpan(
-                                        text: '₦ ',
-                                        style: const TextStyle(
-                                          color: AppColors.background,
-                                          fontSize: 14,
-                                        ),
-                                        children: [
-                                          TextSpan(
-                                            text: AmountUtil.formatFigure(
-                                                double.tryParse(controller
-                                                            .dashboardData
-                                                            ?.balance
-                                                            .wallet ??
-                                                        '0') ??
-                                                    0),
-                                            style: const TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.w600,
-                                                fontFamily: AppFonts.manRope,
-                                                color: AppColors.background),
-                                          ),
-                                        ],
-                                      ),
-                                      // textAlign: TextAlign.center,
-                                      textDirection: TextDirection.ltr,
-                                      softWrap: true,
-                                      overflow: TextOverflow.clip,
-                                      maxLines: 10,
-                                      textWidthBasis: TextWidthBasis.parent,
-                                      textHeightBehavior:
-                                          const TextHeightBehavior(
-                                        applyHeightToFirstAscent: true,
-                                        applyHeightToLastDescent: true,
-                                      ),
-                                      key: const Key('myRichTextWidgetKey'),
-                                    ),
-                              InkWell(
-                                onTap: () {
-                                  Get.toNamed(
-                                    Routes.ADD_MONEY_MODULE,
-                                    arguments: {
-                                      'dashboardData': controller.dashboardData,
-                                    },
-                                  );
-                                },
-                                child: Row(
-                                  children: [
-                                    TextSemiBold(
-                                      "Add Money",
-                                      fontSize: 14,
-                                    ),
-                                    const Gap(8),
-                                    const Icon(
-                                      Icons.arrow_forward_ios_outlined,
-                                      color: AppColors.primaryGrey2,
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        )),
-
                     Obx(() => controller.isLoading &&
                             controller.dashboardData == null
                         ? const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            padding: EdgeInsets.symmetric(horizontal: 0),
                             child: ShimmerLoading(
                               width: double.infinity,
-                              height: 120,
+                              height: 160,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(5)),
+                                  BorderRadius.all(Radius.circular(10)),
                             ),
                           )
-                        : Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 40),
-                            margin: const EdgeInsets.symmetric(horizontal: 10),
-                            decoration: BoxDecoration(
-                                color: AppColors.primaryColor,
-                                border: Border(
-                                  bottom: BorderSide(
-                                    width: 1,
-                                    color: AppColors.primaryGrey2,
-                                  ),
-                                  right: BorderSide(
-                                    width: 1,
-                                    color: AppColors.primaryGrey2,
-                                  ),
-                                  left: BorderSide(
-                                    width: 1,
-                                    color: AppColors.primaryGrey2,
-                                  ),
+                        : ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                image: const DecorationImage(
+                                  image: AssetImage(
+                                      'assets/images/epin/design-3.png'),
+                                  fit: BoxFit.cover,
                                 ),
-                                borderRadius: BorderRadius.circular(5)),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    dataItem("Commission",
-                                        "₦ ${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.commission ?? '0') ?? 0)}"),
-                                    dataItem(
-                                        "Points",
-                                        AmountUtil.formatFigure(double.tryParse(
-                                                controller.dashboardData
-                                                        ?.balance.points ??
-                                                    '0') ??
-                                            0)),
-                                    dataItem("Bonus",
-                                        "₦ ${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.bonus ?? '0') ?? 0)}"),
-                                    dataItem("General Market",
-                                        "₦ ${AmountUtil.formatFigure(double.tryParse(controller.gmBalance ?? '0') ?? 0)}")
-                                  ],
-                                ),
-                              ],
-                            ),
-                          )),
+                              ),
+                              // foregroundDecoration: BoxDecoration(
+                              //   color: Colors.black.withOpacity(0.1),
+                              // ),
+                              child: Column(
+                                children: [
+                                  // main balance + add money
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        18, 30, 18, 20),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                const Text(
+                                                  "Wallet Balance",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 12,
+                                                    fontFamily:
+                                                        AppFonts.manRope,
+                                                  ),
+                                                ),
+                                                const Gap(8),
+                                                Obx(() => InkWell(
+                                                      onTap: controller
+                                                          .toggleBalance,
+                                                      child: Icon(
+                                                        controller.showBalance
+                                                            ? Icons
+                                                                .visibility_outlined
+                                                            : Icons
+                                                                .visibility_off_outlined,
+                                                        color: Colors.white,
+                                                        size: 16,
+                                                      ),
+                                                    )),
+                                              ],
+                                            ),
+                                            InkWell(
+                                              onTap: () {
+                                                Get.toNamed(
+                                                  Routes.ADD_MONEY_MODULE,
+                                                  arguments: {
+                                                    'dashboardData': controller
+                                                        .dashboardData,
+                                                  },
+                                                );
+                                              },
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 8),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white
+                                                      .withOpacity(0.2),
+                                                  borderRadius:
+                                                      BorderRadius.circular(30),
+                                                ),
+                                                child: const Row(
+                                                  children: [
+                                                    Icon(Icons.add,
+                                                        color: Colors.white,
+                                                        size: 16),
+                                                    Gap(4),
+                                                    Text(
+                                                      "Add Money",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 13,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontFamily:
+                                                            AppFonts.manRope,
+                                                      ),
+                                                    ),
+                                                    Gap(4),
+                                                    Icon(Icons.arrow_outward,
+                                                        color: Colors.white,
+                                                        size: 16),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const Gap(8),
+                                        Obx(() => Text(
+                                              controller.showBalance
+                                                  ? "₦${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.wallet ?? '0') ?? 0)}"
+                                                  : "₦****",
+                                              style:
+                                                  GoogleFonts.plusJakartaSans(
+                                                fontSize: 34,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white,
+                                                letterSpacing: -0.5,
+                                              ),
+                                            )),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // divider
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16),
+                                    child: Divider(
+                                      color: Colors.white.withOpacity(0.2),
+                                      height: 1,
+                                    ),
+                                  ),
+
+                                  // sub-balances row
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                        18, 20, 18, 30),
+                                    child: Obx(() => Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            dataItem(
+                                                "Commission",
+                                                controller.showBalance
+                                                    ? "₦${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.commission ?? '0') ?? 0)}"
+                                                    : "₦****"),
+                                            dataItem(
+                                                "Points",
+                                                controller.showBalance
+                                                    ? AmountUtil.formatFigure(
+                                                        double.tryParse(controller
+                                                                    .dashboardData
+                                                                    ?.balance
+                                                                    .points ??
+                                                                '0') ??
+                                                            0)
+                                                    : "****"),
+                                            dataItem(
+                                                "Bonus",
+                                                controller.showBalance
+                                                    ? "₦${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.bonus ?? '0') ?? 0)}"
+                                                    : "₦****"),
+                                            dataItem(
+                                                "General Market",
+                                                controller.showBalance
+                                                    ? "₦${AmountUtil.formatFigure(double.tryParse(controller.gmBalance ?? '0') ?? 0)}"
+                                                    : "₦****"),
+                                          ],
+                                        )),
+                                  ),
+                                ],
+                              ),
+                            ))),
 
                     const Gap(15),
                     // marquee
-                    Obx(() => SizedBox(
-                          height: screenHeight(context) * 0.03,
-                          child: controller.isLoading &&
-                                  controller.dashboardData == null
-                              ? const Center(
-                                  child: ShimmerLoading(
-                                    width: double.infinity,
-                                    height: 20,
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(4)),
-                                  ),
-                                )
-                              : Marquee(
-                                  text: controller.dashboardData?.news ??
-                                      'Welcome to Mega Cheap Data',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                      fontFamily: AppFonts.manRope),
-                                  scrollAxis: Axis.horizontal,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  blankSpace: 50.0,
-                                  velocity: 50.0,
-                                  pauseAfterRound: const Duration(seconds: 1),
-                                  startPadding: 10.0,
-                                  accelerationDuration:
-                                      const Duration(seconds: 1),
-                                  accelerationCurve: Curves.linear,
-                                  decelerationDuration:
-                                      const Duration(milliseconds: 500),
-                                  decelerationCurve: Curves.easeOut,
+                    Obx(() =>
+                        controller.isLoading && controller.dashboardData == null
+                            ? const Center(
+                                child: ShimmerLoading(
+                                  width: double.infinity,
+                                  height: 35,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(8)),
                                 ),
-                        )),
+                              )
+                            : SizedBox(
+                                height: 30,
+                                child: ScrollingNewsWidget(
+                                  content: _getNewsSpan(),
+                                ),
+                              )),
                     const Divider(
                       color: AppColors.boxColor,
                     ),
@@ -422,10 +528,13 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                     const Divider(
                       color: AppColors.boxColor,
                     ),
+
                     const Gap(10),
                     // image slider carousel
                     Obx(() => controller.imageSliders.isNotEmpty
-                        ? _buildImageSlider()
+                        ? ImageSliderWidget(
+                            images: controller.imageSliders,
+                          )
                         : const SizedBox.shrink()),
                   ],
                 ),
@@ -840,239 +949,29 @@ class HomeScreenPage extends GetView<HomeScreenController> {
 
   Widget dataItem(String name, String amount) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
           amount,
           style: GoogleFonts.plusJakartaSans(
               color: AppColors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w500),
+              fontSize: 14,
+              fontWeight: FontWeight.w700),
         ),
-        const Gap(10),
-        TextSemiBold(
-          name,
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          color: AppColors.white,
+        const Gap(4),
+        Text(
+          name.toUpperCase(),
+          style: const TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+            color: Colors.white70,
+            fontFamily: AppFonts.manRope,
+            letterSpacing: 0.5,
+          ),
         )
       ],
     );
   }
 
-  Widget _buildImageSlider() {
-    return _ImageSliderWidget(
-      images: controller.imageSliders,
-    );
-  }
-}
-
-class _ImageSliderWidget extends StatefulWidget {
-  final List<String> images;
-
-  const _ImageSliderWidget({required this.images});
-
-  @override
-  State<_ImageSliderWidget> createState() => _ImageSliderWidgetState();
-}
-
-class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
-  late PageController _pageController;
-  Timer? _timer;
-  int _currentPage = 0;
-  static const _kStartPage = 1000;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentPage = _kStartPage;
-    _pageController = PageController(initialPage: _currentPage);
-    _startAutoSlide();
   }
 
-  @override
-  void didUpdateWidget(_ImageSliderWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.images != oldWidget.images) {
-      _startAutoSlide();
-    }
-  }
-
-  void _startAutoSlide() {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
-      if (widget.images.isEmpty || !mounted) return;
-
-      _currentPage++;
-      if (_pageController.hasClients) {
-        _pageController.animateToPage(
-          _currentPage,
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.fastOutSlowIn,
-        );
-      }
-    });
-  }
-
-  void _stopAutoSlide() {
-    _timer?.cancel();
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (widget.images.isEmpty) return const SizedBox.shrink();
-
-    return Column(
-      children: [
-        SizedBox(
-          height: 200,
-          child: GestureDetector(
-            onPanDown: (_) => _stopAutoSlide(),
-            onPanCancel: () => _startAutoSlide(),
-            onPanEnd: (_) => _startAutoSlide(),
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentPage = index;
-                });
-              },
-              itemBuilder: (context, index) {
-                final actualIndex = index % widget.images.length;
-                return _ImageItem(url: widget.images[actualIndex]);
-              },
-            ),
-          ),
-        ),
-        const Gap(10),
-        // Indicators
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            widget.images.length,
-            (index) {
-              final isActive = (_currentPage % widget.images.length) == index;
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                width: isActive ? 24 : 8,
-                height: 8,
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  color: isActive ? AppColors.primaryColor : Colors.grey[300],
-                ),
-              );
-            },
-          ),
-        ),
-        const Gap(15),
-      ],
-    );
-  }
-}
-
-class _ImageItem extends StatefulWidget {
-  final String url;
-  const _ImageItem({required this.url});
-
-  @override
-  State<_ImageItem> createState() => _ImageItemState();
-}
-
-class _ImageItemState extends State<_ImageItem> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            offset: const Offset(0, 4),
-            blurRadius: 10,
-          )
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: CachedNetworkImage(
-          imageUrl: widget.url,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: 160,
-          placeholder: (context, url) => Container(
-            color: Colors.grey[100],
-            child: const Center(
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.primaryColor,
-              ),
-            ),
-          ),
-          errorWidget: (context, url, error) {
-            // dev.log("failure: error loading image $url: $error".toLowerCase());
-            return Container(
-              color: Colors.grey[200],
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.image_not_supported_outlined,
-                      size: 30,
-                      color: Colors.grey[400],
-                    ),
-                    const Gap(4),
-                    Text(
-                      "Image Failed",
-                      style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey[500],
-                          fontFamily: AppFonts.manRope),
-                    )
-                  ],
-                ),
-              ),
-            );
-          },
-          imageBuilder: (context, imageProvider) {
-            return _LoggedImage(imageProvider: imageProvider, url: widget.url);
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _LoggedImage extends StatefulWidget {
-  final ImageProvider imageProvider;
-  final String url;
-  const _LoggedImage({required this.imageProvider, required this.url});
-
-  @override
-  State<_LoggedImage> createState() => _LoggedImageState();
-}
-
-class _LoggedImageState extends State<_LoggedImage> {
-  @override
-  void initState() {
-    super.initState();
-    // Log success message exactly as requested
-    // dev.log("success: image loaded ${widget.url}".toLowerCase());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Image(
-      image: widget.imageProvider,
-      fit: BoxFit.cover,
-    );
-  }
-}

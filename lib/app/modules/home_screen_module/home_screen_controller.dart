@@ -44,12 +44,17 @@ class HomeScreenController extends GetxController
   get gmBalance => _gmBalance.value;
   final _imageSliders = <String>[].obs;
   List<String> get imageSliders => _imageSliders;
+
+  final _showBalance = true.obs;
+  bool get showBalance => _showBalance.value;
+
   final apiService = DioApiService();
   final box = GetStorage();
 
   @override
   void onInit() {
     dev.log("HomeScreenController initialized");
+    _showBalance.value = box.read('show_balance') ?? true;
 
     // if dashboard was already loaded during login, reuse it
     try {
@@ -82,6 +87,11 @@ class HomeScreenController extends GetxController
     ever(ssc.serviceStatus, (_) => _loadServiceData());
 
     super.onInit();
+  }
+
+  void toggleBalance() {
+    _showBalance.value = !_showBalance.value;
+    box.write('show_balance', _showBalance.value);
   }
 
   void updateActionButtons(Map<String, dynamic> services) {

@@ -38,6 +38,38 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // New Modern Design
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 25),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(40),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildNavItem(context, 0, 'Home', AppAsset.systemIcon,
+              AppAsset.systemActiveIcon),
+          _buildNavItem(context, 1, 'History', AppAsset.historyIcon,
+              AppAsset.historyActiveIcon),
+          _buildNavItem(context, 2, 'Assistant', AppAsset.assistantIcon,
+              AppAsset.assistantActiveIcon),
+          _buildNavItem(context, 3, 'More', AppAsset.moreIcon,
+              AppAsset.moreActiveIcon),
+        ],
+      ),
+    );
+
+    /*
+    // Old Bottom Navigation Bar - Commented Out
     return SizedBox(
         child: BottomNavigationBar(
       iconSize: 60,
@@ -114,5 +146,47 @@ class BottomNavigation extends StatelessWidget {
         ),
       ],
     ));
+    */
+  }
+
+  Widget _buildNavItem(BuildContext context, int index, String label,
+      String icon, String activeIcon) {
+    final isSelected = selectedIndex == index;
+    return GestureDetector(
+      onTap: () => onItemTapped(index),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primaryColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(
+              isSelected ? activeIcon : icon,
+              height: 20,
+              colorFilter: ColorFilter.mode(
+                isSelected ? Colors.white : Colors.grey.shade600,
+                BlendMode.srcIn,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.grey.shade600,
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                fontFamily: AppFonts.manRope,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
