@@ -133,7 +133,7 @@ class PlanModel {
     }
 
     if (freeSpin > 0) {
-      featuresList.add('$freeSpin Free Spins daily');
+      featuresList.add('$freeSpin Free Spins monthly');
     }
 
     return featuresList;

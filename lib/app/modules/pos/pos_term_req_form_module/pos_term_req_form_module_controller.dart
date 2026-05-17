@@ -6,8 +6,6 @@ import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/constants/fonts.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
-import 'package:paystack/paystack.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:developer' as dev;
 
 class PosTermReqFormModuleController extends GetxController {

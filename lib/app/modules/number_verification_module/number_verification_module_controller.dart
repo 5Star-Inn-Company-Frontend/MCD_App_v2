@@ -33,12 +33,16 @@ class NumberVerificationModuleController extends GetxController {
   String? get countryName => _countryName;
 
   // recent verified numbers
-  final recentNumbers = <Map<String, String>>[].obs;
-  static const _recentNumbersKey = 'recent_verified_numbers';
+  // final recentNumbers = <Map<String, String>>[].obs;
+  // static const _recentNumbersKey = 'recent_verified_numbers';
 
   // beneficiaries from API
   final beneficiaries = <Map<String, dynamic>>[].obs;
   final isLoadingBeneficiaries = false.obs;
+
+  static const _beneficiariesCacheKey = 'cached_beneficiaries_airtime';
+  static const _beneficiariesTsKey = 'cached_beneficiaries_airtime_ts';
+  static const _cacheTtlHours = 24;
 
   // all beneficiaries regardless of type
   List<Map<String, dynamic>> get filteredBeneficiaries =>
@@ -68,94 +72,106 @@ class NumberVerificationModuleController extends GetxController {
         'NumberVerificationModule initialized with redirectTo: $_redirectTo, isMultipleAirtimeAdd: $_isMultipleAirtimeAdd, isForeign: $_isForeign, countryCode: $_countryCode',
         name: 'NumberVerification');
 
-    _loadRecentNumbers();
-    fetchBeneficiaries(); // Load beneficiaries on init
+    // _loadRecentNumbers();
+    _loadCachedBeneficiaries(); // load from cache immediately
+    fetchBeneficiaries(); // then fetch from API in background
+  }
+
+  void _loadCachedBeneficiaries() {
+    try {
+      final cached = box.read(_beneficiariesCacheKey);
+      if (cached != null) {
+        final List<dynamic> decoded = jsonDecode(cached);
+        beneficiaries.assignAll(
+          decoded.map((e) => Map<String, dynamic>.from(e)).toList(),
+        );
+        dev.log('Loaded ${beneficiaries.length} beneficiaries from cache',
+            name: 'NumberVerification');
+      }
+    } catch (e) {
+      dev.log('Error loading cached beneficiaries',
+          name: 'NumberVerification', error: e);
+    }
   }
 
   // Fetch beneficiaries from API
-  Future<void> fetchBeneficiaries() async {
+  Future<void> fetchBeneficiaries({bool force = false}) async {
     try {
-      isLoadingBeneficiaries.value = true;
-      dev.log('Fetching beneficiaries from API', name: 'NumberVerification');
-
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {
         dev.log('Transaction URL not found', name: 'NumberVerification');
-        Get.snackbar(
-          'Error',
-          'Transaction URL not found. Please log in again.',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
         return;
       }
 
-      final url = '${transactionUrl}beneficiary/airtime';
-      dev.log('Fetching from: $url', name: 'NumberVerification');
+      // skip fetch if cache is still fresh and not forced
+      if (!force) {
+        final tsRaw = box.read(_beneficiariesTsKey);
+        if (tsRaw != null) {
+          final ts = DateTime.tryParse(tsRaw.toString());
+          if (ts != null &&
+              DateTime.now().difference(ts).inHours < _cacheTtlHours &&
+              beneficiaries.isNotEmpty) {
+            dev.log('Beneficiaries cache still valid, skipping fetch',
+                name: 'NumberVerification');
+            return;
+          }
+        }
+      }
 
+      // only show loader if we have no data yet
+      if (beneficiaries.isEmpty) {
+        isLoadingBeneficiaries.value = true;
+      }
+
+      dev.log('Fetching beneficiaries from API (force: $force)',
+          name: 'NumberVerification');
+
+      final url = '${transactionUrl}beneficiary/airtime';
       final result = await apiService.getrequest(url);
 
       result.fold(
         (failure) {
           dev.log('Failed to fetch beneficiaries: ${failure.message}',
               name: 'NumberVerification');
-          Get.snackbar(
-            'Error',
-            failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-          );
-        },
-        (data) {
-          dev.log('Beneficiaries response: $data', name: 'NumberVerification');
-
-          if (data['success'] == 1) {
-            // Parse beneficiaries data
-            if (data['data'] != null && data['data'] is List) {
-              final List<dynamic> beneficiaryList = data['data'];
-              beneficiaries.assignAll(
-                beneficiaryList
-                    .map((e) => Map<String, dynamic>.from(e))
-                    .toList(),
-              );
-              dev.log('Loaded ${beneficiaries.length} beneficiaries',
-                  name: 'NumberVerification');
-            } else {
-              dev.log('No beneficiaries found or invalid data format',
-                  name: 'NumberVerification');
-              Get.snackbar(
-                'Info',
-                'No beneficiaries found',
-                backgroundColor: AppColors.primaryColor,
-                colorText: Colors.white,
-              );
-            }
-          } else {
-            dev.log('API returned success=0: ${data['message']}',
-                name: 'NumberVerification');
+          // only show snackbar on forced refresh or if list is empty
+          if (force || beneficiaries.isEmpty) {
             Get.snackbar(
               'Error',
-              data['message'] ?? 'Failed to fetch beneficiaries',
+              failure.message,
               backgroundColor: AppColors.errorBgColor,
               colorText: AppColors.textSnackbarColor,
             );
+          }
+        },
+        (data) {
+          if (data['success'] == 1) {
+            if (data['data'] != null && data['data'] is List) {
+              final List<dynamic> beneficiaryList = data['data'];
+              final List<Map<String, dynamic>> freshList = beneficiaryList
+                  .map((e) => Map<String, dynamic>.from(e))
+                  .toList();
+
+              beneficiaries.assignAll(freshList);
+
+              // Update cache
+              box.write(_beneficiariesCacheKey, jsonEncode(freshList));
+              box.write(_beneficiariesTsKey, DateTime.now().toIso8601String());
+
+              dev.log('Loaded ${beneficiaries.length} beneficiaries from API',
+                  name: 'NumberVerification');
+            }
           }
         },
       );
     } catch (e) {
       dev.log('Error fetching beneficiaries',
           name: 'NumberVerification', error: e);
-      Get.snackbar(
-        'Error',
-        'An error occurred: $e',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
     } finally {
       isLoadingBeneficiaries.value = false;
     }
   }
 
+  /*
   void _loadRecentNumbers() {
     try {
       final stored = box.read(_recentNumbersKey);
@@ -172,7 +188,9 @@ class NumberVerificationModuleController extends GetxController {
           name: 'NumberVerification', error: e);
     }
   }
+  */
 
+  /*
   Future<void> _saveRecentNumber(
     String phone,
     String network,
@@ -210,7 +228,9 @@ class NumberVerificationModuleController extends GetxController {
           name: 'NumberVerification', error: e);
     }
   }
+  */
 
+  /*
   void selectRecentNumber(Map<String, String> item) {
     final phone = item['phone'] ?? '';
     final network = item['network'] ?? '';
@@ -253,6 +273,7 @@ class NumberVerificationModuleController extends GetxController {
       phoneController.text = phone;
     }
   }
+  */
 
   void selectBeneficiary(Map<String, dynamic> beneficiary) {
     final phone = beneficiary['phone']?.toString() ?? '';
@@ -656,6 +677,7 @@ class NumberVerificationModuleController extends GetxController {
                 Get.back(); // Close dialog
 
                 // save to recent numbers with all navigation data
+                /*
                 _saveRecentNumber(
                   phoneNumber,
                   networkName,
@@ -665,6 +687,7 @@ class NumberVerificationModuleController extends GetxController {
                   countryName: _countryName,
                   redirectTo: _redirectTo,
                 );
+                */
 
                 dev.log(
                     'Number confirmed. Navigating to: $_redirectTo with network: $networkName',

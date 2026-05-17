@@ -45,6 +45,25 @@ class CardTopupAmountPage extends GetView<CardTopupModuleController> {
                           textAlign: TextAlign.center,
                         ),
                       )),
+                  const Gap(10),
+                  Obx(() {
+                    final error = controller.amountError.value;
+                    if (error == null || error.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: Text(
+                        error,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.errorBgColor,
+                        ),
+                      ),
+                    );
+                  }),
                   const Gap(40),
                 ],
               ),
@@ -109,9 +128,7 @@ class CardTopupAmountPage extends GetView<CardTopupModuleController> {
                         width: double.infinity,
                         height: 56,
                         child: ElevatedButton(
-                          onPressed: controller
-                                      .enteredAmount.value.isNotEmpty &&
-                                  int.parse(controller.enteredAmount.value) > 0
+                          onPressed: controller.canProceedWithFunding
                               ? () => controller.showConfirmationBottomSheet()
                               : null,
                           style: ElevatedButton.styleFrom(

@@ -121,6 +121,12 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                           color: AppColors.primaryColor, width: 2),
                     ),
                   ),
+                  focusNode: controller.cardNumberFocus,
+                  onChanged: (value) {
+                    if (value.replaceAll(' ', '').length >= 16) {
+                      controller.cardNameFocus.requestFocus();
+                    }
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter card number';
@@ -168,6 +174,9 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                           color: AppColors.primaryColor, width: 2),
                     ),
                   ),
+                  focusNode: controller.cardNameFocus,
+                  onFieldSubmitted: (_) =>
+                      controller.expiryMonthFocus.requestFocus(),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter card name';
@@ -193,6 +202,12 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                           const Gap(8),
                           TextFormField(
                             controller: controller.expiryMonthController,
+                            focusNode: controller.expiryMonthFocus,
+                            onChanged: (value) {
+                              if (value.length >= 2) {
+                                controller.expiryYearFocus.requestFocus();
+                              }
+                            },
                             keyboardType: TextInputType.number,
                             maxLength: 2,
                             style: TextStyle(fontFamily: AppFonts.manRope),
@@ -254,6 +269,12 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                           const Gap(8),
                           TextFormField(
                             controller: controller.expiryYearController,
+                            focusNode: controller.expiryYearFocus,
+                            onChanged: (value) {
+                              if (value.length >= 2) {
+                                controller.cvvFocus.requestFocus();
+                              }
+                            },
                             keyboardType: TextInputType.number,
                             maxLength: 2,
                             style: TextStyle(fontFamily: AppFonts.manRope),
@@ -314,6 +335,12 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                           const Gap(8),
                           TextFormField(
                             controller: controller.cvvController,
+                            focusNode: controller.cvvFocus,
+                            onChanged: (value) {
+                              if (value.length >= 3) {
+                                controller.amountFocus.requestFocus();
+                              }
+                            },
                             keyboardType: TextInputType.number,
                             maxLength: 3,
                             obscureText: true,
@@ -373,6 +400,7 @@ class CardTopupModulePage extends GetView<CardTopupModuleController> {
                 const Gap(8),
                 TextFormField(
                   controller: controller.amountController,
+                  focusNode: controller.amountFocus,
                   keyboardType: TextInputType.number,
                   style: TextStyle(fontFamily: AppFonts.manRope),
                   inputFormatters: [

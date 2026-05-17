@@ -22,206 +22,196 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
         elevation: 0,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-          child: Obx(() {
-            final user = controller.dashboardData.value;
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            child: Obx(() {
+              final user = controller.dashboardData.value;
+          
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextSemiBold(
+                      "Choose a method to receive money into your wallet"),
+                  const Gap(20),
+                  TextSemiBold(
+                    "Bank Transfer",
+                    fontWeight: FontWeight.w500,
+                    fontSize: 15,
+                  ),
+                  const Gap(20),
+          
+                  // check if user has no accounts
+                  if (user?.virtualAccounts.hasPrimary != true &&
+                      user?.virtualAccounts.hasSecondary != true) ...[
+                    // KYC prompt for users without accounts
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.primaryColor.withOpacity(0.3),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                color: AppColors.primaryColor,
+                                size: 24,
+                              ),
+                              const Gap(8),
+                              Expanded(
+                                child: TextSemiBold(
+                                  "Complete KYC to Get Your Account",
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Gap(12),
+                          TextSemiBold(
+                            "You need to complete your KYC verification to receive a dedicated bank account for funding your wallet.",
+                            fontSize: 14,
+                            color: AppColors.primaryGrey2,
+                          ),
+                          const Gap(16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () =>
+                                  Get.toNamed(Routes.KYC_UPDATE_MODULE),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryColor,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: TextSemiBold(
+                                "Complete KYC Verification",
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else ...[
+                    // Primary Account
+                    if (user?.virtualAccounts.hasPrimary == true) ...[
+                      _buildAccountCard(
+                        context: context,
+                        accountName: user?.user.userName != null
+                            ? "MCD-${user!.user.userName}"
+                            : "N/A",
+                        bankName: user!.virtualAccounts.primaryBankName,
+                        accountNumber: user.virtualAccounts.primaryAccountNumber,
+                        onShare: () {
+                          controller.shareAccountDetails(
+                            user.virtualAccounts.primaryAccountNumber,
+                            user.virtualAccounts.primaryBankName,
+                          );
+                        },
+                        onCopy: () {
+                          controller.copyToClipboard(
+                            user.virtualAccounts.primaryAccountNumber,
+                            "Primary Account Number",
+                          );
+                        },
+                      ),
+                      const Gap(10),
+                    ],
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextSemiBold(
-                    "Choose a method to receive money into your wallet"),
-                const Gap(20),
-                TextSemiBold(
-                  "Bank Transfer",
-                  fontWeight: FontWeight.w500,
-                  fontSize: 15,
-                ),
-                const Gap(20),
-
-                // check if user has no accounts
-                if (user?.virtualAccounts.hasPrimary != true &&
-                    user?.virtualAccounts.hasSecondary != true) ...[
-                  // KYC prompt for users without accounts
+                    // Secondary Account
+                    if (user?.virtualAccounts.hasSecondary == true) ...[
+                      _buildAccountCard(
+                        context: context,
+                        accountName: user?.user.userName != null
+                            ? "MCD-${user!.user.userName}"
+                            : "N/A",
+                        bankName: user!.virtualAccounts.secondaryBankName,
+                        accountNumber:
+                            user.virtualAccounts.secondaryAccountNumber,
+                        onShare: () {
+                          controller.shareAccountDetails(
+                            user.virtualAccounts.secondaryAccountNumber,
+                            user.virtualAccounts.secondaryBankName,
+                          );
+                        },
+                        onCopy: () {
+                          controller.copyToClipboard(
+                            user.virtualAccounts.secondaryAccountNumber,
+                            "Secondary Account Number",
+                          );
+                        },
+                      ),
+                    ],
+                  ],
+          
+                  const Gap(20),
+          
+                  // Other Funding Options
                   Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.white,
                       border: Border.all(
-                        color: AppColors.primaryColor.withOpacity(0.3),
+                        color: const Color(0xffF0F0F0),
+                        width: 1,
                       ),
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: AppColors.primaryColor,
-                              size: 24,
-                            ),
-                            const Gap(8),
-                            Expanded(
-                              child: TextSemiBold(
-                                "Complete KYC to Get Your Account",
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
+                        InkWell(
+                          onTap: controller.navigateToCardTopUp,
+                          child: _buildFundingOption(
+                            context: context,
+                            icon: AppAsset.card,
+                            title: 'Top-up with Card',
+                            subtitle: "Add money directly from your bank card",
+                          ),
                         ),
-                        const Gap(12),
-                        TextSemiBold(
-                          "You need to complete your KYC verification to receive a dedicated bank account for funding your wallet.",
-                          fontSize: 14,
-                          color: AppColors.primaryGrey2,
+                        const Gap(10),
+                        const Divider(color: Color(0xffF0F0F0)),
+                        const Gap(10),
+                        InkWell(
+                          onTap: controller.navigateToUssd,
+                          child: _buildFundingOption(
+                            context: context,
+                            icon: AppAsset.ussd,
+                            title: 'USSD',
+                            subtitle:
+                                "Add money to your wallet using ussd on your phone",
+                          ),
                         ),
-                        const Gap(16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () =>
-                                Get.toNamed(Routes.KYC_UPDATE_MODULE),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryColor,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: TextSemiBold(
-                              "Complete KYC Verification",
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
+                        const Gap(10),
+                        const Divider(color: Color(0xffF0F0F0)),
+                        const Gap(10),
+                        InkWell(
+                          onTap: controller.navigateToMomo,
+                          child: _buildFundingOption(
+                            context: context,
+                            icon: AppAsset.ussd,
+                            title: 'MoMo',
+                            subtitle: "Add money to your wallet using MoMo",
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ] else ...[
-                  // Primary Account
-                  _buildAccountCard(
-                    context: context,
-                    accountName: user?.user.userName != null
-                        ? "MCD-${user!.user.userName}"
-                        : "N/A",
-                    bankName: user?.virtualAccounts.hasPrimary == true
-                        ? user!.virtualAccounts.primaryBankName
-                        : "No bank name found",
-                    accountNumber: user?.virtualAccounts.hasPrimary == true
-                        ? user!.virtualAccounts.primaryAccountNumber
-                        : "No account number found",
-                    onShare: () {
-                      if (user?.virtualAccounts.hasPrimary == true) {
-                        controller.shareAccountDetails(
-                          user!.virtualAccounts.primaryAccountNumber,
-                          user.virtualAccounts.primaryBankName,
-                        );
-                      }
-                    },
-                    onCopy: () {
-                      if (user?.virtualAccounts.hasPrimary == true) {
-                        controller.copyToClipboard(
-                          user!.virtualAccounts.primaryAccountNumber,
-                          "Primary Account Number",
-                        );
-                      }
-                    },
-                  ),
-
-                  const Gap(10),
-
-                  // Secondary Account
-                  _buildAccountCard(
-                    context: context,
-                    accountName: user?.user.userName != null
-                        ? "MCD-${user!.user.userName}"
-                        : "N/A",
-                    bankName: user?.virtualAccounts.hasSecondary == true
-                        ? user!.virtualAccounts.secondaryBankName
-                        : "No bank name found",
-                    accountNumber: user?.virtualAccounts.hasSecondary == true
-                        ? user!.virtualAccounts.secondaryAccountNumber
-                        : "No account number found",
-                    onShare: () {
-                      if (user?.virtualAccounts.hasSecondary == true) {
-                        controller.shareAccountDetails(
-                          user!.virtualAccounts.secondaryAccountNumber,
-                          user.virtualAccounts.secondaryBankName,
-                        );
-                      }
-                    },
-                    onCopy: () {
-                      if (user?.virtualAccounts.hasSecondary == true) {
-                        controller.copyToClipboard(
-                          user!.virtualAccounts.secondaryAccountNumber,
-                          "Secondary Account Number",
-                        );
-                      }
-                    },
-                  ),
+                  )
                 ],
-
-                const Gap(20),
-
-                // Other Funding Options
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                      color: const Color(0xffF0F0F0),
-                      width: 1,
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      InkWell(
-                        onTap: controller.navigateToCardTopUp,
-                        child: _buildFundingOption(
-                          context: context,
-                          icon: AppAsset.card,
-                          title: 'Top-up with Card',
-                          subtitle: "Add money directly from your bank card",
-                        ),
-                      ),
-                      const Gap(10),
-                      const Divider(color: Color(0xffF0F0F0)),
-                      const Gap(10),
-                      InkWell(
-                        onTap: controller.navigateToUssd,
-                        child: _buildFundingOption(
-                          context: context,
-                          icon: AppAsset.ussd,
-                          title: 'USSD',
-                          subtitle:
-                              "Add money to your wallet using ussd on your phone",
-                        ),
-                      ),
-                      const Gap(10),
-                      const Divider(color: Color(0xffF0F0F0)),
-                      const Gap(10),
-                      InkWell(
-                        onTap: controller.navigateToMomo,
-                        child: _buildFundingOption(
-                          context: context,
-                          icon: AppAsset.ussd,
-                          title: 'MoMo',
-                          subtitle: "Add money to your wallet using MoMo",
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            );
-          }),
+              );
+            }),
+          ),
         ),
       ),
     );

@@ -23,12 +23,15 @@ class ServiceStatusData {
   final Adverts? adverts;
   final Others? others;
   final List<dynamic> specialOffers;
+  // raw services map for action button filtering
+  final Map<String, dynamic> rawServices;
 
   ServiceStatusData({
     required this.services,
     this.adverts,
     this.others,
     this.specialOffers = const [],
+    this.rawServices = const {},
   });
 
   factory ServiceStatusData.fromJson(Map<String, dynamic> json) {
@@ -37,6 +40,7 @@ class ServiceStatusData {
       adverts: json['adverts'] != null ? Adverts.fromJson(json['adverts']) : null,
       others: json['others'] != null ? Others.fromJson(json['others']) : null,
       specialOffers: json['special_offers'] ?? [],
+      rawServices: (json['services'] as Map<String, dynamic>?) ?? {},
     );
   }
 }
@@ -203,6 +207,7 @@ class Others {
   final String supportEmail;
   final String gnewsAction;
   final String resellerSamples;
+  final List<String> imageSliders;
 
   Others({
     required this.mcdAgentPhoneno,
@@ -211,6 +216,7 @@ class Others {
     required this.supportEmail,
     required this.gnewsAction,
     required this.resellerSamples,
+    this.imageSliders = const [],
   });
 
   factory Others.fromJson(Map<String, dynamic> json) {
@@ -221,6 +227,9 @@ class Others {
       supportEmail: json['support_email']?.toString() ?? '',
       gnewsAction: json['gnews_action']?.toString() ?? '',
       resellerSamples: json['reseller_samples']?.toString() ?? '',
+      imageSliders: json['image_sliders'] != null
+          ? List<String>.from(json['image_sliders'])
+          : [],
     );
   }
 }

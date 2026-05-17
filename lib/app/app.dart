@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/theme/lightTheme.dart';
+import 'package:mcd/app/widgets/connectivity_banner.dart';
 import 'package:mcd/core/services/notification_permission_service.dart';
-// import 'package:mcd/core/navigators/go_router.dart';
 
 class McdApp extends StatefulWidget {
   const McdApp({super.key});
@@ -39,6 +39,9 @@ class _McdAppState extends State<McdApp> {
         theme: lightTheme,
         defaultTransition: Transition.cupertino,
         transitionDuration: const Duration(milliseconds: 300),
+        builder: (context, child) {
+          return ConnectivityBanner(child: child ?? const SizedBox.shrink());
+        },
       ),
     );
   }

@@ -1,3 +1,5 @@
+import 'package:mcd/core/utils/date_util.dart';
+
 class TransactionHistoryModel {
   final int success;
   final String message;
@@ -149,19 +151,7 @@ class Transaction {
   }
 
   // Get formatted date and time
-  String get formattedTime {
-    try {
-      final dateTime = DateTime.parse(date);
-      final hour = dateTime.hour > 12 ? dateTime.hour - 12 : dateTime.hour;
-      final period = dateTime.hour >= 12 ? 'pm' : 'am';
-      final year = dateTime.year.toString();
-      final month = dateTime.month.toString().padLeft(2, '0');
-      final day = dateTime.day.toString().padLeft(2, '0');
-      return '$year-$month-$day • ${hour == 0 ? 12 : hour}:${dateTime.minute.toString().padLeft(2, '0')}$period';
-    } catch (e) {
-      return date;
-    }
-  }
+  String get formattedTime => DateUtil.formatDateTime(date);
 
   // Get phone number from server_log or description
   String get phoneNumber {

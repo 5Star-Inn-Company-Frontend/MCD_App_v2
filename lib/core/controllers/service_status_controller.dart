@@ -16,36 +16,21 @@ class ServiceStatusController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Load from cache on initialization instead of making API call
     _loadCachedStatus();
-    
-    // Only fetch fresh data if cache is empty or expired
-    if (serviceStatus.value == null || _isCacheExpired()) {
-      dev.log('Cache is empty or expired, fetching fresh service status', 
-          name: 'ServiceStatus');
+
+    // always attempt background refresh if we have a URL
+    final url = storage.read('transaction_service_url');
+    if (url != null) {
       fetchServiceStatus();
-    } else {
-      dev.log('Using cached service status from storage', name: 'ServiceStatus');
     }
   }
 
-  /// Check if cached data is older than 24 hours
-  bool _isCacheExpired() {
-    final timestamp = storage.read('service_status_timestamp');
-    if (timestamp == null) return true;
-    
-    try {
-      final cachedTime = DateTime.parse(timestamp);
-      final difference = DateTime.now().difference(cachedTime);
-      return difference.inHours > 24;
-    } catch (e) {
-      dev.log('Error parsing cache timestamp: $e', name: 'ServiceStatus');
-      return true;
-    }
-  }
 
   Future<void> fetchServiceStatus() async {
-    isLoading.value = true;
+    // only show loader if we have no cached data
+    if (serviceStatus.value == null) {
+      isLoading.value = true;
+    }
     errorMessage.value = '';
 
     final transactionUrl = storage.read('transaction_service_url');
@@ -72,7 +57,6 @@ class ServiceStatusController extends GetxController {
           // Cache the service status
           if (model.data != null) {
             storage.write('cached_service_status', data);
-            storage.write('service_status_timestamp', DateTime.now().toIso8601String());
             dev.log('Service status cached successfully', name: 'ServiceStatus');
           }
         } else {
@@ -214,5 +198,15 @@ class ServiceStatusController extends GetxController {
 
   bool isLeaderboardActive() {
     return serviceStatus.value?.others?.leaderboard == '1';
+  }
+
+  // raw services map for action button filtering
+  Map<String, dynamic> getRawServices() {
+    return serviceStatus.value?.rawServices ?? {};
+  }
+
+  // image sliders from others
+  List<String> getImageSliders() {
+    return serviceStatus.value?.others?.imageSliders ?? [];
   }
 }

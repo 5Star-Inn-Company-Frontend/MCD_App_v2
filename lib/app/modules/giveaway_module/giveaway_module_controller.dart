@@ -3,17 +3,15 @@ import 'dart:developer' as dev;
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
-import 'package:mcd/app/styles/app_colors.dart';
 import 'models/giveaway_model.dart';
 import 'package:mcd/core/services/ads_service.dart';
 import 'package:mcd/core/services/deep_link_service.dart';
+import 'widgets/giveaway_detail_sheet.dart';
 
 class GiveawayModuleController extends GetxController {
   final apiService = DioApiService();
@@ -92,13 +90,12 @@ class GiveawayModuleController extends GetxController {
     fetchGiveaways();
     checkNotificationStatus();
 
-    // Listen to app lifecycle to re-check permissions if user enabled them in settings
     _lifecycleListener = AppLifecycleListener(
       onResume: () => checkNotificationStatus(),
     );
 
     adsService.showInterstitialAd();
-    // initialize static cable providers
+
     final uniqueProviders = <String, Map<String, dynamic>>{};
     final providerList = [
       {'name': 'DSTV', 'code': 'DSTV'},
@@ -113,26 +110,57 @@ class GiveawayModuleController extends GetxController {
 
     cableProviders.assignAll(uniqueProviders.values.toList());
 
-    // Listen to type changes to reset related fields
     ever(_selectedType, (_) {
       _selectedTypeCode.value = null;
       amountController.clear();
-      // Clear all specific selections
       selectedDataPlan.value = null;
       selectedElectricityProvider.value = null;
       selectedCableProvider.value = null;
       selectedCablePackage.value = null;
       selectedBettingProvider.value = null;
-
-      // Clear lists (but NOT cableProviders - it's static)
       dataPlans.clear();
       cablePackages.clear();
-
-      // Auto-fetch providers if needed
       if (_selectedType.value == 'electricity') fetchElectricityProviders();
-      // Cable providers are static, no need to fetch
       if (_selectedType.value == 'betting_topup') fetchBettingProviders();
     });
+
+    _handleDeepLinkArguments();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    // onReady fires after the page is fully pushed onto the navigator stack.
+    // this is the correct place to trigger the bottom sheet from deep link args.
+    _openDeepLinkSheetIfNeeded();
+  }
+
+  void _handleDeepLinkArguments() {
+    // only parse and store the id — do not navigate yet
+    // actual sheet trigger happens in onReady()
+    final args = Get.arguments as Map<String, dynamic>?;
+    if (args == null) return;
+    dev.log('giveaway module received args: $args', name: 'GiveawayModule');
+  }
+
+  void _openDeepLinkSheetIfNeeded() {
+    final args = Get.arguments as Map<String, dynamic>?;
+    if (args == null || args['id'] == null) return;
+
+    final giveawayId = args['id'] is int
+        ? args['id']
+        : int.tryParse(args['id'].toString()) ?? 0;
+    if (giveawayId == 0) return;
+
+    dev.log('opening detail sheet for deep link: $giveawayId',
+        name: 'GiveawayModule');
+
+    // import is in controller already via widgets/giveaway_detail_sheet.dart
+    Get.bottomSheet(
+      GiveawayDetailSheet(giveawayId: giveawayId),
+      isScrollControlled: true,
+      ignoreSafeArea: false,
+    );
   }
 
   @override
@@ -634,7 +662,7 @@ class GiveawayModuleController extends GetxController {
         _clearForm();
         await fetchGiveaways(); // Refresh the giveaway list
 
-        if (isPrivate && giveawayId == 0) {
+        if (giveawayId == 0) {
           dev.log('ID missing from response, searching refreshed list...',
               name: 'GiveawayModule');
           try {
@@ -650,7 +678,7 @@ class GiveawayModuleController extends GetxController {
           }
         }
 
-        if (isPrivate && giveawayId != 0) {
+        if (giveawayId != 0) {
           _showShareLinkDialog(giveawayId);
         } else {
           Get.offNamed(Routes.GIVEAWAY_MODULE);
@@ -730,9 +758,30 @@ class GiveawayModuleController extends GetxController {
     }
   }
 
-  // Show Ad Dialog first (new flow)
-  void showAdClaimDialogFirst(
-      int giveawayId, String giveawayType, BuildContext context) {
+  void shareGiveaway(int id) {
+    final link = DeepLinkService.buildClaimLink(id);
+    Share.share(
+      'Claim my giveaway on MEGA Cheap Data!\n\n$link\n\n(If it opens in browser, look for an "Open in App" option.)',
+    );
+  }
+
+  // Show Ad Dialog first
+  Future<void> showAdClaimDialogFirst(
+      int giveawayId, String giveawayType, BuildContext context) async {
+    // SECURITY: Double check status before showing ad
+    final latestDetail = await fetchGiveawayDetail(giveawayId);
+    if (latestDetail == null ||
+        latestDetail.completed ||
+        latestDetail.giveaway.status != 1) {
+      Get.snackbar(
+        'Expired',
+        'Sorry, this giveaway has just been fully claimed.',
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
     Get.dialog(
       Dialog(
         backgroundColor: Colors.white,
@@ -1171,7 +1220,6 @@ class GiveawayModuleController extends GetxController {
         // Proceed to claim
         final claimed = await claimGiveaway(giveawayId, receiver);
         if (claimed) {
-          // Additional success handling if needed (claimGiveaway already shows snackbar)
           receiverController.clear();
           if (Get.isBottomSheetOpen ?? false) {
             Get.back(); // Close details sheet if open
@@ -1334,7 +1382,8 @@ class GiveawayModuleController extends GetxController {
                           duration: const Duration(seconds: 2),
                         );
                       },
-                      icon: const Icon(Icons.copy, color: AppColors.primaryColor),
+                      icon:
+                          const Icon(Icons.copy, color: AppColors.primaryColor),
                       tooltip: 'Copy link',
                     ),
                   ],

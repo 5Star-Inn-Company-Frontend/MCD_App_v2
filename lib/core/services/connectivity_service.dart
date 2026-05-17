@@ -118,8 +118,8 @@ class ConnectivityService extends GetxService {
       case ConnectivityResult.none:
         return 'No Connection';
       default:
-        return 'No Connection';
-    }
+        return 'Other';
+      }
   }
 
   @override

@@ -14,6 +14,10 @@ class CardTopupModuleController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
 
+  static const int minimumWalletFundingAmount = 500;
+
+  final amountError = RxnString();
+
   // paystack plugin
   final plugin = PaystackPayment();
 
@@ -32,6 +36,13 @@ class CardTopupModuleController extends GetxController {
 
   final isLoading = false.obs;
   final cardType = ''.obs;
+
+  final cardNumberFocus = FocusNode();
+  final expiryMonthFocus = FocusNode();
+  final expiryYearFocus = FocusNode();
+  final cvvFocus = FocusNode();
+  final cardNameFocus = FocusNode();
+  final amountFocus = FocusNode();
 
   // stored reference and amount for payment flow
   String _currentReference = '';
@@ -61,6 +72,12 @@ class CardTopupModuleController extends GetxController {
     expiryYearController.dispose();
     cvvController.dispose();
     amountController.dispose();
+    cardNumberFocus.dispose();
+    expiryMonthFocus.dispose();
+    expiryYearFocus.dispose();
+    cvvFocus.dispose();
+    cardNameFocus.dispose();
+    amountFocus.dispose();
     super.onClose();
   }
 
@@ -77,6 +94,7 @@ class CardTopupModuleController extends GetxController {
   void addDigit(String digit) {
     if (enteredAmount.value.length < 10) {
       enteredAmount.value += digit;
+      _validateEnteredAmount();
     }
   }
 
@@ -84,7 +102,30 @@ class CardTopupModuleController extends GetxController {
     if (enteredAmount.value.isNotEmpty) {
       enteredAmount.value =
           enteredAmount.value.substring(0, enteredAmount.value.length - 1);
+      _validateEnteredAmount();
     }
+  }
+
+  int get enteredAmountValue => int.tryParse(enteredAmount.value) ?? 0;
+
+  bool get canProceedWithFunding =>
+      enteredAmountValue >= minimumWalletFundingAmount;
+
+  void _validateEnteredAmount() {
+    final amount = enteredAmountValue;
+
+    if (amount <= 0) {
+      amountError.value = null;
+      return;
+    }
+
+    if (amount < minimumWalletFundingAmount) {
+      amountError.value =
+          'Minimum wallet funding amount is ₦$minimumWalletFundingAmount';
+      return;
+    }
+
+    amountError.value = null;
   }
 
   String get formattedAmount {
@@ -95,15 +136,8 @@ class CardTopupModuleController extends GetxController {
   }
 
   void showConfirmationBottomSheet() {
-    if (enteredAmount.value.isEmpty || int.parse(enteredAmount.value) <= 0) {
-      Get.snackbar(
-        'Error',
-        'Please enter a valid amount',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
-      return;
-    }
+    _validateEnteredAmount();
+    if (!canProceedWithFunding) return;
 
     Get.bottomSheet(
       Container(
@@ -221,7 +255,14 @@ class CardTopupModuleController extends GetxController {
     try {
       isProcessing.value = true;
 
-      _currentAmount = int.parse(enteredAmount.value);
+      _validateEnteredAmount();
+      if (!canProceedWithFunding) {
+        isProcessing.value = false;
+        return;
+      }
+
+      _currentAmount = enteredAmountValue;
+
       _currentReference = _generateReference();
 
       // call /fundwallet endpoint first
@@ -369,6 +410,12 @@ class CardTopupModuleController extends GetxController {
                             color: AppColors.primaryColor, width: 2),
                       ),
                     ),
+                    focusNode: cardNumberFocus,
+                    onChanged: (value) {
+                      if (value.replaceAll(' ', '').length >= 16) {
+                        expiryMonthFocus.requestFocus();
+                      }
+                    },
                     validator: (value) {
                       if (value == null || value.isEmpty) return 'Required';
                       final cleaned = value.replaceAll(' ', '');
@@ -393,6 +440,12 @@ class CardTopupModuleController extends GetxController {
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: expiryMonthController,
+                              focusNode: expiryMonthFocus,
+                              onChanged: (value) {
+                                if (value.length >= 2) {
+                                  expiryYearFocus.requestFocus();
+                                }
+                              },
                               keyboardType: TextInputType.number,
                               maxLength: 2,
                               style:
@@ -444,6 +497,12 @@ class CardTopupModuleController extends GetxController {
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: expiryYearController,
+                              focusNode: expiryYearFocus,
+                              onChanged: (value) {
+                                if (value.length >= 2) {
+                                  cvvFocus.requestFocus();
+                                }
+                              },
                               keyboardType: TextInputType.number,
                               maxLength: 2,
                               style:
@@ -492,6 +551,7 @@ class CardTopupModuleController extends GetxController {
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: cvvController,
+                              focusNode: cvvFocus,
                               keyboardType: TextInputType.number,
                               maxLength: 3,
                               obscureText: true,
@@ -609,7 +669,37 @@ class CardTopupModuleController extends GetxController {
       charge.putCustomField('Charged From', 'MCD App');
 
       final context = Get.context!;
+      
+      // close card input dialog to allow Paystack's OTP/3DS window to show without conflict
+      Get.back();
+      
+      // show "Verifying" overlay so user knows we are still processing after OTP
+      Get.dialog(
+        const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: AppColors.white),
+              SizedBox(height: 16),
+              Text(
+                'Verifying Transaction...',
+                style: TextStyle(
+                  color: AppColors.white,
+                  fontSize: 16,
+                  fontFamily: AppFonts.manRope,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ],
+          ),
+        ),
+        barrierDismissible: false,
+      );
+      
       final response = await plugin.chargeCard(context, charge: charge);
+      
+      // close the "Verifying" overlay
+      if (Get.isDialogOpen ?? false) Get.back();
 
       dev.log(
           'chargeCard response: status=${response.status}, message=${response.message}',

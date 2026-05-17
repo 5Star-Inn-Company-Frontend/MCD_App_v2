@@ -13,6 +13,7 @@ import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/app/modules/history_screen_module/models/transaction_history_model.dart';
 import 'dart:developer' as dev;
 import './receipt_template.dart';
+import 'package:mcd/core/utils/date_util.dart';
 
 class TransactionDetailModuleController extends GetxController {
   final _selectedTemplate = ReceiptTemplate.receipt.obs;
@@ -34,10 +35,25 @@ class TransactionDetailModuleController extends GetxController {
   double get amount => transaction?.amountValue ?? 0.0;
   String get paymentType => _getPaymentType();
   String get paymentMethod {
+    final detailed = detailedTransaction;
+
     if (legacyPaymentMethod != null && legacyPaymentMethod!.isNotEmpty) {
       return legacyPaymentMethod!;
     }
-    return transaction?.serverLog?.paymentMethod ?? 'wallet';
+
+    if (detailed != null) {
+      if (detailed['payment_method'] != null &&
+          detailed['payment_method'].toString().isNotEmpty) {
+        return detailed['payment_method'].toString();
+      }
+      if (detailed['payment_mode'] != null &&
+          detailed['payment_mode'].toString().isNotEmpty) {
+        return detailed['payment_mode'].toString();
+      }
+    }
+
+    // fallback to transaction object
+    return transaction?.serverLog?.paymentMethod ?? '';
   }
 
   // legacy fields from arguments
@@ -48,6 +64,8 @@ class TransactionDetailModuleController extends GetxController {
 
   String get userId => transaction?.userName ?? 'N/A';
   String get phoneNumber {
+    final _ = detailedTransaction;
+
     if (legacyPhoneNumber != null && legacyPhoneNumber != 'N/A') {
       return legacyPhoneNumber!;
     }
@@ -74,6 +92,9 @@ class TransactionDetailModuleController extends GetxController {
   String get ninPhoto => _getNinField('photo');
   String get ninNin => _getNinField('nin');
   String get packageName {
+    // Access observable to ensure GetX registers dependency
+    final _ = detailedTransaction;
+
     if (legacyPackageName != null &&
         legacyPackageName!.isNotEmpty &&
         legacyPackageName != 'N/A') {
@@ -82,10 +103,15 @@ class TransactionDetailModuleController extends GetxController {
     return _getPackageName();
   }
 
-  String get billerName => legacyBillerName ?? _getBillerName();
+  String get billerName {
+    // Access observable to ensure GetX registers dependency
+    final _ = detailedTransaction;
+    return legacyBillerName ?? _getBillerName();
+  }
+
   String get token =>
       (transaction?.token ?? '').trim().replaceAll(RegExp(r',\s*$'), '');
-  String get date => transaction?.date ?? '';
+  String get date => DateUtil.formatDateTime(transaction?.date);
   String get description =>
       (transaction?.description ?? '').trim().replaceAll(RegExp(r',\s*$'), '');
   String get status => transaction?.status ?? '';

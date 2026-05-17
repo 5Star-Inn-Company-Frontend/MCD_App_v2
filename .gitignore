@@ -48,4 +48,10 @@ app.*.map.json
 
 *.md
 !README.md
+/lib/aes_test/
 /lib/decrypted_output.txt
+
+# secrets
+.env
+.env.*
+lib/env/env.g.dart

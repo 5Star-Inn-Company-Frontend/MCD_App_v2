@@ -18,6 +18,19 @@ class AirtimeModuleController extends GetxController {
   final selectedAmount = ''.obs;
 
   final selectedProvider = Rxn<AirtimeProvider>();
+  final selectedOffer = 0.obs;
+
+  void toggleOffer(int index) {
+    if (selectedOffer.value == index) {
+      selectedOffer.value = 0;
+    } else {
+      selectedOffer.value = index;
+      if (index == 1 || index == 2) {
+        selectedAmount.value = '100';
+        amountController.text = '100';
+      }
+    }
+  }
 
   final _isLoading = true.obs;
   bool get isLoading => _isLoading.value;
@@ -81,8 +94,8 @@ class AirtimeModuleController extends GetxController {
 
     _isForeign = isForeign;
     // For non-foreign airtime, default to 'NG' if countryCode is null or empty
-    _countryCode = (countryCode == null || countryCode.toString().isEmpty) 
-        ? (isForeign ? null : 'NG') 
+    _countryCode = (countryCode == null || countryCode.toString().isEmpty)
+        ? (isForeign ? null : 'NG')
         : countryCode;
 
     if (verifiedNumber != null) {
@@ -455,6 +468,10 @@ class AirtimeModuleController extends GetxController {
             'networkImage': getProviderLogo(selectedProvider.value!.network),
             'isForeign': _isForeign,
             'countryCode': _countryCode,
+            if (selectedOffer.value != 0) ...{
+              'bonus': selectedOffer.value == 2 ? '1' : '0',
+              'offerName': selectedOffer.value == 2 ? 'GistPlus' : '2x Value',
+            },
           },
         },
       );
@@ -505,9 +522,10 @@ class AirtimeModuleController extends GetxController {
 
       // Use different endpoint for foreign vs Nigerian validation
       final endpoint = _isForeign ? 'validate' : 'validate-number';
-      dev.log('Inline verification request to $endpoint: $body', name: 'AirtimeModule');
-      final result = await apiService.postrequest(
-          '$transactionUrl$endpoint', body);
+      dev.log('Inline verification request to $endpoint: $body',
+          name: 'AirtimeModule');
+      final result =
+          await apiService.postrequest('$transactionUrl$endpoint', body);
 
       result.fold(
         (failure) {
@@ -580,7 +598,7 @@ class AirtimeModuleController extends GetxController {
 
     final provider = selectedProvider.value;
     if (provider?.minAmount != null && amount < provider!.minAmount!) {
-      Get.snackbar("Amount Too Low", 
+      Get.snackbar("Amount Too Low",
           "Amount must be at least ${provider.minAmount!.toStringAsFixed(0)}.",
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor);
@@ -588,7 +606,7 @@ class AirtimeModuleController extends GetxController {
     }
 
     if (provider?.maxAmount != null && amount > provider!.maxAmount!) {
-      Get.snackbar("Amount Too High", 
+      Get.snackbar("Amount Too High",
           "Amount must not exceed ${provider.maxAmount!.toStringAsFixed(0)}.",
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor);
@@ -660,6 +678,10 @@ class AirtimeModuleController extends GetxController {
           'multipleList': multipleAirtimeList.toList(),
           'isForeign': _isForeign,
           'countryCode': _countryCode,
+          if (selectedOffer.value != 0) ...{
+            'bonus': selectedOffer.value == 2 ? '1' : '0',
+            'offerName': selectedOffer.value == 2 ? 'GistPlus' : '2x Value',
+          },
         },
       },
     );

@@ -20,9 +20,10 @@ import 'package:mcd/app/widgets/loading_dialog.dart';
 import 'package:mcd/core/services/ads_service.dart';
 
 import '../../../core/controllers/service_status_controller.dart';
+import '../../../core/controllers/payment_config_controller.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
-import '../../../core/services/deep_link_service.dart';
+// import '../../../core/services/deep_link_service.dart';
 import '../../../core/utils/validator.dart';
 import '../../routes/app_pages.dart';
 /**
@@ -481,34 +482,32 @@ class LoginScreenController extends GetxController {
 
   /// navigate to home after successful login
   Future<void> handleLoginSuccess() async {
-    // fetch fresh service status
+    // parallel fetch all post-auth data
     try {
-      final serviceStatusController = Get.find<ServiceStatusController>();
-      dev.log('Fetching fresh service status after login', name: 'Login');
-      await serviceStatusController.fetchServiceStatus();
+      await Future.wait([
+        Get.find<ServiceStatusController>().fetchServiceStatus(),
+        Get.find<PaymentConfigController>().fetchPaymentMethods(),
+        fetchDashboard(force: true),
+      ]);
     } catch (e) {
-      dev.log('Error fetching service status after login: $e', name: 'Login');
+      dev.log('Error in post-login data fetch: $e', name: 'Login');
     }
 
-    // pre-warm countries cache — fire and forget, doesn't block navigation
+    // non-blocking prefetches
     _prefetchCountries();
-
-    // pre-warm banks cache — fire and forget
     _prefetchBanks();
 
     // flag to show news dialog on first home screen load
     await box.write('show_news_dialog', true);
 
-    await fetchDashboard(force: true);
     Get.offAllNamed(Routes.HOME_SCREEN);
 
-    // consume any pending deep link saved before login
-    try {
-      final deepLinkService = Get.find<DeepLinkService>();
-      deepLinkService.consumePendingDeepLink();
-    } catch (e) {
-      dev.log('Error consuming pending deep link: $e', name: 'Login');
-    }
+    // try {
+    //   final deepLinkService = Get.find<DeepLinkService>();
+    //   deepLinkService.consumePendingDeepLink();
+    // } catch (e) {
+    //   dev.log('Error consuming pending deep link: $e', name: 'Login');
+    // }
   }
 
   void _prefetchCountries() {

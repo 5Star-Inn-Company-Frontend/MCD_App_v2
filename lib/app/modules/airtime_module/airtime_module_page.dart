@@ -295,7 +295,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
           ),
         ),
 
-        const Gap(50),
+        const Gap(25),
 
         //bonus container
         // Container(
@@ -319,7 +319,9 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
         //   ),
         // ),
 
-        // const Gap(25),
+        _gistPlusRow(),
+
+        const Gap(25),
         TextSemiBold("Select Amount"),
         const Gap(14),
 
@@ -352,8 +354,8 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
               Row(
                 children: [
                   Text("₦",
-                      style:
-                          GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w500)),
+                      style: GoogleFonts.plusJakartaSans(
+                          fontSize: 15, fontWeight: FontWeight.w500)),
                   const Gap(8),
                   Flexible(
                     child: Obx(() {
@@ -362,13 +364,14 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                       final maxAmount = provider?.maxAmount;
                       String hintText = '500.00 - 50,000.00';
                       if (minAmount != null && maxAmount != null) {
-                        hintText = '${minAmount.toStringAsFixed(2)} - ${maxAmount.toStringAsFixed(2)}';
+                        hintText =
+                            '${minAmount.toStringAsFixed(2)} - ${maxAmount.toStringAsFixed(2)}';
                       } else if (minAmount != null) {
                         hintText = 'Min: ${minAmount.toStringAsFixed(2)}';
                       } else if (maxAmount != null) {
                         hintText = 'Max: ${maxAmount.toStringAsFixed(2)}';
                       }
-                      
+
                       return TextFormField(
                         controller: controller.amountController,
                         validator: (value) {
@@ -395,7 +398,8 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                           hintText: hintText,
                           hintStyle: TextStyle(color: AppColors.primaryGrey),
                           focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.primaryColor),
+                            borderSide:
+                                BorderSide(color: AppColors.primaryColor),
                           ),
                         ),
                       );
@@ -637,6 +641,10 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
           }
         }),
 
+        const Divider(),
+        const Gap(15),
+        _gistPlusRow(),
+
         const Gap(15),
         TextSemiBold("Select Amount"),
         const Gap(14),
@@ -680,18 +688,22 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                           const Gap(8),
                           Flexible(
                             child: Obx(() {
-                              final provider = controller.selectedProvider.value;
+                              final provider =
+                                  controller.selectedProvider.value;
                               final minAmount = provider?.minAmount;
                               final maxAmount = provider?.maxAmount;
                               String hintText = 'Custom amount';
                               if (minAmount != null && maxAmount != null) {
-                                hintText = '${minAmount.toStringAsFixed(0)} - ${maxAmount.toStringAsFixed(0)}';
+                                hintText =
+                                    '${minAmount.toStringAsFixed(0)} - ${maxAmount.toStringAsFixed(0)}';
                               } else if (minAmount != null) {
-                                hintText = 'Min: ${minAmount.toStringAsFixed(0)}';
+                                hintText =
+                                    'Min: ${minAmount.toStringAsFixed(0)}';
                               } else if (maxAmount != null) {
-                                hintText = 'Max: ${maxAmount.toStringAsFixed(0)}';
+                                hintText =
+                                    'Max: ${maxAmount.toStringAsFixed(0)}';
                               }
-                              
+
                               return TextFormField(
                                 controller: controller.amountController,
                                 keyboardType: TextInputType.number,
@@ -704,8 +716,9 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                                       color: AppColors.primaryGrey,
                                       fontFamily: AppFonts.manRope),
                                   focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: AppColors.primaryColor),
-                          ),
+                                    borderSide: BorderSide(
+                                        color: AppColors.primaryColor),
+                                  ),
                                 ),
                               );
                             }),
@@ -856,6 +869,8 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
           );
         }),
 
+        const Gap(20),
+        _gistPlusRow(),
         const Gap(30),
         Obx(() => BusyButton(
               title: "Pay",
@@ -867,7 +882,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
     );
   }
 
-  Widget _amountCard(String amount, {bool isFirst = false}) {
+  Widget _amountCard(String amount) {
     return Obx(() {
       final isSelected = controller.selectedAmount.value == amount;
       return TouchableOpacity(
@@ -898,5 +913,89 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
         ),
       );
     });
+  }
+
+  Widget _gistPlusRow() {
+    return Obx(() => Row(
+          children: [
+            Expanded(
+              child: _offerCard(
+                index: 1,
+                title: "Buy ₦100 and get ₦100",
+                badgeText: "2x Value",
+                badgeColor: AppColors.primaryGreen,
+                isSelected: controller.selectedOffer.value == 1,
+                onTap: () => controller.toggleOffer(1),
+              ),
+            ),
+            const Gap(8),
+            Expanded(
+              child: _offerCard(
+                index: 2,
+                title: "Buy ₦100 and get ₦100 + 400",
+                badgeText: "GistPlus 🔥",
+                badgeColor: AppColors.primaryOrange,
+                isSelected: controller.selectedOffer.value == 2,
+                onTap: () => controller.toggleOffer(2),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  Widget _offerCard({
+    required int index,
+    required String title,
+    required String badgeText,
+    required Color badgeColor,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color:
+                isSelected ? AppColors.primaryColor : const Color(0xffF1F1F1),
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            const Gap(4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.primaryColor : badgeColor,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                badgeText,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: AppFonts.manRope,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

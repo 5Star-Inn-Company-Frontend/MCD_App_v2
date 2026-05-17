@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:advert/advert.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class AdsService {
   static final AdsService _instance = AdsService._internal();
@@ -129,6 +130,8 @@ class AdsService {
   Future<bool> showRewardedAd({
     VoidCallback? onRewarded,
     Map<String, String>? customData,
+    Function? onAdClicked,
+    Function? onAdImpression,
   }) async {
     if (!_isInitialized) {
       dev.log('Error: Ads not initialized');
@@ -140,12 +143,16 @@ class AdsService {
       final defaultCustomData =
           customData ?? {"username": "", "platform": "", "type": ""};
 
-      final response = await _advertPlugin.adsProv.showRewardedAd(() {
+      final response = await _advertPlugin.adsProv.showRewardedAd(
+          onRewarded:() {
         if (!completer.isCompleted) {
           completer.complete();
           onRewarded?.call();
         }
-      }, defaultCustomData);
+      }, customData: defaultCustomData,
+        onAdClicked: onAdClicked,
+        onAdImpression: onAdImpression,
+      );
 
       if (response.status) {
         await completer.future;
@@ -165,6 +172,8 @@ class AdsService {
   void showspinAndWinAd(BuildContext context,{
     VoidCallback? onRewarded,
     Map<String, String>? customData,
+    Function? onAdClicked,
+    Function? onAdImpression,
     required int total,
   }) async {
     if (!_isInitialized) {
@@ -181,12 +190,16 @@ class AdsService {
       reason: "Spin and Win",
       customData: defaultCustomData,
       onComplete: onRewarded ?? (){},
+      onAdClicked: onAdClicked,
+      onAdImpression: onAdImpression,
     );
   }
 
   Future<bool> showfreemoney({
     VoidCallback? onRewarded,
     Map<String, String>? customData,
+    Function? onAdClicked,
+    Function? onAdImpression,
   }) async {
     if (!_isInitialized) {
       dev.log('Error: Ads not initialized');
@@ -198,12 +211,17 @@ class AdsService {
       final defaultCustomData =
           customData ?? {"username": "", "platform": "", "type": ""};
 
-      final response = await _advertPlugin.adsProv.showfreemoney(() {
-        if (!completer.isCompleted) {
-          completer.complete();
-          onRewarded?.call();
-        }
-      }, defaultCustomData);
+      final response = await _advertPlugin.adsProv.showfreemoney(
+        onRewarded:() {
+          if (!completer.isCompleted) {
+            completer.complete();
+            onRewarded?.call();
+          }
+        },
+        customData: defaultCustomData,
+          onAdClicked: onAdClicked,
+          onAdImpression: onAdImpression,
+      );
 
       if (response.status) {
         await completer.future;
@@ -224,7 +242,10 @@ class AdsService {
     required int maxAds,
     Map<String, String>? customData,
         VoidCallback? onAdCompleted,
-        required String reason
+        Function(String)? onAdFailed,
+        required String reason,
+        Function? onAdClicked,
+        Function? onAdImpression,
   }) async {
     if (!_isInitialized) {
       dev.log('Ads not initialized yet, initializing now...');
@@ -240,19 +261,56 @@ class AdsService {
       final defaultCustomData =
           customData ?? {"username": "", "platform": "", "type": ""};
 
+      bool sequenceCompleted = false;
+
       _advertPlugin.adsProv.startAdSequence(
         context,
         total: maxAds,
-        adType: 'googleMergeRewarded',
+        adType: 'mergeRewarded',
         reason: reason,
         customData: defaultCustomData,
-        onComplete: onAdCompleted ?? (){},
+        onComplete: () {
+          sequenceCompleted = true;
+          if (onAdCompleted != null) onAdCompleted();
+        },
+        onAdClicked: onAdClicked,
+        onAdImpression: onAdImpression,
       );
+
+      // Watch for premature abortion (e.g. ad failed to load)
+      // The advert plugin sets isShowingAds to false if it fails internally
+      Worker? watcher;
+      watcher = ever(_advertPlugin.adsProv.isShowingAds, (isShowing) {
+        if (!isShowing) {
+          // Delay by one tick because the advert plugin sets isShowingAds = false 
+          // a microsecond BEFORE it triggers the onComplete callback.
+          Future.microtask(() {
+            if (!sequenceCompleted) {
+              dev.log('Ad sequence failed or was aborted prematurely.');
+              if (onAdFailed != null) {
+                onAdFailed('Ads are currently unavailable. Please try again later.');
+              }
+            }
+          });
+          watcher?.dispose();
+        }
+      });
     } catch (e) {
       dev.log('Error showing multiple rewarded ads: $e');
+      if (onAdFailed != null) {
+        onAdFailed('An error occurred while loading ads.');
+      }
       return ;
     }
   }
 
   bool get isInitialized => _isInitialized;
+
+  bool isCurrentlyShowingAds() {
+    return _advertPlugin.adsProv.isShowingAds.value;
+  }
+
+  void forceResetAdState() {
+    _advertPlugin.adsProv.isShowingAds.value = false;
+  }
 }

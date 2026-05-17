@@ -55,12 +55,10 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
     super.dispose();
   }
 
-  // ── per-template visual config ──
-
   String get _templateLabel {
     switch (_t) {
       case ReceiptTemplate.receipt:
-        return 'Receipt';
+        return '';
       case ReceiptTemplate.birthday:
         return 'Birthday';
       case ReceiptTemplate.valentine:
@@ -98,8 +96,6 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
 
   SystemUiOverlayStyle get _overlayStyle => SystemUiOverlayStyle.dark;
 
-  // ── status helpers ──
-
   Color _statusColor() {
     final s = _c.status.toLowerCase();
     if (s == 'successful' || s == 'success' || s == 'delivered') {
@@ -132,11 +128,9 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
 
   String get _amount => '₦${Functions.money(_c.amount, "").trim()}';
 
-  // ── shared field row ──
-
   Widget _row(String label, String value,
-      {Color lc = const Color(0xFF78909C),
-      Color vc = const Color(0xFF263238),
+      {Color lc = Colors.black,
+      Color vc = Colors.black,
       TextStyle? labelStyle,
       TextStyle? valueStyle}) {
     return Padding(
@@ -160,21 +154,61 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
     );
   }
 
-  List<Widget> _txFields(
-      {Color lc = const Color(0xFF78909C),
-      Color vc = const Color(0xFF263238)}) {
-    return [
-      _row('Payment Type', _c.paymentType, lc: lc, vc: vc),
-      _row('Method', _c.paymentMethod, lc: lc, vc: vc),
-      _row('User ID', _c.userId, lc: lc, vc: vc),
-      _row('Date', _c.date, lc: lc, vc: vc),
-      _row('Reference', _c.transactionId, lc: lc, vc: vc),
-    ];
+  List<Widget> _txFields({Color lc = Colors.black, Color vc = Colors.black}) {
+    final type = _c.paymentType.toLowerCase();
+    final List<Widget> fields = [];
+
+    // User ID
+    fields.add(_row('User ID', _c.userId, lc: lc, vc: vc));
+
+    // Dynamic ID field (Phone Number, Meter Number, Account ID)
+    if (type.contains('electricity') || type.contains('electric')) {
+      fields.add(_row('Meter Number', _c.phoneNumber, lc: lc, vc: vc));
+    } else if (type.contains('betting') || type.contains('bet')) {
+      fields.add(_row('Account ID', _c.phoneNumber, lc: lc, vc: vc));
+    } else if (type.contains('nin')) {
+      fields.add(_row(
+          'NIN Number', _c.ninNin != 'N/A' ? _c.ninNin : _c.phoneNumber,
+          lc: lc, vc: vc));
+    } else if (!type.contains('airtime_pin') &&
+        !type.contains('data_pin') &&
+        !type.contains('wallet') &&
+        !type.contains('giveaway') &&
+        !type.contains('funding') &&
+        !type.contains('vcard') &&
+        !type.contains('reversal') &&
+        !type.contains('predictwin') &&
+        !type.contains('momo') &&
+        !type.contains('nin validation')) {
+      fields.add(_row('Phone Number', _c.phoneNumber, lc: lc, vc: vc));
+    }
+
+    // Network / Payment Type
+    if (type.contains('data') ||
+        type.contains('airtime') ||
+        type.contains('cable')) {
+      if (_c.network.isNotEmpty) {
+        fields.add(_row('Network', _c.network, lc: lc, vc: vc));
+      }
+    } else {
+      fields.add(_row('Payment Type', _c.paymentType, lc: lc, vc: vc));
+    }
+
+    // Package Name
+    if (_c.packageName != 'N/A' && _c.packageName.isNotEmpty) {
+      String label = 'Package';
+      if (type.contains('data')) label = 'Data Plan';
+      if (type.contains('electricity')) label = 'Meter Type';
+      fields.add(_row(label, _c.packageName, lc: lc, vc: vc));
+    }
+
+    // Date & Reference
+    fields.add(_row('Date', _c.date, lc: lc, vc: vc));
+    fields.add(_row('Reference', _c.transactionId, lc: lc, vc: vc));
+
+    return fields;
   }
 
-  // ════════════════════════════════
-  //  RECEIPT  (Normal)
-  // ════════════════════════════════
   Widget _buildReceiptTemplate() {
     return Container(
       decoration: BoxDecoration(
@@ -306,7 +340,7 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
                             style: TextStyle(
                                 color: Colors.white.withOpacity(0.85),
                                 fontSize: 13)),
-                        const SizedBox(height: 24), // spacing replacement
+                        const SizedBox(height: 24),
                         Text(_c.name,
                             style: const TextStyle(
                                 color: Colors.white,
@@ -342,9 +376,8 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
           _PerforatedEdge(color: const Color(0xFFFFF8E1)),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 6, 20, 6),
-            child: Column(
-                children: _txFields(
-                    lc: const Color(0xFF8D6E63), vc: const Color(0xFF4E342E))),
+            child:
+                Column(children: _txFields(lc: Colors.black, vc: Colors.black)),
           ),
           _divider(color: yellow.withOpacity(0.4)),
           Padding(
@@ -371,7 +404,6 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
   Widget _buildValentineTemplate() {
     const rose = Color(0xFFE91E63);
     const blush = Color(0xFFFCE4EC);
-    const burgundy = Color(0xFF880E4F);
 
     return Container(
       decoration: BoxDecoration(
@@ -475,10 +507,8 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
           _PerforatedEdge(color: const Color(0xFFFFF0F3)),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 6, 20, 6),
-            child: Column(
-                children: _txFields(
-                    lc: const Color(0xFF880E4F).withOpacity(0.6),
-                    vc: burgundy)),
+            child:
+                Column(children: _txFields(lc: Colors.black, vc: Colors.black)),
           ),
           _divider(color: rose.withOpacity(0.2)),
           Padding(
@@ -496,7 +526,6 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
   Widget _buildWishesTemplate() {
     const purple = Color(0xFF7C3AED);
     const gold = Color(0xFFFFB300);
-    const deepPurple = Color(0xFF4C1D95);
 
     return Container(
       decoration: BoxDecoration(
@@ -607,9 +636,8 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
           _PerforatedEdge(color: const Color(0xFFF3F0FF)),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 6, 20, 6),
-            child: Column(
-                children:
-                    _txFields(lc: deepPurple.withOpacity(0.5), vc: deepPurple)),
+            child:
+                Column(children: _txFields(lc: Colors.black, vc: Colors.black)),
           ),
           _divider(color: gold.withOpacity(0.3)),
           Padding(
@@ -622,8 +650,6 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
       ),
     );
   }
-
-  // ── shared micro-widgets ──
 
   Widget _statusChip({bool light = false, Color? bg, Color? tc}) {
     final sc = _statusColor();
@@ -669,8 +695,6 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
         return _buildWishesTemplate();
     }
   }
-
-  // ── share / download ──
 
   Future<void> _shareReceipt() async {
     setState(() => _isSharing = true);
@@ -815,8 +839,6 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
   }
 }
 
-// ── Perforated edge ──
-
 class _PerforatedEdge extends StatelessWidget {
   final Color color;
   const _PerforatedEdge({required this.color});
@@ -868,8 +890,6 @@ class _PerforatedPainter extends CustomPainter {
   @override
   bool shouldRepaint(_PerforatedPainter old) => old.bg != bg;
 }
-
-// ── Action Button ──
 
 class _ActionBtn extends StatelessWidget {
   final String label;

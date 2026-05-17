@@ -4,6 +4,7 @@ import 'package:mcd/core/import/imports.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 import 'package:mcd/core/utils/functions.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mcd/core/utils/date_util.dart';
 import './transaction_detail_module_controller.dart';
 import './receipt_preview_page.dart';
 
@@ -94,9 +95,9 @@ class TransactionDetailModulePage
                           Builder(
                             builder: (context) {
                               final status = controller.status.toLowerCase();
-                              final isSuccessful = status == 'successful' ||
-                                  status == 'success' ||
-                                  status == 'delivered';
+                              // final isSuccessful = status == 'successful' ||
+                              //     status == 'success' ||
+                              //     status == 'delivered';
                               final isPending =
                                   status == 'pending' || status == 'processing';
                               final isReversed =
@@ -513,8 +514,12 @@ class TransactionDetailModulePage
                           ],
 
                           itemRow("Payment Type", controller.paymentType),
-                          itemRow("Payment Method",
-                              _formatPaymentMethod(controller.paymentMethod)),
+                          Obx(() => controller.paymentMethod.isNotEmpty
+                              ? itemRow(
+                                  "Payment Method",
+                                  _formatPaymentMethod(
+                                      controller.paymentMethod))
+                              : const SizedBox.shrink()),
                           if (controller.status.isNotEmpty)
                             itemRow("Status", controller.status.toUpperCase()),
                         ],
@@ -534,7 +539,8 @@ class TransactionDetailModulePage
                           itemRowWithCopy(
                               "Transaction ID:", controller.transactionId),
                           // itemRow("Posted date:", controller.date),
-                          itemRow("Transaction date:", controller.date),
+                          itemRow("Transaction date:",
+                              DateUtil.formatDateTime(controller.date)),
                         ],
                       ),
                     ),
@@ -1201,7 +1207,6 @@ class _ReceiptOptionCard extends StatelessWidget {
     required this.controller,
   });
 
-  // birthday gets a pink gradient, others use flat bgColor
   Decoration _topDecoration() {
     if (template == ReceiptTemplate.birthday) {
       return const BoxDecoration(
@@ -1233,7 +1238,8 @@ class _ReceiptOptionCard extends StatelessWidget {
           );
         },
         child: SizedBox(
-          width: 78,
+          width: 90,
+          height: 90,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -1252,32 +1258,32 @@ class _ReceiptOptionCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(14),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
                       // colored top with icon
-                      Container(
-                        height: 72,
-                        width: double.infinity,
-                        decoration: _topDecoration(),
-                        child: Center(
-                          child: Image.asset(
-                            iconPath,
-                            width: 48,
-                            height: 48,
-                            fit: BoxFit.contain,
+                      Expanded(
+                        child: Container(
+                          width: double.infinity,
+                          decoration: _topDecoration(),
+                          child: Center(
+                            child: Image.asset(
+                              iconPath,
+                              width: 48,
+                              height: 48,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
                       ),
                       // green label bar
                       Container(
                         width: double.infinity,
+                        height: 32,
                         color: const Color(0xFF5ABB7B),
-                        padding: const EdgeInsets.symmetric(vertical: 7),
+                        alignment: Alignment.center,
                         child: Text(
                           label,
-                          textAlign: TextAlign.center,
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 10,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
                           ),
