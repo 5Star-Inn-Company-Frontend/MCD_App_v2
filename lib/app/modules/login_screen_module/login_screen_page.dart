@@ -158,7 +158,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                               },
                               child: controller.isEmail
                                   ? TextFormField(
-                                    autofillHints: [AutofillHints.username],
+                                      autofillHints: [AutofillHints.username],
                                       key: const ValueKey('email'),
                                       controller: controller.emailController,
                                       keyboardType: TextInputType.emailAddress,
@@ -443,6 +443,9 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                         ))),
                               )
                             : const SizedBox.shrink()),
+
+                        Spacer(),
+                        controller.adsService.showBannerAdWidget(),
                       ],
                     ),
                   ),

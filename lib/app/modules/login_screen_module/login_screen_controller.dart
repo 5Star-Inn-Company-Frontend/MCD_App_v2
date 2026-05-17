@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
-import 'package:mcd/app/modules/foreign_airtime_module/country_selection_controller.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +12,12 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:mcd/app/modules/foreign_airtime_module/country_selection_controller.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/app/modules/login_screen_module/models/user_signup_data.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/widgets/loading_dialog.dart';
+import 'package:mcd/core/services/ads_service.dart';
 
 import '../../../core/controllers/service_status_controller.dart';
 import '../../../core/network/api_constants.dart';
@@ -57,6 +58,8 @@ class LoginScreenController extends GetxController {
   final _errorText = "".obs;
   set errorText(value) => _errorText.value = value;
   String get errorText => _errorText.value;
+
+  final adsService = AdsService();
 
   void validateInput(String value) {
     if (CustomValidator.isValidAccountNumber(value.trim()) == false) {
