@@ -470,7 +470,7 @@ class AirtimeModuleController extends GetxController {
             'countryCode': _countryCode,
             if (selectedOffer.value != 0) ...{
               'bonus': selectedOffer.value == 2 ? '1' : '0',
-              'offerName': selectedOffer.value == 2 ? 'GistPlus' : '2x Value',
+              'offerName': selectedOffer.value == 2 ? 'GistPlus' : 'regular',
             },
           },
         },
@@ -680,7 +680,7 @@ class AirtimeModuleController extends GetxController {
           'countryCode': _countryCode,
           if (selectedOffer.value != 0) ...{
             'bonus': selectedOffer.value == 2 ? '1' : '0',
-            'offerName': selectedOffer.value == 2 ? 'GistPlus' : '2x Value',
+            'offerName': selectedOffer.value == 2 ? 'GistPlus' : 'regular',
           },
         },
       },

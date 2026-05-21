@@ -643,9 +643,6 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
 
         const Divider(),
         const Gap(15),
-        _gistPlusRow(),
-
-        const Gap(15),
         TextSemiBold("Select Amount"),
         const Gap(14),
 
@@ -869,8 +866,6 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
           );
         }),
 
-        const Gap(20),
-        _gistPlusRow(),
         const Gap(30),
         Obx(() => BusyButton(
               title: "Pay",
@@ -916,31 +911,39 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
   }
 
   Widget _gistPlusRow() {
-    return Obx(() => Row(
-          children: [
-            Expanded(
-              child: _offerCard(
-                index: 1,
-                title: "Buy ₦100 and get ₦100",
-                badgeText: "2x Value",
-                badgeColor: AppColors.primaryGreen,
-                isSelected: controller.selectedOffer.value == 1,
-                onTap: () => controller.toggleOffer(1),
-              ),
+    return Obx(() {
+      final provider = controller.selectedProvider.value;
+      final isMtn =
+          provider != null && provider.network.toLowerCase().contains('mtn');
+      if (!isMtn) {
+        return const SizedBox.shrink();
+      }
+      return Row(
+        children: [
+          Expanded(
+            child: _offerCard(
+              index: 1,
+              title: "Buy ₦100 and get ₦100",
+              badgeText: "Regular",
+              badgeColor: AppColors.primaryGreen,
+              isSelected: controller.selectedOffer.value == 1,
+              onTap: () => controller.toggleOffer(1),
             ),
-            const Gap(8),
-            Expanded(
-              child: _offerCard(
-                index: 2,
-                title: "Buy ₦100 and get ₦100 + 400",
-                badgeText: "GistPlus 🔥",
-                badgeColor: AppColors.primaryOrange,
-                isSelected: controller.selectedOffer.value == 2,
-                onTap: () => controller.toggleOffer(2),
-              ),
+          ),
+          const Gap(8),
+          Expanded(
+            child: _offerCard(
+              index: 2,
+              title: "Buy ₦100 and get ₦100 + 400",
+              badgeText: "GistPlus 🔥",
+              badgeColor: AppColors.primaryOrange,
+              isSelected: controller.selectedOffer.value == 2,
+              onTap: () => controller.toggleOffer(2),
             ),
-          ],
-        ));
+          ),
+        ],
+      );
+    });
   }
 
   Widget _offerCard({

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
+import 'package:mcd/app/modules/login_screen_module/login_screen_controller.dart';
 import 'dart:developer' as dev;
 
 /// service to handle auto-logout when app is minimized for too long
@@ -73,9 +74,16 @@ class AppLifecycleService extends GetxService with WidgetsBindingObserver {
       return;
     }
 
-    // clear only the token, keep biometric credentials
-    _box.remove('token');
-    dev.log('Token cleared due to session timeout', name: 'Lifecycle');
+    try {
+      Get.find<LoginScreenController>().logout();
+      dev.log('Session cleared via LoginScreenController', name: 'Lifecycle');
+    } catch (e) {
+      dev.log('Error calling logout: $e', name: 'Lifecycle');
+      _box.remove('token');
+      _box.remove('cached_profile');
+      _box.remove('biometric_username_real');
+      _box.remove('user_email');
+    }
 
     // navigate to login screen
     Get.offAllNamed(Routes.LOGIN_SCREEN);
