@@ -104,8 +104,8 @@ class AdsService {
     }
 
     try {
-      return _advertPlugin.adsProv.showBannerAd();
       dev.log('Banner ad shown');
+      return _advertPlugin.adsProv.showBannerAd();
     } catch (e) {
       dev.log('Error showing banner ad: $e');
     }
@@ -263,6 +263,7 @@ class AdsService {
 
       bool sequenceCompleted = false;
 
+      if (!context.mounted) return;
       _advertPlugin.adsProv.startAdSequence(
         context,
         total: maxAds,

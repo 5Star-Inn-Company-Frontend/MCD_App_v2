@@ -371,6 +371,7 @@ class LoginScreenController extends GetxController {
           stickyAuth: true,
           biometricOnly: true,
         ),
+        // biometricOnly: true,
       );
 
       if (!authenticated) {

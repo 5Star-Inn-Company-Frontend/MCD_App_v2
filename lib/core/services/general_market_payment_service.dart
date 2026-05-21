@@ -12,7 +12,7 @@ class GeneralMarketPaymentService {
 
   final AdsService _adsService = AdsService();
   static const int minimumGMBalance = 300;
-  static const int requiredAdsCount = 1;
+  static const int requiredAdsCount = 2;
 
   bool _isProcessingPayment = false;
   bool get isProcessingPayment => _isProcessingPayment;
@@ -71,7 +71,8 @@ class GeneralMarketPaymentService {
         if (_adWasClicked) return;
         dev.log('Ad finished without click, denying GM payment');
         _isProcessingPayment = false;
-        onPaymentFailed('You need to click on the advert to use General Market');
+        // onPaymentFailed('You need to click on the advert to use General Market');
+        await onPaymentSuccess();
       },
       onAdFailed: (error) {
         dev.log('Failed: Ad sequence aborted or failed');
@@ -84,7 +85,6 @@ class GeneralMarketPaymentService {
         _adWasClicked = true;
         dev.log('Success: ad clicked, processing payment');
         _isProcessingPayment = false;
-        await onPaymentSuccess();
       }
     );
 
