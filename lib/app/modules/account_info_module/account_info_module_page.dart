@@ -1,4 +1,3 @@
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/app/widgets/skeleton_loader.dart';
 import 'package:mcd/core/services/general_market_payment_service.dart';
@@ -10,7 +9,7 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
 
   @override
   Widget build(BuildContext context) {
-    Widget _buildAmountColumn(String amount, String text) {
+    Widget buildAmountColumn(String amount, String text) {
       return Column(
         children: [
           RichText(
@@ -150,6 +149,8 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
       ),
       body: SafeArea(
         child: RefreshIndicator(
+          backgroundColor: AppColors.white,
+          color: AppColors.primaryColor,
           onRefresh: () {
             dev.log("AccountInfoModulePage: Pull to refresh triggered");
             return controller.refreshProfile();
@@ -307,9 +308,9 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                _buildAmountColumn(profile?.totalFunding ?? '0',
+                                buildAmountColumn(profile?.totalFunding ?? '0',
                                     'Total Funding'),
-                                _buildAmountColumn(
+                                buildAmountColumn(
                                     profile?.totalTransaction ?? '0',
                                     'Total Transaction'),
                                 columnText('${profile?.totalReferral ?? 0}',
@@ -373,5 +374,4 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
       ),
     );
   }
-
 }

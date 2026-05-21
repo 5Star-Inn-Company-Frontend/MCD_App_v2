@@ -179,7 +179,7 @@ class DataModulePage extends GetView<DataModuleController> {
           const Gap(20),
           Flexible(
             child: SizedBox(
-                height: screenHeight(context) * 0.450, child: _buildPlanGrid()),
+                height: screenHeight(context) * 0.50, child: _buildPlanGrid(context)),
           ),
         ],
       );
@@ -260,18 +260,21 @@ class DataModulePage extends GetView<DataModuleController> {
     );
   }
 
-  Widget _buildPlanGrid() {
+  Widget _buildPlanGrid(BuildContext context) {
     return Obx(() {
       if (controller.filteredDataPlans.isEmpty) {
         return Center(
             child: TextSemiBold("No plans available for this category."));
       }
+      final double textScaleFactor = MediaQuery.textScaleFactorOf(context);
+      final double aspectRatio = 1.7 / textScaleFactor;
+
       return GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 18,
           crossAxisSpacing: 18,
-          childAspectRatio: 2.3,
+          childAspectRatio: aspectRatio,
         ),
         itemCount: controller.filteredDataPlans.length,
         itemBuilder: (context, index) {
@@ -282,7 +285,7 @@ class DataModulePage extends GetView<DataModuleController> {
               onTap: () => controller.onPlanSelected(plan),
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: isSelected
@@ -298,15 +301,22 @@ class DataModulePage extends GetView<DataModuleController> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Flexible(
-                      child: TextSemiBold(plan.name, fontSize: 14, maxLines: 2, overflow: TextOverflow.ellipsis),
+                      child: TextSemiBold(
+                        plan.name,
+                        fontSize: 13,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                        '₦${AmountUtil.formatFigure(double.tryParse(plan.price.toString()) ?? 0)}',
-                        style: GoogleFonts.plusJakartaSans(
-                          color: AppColors.primaryColor,
-                          fontSize: 16,
-                        )),
+                      '₦${AmountUtil.formatFigure(double.tryParse(plan.price.toString()) ?? 0)}',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: AppColors.primaryColor,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ],
                 ),
               ),

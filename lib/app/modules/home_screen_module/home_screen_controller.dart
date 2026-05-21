@@ -234,6 +234,7 @@ class HomeScreenController extends GetxController
         if (force) {
           // Get.snackbar("Updated", "Dashboard refreshed", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
           dev.log("Dashboard refreshed successfully");
+          dev.log(dashboardData?.user.fullName);
         }
       },
     );

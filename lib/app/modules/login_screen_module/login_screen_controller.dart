@@ -12,6 +12,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:mcd/app/modules/account_info_module/account_info_module_controller.dart';
+import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:mcd/app/modules/foreign_airtime_module/country_selection_controller.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/app/modules/login_screen_module/models/user_signup_data.dart';
@@ -917,7 +919,16 @@ class LoginScreenController extends GetxController {
   Future<void> logout() async {
     try {
       await box.remove('token');
-      // Optionally clear biometric data on logout
+      await box.remove('cached_profile');
+      await box.remove('biometric_username_real');
+      await box.remove('user_email');
+      
+      dashboardData = null;
+
+      // delete controllers to clear memory state
+      Get.delete<AccountInfoModuleController>(force: true);
+      Get.delete<HomeScreenController>(force: true);
+      // optionally clear biometric data on logout
       // await box.remove('biometric_enabled');
     } catch (e) {
       dev.log("Logout error: $e");

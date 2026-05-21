@@ -10,6 +10,7 @@ import 'package:get_storage/get_storage.dart';
 import '../../../core/network/api_constants.dart';
 
 class AccountInfoModuleController extends GetxController {
+  bool _hasFetchedThisSession = false;
   final _profileData = Rxn<ProfileModel>();
   set profileData(value) => _profileData.value = value;
   get profileData => _profileData.value;
@@ -62,9 +63,9 @@ class AccountInfoModuleController extends GetxController {
     dev.log(
         "AccountInfoModuleController: fetchProfile called - force: $force, existing data: ${profileData != null}");
 
-    if (profileData != null && !force) {
+    if (_hasFetchedThisSession && !force) {
       dev.log(
-          "AccountInfoModuleController: Profile already loaded, skipping fetch");
+          "AccountInfoModuleController: Profile already fetched this session, skipping");
       return;
     }
 
@@ -84,6 +85,7 @@ class AccountInfoModuleController extends GetxController {
       },
       (data) {
         profileData = ProfileModel.fromJson(data);
+        _hasFetchedThisSession = true;
         // cache profile
         box.write('cached_profile', profileData.toJson());
         dev.log(
