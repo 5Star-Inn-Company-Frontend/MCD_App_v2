@@ -1,18 +1,20 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/core/utils/functions.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:mcd/app/styles/app_colors.dart';
-import 'package:mcd/core/utils/functions.dart';
-import './transaction_detail_module_controller.dart';
 
 import './receipt_template.dart';
+import './transaction_detail_module_controller.dart';
 
 class ReceiptPreviewPage extends StatefulWidget {
   final ReceiptTemplate template;
@@ -35,6 +37,7 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
   bool _isSharing = false;
   late AnimationController _floatCtrl;
   late Animation<double> _floatAnim;
+  late String _randomWish;
 
   ReceiptTemplate get _t => widget.template;
   TransactionDetailModuleController get _c => widget.controller;
@@ -42,6 +45,7 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
   @override
   void initState() {
     super.initState();
+    _randomWish = _getRandomWish();
     _floatCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 2200))
       ..repeat(reverse: true);
@@ -86,7 +90,7 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
       case ReceiptTemplate.receipt:
         return AppColors.primaryColor;
       case ReceiptTemplate.birthday:
-        return const Color(0xFFFF6F00);
+        return const Color(0xFFD55900);
       case ReceiptTemplate.valentine:
         return const Color(0xFFE91E63);
       case ReceiptTemplate.wishes:
@@ -95,6 +99,49 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
   }
 
   SystemUiOverlayStyle get _overlayStyle => SystemUiOverlayStyle.dark;
+
+  String _getRandomWish() {
+    final birthdayWishes = [
+      "Wishing you a day filled with happiness and a year filled with joy!",
+      "Sending you smiles for every moment of your special day. Happy birthday!",
+      "Hope your special day brings you all that your heart desires!",
+      "Happy birthday! May your day be as special as you are.",
+      "Wishing you a beautiful day with good health and happiness forever.",
+      "May you be gifted with life’s biggest joys and never-ending bliss.",
+      "Count your life by smiles, not tears. Count your age by friends, not years.",
+      "May your birthday be full of happy hours and special moments to remember!",
+    ];
+
+    final valentineWishes = [
+      "Sending you a lot of love on this special day. Happy Valentine's Day!",
+      "You're the best thing that ever happened to me. Happy Valentine's Day!",
+      "Wishing you a day filled with love, laughter, and happiness.",
+      "May your day be as sweet as you are. Happy Valentine's Day!",
+      "To the love of my life, thank you for being you.",
+    ];
+
+    final generalWishes = [
+      "Wishing you all the best in your future endeavors!",
+      "Congratulations on your achievement! Keep shining!",
+      "May this be the start of many more great things to come!",
+      "Sending you positive vibes and best wishes for success!",
+      "Well done! You deserve this success and more.",
+      "May your hard work continue to pay off in wonderful ways!",
+      "Cheers to your success and to many more milestones!",
+    ];
+
+    final random = Random();
+    switch (_t) {
+      case ReceiptTemplate.birthday:
+        return birthdayWishes[random.nextInt(birthdayWishes.length)];
+      case ReceiptTemplate.valentine:
+        return valentineWishes[random.nextInt(valentineWishes.length)];
+      case ReceiptTemplate.wishes:
+        return generalWishes[random.nextInt(generalWishes.length)];
+      case ReceiptTemplate.receipt:
+        return "Here's your payment receipt";
+    }
+  }
 
   Color _statusColor() {
     final s = _c.status.toLowerCase();
@@ -159,11 +206,12 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
     final List<Widget> fields = [];
 
     // User ID
-    fields.add(_row('User ID', _c.userId, lc: lc, vc: vc));
+    // fields.add(_row('User ID', _c.userId, lc: lc, vc: vc));
 
     // Dynamic ID field (Phone Number, Meter Number, Account ID)
     if (type.contains('electricity') || type.contains('electric')) {
       fields.add(_row('Meter Number', _c.phoneNumber, lc: lc, vc: vc));
+      fields.add(_row('Token', _c.token, lc: lc, vc: vc));
     } else if (type.contains('betting') || type.contains('bet')) {
       fields.add(_row('Account ID', _c.phoneNumber, lc: lc, vc: vc));
     } else if (type.contains('nin')) {
@@ -275,7 +323,7 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
           // footer
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 14),
-            child: Text('5Star Company • MCD',
+            child: Text('Mega Cheap Data',
                 style: TextStyle(
                     color: AppColors.primaryColor,
                     fontSize: 12,
@@ -310,7 +358,7 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                  colors: [Color(0xFFFF6F00), Color(0xFFFF9100)],
+                  colors: [Color(0xFF933F02), Color(0xFFFF9100)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight),
               image: const DecorationImage(
@@ -336,12 +384,14 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
                             style: GoogleFonts.pacifico(
                                 fontSize: 20, color: Colors.white)),
                         const SizedBox(height: 4),
-                        Text("Here's your payment receipt",
+                        Text(_randomWish,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                                 color: Colors.white.withOpacity(0.85),
+                                fontWeight: FontWeight.w600,
                                 fontSize: 13)),
                         const SizedBox(height: 24),
-                        Text(_c.name,
+                        Text("${_c.userId} sent you ${_c.name}",
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -386,7 +436,7 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('🎉 ', style: TextStyle(fontSize: 14)),
-                Text('5Star Company • MCD',
+                Text('Mega Cheap Data',
                     style: TextStyle(
                         color: orange,
                         fontSize: 12,
@@ -472,14 +522,15 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
                             style: GoogleFonts.greatVibes(
                                 fontSize: 30, color: Colors.white)),
                         const SizedBox(height: 4),
-                        Text('A heartfelt payment for you',
+                        Text(_randomWish,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                                 color: Colors.white.withOpacity(0.85),
                                 fontSize: 13)),
                         const SizedBox(
                             height:
                                 28), // replaces bottom padding from HeartsRow
-                        Text(_c.name,
+                        Text("${_c.userId} sent you ${_c.name}",
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -513,7 +564,7 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
           _divider(color: rose.withOpacity(0.2)),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 14),
-            child: Text('5Star Company • MCD 💕',
+            child: Text('Mega Cheap Data 💕',
                 style: TextStyle(
                     color: rose, fontSize: 12, fontWeight: FontWeight.w600)),
           ),
@@ -596,13 +647,14 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
                                 fontWeight: FontWeight.w700,
                                 color: gold)),
                         const SizedBox(height: 4),
-                        Text('Wishing you all the best',
+                        Text(_randomWish,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                                 color: Colors.white.withOpacity(0.8),
                                 fontSize: 13)),
                         const SizedBox(
                             height: 28), // replaces _SparkleRow wrapper gap
-                        Text(_c.name,
+                        Text("${_c.userId} sent you ${_c.name}",
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -642,7 +694,7 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
           _divider(color: gold.withOpacity(0.3)),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 14),
-            child: Text('5Star Company • MCD 🌟',
+            child: Text('Mega Cheap Data 🌟',
                 style: TextStyle(
                     color: purple, fontSize: 12, fontWeight: FontWeight.w600)),
           ),
