@@ -1301,7 +1301,31 @@ class GeneralPayoutController extends GetxController {
       onPaymentSuccess: () async {
         dev.log('GM ads completed, processing actual transaction',
             name: 'GeneralPayout');
-        // After ads are watched, process the actual payment
+        
+        // show loading overlay
+        Get.dialog(
+          const Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(color: AppColors.white),
+                SizedBox(height: 16),
+                Text(
+                  'Processing GM Transaction...',
+                  style: TextStyle(
+                    color: AppColors.white,
+                    fontSize: 16,
+                    fontFamily: AppFonts.manRope,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          barrierDismissible: false,
+        );
+
+        // process actual transaction
         await _processActualTransaction();
       },
       onPaymentFailed: (errorMessage) {
@@ -1310,25 +1334,118 @@ class GeneralPayoutController extends GetxController {
         _currentTxRef = null;
         
         if (errorMessage.contains('already in progress')) {
-          Get.snackbar(
-            'Payment Stuck?',
-            errorMessage,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-            duration: const Duration(seconds: 5),
-            mainButton: TextButton(
-              onPressed: () {
-                GeneralMarketPaymentService().forceCancelPayment();
-                Get.back(); // close snackbar
-                Get.snackbar(
-                  'Reset Successful', 
-                  'State cleared. You can try your payment again.', 
-                  backgroundColor: AppColors.successBgColor, 
-                  colorText: AppColors.textSnackbarColor
-                );
-              },
-              child: const Text('FORCE CANCEL', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          Get.dialog(
+            Dialog(
+              backgroundColor: Colors.white,
+              elevation: 6,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // warning icon container
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.warning_amber_rounded,
+                        size: 40,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // title
+                    Text(
+                      'Payment Stuck?',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    // description
+                    Text(
+                      'A General Market payment session is currently in progress. If your advertisements did not show or load, you can force cancel it to reset the state.',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13.5,
+                        color: Colors.grey.shade600,
+                        height: 1.4,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    // buttons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Get.back(),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              side: BorderSide(color: Colors.grey.shade300),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              GeneralMarketPaymentService().forceCancelPayment();
+                              Get.back(); // close dialog
+                              Get.snackbar(
+                                'Reset Successful', 
+                                'State cleared. You can try your payment again.', 
+                                backgroundColor: AppColors.successBgColor, 
+                                colorText: AppColors.textSnackbarColor
+                              );
+                            },
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              side: const BorderSide(color: Colors.orange),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              'Force Cancel',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
+            barrierDismissible: false,
           );
         } else {
           Get.snackbar(
@@ -1409,6 +1526,11 @@ class GeneralPayoutController extends GetxController {
         backgroundColor: AppColors.errorBgColor,
         colorText: AppColors.textSnackbarColor,
       );
+    } finally {
+      // close loading overlay
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
     }
   }
 
@@ -1439,9 +1561,17 @@ class GeneralPayoutController extends GetxController {
       (failure) async {
         dev.log('Handshake failed: $endpoint',
             name: 'GeneralPayout', error: failure.message);
-        Get.snackbar("Payment Failed", failure.message,
+        
+        // format gm error
+        final isGM = getPaymentMethodKey() == 'general_market';
+        final errorText = isGM 
+            ? 'Ads verified, but transaction failed: ${failure.message}'
+            : failure.message;
+
+        Get.snackbar("Payment Failed", errorText,
             backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor);
+            colorText: AppColors.textSnackbarColor,
+            duration: const Duration(seconds: 5));
       },
       (data) async {
         dev.log('Handshake response: $data', name: 'GeneralPayout');
@@ -2057,8 +2187,15 @@ class GeneralPayoutController extends GetxController {
     } else {
       dev.log('Payment unsuccessful',
           name: 'GeneralPayout', error: data['message']);
+      
+      // format gm error
+      final isGM = getPaymentMethodKey() == 'general_market';
+      final errorText = isGM 
+          ? 'Ads verified, but provider failed: ${data['message'] ?? "An unknown error occurred."}'
+          : (data['message'] ?? "An unknown error occurred.");
+
       Get.snackbar(
-          "Payment Failed", data['message'] ?? "An unknown error occurred.",
+          "Payment Failed", errorText,
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor,
           duration: const Duration(seconds: 5));

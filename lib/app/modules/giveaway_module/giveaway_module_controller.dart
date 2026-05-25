@@ -679,7 +679,7 @@ class GiveawayModuleController extends GetxController {
         }
 
         if (giveawayId != 0) {
-          _showShareLinkDialog(giveawayId);
+          _showShareLinkDialog(giveawayId, isPrivate: isPrivate);
         } else {
           Get.offNamed(Routes.GIVEAWAY_MODULE);
         }
@@ -1312,146 +1312,200 @@ class GiveawayModuleController extends GetxController {
     _isPublic.value = true;
   }
 
-  void _showShareLinkDialog(int id) {
+  void _showShareLinkDialog(int id, {required bool isPrivate}) {
     final link = DeepLinkService.buildClaimLink(id);
-    Get.defaultDialog(
-      contentPadding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
-      title: 'Giveaway created',
-      titleStyle: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.w800,
-        fontFamily: AppFonts.manRope,
-        color: AppColors.textPrimaryColor,
-      ),
-      middleText:
-          'Share this private link with anyone you want to claim your giveaway.',
-      middleTextStyle: const TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w500,
-        fontFamily: AppFonts.manRope,
-        color: AppColors.primaryGrey2,
-        height: 1.4,
-      ),
-      content: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.filledInputColor,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xffE5E5E5)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Private claim link',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: AppFonts.manRope,
-                    color: AppColors.primaryGrey2,
-                  ),
+    Get.dialog(
+      Dialog(
+        backgroundColor: Colors.white,
+        elevation: 5,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 26),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 68,
+                height: 68,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor.withOpacity(0.12),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(height: 8),
-                Row(
+                child: const Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColors.primaryColor,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Giveaway Created!',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  fontFamily: AppFonts.manRope,
+                  color: AppColors.textPrimaryColor,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                isPrivate
+                    ? 'Share this private link with anyone you want to claim your giveaway.'
+                    : 'Share this link with anyone you want to claim your public giveaway.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: AppFonts.manRope,
+                  color: AppColors.primaryGrey2,
+                  height: 1.45,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.filledInputColor,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xffEAEAEA)),
+                ),
+                child: Row(
                   children: [
                     Expanded(
-                      child: SelectableText(
-                        link,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: AppFonts.manRope,
-                          color: AppColors.primaryColor,
-                          height: 1.35,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isPrivate ? 'Private claim link' : 'Claim link',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: AppFonts.manRope,
+                              color: AppColors.primaryGrey2,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          SelectableText(
+                            link,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: AppFonts.manRope,
+                              color: AppColors.primaryColor,
+                            ),
+                            maxLines: 1,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: link));
+                          // show copy success snackbar
+                          Get.snackbar(
+                            'Copied',
+                            'Link copied to clipboard',
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: AppColors.primaryColor,
+                            colorText: Colors.white,
+                            duration: const Duration(seconds: 2),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(30),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              )
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.copy_rounded,
+                            color: AppColors.primaryColor,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ),
-                    const Gap(8),
-                    IconButton(
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: link));
-                        Get.snackbar(
-                          'Copied',
-                          'Link copied to clipboard',
-                          snackPosition: SnackPosition.TOP,
-                          backgroundColor: AppColors.primaryColor,
-                          colorText: Colors.white,
-                          duration: const Duration(seconds: 2),
-                        );
-                      },
-                      icon:
-                          const Icon(Icons.copy, color: AppColors.primaryColor),
-                      tooltip: 'Copy link',
-                    ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Share.share(
-                  'Claim my giveaway on MEGA Cheap Data!\n\n$link\n\n(If it opens in browser, look for an "Open in App" option.)',
-                );
-              },
-              icon: const Icon(Icons.share),
-              label: const Text(
-                'Share link',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: AppFonts.manRope,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    // share the deep link
+                    Share.share(
+                      'Claim my giveaway on MEGA Cheap Data!\n\n$link\n\n(If it opens in browser, look for an "Open in App" option.)',
+                    );
+                  },
+                  icon: const Icon(Icons.share_rounded, size: 18),
+                  label: const Text(
+                    'Share Link',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: AppFonts.manRope,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                    backgroundColor: AppColors.primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
                 ),
               ),
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () {
+                    // dismiss dialog and redirect
+                    Get.back();
+                    Get.offNamed(Routes.GIVEAWAY_MODULE);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.primaryGrey),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  child: const Text(
+                    'Done',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: AppFonts.manRope,
+                      color: AppColors.primaryGrey,
+                    ),
+                  ),
                 ),
-                elevation: 0,
-                backgroundColor: AppColors.primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-            ),
-          ),
-        ],
-      ),
-      confirm: Align(
-        alignment: Alignment.centerRight,
-        child: ElevatedButton(
-          onPressed: () {
-            Get.back();
-            Get.offNamed(Routes.GIVEAWAY_MODULE);
-          },
-          style: ElevatedButton.styleFrom(
-            elevation: 0,
-            backgroundColor: AppColors.primaryColor,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          child: const Text(
-            'Done',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              fontFamily: AppFonts.manRope,
-            ),
+            ],
           ),
         ),
       ),
-      onConfirm: () {
-        Get.back();
-        Get.offNamed(Routes.GIVEAWAY_MODULE);
-      },
+      barrierDismissible: false,
     );
   }
 }

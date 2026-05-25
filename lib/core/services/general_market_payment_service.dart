@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer' as dev;
 
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/services/ads_service.dart';
 
@@ -31,7 +32,8 @@ class GeneralMarketPaymentService {
   }) async {
     if (_isProcessingPayment) {
       if (!_adsService.isCurrentlyShowingAds()) {
-        dev.log('Recovering from stuck payment state: ads are not actually showing');
+        dev.log(
+            'Recovering from stuck payment state: ads are not actually showing');
         _isProcessingPayment = false;
       } else {
         dev.log('Error: Payment already in progress');
@@ -62,34 +64,25 @@ class GeneralMarketPaymentService {
 
     _isProcessingPayment = true;
 
-    bool _adWasClicked = false;
-
-    _adsService.showMultipleRewardedAds(
-      Get.context!,
-      maxAds: requiredAdsCount,
-      onAdCompleted: () async {
-        if (_adWasClicked) return;
-        dev.log('Ad finished without click, denying GM payment');
-        _isProcessingPayment = false;
-        // onPaymentFailed('You need to click on the advert to use General Market');
-        await onPaymentSuccess();
-      },
-      onAdFailed: (error) {
-        dev.log('Failed: Ad sequence aborted or failed');
-        _isProcessingPayment = false;
-        onPaymentFailed(error);
-      },
-      reason: "Use general Market with 1 ad session",
-      onAdClicked: () async {
-        if (_adWasClicked) return;
-        _adWasClicked = true;
-        dev.log('Success: ad clicked, processing payment');
-        _isProcessingPayment = false;
-      }
-    );
+    _adsService.showMultipleRewardedAds(Get.context!,
+        maxAds: requiredAdsCount,
+        onAdCompleted: () async {
+          dev.log('Ad sequence completed, processing GM payment');
+          _isProcessingPayment = false;
+          await onPaymentSuccess();
+        },
+        onAdFailed: (error) {
+          dev.log('Failed: Ad sequence aborted or failed');
+          _isProcessingPayment = false;
+          onPaymentFailed(error);
+        },
+        reason: "Use general Market with 1 ad session",
+        onAdClicked: () {
+          // ad clicked
+          dev.log('Ad clicked');
+        });
 
     return true;
-
   }
 
   Future<bool> _showGMPaymentDialog() async {
@@ -98,6 +91,7 @@ class GeneralMarketPaymentService {
     Get.dialog(
       Dialog(
         backgroundColor: Colors.white,
+        elevation: 6,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -106,31 +100,116 @@ class GeneralMarketPaymentService {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.play_circle_outline,
-                size: 64,
-                color: AppColors.primaryColor,
+              // icon header container
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.play_circle_filled_rounded,
+                  size: 40,
+                  color: AppColors.primaryColor,
+                ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
+
+              // title
               Text(
-                'Watch Ad to Pay with General Market',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
+                'Watch Ad to Pay',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
+
+              // badge
+              // Container(
+              //   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              //   decoration: BoxDecoration(
+              //     color: AppColors.primaryColor.withOpacity(0.08),
+              //     borderRadius: BorderRadius.circular(100),
+              //   ),
+              //   child: Text(
+              //     'General Market Option',
+              //     style: GoogleFonts.plusJakartaSans(
+              //       fontSize: 11,
+              //       fontWeight: FontWeight.w600,
+              //       color: AppColors.primaryColor,
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(height: 16),
+
+              // description
               Text(
-                'To complete this purchase using General Market, you need to watch and click on $requiredAdsCount short ad.',
-                style: TextStyle(
-                  fontSize: 14,
+                'To complete this purchase using General Market, you need to watch $requiredAdsCount short ads completely.',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
                   color: Colors.grey.shade600,
+                  height: 1.4,
                 ),
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 20),
+
+              // rules container
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.check_circle_outline_rounded,
+                            size: 16, color: AppColors.primaryColor),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Watch $requiredAdsCount ads completely without skipping.',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12,
+                              color: Colors.grey.shade700,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.check_circle_outline_rounded,
+                            size: 16, color: AppColors.primaryColor),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Transaction fulfills automatically on completion.',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12,
+                              color: Colors.grey.shade700,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 24),
+
+              // buttons
               Row(
                 children: [
                   Expanded(
@@ -148,21 +227,37 @@ class GeneralMarketPaymentService {
                       ),
                       child: Text(
                         'Cancel',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black87,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700,
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: BusyButton(
-                      onTap: () {
+                    child: OutlinedButton(
+                      onPressed: () {
                         Get.back();
                         completer.complete(true);
                       },
-                      title: 'Proceed',
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        side: BorderSide(color: Colors.grey.shade300),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Proceed',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -176,7 +271,6 @@ class GeneralMarketPaymentService {
 
     return completer.future;
   }
-
 
   // void _showAdProgressDialog(int completed, int total) {
   //   Get.dialog(
@@ -253,7 +347,7 @@ class GeneralMarketPaymentService {
                 'The fund is available to everyone for use but subject to terms and conditions.\n\n'
                 '1. You must have bought data at least twice on that day.\n\n'
                 '2. Kindly visit Reward Centre and create at least 2 GiveAways.\n\n'
-                '3. On checkout with General Market option, an advertisement will be displayed. You must click on the advert before your request will be processed.\n\n'
+                '3. On checkout with General Market option, advertisements will be displayed. You must watch the advertisements completely before your request will be processed.\n\n'
                 '4. In case someone checks out before you, your request will not be served.\n\n'
                 '5. The minimum balance is ₦300.\n\n'
                 '6. You must be clicking on free money once in a while to keep General Market active.',
