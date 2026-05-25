@@ -51,6 +51,17 @@ class HomeScreenController extends GetxController
   void onInit() {
     dev.log("HomeScreenController initialized");
 
+    // load dashboard from cache first for instant loading
+    final cachedData = box.read('cached_dashboard');
+    if (cachedData != null) {
+      try {
+        dashboardData = DashboardModel.fromJson(cachedData);
+        dev.log("Dashboard loaded from local cache");
+      } catch (e) {
+        dev.log("Error loading dashboard from cache: $e");
+      }
+    }
+
     // if dashboard was already loaded during login, reuse it
     try {
       final loginCtrl = Get.find<LoginScreenController>();
@@ -211,8 +222,9 @@ class HomeScreenController extends GetxController
       (data) async {
         // dev.log("Dashboard fetch success: ${data.toString()}");
         dashboardData = DashboardModel.fromJson(data);
+        box.write('cached_dashboard', data);
         dev.log(
-            "Dashboard model created - User: ${dashboardData?.user.userName}, Balance: ${dashboardData?.balance.wallet}");
+            "Dashboard model created and cached - User: ${dashboardData?.user.userName}, Balance: ${dashboardData?.balance.wallet}");
 
         // save username e.g excade001
         await box.write(
