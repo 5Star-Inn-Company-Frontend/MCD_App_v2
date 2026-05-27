@@ -20,11 +20,9 @@ packages:
   advert:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "6249709e70fbf3580c36c6859e0fa9c2e148a1d8"
-      url: "https://github.com/odejinmi/advert.git"
-    source: git
+      path: "../advert"
+      relative: true
+    source: path
     version: "0.0.1"
   analyzer:
     dependency: transitive
@@ -1061,10 +1059,10 @@ packages:
     dependency: transitive
     description:
       name: google_mobile_ads
-      sha256: a4f59019f2c32769fb6c60ed8aa321e9c21a36297e2c4f23452b3e779a3e7a26
+      sha256: "50549f6c945d7a445d53c04f34d025b1a1723fbd02719de9e67de432e2597f40"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0"
+    version: "8.0.0"
   google_sign_in:
     dependency: "direct main"
     description:
@@ -1482,13 +1480,13 @@ packages:
     source: hosted
     version: "2.2.0"
   package_info_plus:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: package_info_plus
-      sha256: f69da0d3189a4b4ceaeb1a3defb0f329b3b352517f52bed4290f83d4f06bc08d
+      sha256: "16eee997588c60225bda0488b6dcfac69280a6b7a3cf02c741895dd370a02968"
       url: "https://pub.dev"
     source: hosted
-    version: "9.0.0"
+    version: "8.3.1"
   package_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -2010,10 +2008,10 @@ packages:
     dependency: transitive
     description:
       name: unity_ads_plugin
-      sha256: af43cfe45ee056758c37077beffd683631416f7c180cc96bcf610e342f4e5e52
+      sha256: "4ef07e4ccc0cd6a0b9291a5e1b98601931e8e5589abd97c9b1a602648ce0c79e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.29"
+    version: "0.3.30"
   universal_io:
     dependency: transitive
     description:
@@ -2178,10 +2176,10 @@ packages:
     dependency: transitive
     description:
       name: webview_flutter_android
-      sha256: "9a25f6b4313978ba1c2cda03a242eea17848174912cfb4d2d8ee84a556f248e3"
+      sha256: f560f57d0f529c1dcdaf4edc3a3217b099560622f9f4a10b6bdbb566553c61ea
       url: "https://pub.dev"
     source: hosted
-    version: "4.10.1"
+    version: "4.11.0"
   webview_flutter_platform_interface:
     dependency: transitive
     description:
@@ -2202,10 +2200,10 @@ packages:
     dependency: transitive
     description:
       name: webview_flutter_wkwebview
-      sha256: fb46db8216131a3e55bcf44040ca808423539bc6732e7ed34fb6d8044e3d512f
+      sha256: a68868ac4828a5f012bf81e8bd25d879f3cec5bd5301575466caafbf9a320a65
       url: "https://pub.dev"
     source: hosted
-    version: "3.23.0"
+    version: "3.24.5"
   win32:
     dependency: transitive
     description:
@@ -2247,5 +2245,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.9.0 <4.0.0"
-  flutter: ">=3.35.1"
+  dart: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.1"

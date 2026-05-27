@@ -105,6 +105,7 @@ dependencies:
 dependency_overrides:
   pointycastle: ^3.9.1
   webview_flutter: ^4.0.0
+  package_info_plus: ^8.1.2
 
 
 dev_dependencies:
