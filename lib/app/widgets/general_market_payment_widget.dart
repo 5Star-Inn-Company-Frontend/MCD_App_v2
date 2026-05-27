@@ -140,7 +140,7 @@ class GeneralMarketPaymentWidget extends StatelessWidget {
                   const Gap(8),
                   Expanded(
                     child: TextSemiBold(
-                      'Watch 3 short ads to complete payment',
+                      'Watch ${GeneralMarketPaymentService.requiredAdsCount} short ads completely to complete payment',
                       fontSize: 12,
                       color: Colors.blue.shade700,
                     ),

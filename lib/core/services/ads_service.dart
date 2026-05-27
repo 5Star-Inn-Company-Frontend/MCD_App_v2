@@ -262,6 +262,7 @@ class AdsService {
           customData ?? {"username": "", "platform": "", "type": ""};
 
       bool sequenceCompleted = false;
+      bool wasShowing = false; // track ad activation
 
       if (!context.mounted) return;
       _advertPlugin.adsProv.startAdSequence(
@@ -278,28 +279,35 @@ class AdsService {
         onAdImpression: onAdImpression,
       );
 
-      // Watch for premature abortion (e.g. ad failed to load)
-      // The advert plugin sets isShowingAds to false if it fails internally
+      // watch for premature abort
       Worker? watcher;
       watcher = ever(_advertPlugin.adsProv.isShowingAds, (isShowing) {
-        if (!isShowing) {
-          // Delay by one tick because the advert plugin sets isShowingAds = false 
-          // a microsecond BEFORE it triggers the onComplete callback.
-          Future.microtask(() {
-            if (!sequenceCompleted) {
+        if (isShowing) {
+          wasShowing = true;
+        } else {
+          // delay check to allow next ad to load
+          Future.delayed(const Duration(seconds: 2), () {
+            if (!sequenceCompleted && !_advertPlugin.adsProv.isShowingAds.value) {
               dev.log('Ad sequence failed or was aborted prematurely.');
               if (onAdFailed != null) {
-                onAdFailed('Ads are currently unavailable. Please try again later.');
+                if (wasShowing) {
+                  onAdFailed(
+                      'Ad sequence closed early. You must watch the advertisements completely to pay with General Market.');
+                } else {
+                  onAdFailed(
+                      'Ads are temporarily unavailable. Please try again in a few minutes or choose another payment method.');
+                }
               }
+              watcher?.dispose();
             }
           });
-          watcher?.dispose();
         }
       });
     } catch (e) {
       dev.log('Error showing multiple rewarded ads: $e');
       if (onAdFailed != null) {
-        onAdFailed('An error occurred while loading ads.');
+        onAdFailed(
+            'An error occurred while loading ads. Please check your network and try again.');
       }
       return ;
     }
