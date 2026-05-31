@@ -68,7 +68,7 @@ dependencies:
   flutter_steps:
   flutter_portal:
   pin_code_fields:
-  file_picker:
+  file_picker: ^11.0.2
   dotted_line:
   dotted_border:
   encrypt: ^5.0.3
@@ -106,7 +106,10 @@ dependencies:
 dependency_overrides:
   pointycastle: ^4.0.0
   webview_flutter: ^4.13.1
-  package_info_plus: ^10.1.0
+  package_info_plus: ^8.1.0
+  device_info_plus: ^10.1.0
+  flutter_secure_storage_windows: 4.1.0
+  win32: ^5.11.0
 
 
 dev_dependencies:
