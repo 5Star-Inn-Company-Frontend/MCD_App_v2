@@ -34,7 +34,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.9
-  local_auth: ^2.3.0
+  local_auth: ^3.0.1
   flutter_screenutil: 
   provider:
   logger:
@@ -45,7 +45,7 @@ dependencies:
   get_it:
   dartz:
   dio: ^5.9.2
-  connectivity_plus: ^6.1.2
+  connectivity_plus: ^7.1.1
   go_router:
   flutter_svg:
   gap:
@@ -63,7 +63,7 @@ dependencies:
   google_fonts:
   camera:
   permission_handler:
-  flutter_native_contact_picker: ^0.0.11
+  flutter_native_contact_picker: ^0.0.12
   photo_view:
   flutter_steps:
   flutter_portal:
@@ -77,42 +77,43 @@ dependencies:
   google_sign_in: ^6.3.0
   flutter_facebook_auth: ^7.1.6
   image_picker: ^1.2.2
-  sprint_check: ^0.1.6
+  sprint_check: #^0.1.6
+    path: ../sprint_check
   confetti: ^0.8.0
   url_launcher: ^6.3.2
-  share_plus: ^10.1.2
+  share_plus: ^13.1.0
   path_provider: ^2.1.5
-  syncfusion_flutter_signaturepad: ^33.2.5
+  syncfusion_flutter_signaturepad: ^33.2.8
   flutter_fortune_wheel: ^1.3.2
-  flutter_secure_storage: ^10.1.0
-  firebase_auth: ^6.4.0
+  flutter_secure_storage: ^10.3.1
+  firebase_auth: ^6.5.1
   webview_flutter: ^4.13.1
-  firebase_core: ^4.7.0
-  firebase_messaging: ^16.2.0
+  firebase_core: ^4.9.0
+  firebase_messaging: ^16.2.2
   paystack: ^0.0.2
   cached_network_image: ^3.4.1
-  envied: ^0.5.4
+  envied: ^1.3.5
   advert:
-    git: https://github.com/odejinmi/advert.git
-#     path: ../advert
+#    git: https://github.com/odejinmi/advert.git
+     path: ../advert
   socket_io_client: ^3.1.4
   flutter_markdown: ^0.7.7+1
-  flutter_paystack_payment_plus: ^0.0.8
-  flutter_native_splash: ^2.4.7
-  app_links: ^6.4.1
+  flutter_paystack_payment_plus: ^0.0.9
+  flutter_native_splash: ^2.4.8
+  app_links: ^7.1.1
 #    path: ../sprint_check
 
 dependency_overrides:
-  pointycastle: ^3.9.1
-  webview_flutter: ^4.0.0
-  package_info_plus: ^8.1.2
+  pointycastle: ^4.0.0
+  webview_flutter: ^4.13.1
+  package_info_plus: ^10.1.0
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  envied_generator: ^0.5.4
-  build_runner: ^2.4.13
+  envied_generator: ^1.3.5
+  build_runner: ^2.15.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

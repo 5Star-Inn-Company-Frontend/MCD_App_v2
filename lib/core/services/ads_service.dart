@@ -281,7 +281,7 @@ class AdsService {
 
       // watch for premature abort
       Worker? watcher;
-      watcher = ever(_advertPlugin.adsProv.isShowingAds, (isShowing) {
+      watcher = ever(_advertPlugin.adsProv.isShowingAds, (bool isShowing) {
         if (isShowing) {
           wasShowing = true;
         } else {
