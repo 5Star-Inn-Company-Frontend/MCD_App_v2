@@ -279,28 +279,38 @@ class AdsService {
         onAdImpression: onAdImpression,
       );
 
-      // watch for premature abort
-      Worker? watcher;
-      watcher = ever(_advertPlugin.adsProv.isShowingAds, (isShowing) {
-        if (isShowing) {
-          wasShowing = true;
-        } else {
-          // delay check to allow next ad to load
-          Future.delayed(const Duration(seconds: 2), () {
-            if (!sequenceCompleted && !_advertPlugin.adsProv.isShowingAds.value) {
-              dev.log('Ad sequence failed or was aborted prematurely.');
-              if (onAdFailed != null) {
-                if (wasShowing) {
-                  onAdFailed(
-                      'Ad sequence closed early. You must watch the advertisements completely to pay with General Market.');
-                } else {
-                  onAdFailed(
-                      'Ads are temporarily unavailable. Please try again in a few minutes or choose another payment method.');
-                }
+      // watch for premature abort or stalls
+      int noAdShowingTicks = 0; // track ticks while no ad is showing
+      Timer? watcher;
+      watcher = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+        if (sequenceCompleted) {
+          timer.cancel();
+          return;
+        }
+        
+        bool isShowing = _advertPlugin.adsProv.isShowingAds;
+        
+        if (!isShowing) {
+          noAdShowingTicks++;
+          // 30 ticks = 15 seconds maximum wait time between ads or before first ad
+          if (noAdShowingTicks > 30) { 
+            dev.log('Ad sequence failed: Timeout waiting for ad to load or sequence stalled.');
+            if (onAdFailed != null) {
+              if (wasShowing) {
+                onAdFailed('Ad sequence encountered an error while loading the next advertisement. Please try again.');
+              } else {
+                onAdFailed('Ads are temporarily unavailable. Please try again or choose another payment method.');
               }
-              watcher?.dispose();
             }
-          });
+            timer.cancel();
+            return;
+          }
+        } else {
+          // Reset ticks as long as an ad is showing
+          noAdShowingTicks = 0;
+          if (!wasShowing) {
+            wasShowing = true;
+          }
         }
       });
     } catch (e) {
@@ -316,10 +326,10 @@ class AdsService {
   bool get isInitialized => _isInitialized;
 
   bool isCurrentlyShowingAds() {
-    return _advertPlugin.adsProv.isShowingAds.value;
+    return _advertPlugin.adsProv.isShowingAds;
   }
 
   void forceResetAdState() {
-    _advertPlugin.adsProv.isShowingAds.value = false;
+    _advertPlugin.adsProv.isShowingAds = false;
   }
 }

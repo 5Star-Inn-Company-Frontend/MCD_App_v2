@@ -1520,6 +1520,7 @@ class GeneralPayoutController extends GetxController {
     } catch (e) {
       dev.log('Transaction processing error', name: 'GeneralPayout', error: e);
       isPaying.value = false;
+      if (Get.isDialogOpen ?? false) Get.back();
       Get.snackbar(
         'Transaction Failed',
         'An error occurred while processing your transaction',
@@ -1527,10 +1528,7 @@ class GeneralPayoutController extends GetxController {
         colorText: AppColors.textSnackbarColor,
       );
     } finally {
-      // close loading overlay
-      if (Get.isDialogOpen ?? false) {
-        Get.back();
-      }
+      // close loading overlay is handled before snackbars/navigation
     }
   }
 
@@ -1568,6 +1566,8 @@ class GeneralPayoutController extends GetxController {
             ? 'Ads verified, but transaction failed: ${failure.message}'
             : failure.message;
 
+        if (Get.isDialogOpen ?? false) Get.back();
+
         Get.snackbar("Payment Failed", errorText,
             backgroundColor: AppColors.errorBgColor,
             colorText: AppColors.textSnackbarColor,
@@ -1586,6 +1586,7 @@ class GeneralPayoutController extends GetxController {
           } else {
             dev.log('Handshake returned failure: ${data['message']}',
                 name: 'GeneralPayout');
+            if (Get.isDialogOpen ?? false) Get.back();
             Get.snackbar(
                 "Payment Failed", data['message'] ?? "Handshake failed",
                 backgroundColor: AppColors.errorBgColor,
@@ -1705,6 +1706,7 @@ class GeneralPayoutController extends GetxController {
             Get.offAllNamed(Routes.HOME_SCREEN);
           });
         } else {
+          if (Get.isDialogOpen ?? false) Get.back();
           Get.snackbar(
               "Payment Failed", data['message'] ?? "An unknown error occurred.",
               backgroundColor: AppColors.errorBgColor,
@@ -1874,6 +1876,7 @@ class GeneralPayoutController extends GetxController {
               .substring(0, 19)
               .replaceAll('T', ' ');
 
+          if (Get.isDialogOpen ?? false) Get.back();
           Get.snackbar(
               "Success", data['message'] ?? "Airtime Pin purchase successful!",
               backgroundColor: AppColors.successBgColor,
@@ -1902,6 +1905,7 @@ class GeneralPayoutController extends GetxController {
             },
           );
         } else {
+          if (Get.isDialogOpen ?? false) Get.back();
           Get.snackbar(
               "Payment Failed",
               data['message'] ??
@@ -1945,6 +1949,7 @@ class GeneralPayoutController extends GetxController {
               .substring(0, 19)
               .replaceAll('T', ' ');
 
+          if (Get.isDialogOpen ?? false) Get.back();
           Get.snackbar(
               "Success", data['message'] ?? "Data Pin purchase successful!",
               backgroundColor: AppColors.successBgColor,
@@ -1973,6 +1978,7 @@ class GeneralPayoutController extends GetxController {
             },
           );
         } else {
+          if (Get.isDialogOpen ?? false) Get.back();
           Get.snackbar(
               "Payment Failed", data['message'] ?? "An unknown error occurred.",
               backgroundColor: AppColors.errorBgColor,
@@ -2087,6 +2093,7 @@ class GeneralPayoutController extends GetxController {
       onServiceSuccess: (data) async {
         if (data['success'] == 1 || data['success'] == true) {
           final transactionId = data['data']?['transaction_id'] ?? ref;
+          if (Get.isDialogOpen ?? false) Get.back();
           Get.snackbar(
               "Success",
               data['message'] ??
@@ -2096,6 +2103,7 @@ class GeneralPayoutController extends GetxController {
 
           _navigateToReceipt(transactionId.toString(), amount, data);
         } else {
+          if (Get.isDialogOpen ?? false) Get.back();
           Get.snackbar("Payment Failed",
               data['message'] ?? "An unknown error occurred.",
               backgroundColor: AppColors.errorBgColor,
@@ -2128,6 +2136,7 @@ class GeneralPayoutController extends GetxController {
       onServiceSuccess: (data) async {
         if (data['success'] == 1 || data['success'] == true) {
           final transactionId = data['data']?['transaction_id'] ?? ref;
+          if (Get.isDialogOpen ?? false) Get.back();
           Get.snackbar(
               "Success",
               data['message'] ??
@@ -2136,6 +2145,7 @@ class GeneralPayoutController extends GetxController {
               colorText: AppColors.textSnackbarColor);
           _navigateToReceipt(transactionId.toString(), amount, data);
         } else {
+          if (Get.isDialogOpen ?? false) Get.back();
           Get.snackbar("Payment Failed",
               data['message'] ?? "An unknown error occurred.",
               backgroundColor: AppColors.errorBgColor,
@@ -2171,12 +2181,13 @@ class GeneralPayoutController extends GetxController {
           name: 'GeneralPayout');
       _currentTxRef = null; // clear reference on success
 
-      // invalidate beneficiaries cache on success for airtime/data
       if (paymentType == PaymentType.airtime || paymentType == PaymentType.data) {
         box.remove('cached_beneficiaries_airtime_ts');
         dev.log('Beneficiaries cache timestamp cleared for refresh',
             name: 'GeneralPayout');
       }
+
+      if (Get.isDialogOpen ?? false) Get.back();
 
       Get.snackbar(
           "Success", data['message'] ?? successMessage ?? "Payment successful!",
@@ -2193,6 +2204,8 @@ class GeneralPayoutController extends GetxController {
       final errorText = isGM 
           ? 'Ads verified, but provider failed: ${data['message'] ?? "An unknown error occurred."}'
           : (data['message'] ?? "An unknown error occurred.");
+
+      if (Get.isDialogOpen ?? false) Get.back();
 
       Get.snackbar(
           "Payment Failed", errorText,

@@ -25,7 +25,6 @@ class ServiceStatusController extends GetxController {
     }
   }
 
-
   Future<void> fetchServiceStatus() async {
     // only show loader if we have no cached data
     if (serviceStatus.value == null) {
@@ -53,14 +52,16 @@ class ServiceStatusController extends GetxController {
         if (data['success'] == 1) {
           final model = ServiceStatusModel.fromJson(data);
           serviceStatus.value = model.data;
-          
+
           // Cache the service status
           if (model.data != null) {
             storage.write('cached_service_status', data);
-            dev.log('Service status cached successfully', name: 'ServiceStatus');
+            dev.log('Service status cached successfully',
+                name: 'ServiceStatus');
           }
         } else {
-          errorMessage.value = data['message'] ?? 'Failed to fetch service status';
+          errorMessage.value =
+              data['message'] ?? 'Failed to fetch service status';
           _loadCachedStatus();
         }
       },
@@ -91,19 +92,23 @@ class ServiceStatusController extends GetxController {
     if (serviceStatus.value == null) {
       return true; // Allow access if status not yet fetched
     }
-    final isAvailable = serviceStatus.value!.services.isServiceAvailable(serviceKey);
-    
+    final isAvailable =
+        serviceStatus.value!.services.isServiceAvailable(serviceKey);
+
     if (!isAvailable) {
       dev.log('Service "$serviceKey" is UNAVAILABLE', name: 'ServiceStatus');
     }
-    
+
     return isAvailable;
   }
 
   // get service availability with user feedback
-  Future<bool> checkServiceAvailability(String serviceKey, {String? serviceName}) async {
-    dev.log('Checking service availability for "${serviceName ?? serviceKey}" (key: $serviceKey)', name: 'ServiceStatus');
-    
+  Future<bool> checkServiceAvailability(String serviceKey,
+      {String? serviceName}) async {
+    dev.log(
+        'Checking service availability for "${serviceName ?? serviceKey}" (key: $serviceKey)',
+        name: 'ServiceStatus');
+
     // if service status not loaded yet, fetch it
     if (serviceStatus.value == null) {
       dev.log('Service status not loaded, fetching now', name: 'ServiceStatus');
@@ -113,10 +118,14 @@ class ServiceStatusController extends GetxController {
     final isAvailable = isServiceAvailable(serviceKey);
 
     if (!isAvailable) {
-      dev.log('Service "${serviceName ?? serviceKey}" is UNAVAILABLE, showing dialog', name: 'ServiceStatus');
+      dev.log(
+          'Service "${serviceName ?? serviceKey}" is UNAVAILABLE, showing dialog',
+          name: 'ServiceStatus');
       _showServiceUnavailableDialog(serviceName ?? serviceKey);
     } else {
-      dev.log('Service "${serviceName ?? serviceKey}" is AVAILABLE, allowing navigation', name: 'ServiceStatus');
+      dev.log(
+          'Service "${serviceName ?? serviceKey}" is AVAILABLE, allowing navigation',
+          name: 'ServiceStatus');
     }
 
     return isAvailable;
@@ -125,46 +134,77 @@ class ServiceStatusController extends GetxController {
   // show service unavailable dialog
   void _showServiceUnavailableDialog(String serviceName) {
     Get.dialog(
-      AlertDialog(
-        backgroundColor: Colors.white,
-        title: Row(
-          children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
-            SizedBox(width: 12),
-            TextSemiBold('Service Unavailable', fontSize: 20),
-          ],
+      Dialog(
+        backgroundColor: AppColors.white,
+        elevation: 6,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
         ),
-        content: TextSemiBold(
-          '$serviceName service is currently unavailable. Please try again later.', fontSize: 16
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: TextSemiBold('Close', color: AppColors.primaryOrange, fontSize: 16),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // warning icon container
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.warning_amber_rounded,
+                  size: 40,
+                  color: AppColors.primaryColor,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // title
+              TextSemiBold(
+                'Service Unavailable',
+                fontSize: 18,
+                color: AppColors.background,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+
+              // description
+              Text(
+                '$serviceName service is currently unavailable. Please try again later.',
+                style: const TextStyle(
+                  fontFamily: AppFonts.manRope,
+                  fontSize: 13.5,
+                  color: AppColors.primaryGrey2,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+
+              // button
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => Get.back(),
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: const BorderSide(color: AppColors.primaryColor),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: TextSemiBold(
+                    'Close',
+                    fontSize: 14,
+                    color: AppColors.white,
+                  ),
+                ),
+              ),
+            ],
           ),
-          // ElevatedButton(
-          //   onPressed: () {
-          //     Get.back();
-          //     fetchServiceStatus();
-          //   },
-          //   style: ElevatedButton.styleFrom(
-          //     backgroundColor: AppColors.primaryColor,
-          //     padding: const EdgeInsets.symmetric(vertical: 14),
-          //     shape: RoundedRectangleBorder(
-          //       borderRadius: BorderRadius.circular(8),
-          //     ),
-          //   ),
-          //   child: const Text(
-          //     'Retry',
-          //     style: TextStyle(
-          //       fontSize: 16,
-          //       fontWeight: FontWeight.w600,
-          //       color: Colors.white,
-          //       fontFamily: AppFonts.manRope,
-          //     ),
-          //   ),
-          // ),
-        ],
+        ),
       ),
       barrierDismissible: false,
     );

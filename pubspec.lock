@@ -20,9 +20,11 @@ packages:
   advert:
     dependency: "direct main"
     description:
-      path: "../advert"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "9e4eccce3c52bfae9728b9ba8aa38762b6f46f16"
+      url: "https://github.com/odejinmi/advert.git"
+    source: git
     version: "0.0.1"
   analyzer:
     dependency: transitive
