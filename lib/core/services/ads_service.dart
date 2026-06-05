@@ -282,7 +282,7 @@ class AdsService {
       // watch for premature abort or stalls
       int noAdShowingTicks = 0; // track ticks while no ad is showing
       Timer? watcher;
-      watcher = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      watcher = Timer.periodic(const Duration(milliseconds: 500), (bool timer) {
         if (sequenceCompleted) {
           timer.cancel();
           return;

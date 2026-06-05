@@ -373,10 +373,10 @@ class LoginScreenController extends GetxController {
 
       final bool authenticated = await auth.authenticate(
         localizedReason: 'Authenticate to login',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: true,
-        ),
+        // options: const AuthenticationOptions(
+        //   stickyAuth: true,
+        //   biometricOnly: true,
+        // ),
         // biometricOnly: true,
       );
 

@@ -15,6 +15,31 @@ rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
+
+subprojects {
+    def configureProject = { p ->
+        if (p.hasProperty('android')) {
+            p.android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
+        }
+        p.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            it.kotlinOptions {
+                jvmTarget = "17"
+            }
+        }
+    }
+
+    if (project.state.executed) {
+        configureProject(project)
+    } else {
+        project.afterEvaluate { configureProject(project) }
+    }
+}
+
 subprojects {
     project.evaluationDependsOn(":app")
 }
