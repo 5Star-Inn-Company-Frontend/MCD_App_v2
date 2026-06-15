@@ -32,9 +32,10 @@ class AppLifecycleService extends GetxService with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
         // app going to background
-        _pausedAt = DateTime.now();
-        dev.log('App paused at: $_pausedAt', name: 'Lifecycle');
+        _pausedAt ??= DateTime.now();
+        dev.log('App backgrounded/inactive at: $_pausedAt', name: 'Lifecycle');
         break;
 
       case AppLifecycleState.resumed:
@@ -43,8 +44,7 @@ class AppLifecycleService extends GetxService with WidgetsBindingObserver {
         break;
 
       case AppLifecycleState.detached:
-      case AppLifecycleState.hidden:
-        // app being terminated or hidden
+        // app being terminated
         break;
     }
   }
