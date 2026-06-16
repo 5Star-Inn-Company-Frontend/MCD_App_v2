@@ -10,6 +10,7 @@ import 'package:mcd/core/services/ads_service.dart';
 class RewardCentreModuleController extends GetxController {
   final adsService = AdsService();
   final isPromoLoading = false.obs;
+  final isLoading = false.obs;
 
   final _service = {}.obs;
   set service(value) => _service.value = value;
@@ -31,6 +32,7 @@ class RewardCentreModuleController extends GetxController {
   }
 
   Future<void> fetchservicestatus() async {
+    isLoading.value = true;
     var storageresult = box.read('serviceenablingdata');
     print("storageresult ${storageresult}");
     if (storageresult != null) {
@@ -44,6 +46,7 @@ class RewardCentreModuleController extends GetxController {
     if (transactionUrl == null) {
       dev.log('Transaction URL not found',
           name: 'HomeScreen', error: 'URL missing');
+      isLoading.value = false;
       return;
     }
 
@@ -62,6 +65,7 @@ class RewardCentreModuleController extends GetxController {
         }
       },
     );
+    isLoading.value = false;
   }
 
   Future<void> showRewardedAd() async {

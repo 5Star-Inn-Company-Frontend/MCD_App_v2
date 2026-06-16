@@ -6,7 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/core/utils/ui_helpers.dart';
-import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:otp_text_field/otp_field.dart';
+import 'package:otp_text_field/otp_field_style.dart';
+import 'package:otp_text_field/style.dart';
 import './pos_term_otp_module_controller.dart';
 
 class PosTermOtpModulePage extends GetView<PosTermOtpModuleController> {
@@ -63,30 +65,24 @@ class PosTermOtpModulePage extends GetView<PosTermOtpModuleController> {
                   
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                    child: PinCodeTextField(
-                      appContext: context,
+                    child: OTPTextField(
                       length: 4,
-                      keyboardType: TextInputType.number,
-                      textStyle: GoogleFonts.manrope(
-                        fontSize: 32.sp,
+                      width: screenWidth(context),
+                      fieldWidth: screenWidth(context) * 0.14,
+                      style: GoogleFonts.manrope(
+                        fontSize: 24.sp,
                         fontWeight: FontWeight.w300,
                         color: const Color.fromRGBO(51, 51, 51, 1)
                       ),
-                      pinTheme: PinTheme(
-                        shape: PinCodeFieldShape.box,
-                        borderRadius: BorderRadius.circular(4),
-                        fieldHeight: screenHeight(context) * 0.08,
-                        fieldWidth: screenWidth(context) * 0.14,
-                        activeFillColor: Colors.transparent,
-                        activeColor: const Color.fromRGBO(90, 187, 123, .2),
-                        selectedFillColor: Colors.transparent,
-                        selectedColor: const Color.fromRGBO(90, 187, 123, .2),
-                        inactiveFillColor: Colors.transparent,
-                        inactiveColor: const Color.fromRGBO(90, 187, 123, .2),
+                      textFieldAlignment: MainAxisAlignment.spaceAround,
+                      fieldStyle: FieldStyle.box,
+                      otpFieldStyle: OtpFieldStyle(
+                        backgroundColor: Colors.transparent,
+                        borderColor: const Color.fromRGBO(90, 187, 123, .2),
+                        enabledBorderColor: const Color.fromRGBO(90, 187, 123, .2),
+                        focusBorderColor: const Color.fromRGBO(90, 187, 123, 1),
                       ),
-                      cursorColor: Colors.transparent,
-                      animationDuration: const Duration(milliseconds: 300),
-                      enableActiveFill: true,
+                      keyboardType: TextInputType.number,
                       onChanged: (value) {},
                       onCompleted: (value) {},
                     ),

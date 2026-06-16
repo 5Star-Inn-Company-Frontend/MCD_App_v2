@@ -1,14 +1,14 @@
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/api_constants.dart';
-import 'package:sprint_check/sprint_check.dart';
-import 'package:sprint_check/sprint_check_method_channel.dart';
+// import 'package:sprint_check/sprint_check.dart';
+// import 'package:sprint_check/sprint_check_method_channel.dart';
 import 'dart:developer' as dev;
 
 class KycUpdateModuleController extends GetxController {
   final box = GetStorage();
-  static SprintCheck? _sprintCheckPlugin;
-  SprintCheck get sprintCheckPlugin => _sprintCheckPlugin ?? SprintCheck();
+  // static SprintCheck? _sprintCheckPlugin;
+  // SprintCheck get sprintCheckPlugin => _sprintCheckPlugin ?? SprintCheck();
   final LoginScreenController authController =
       Get.find<LoginScreenController>();
 
@@ -42,10 +42,10 @@ class KycUpdateModuleController extends GetxController {
   }
 
   void _initializeSprintCheckOnce() {
-    if (_sprintCheckPlugin == null) {
-      _sprintCheckPlugin = SprintCheck();
-      initializeSprintCheck();
-    }
+    // if (_sprintCheckPlugin == null) {
+    //   _sprintCheckPlugin = SprintCheck();
+    //   initializeSprintCheck();
+    // }
   }
 
   @override
@@ -57,10 +57,10 @@ class KycUpdateModuleController extends GetxController {
 
   void initializeSprintCheck() {
     try {
-      sprintCheckPlugin.initialize(
-        apiKey: ApiConstants.sprintCheckApiKey,
-        encryptionKey: ApiConstants.sprintCheckEncryptionKey,
-      );
+      // sprintCheckPlugin.initialize(
+      //   apiKey: ApiConstants.sprintCheckApiKey,
+      //   encryptionKey: ApiConstants.sprintCheckEncryptionKey,
+      // );
       dev.log('Sprint Check SDK initialized', name: 'KycUpdate');
     } catch (e) {
       dev.log('Error initializing Sprint Check SDK',
@@ -149,17 +149,17 @@ class KycUpdateModuleController extends GetxController {
         return;
       }
 
-      final response = await sprintCheckPlugin.checkout(
-        context,
-        CheckoutMethod.bvn,
-        identifier,
-        bvn: bvnNumber,
-      );
+      // final response = await sprintCheckPlugin.checkout(
+      //   context,
+      //   CheckoutMethod.bvn,
+      //   identifier,
+      //   bvn: bvnNumber,
+      // );
 
-      dev.log('BVN verification response: $response', name: 'KycUpdate');
-
-      // Parse response and handle success/failure
-      handleVerificationResponse(response);
+      // dev.log('BVN verification response: $response', name: 'KycUpdate');
+      //
+      // // Parse response and handle success/failure
+      // handleVerificationResponse(response);
     } catch (e) {
       dev.log('Error during BVN verification', name: 'KycUpdate', error: e);
       Get.snackbar(

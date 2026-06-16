@@ -9,6 +9,11 @@ allprojects {
             url "https://maven.regulaforensics.com/RegulaDocumentReader"
         }
     }
+    configurations.all {
+        resolutionStrategy {
+            force 'com.android.installreferrer:installreferrer:2.2'
+        }
+    }
 }
 
 rootProject.buildDir = "../build"

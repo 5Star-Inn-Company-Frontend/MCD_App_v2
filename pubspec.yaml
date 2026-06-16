@@ -1,48 +1,25 @@
 name: mcd
 description: "A new Flutter project."
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 
-# The following defines the version and build number for your application.
-# A version number is three numbers separated by dots, like 1.2.43
-# followed by an optional build number separated by a +.
-# Both the version and the builder number may be overridden in flutter
-# build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-# In Windows, build-name is used as the major, minor, and patch parts
-# of the product and file versions while build-number is used as the build suffix.
 version: 7.0.2+85
 
 environment:
   sdk: ^3.6.0
 
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
     sdk: flutter
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.9
   local_auth: ^3.0.1
   flutter_screenutil: 
-  provider:
   logger:
   intl:
   logo_n_spinner:
   device_info_plus:
   another_flushbar:
-  get_it:
+  file_picker: ^11.0.2
   dartz:
   dio: ^5.9.2
   connectivity_plus: ^7.1.1
@@ -53,10 +30,8 @@ dependencies:
   intl_phone_number_input:
   otp_text_field:
   flutter_timer_countdown:
-  flutter_launcher_icons: ^0.14.4
   lottie:
   marquee: ^2.3.0
-  dynamic_height_grid_view:
   dropdown_button2:
   qr_code_scanner_plus: ^2.1.1
   qr_flutter:
@@ -64,12 +39,6 @@ dependencies:
   camera:
   permission_handler:
   flutter_native_contact_picker: ^0.0.12
-  photo_view:
-  flutter_steps:
-  flutter_portal:
-  pin_code_fields:
-  file_picker: ^11.0.2
-  dotted_line:
   dotted_border:
   encrypt: ^5.0.3
   get_storage: ^2.1.1
@@ -77,8 +46,7 @@ dependencies:
   google_sign_in: ^6.3.0
   flutter_facebook_auth: ^7.1.6
   image_picker: ^1.2.2
-  sprint_check: #^0.1.6
-    path: ../sprint_check
+#  sprint_check: ^0.1.7
   confetti: ^0.8.0
   url_launcher: ^6.3.2
   share_plus: ^13.1.0
@@ -90,22 +58,18 @@ dependencies:
   webview_flutter: ^4.13.1
   firebase_core: ^4.9.0
   firebase_messaging: ^16.2.2
-  paystack: ^0.0.2
   cached_network_image: ^3.4.1
   envied: ^1.3.5
   advert:
    git: https://github.com/odejinmi/advert.git
-    #  path: ../advert
   socket_io_client: ^3.1.4
   flutter_markdown: ^0.7.7+1
   flutter_paystack_payment_plus: ^0.0.9
-  flutter_native_splash: ^2.4.8
   app_links: ^7.1.1
-#    path: ../sprint_check
+  skeletonizer: ^1.4.1
 
 dependency_overrides:
   pointycastle: ^4.0.0
-  webview_flutter: ^4.13.1
   package_info_plus: ^8.1.0
   device_info_plus: ^10.1.0
   flutter_secure_storage_windows: 4.1.0
@@ -117,29 +81,12 @@ dev_dependencies:
     sdk: flutter
   envied_generator: ^1.3.5
   build_runner: ^2.15.0
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.8
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter packages.
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
-
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
 
   assets:
     - assets/images/
@@ -155,40 +102,10 @@ flutter:
     - assets/images/receipts_bg/
     - assets/icons/receipts/
 
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/to/resolution-aware-images
-
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/to/asset-from-package
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-
   fonts:
     - family: Manrope
       fonts:
-        - asset: assets/fonts/Manrope-Bold.ttf
-        - asset: assets/fonts/Manrope-ExtraBold.ttf
-        - asset: assets/fonts/Manrope-ExtraLight.ttf
-        - asset: assets/fonts/Manrope-Light.ttf
-        - asset: assets/fonts/Manrope-Medium.ttf
         - asset: assets/fonts/Manrope-Regular.ttf
+        - asset: assets/fonts/Manrope-Bold.ttf
+        - asset: assets/fonts/Manrope-Medium.ttf
         - asset: assets/fonts/Manrope-SemiBold.ttf
-        - asset: assets/fonts/Manrope-VariableFont_wght.ttf
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/to/font-from-package

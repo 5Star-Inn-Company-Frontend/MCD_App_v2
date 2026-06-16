@@ -1,6 +1,7 @@
 import 'package:google_fonts/google_fonts.dart';
 import 'widgets/giveaway_detail_sheet.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import './giveaway_module_controller.dart';
 
 class GiveawayModulePage extends GetView<GiveawayModuleController> {
@@ -28,144 +29,143 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
         ],
       ),
       body: Obx(() {
-        if (controller.isLoading) {
-          return const Center(
-              child: CircularProgressIndicator(color: AppColors.primaryColor));
-        }
-
-        return RefreshIndicator(
-          color: AppColors.primaryColor,
-          backgroundColor: AppColors.white,
-          onRefresh: controller.fetchGiveaways,
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 10),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppColors.background,
+        return Skeletonizer(
+          enabled: controller.isLoading && controller.giveaways.isEmpty,
+          child: RefreshIndicator(
+            color: AppColors.primaryColor,
+            backgroundColor: AppColors.white,
+            onRefresh: controller.fetchGiveaways,
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppColors.background,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextSemiBold(
+                                "You have ${controller.myGiveawayCount} giveaways",
+                                style: const TextStyle(
+                                    fontFamily: AppFonts.manRope),
+                              ),
+                              InkWell(
+                                onTap: () =>
+                                    Get.toNamed(Routes.CREATE_GIVEAWAY),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12, horizontal: 10),
+                                  decoration: BoxDecoration(
+                                      color: AppColors.primaryColor,
+                                      borderRadius: BorderRadius.circular(5)),
+                                  child: TextSemiBold(
+                                    "Create giveaway",
+                                    color: AppColors.white,
+                                    style: const TextStyle(
+                                        fontFamily: AppFonts.manRope),
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            TextSemiBold(
-                              "You have ${controller.myGiveawayCount} giveaways",
-                              style:
-                                  const TextStyle(fontFamily: AppFonts.manRope),
-                            ),
-                            InkWell(
-                              onTap: () => Get.toNamed(Routes.CREATE_GIVEAWAY),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 10),
+                        const Gap(5),
+                        controller.adsService.showBannerAdWidget(),
+                        AnimatedCrossFade(
+                          duration: const Duration(milliseconds: 500),
+                          crossFadeState: controller.isNotificationEnabled
+                              ? CrossFadeState.showFirst
+                              : CrossFadeState.showSecond,
+                          firstChild: const SizedBox(width: double.infinity),
+                          secondChild: Column(
+                            children: [
+                              const Gap(20),
+                              Container(
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                    color: AppColors.primaryColor,
-                                    borderRadius: BorderRadius.circular(5)),
-                                child: TextSemiBold(
-                                  "Create giveaway",
-                                  color: AppColors.white,
-                                  style: const TextStyle(
-                                      fontFamily: AppFonts.manRope),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      const Gap(5),
-                      controller.adsService.showBannerAdWidget(),
-                      Obx(() => AnimatedCrossFade(
-                            duration: const Duration(milliseconds: 500),
-                            crossFadeState: controller.isNotificationEnabled
-                                ? CrossFadeState.showFirst
-                                : CrossFadeState.showSecond,
-                            firstChild: const SizedBox(width: double.infinity),
-                            secondChild: Column(
-                              children: [
-                                const Gap(20),
-                                Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
+                                  color:
+                                      AppColors.primaryColor.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
                                     color: AppColors.primaryColor
-                                        .withOpacity(0.08),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: AppColors.primaryColor
-                                          .withOpacity(0.2),
-                                    ),
+                                        .withOpacity(0.2),
                                   ),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primaryColor
-                                              .withOpacity(0.1),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.notifications_active_outlined,
-                                          color: AppColors.primaryColor,
-                                          size: 20,
-                                        ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primaryColor
+                                            .withOpacity(0.1),
+                                        shape: BoxShape.circle,
                                       ),
-                                      const Gap(12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            TextSemiBold(
-                                              "Enable Notifications",
-                                              fontSize: 14,
-                                              color: AppColors.textPrimaryColor,
-                                            ),
-                                            const Gap(2),
-                                            GestureDetector(
-                                              onTap: () => controller
-                                                  .enableNotifications(),
-                                              child: Text(
-                                                "Get notified when new giveaways are posted. Click here to enable.",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: AppColors.primaryColor,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontFamily: AppFonts.manRope,
-                                                  decoration:
-                                                      TextDecoration.underline,
-                                                ),
+                                      child: const Icon(
+                                        Icons.notifications_active_outlined,
+                                        color: AppColors.primaryColor,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    const Gap(12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          TextSemiBold(
+                                            "Enable Notifications",
+                                            fontSize: 14,
+                                            color: AppColors.textPrimaryColor,
+                                          ),
+                                          const Gap(2),
+                                          GestureDetector(
+                                            onTap: () => controller
+                                                .enableNotifications(),
+                                            child: Text(
+                                              "Get notified when new giveaways are posted. Click here to enable.",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: AppColors.primaryColor,
+                                                fontWeight: FontWeight.w600,
+                                                fontFamily: AppFonts.manRope,
+                                                decoration:
+                                                    TextDecoration.underline,
                                               ),
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          )),
-                      const Gap(30),
-                      TextSemiBold(
-                        "All Giveaways",
-                        style: const TextStyle(fontFamily: AppFonts.manRope),
-                      ),
-                      const Gap(19),
-                    ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Gap(30),
+                        TextSemiBold(
+                          "All Giveaways",
+                          style: const TextStyle(fontFamily: AppFonts.manRope),
+                        ),
+                        const Gap(19),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              ..._buildGiveawayGridWithBanners(context),
-            ],
+                ..._buildGiveawayGridWithBanners(context),
+              ],
+            ),
           ),
         );
       }),
@@ -173,7 +173,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
   }
 
   List<Widget> _buildGiveawayGridWithBanners(BuildContext context) {
-    if (controller.giveaways.isEmpty) {
+    if (controller.giveaways.isEmpty && !controller.isLoading) {
       return [
         SliverFillRemaining(
           child: Center(
@@ -189,8 +189,23 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
       ];
     }
 
+    final items = controller.giveaways.isEmpty && controller.isLoading
+        ? List.generate(
+            6,
+            (index) => GiveawayModel(
+                  id: 0,
+                  userName: "Loading...",
+                  amount: "0",
+                  quantity: 0,
+                  views: 0,
+                  type: "airtime",
+                  typeCode: "mtn",
+                  image: "",
+                  description: "Please wait...",
+                ))
+        : controller.giveaways;
+
     List<Widget> slivers = [];
-    final items = controller.giveaways;
     const chunkSize = 6;
     final currentUsername =
         controller.box.read('biometric_username_real') ?? '';

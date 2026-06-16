@@ -1,7 +1,7 @@
 import 'package:mcd/app/modules/leaderboard_module/leaderboard_module_controller.dart';
 import 'package:mcd/app/modules/leaderboard_module/models/leaderboard_model.dart';
-import 'package:mcd/app/widgets/skeleton_loader.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
   const LeaderboardModulePage({super.key});
@@ -28,115 +28,49 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
         ],
       ),
       body: Obx(() {
-        if (controller.isLoading && controller.leaderboardData == null) {
-          return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  // Top 3 Podium Skeleton
-                  SizedBox(
-                    height: 260,
-                    child: Stack(
-                      children: [
-                        // Second Place
-                        Positioned(
-                          left: 0,
-                          bottom: 0,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Gap(40),
-                              const SkeletonLoader(
-                                  width: 110, height: 180, borderRadius: 12),
-                            ],
-                          ),
-                        ),
-                        // First Place
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const SkeletonLoader(
-                                    width: 32, height: 32, borderRadius: 16),
-                                const Gap(8),
-                                const SkeletonLoader(
-                                    width: 110, height: 220, borderRadius: 12),
-                              ],
-                            ),
-                          ),
-                        ),
-                        // Third Place
-                        Positioned(
-                          right: 0,
-                          bottom: 0,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Gap(40),
-                              const SkeletonLoader(
-                                  width: 110, height: 180, borderRadius: 12),
-                            ],
-                          ),
-                        ),
-                      ],
+        return Skeletonizer(
+          enabled: controller.isLoading && controller.leaderboardData == null,
+          child: controller.leaderboardData == null && !controller.isLoading
+              ? const Center(
+                  child: Text('No leaderboard data available',
+                      style: TextStyle(
+                          fontSize: 14, fontFamily: AppFonts.manRope)),
+                )
+              : RefreshIndicator(
+                  onRefresh: controller.refreshLeaderboard,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          // Top 3 Users Podium
+                          _buildTopThreePodium(),
+                          const Gap(24),
+
+                          // Remaining Users List
+                          _buildRemainingUsersList(),
+                        ],
+                      ),
                     ),
                   ),
-                  const Gap(24),
-                  // List Skeleton
-                  ...List.generate(
-                    5,
-                    (index) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: const SkeletonLoader(
-                          width: double.infinity, height: 70, borderRadius: 8),
-                    ),
-                  ),
-                  Gap(5),
-                  controller.adsService.showBannerAdWidget()
-                ],
-              ),
-            ),
-          );
-        }
-
-        if (controller.leaderboardData == null ||
-            controller.leaderboardData!.leaderboard.isEmpty) {
-          return const Center(
-            child: Text('No leaderboard data available',
-                style: TextStyle(fontSize: 14, fontFamily: AppFonts.manRope)),
-          );
-        }
-
-        return RefreshIndicator(
-          onRefresh: controller.refreshLeaderboard,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  // Top 3 Users Podium
-                  _buildTopThreePodium(),
-                  const Gap(24),
-
-                  // Remaining Users List
-                  _buildRemainingUsersList(),
-                ],
-              ),
-            ),
-          ),
+                ),
         );
       }),
     );
   }
 
   Widget _buildTopThreePodium() {
-    final topThree = controller.topThree;
+    final topThree = (controller.leaderboardData == null && controller.isLoading)
+        ? List.generate(
+            3,
+            (index) => LeaderboardUser(
+                rank: index + 1,
+                fullName: "Loading Name",
+                userName: "user_name",
+                points: "1000",
+                avatar: ""))
+        : controller.topThree;
 
     if (topThree.isEmpty) {
       return const SizedBox.shrink();
@@ -269,7 +203,17 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
   }
 
   Widget _buildRemainingUsersList() {
-    final remainingUsers = controller.remainingUsers;
+    final remainingUsers =
+        (controller.leaderboardData == null && controller.isLoading)
+            ? List.generate(
+                5,
+                (index) => LeaderboardUser(
+                    rank: index + 4,
+                    fullName: "Loading Name",
+                    userName: "user_name",
+                    points: "500",
+                    avatar: ""))
+            : controller.remainingUsers;
 
     if (remainingUsers.isEmpty) {
       return const SizedBox.shrink();
