@@ -40,7 +40,10 @@ class LoginScreenController extends GetxController {
   final formKey = GlobalKey<FormState>();
 
   final _isEmail = true.obs;
-  set isEmail(value) => _isEmail.value = value;
+  set isEmail(value) {
+    _isEmail.value = value;
+    setFormValidState(); // Re-validate when switching modes
+  }
   bool get isEmail => _isEmail.value;
 
   final TextEditingController phoneNumberController = TextEditingController();
@@ -72,21 +75,35 @@ class LoginScreenController extends GetxController {
     }
   }
 
+  void _setupValidationWorkers() {
+    // Listen to changes in all relevant fields
+    final controllers = [
+      emailController,
+      phoneNumberController,
+      passwordController,
+    ];
+
+    for (var controller in controllers) {
+      controller.addListener(setFormValidState);
+    }
+  }
+
   void setFormValidState() {
-    if (formKey.currentState == null) return;
-    if (formKey.currentState!.validate()) {
-      if (isEmail == false) {
-        if (phoneNumberController.text.isNotEmpty) {
-          isFormValid = true;
-        } else {
-          isFormValid = false;
-          validateInput(phoneNumberController.text.trim());
-        }
-      } else {
-        isFormValid = true;
-      }
+    final pass = passwordController.text.trim();
+    final isPasswordValid = pass.isNotEmpty && pass.length >= 6;
+
+    bool isValid = false;
+    if (isEmail) {
+      final email = emailController.text.trim();
+      isValid = email.isNotEmpty && isPasswordValid;
     } else {
-      isFormValid = false;
+      final phone = phoneNumberController.text.trim();
+      isValid = phone.isNotEmpty && phone.length >= 10 && isPasswordValid;
+    }
+    
+    // Only update if value changed to avoid redundant rebuilds
+    if (isFormValid != isValid) {
+      isFormValid = isValid;
     }
   }
 
@@ -110,6 +127,9 @@ class LoginScreenController extends GetxController {
     countryController.text = "+234";
     checkBiometricSupport();
     checkBiometricSetup();
+
+    // Setup real-time validation workers
+    _setupValidationWorkers();
 
     // plugin = FacebookLogin(debug: true);
     _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
@@ -189,7 +209,14 @@ class LoginScreenController extends GetxController {
   var apiService = DioApiService();
 
   final box = GetStorage();
-  final secureStorage = const FlutterSecureStorage();
+  
+  static const _androidOptions = AndroidOptions(
+    encryptedSharedPreferences: true,
+  );
+  
+  final secureStorage = const FlutterSecureStorage(
+    aOptions: _androidOptions,
+  );
 
   final _isLoading = false.obs;
   set isLoading(value) => _isLoading.value = value;

@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 class HomeScreenBinding implements Bindings {
   @override
   void dependencies() {
-    Get.put(HomeScreenController(), permanent: false);
+    Get.lazyPut<HomeScreenController>(() => HomeScreenController());
     Get.lazyPut(() => AccountInfoModuleController());
   }
 }

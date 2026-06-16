@@ -48,9 +48,9 @@ class MyQrcodeModuleController extends GetxController {
       // Try to get data from HomeScreenController first
       final homeController = Get.find<HomeScreenController>();
       if (homeController.dashboardData != null) {
-        _username.value = homeController.dashboardData.user.userName ?? 'User';
+        _username.value = homeController.dashboardData!.user.userName ?? 'User';
         _email.value =
-            homeController.dashboardData.user.email ?? 'user@example.com';
+            homeController.dashboardData!.user.email ?? 'user@example.com';
         dev.log(
             'Loaded user data from dashboard - Username: ${_username.value}, Email: ${_email.value}');
       } else {

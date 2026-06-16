@@ -50,7 +50,7 @@ class QrcodeTransferDetailsModuleController extends GetxController {
     try {
       final homeController = Get.find<HomeScreenController>();
       if (homeController.dashboardData != null) {
-        final walletBalance = homeController.dashboardData.balance.wallet;
+        final walletBalance = homeController.dashboardData!.balance.wallet;
         _currentWallet.value = double.tryParse(walletBalance) ?? 0.0;
         dev.log('Current wallet balance: ${_currentWallet.value}');
       } else {

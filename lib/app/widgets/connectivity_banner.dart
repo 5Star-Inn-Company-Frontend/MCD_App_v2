@@ -45,11 +45,12 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
         children: [
           // offline banner
           if (isOffline)
-            _OfflineBanner(onRetry: service.retryConnection),
-
-          // back online banner
-          if (!isOffline && _showBackOnline)
-            _BackOnlineBanner(),
+            _OfflineBanner(onRetry: service.retryConnection)
+          else if (_showBackOnline)
+            // back online banner
+            _BackOnlineBanner()
+          else
+            const SizedBox.shrink(),
 
           // actual page content
           Expanded(child: widget.child),

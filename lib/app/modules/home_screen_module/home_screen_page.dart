@@ -25,64 +25,43 @@ class HomeScreenPage extends GetView<HomeScreenController> {
       onWillPop: () async {
         return await _showExitDialog(context) ?? false;
       },
-      child: Obx(() => Scaffold(
-            appBar: PaylonyAppBar(
-              title:
-                  "Hello ${controller.dashboardData?.user.userName ?? 'User'} 👋🏼",
-              elevation: 0,
-              actions: [
-                TouchableOpacity(
-                    child: InkWell(
-                        onTap: () {
-                          Get.toNamed(Routes.QRCODE_MODULE);
-                        },
-                        child: SvgPicture.asset(
-                          'assets/icons/bx_scan.svg',
-                          colorFilter: const ColorFilter.mode(
-                              Colors.black, BlendMode.srcIn),
-                        ))),
-                // const Gap(10),
-                // TouchableOpacity(
-                //     child: InkWell(
-                //         onTap: () {
-                //           // Get.toNamed(Routes.VIRTUAL_CARD_DETAILS);
-                //           Navigator.push(
-                //             context,
-                //             MaterialPageRoute(
-                //               builder: (context) => const VirtualCardHomePage(),
-                //             ),
-                //           );
-                //         },
-                //         child: SvgPicture.asset(
-                //           'assets/icons/bank-card-two.svg',
-                //           colorFilter: const ColorFilter.mode(
-                //               Colors.black, BlendMode.srcIn),
-                //         ))),
-                const Gap(10),
-                // TouchableOpacity(
-                //     child: InkWell(
-                //         onTap: () {
-                //           Get.toNamed(Routes.ACCOUNT_INFO);
-                //         },
-                //         child: SvgPicture.asset(AppAsset.profileIicon))),
-                // const Gap(10),
-                TouchableOpacity(
-                    child: InkWell(
-                        onTap: () {
-                          Get.toNamed(Routes.NOTIFICATION_MODULE);
-                        },
-                        child: SvgPicture.asset(AppAsset.notificationIicon))),
-                const Gap(12)
-              ],
-            ),
-            body: RefreshIndicator(
-              color: AppColors.primaryColor,
-              backgroundColor: AppColors.white,
-              onRefresh: controller.refreshDashboard,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Obx(() => Skeletonizer(
-                      enabled: controller.isLoading,
+      child: Obx(() {
+        return Scaffold(
+          appBar: PaylonyAppBar(
+            title: "Hello ${controller.dashboardData?.user.userName ??
+                'User'} 👋🏼",
+            elevation: 0,
+            actions: [
+              TouchableOpacity(
+                  child: InkWell(
+                      onTap: () {
+                        Get.toNamed(Routes.QRCODE_MODULE);
+                      },
+                      child: SvgPicture.asset(
+                        'assets/icons/bx_scan.svg',
+                        colorFilter:
+                        const ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                      ))),
+              const Gap(10),
+              TouchableOpacity(
+                  child: InkWell(
+                      onTap: () {
+                        Get.toNamed(Routes.NOTIFICATION_MODULE);
+                      },
+                      child: SvgPicture.asset(AppAsset.notificationIicon))),
+              const Gap(12)
+            ],
+          ),
+          body: controller.obx(
+                (state) =>
+                RefreshIndicator(
+                  color: AppColors.primaryColor,
+                  backgroundColor: AppColors.white,
+                  onRefresh: controller.refreshDashboard,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: Skeletonizer(
+                      enabled: controller.isLoading.value,
                       child: ListView(
                         children: [
                           const Gap(10),
@@ -99,25 +78,28 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 8, horizontal: 5),
                                   decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: AppColors.primaryGrey2),
+                                      border:
+                                      Border.all(color: AppColors.primaryGrey2),
                                       borderRadius: BorderRadius.circular(6)),
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment
+                                        .spaceBetween,
                                     children: [
-                                      TextSemiBold(
-                                        controller.dashboardData?.user
-                                                    .referralPlan.isNotEmpty ==
+                                      Obx(() =>
+                                          TextSemiBold(
+                                            controller.dashboardData?.user
+                                                .referralPlan.isNotEmpty ==
                                                 true
-                                            ? controller
-                                                .dashboardData!.user.referralPlan
+                                                ? controller
+                                                .dashboardData!.user
+                                                .referralPlan
                                                 .toUpperCase()
-                                            : "FREE",
-                                        fontSize: 14,
-                                        color: AppColors.background
-                                            .withOpacity(0.7),
-                                      ),
+                                                : "FREE",
+                                            fontSize: 14,
+                                            color:
+                                            AppColors.background.withOpacity(
+                                                0.7),
+                                          )),
                                       const Icon(
                                           Icons.arrow_forward_ios_outlined)
                                     ],
@@ -132,55 +114,55 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                             padding: const EdgeInsets.symmetric(
                                 vertical: 10, horizontal: 6),
                             decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: const Color(0xff1B1B1B)),
+                                border: Border.all(
+                                    color: const Color(0xff1B1B1B)),
                                 borderRadius: BorderRadius.circular(6)),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                RichText(
-                                  text: TextSpan(
-                                    text: '₦ ',
-                                    style: const TextStyle(
-                                      color: AppColors.background,
-                                      fontSize: 14,
-                                    ),
-                                    children: [
-                                      TextSpan(
-                                        text: AmountUtil.formatFigure(
-                                            double.tryParse(controller
-                                                        .dashboardData
-                                                        ?.balance
-                                                        .wallet ??
-                                                    '0') ??
-                                                0),
+                                Obx(() =>
+                                    RichText(
+                                      text: TextSpan(
+                                        text: '₦ ',
                                         style: const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.w600,
-                                            fontFamily: AppFonts.manRope,
-                                            color: AppColors.background),
+                                          color: AppColors.background,
+                                          fontSize: 14,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: AmountUtil.formatFigure(
+                                                double.tryParse(controller
+                                                    .dashboardData
+                                                    ?.balance
+                                                    .wallet ??
+                                                    '0') ??
+                                                    0),
+                                            style: const TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w600,
+                                                fontFamily: AppFonts.manRope,
+                                                color: AppColors.background),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                  // textAlign: TextAlign.center,
-                                  textDirection: TextDirection.ltr,
-                                  softWrap: true,
-                                  overflow: TextOverflow.clip,
-                                  maxLines: 10,
-                                  textWidthBasis: TextWidthBasis.parent,
-                                  textHeightBehavior: const TextHeightBehavior(
-                                    applyHeightToFirstAscent: true,
-                                    applyHeightToLastDescent: true,
-                                  ),
-                                  key: const Key('myRichTextWidgetKey'),
-                                ),
+                                      textDirection: TextDirection.ltr,
+                                      softWrap: true,
+                                      overflow: TextOverflow.clip,
+                                      maxLines: 10,
+                                      textWidthBasis: TextWidthBasis.parent,
+                                      textHeightBehavior: const TextHeightBehavior(
+                                        applyHeightToFirstAscent: true,
+                                        applyHeightToLastDescent: true,
+                                      ),
+                                      key: const Key('myRichTextWidgetKey'),
+                                    )),
                                 InkWell(
                                   onTap: () {
                                     Get.toNamed(
                                       Routes.ADD_MONEY_MODULE,
                                       arguments: {
-                                        'dashboardData':
-                                            controller.dashboardData,
+                                        'dashboardData': controller
+                                            .dashboardData,
                                       },
                                     );
                                   },
@@ -229,236 +211,265 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                               children: [
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment
+                                      .spaceBetween,
                                   children: [
-                                    dataItem(
-                                        "Commission",
-                                        "₦ ${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.commission ?? '0.00') ?? 0)}"),
-                                    dataItem(
-                                        "Points",
-                                        AmountUtil.formatFigure(double.tryParse(
-                                                controller.dashboardData
-                                                        ?.balance.points ??
-                                                    '0') ??
-                                            0)),
-                                    dataItem(
-                                        "Bonus",
-                                        "₦ ${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.bonus ?? '0.00') ?? 0)}"),
-                                    dataItem(
-                                        "General Market",
-                                        "₦ ${AmountUtil.formatFigure(double.tryParse(controller.gmBalance ?? '0.00') ?? 0)}")
+                                    Obx(() =>
+                                        dataItem("Commission",
+                                            "₦ ${AmountUtil.formatFigure(
+                                                double.tryParse(
+                                                    controller.dashboardData
+                                                        ?.balance.commission ??
+                                                        '0.00') ?? 0)}")),
+                                    Obx(() =>
+                                        dataItem(
+                                            "Points",
+                                            AmountUtil.formatFigure(
+                                                double.tryParse(
+                                                    controller.dashboardData
+                                                        ?.balance
+                                                        .points ??
+                                                        '0') ??
+                                                    0))),
+                                    Obx(() =>
+                                        dataItem("Bonus",
+                                            "₦ ${AmountUtil.formatFigure(
+                                                double.tryParse(
+                                                    controller.dashboardData
+                                                        ?.balance.bonus ??
+                                                        '0.00') ?? 0)}")),
+                                    Obx(() =>
+                                        dataItem("General Market",
+                                            "₦ ${AmountUtil.formatFigure(
+                                                double.tryParse(
+                                                    controller.gmBalance ??
+                                                        '0.00') ?? 0)}"))
                                   ],
                                 ),
                               ],
                             ),
                           ),
                           const Gap(15),
-                          // marquee
                           SizedBox(
                             height: screenHeight(context) * 0.03,
-                            child: Marquee(
-                              text: controller.dashboardData?.news ??
-                                  'Welcome to Mega Cheap Data',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 14,
-                                  fontFamily: AppFonts.manRope),
-                              scrollAxis: Axis.horizontal,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              blankSpace: 50.0,
-                              velocity: 50.0,
-                              pauseAfterRound: const Duration(seconds: 1),
-                              startPadding: 10.0,
-                              accelerationDuration: const Duration(seconds: 1),
-                              accelerationCurve: Curves.linear,
-                              decelerationDuration:
+                            child: Obx(() =>
+                                Marquee(
+                                  text: controller.dashboardData?.news ??
+                                      'Welcome to Mega Cheap Data',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                      fontFamily: AppFonts.manRope),
+                                  scrollAxis: Axis.horizontal,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  blankSpace: 50.0,
+                                  velocity: 50.0,
+                                  pauseAfterRound: const Duration(seconds: 1),
+                                  startPadding: 10.0,
+                                  accelerationDuration: const Duration(
+                                      seconds: 1),
+                                  accelerationCurve: Curves.linear,
+                                  decelerationDuration:
                                   const Duration(milliseconds: 500),
-                              decelerationCurve: Curves.easeOut,
-                            ),
+                                  decelerationCurve: Curves.easeOut,
+                                )),
                           ),
                           const Divider(
                             color: AppColors.boxColor,
                           ),
                           const Gap(10),
-                          GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate:
+                          Obx(() =>
+                              GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 4,
-                                crossAxisSpacing: 16,
-                                mainAxisSpacing: 10,
-                              ),
-                              itemCount: controller.isLoading &&
+                                    crossAxisCount: 4,
+                                    crossAxisSpacing: 16,
+                                    mainAxisSpacing: 10,
+                                  ),
+                                  itemCount: controller.isLoading.value &&
                                       controller.actionButtonz.isEmpty
-                                  ? 8
-                                  : controller.actionButtonz.length,
-                              itemBuilder: (BuildContext ctx, index) {
-                                if (controller.isLoading &&
-                                    controller.actionButtonz.isEmpty) {
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                        color: const Color(0xffF3FFF7),
-                                        borderRadius:
-                                            BorderRadius.circular(15)),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const Icon(Icons.category,
-                                            color: AppColors.primaryColor2),
-                                        const Gap(5),
-                                        TextSemiBold(
-                                          "Service",
-                                          textAlign: TextAlign.center,
-                                          color: AppColors.primaryColor2,
-                                          fontSize: 10,
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                                final button = controller.actionButtonz[index];
-                                final serviceKey = controller.getServiceKey(
-                                    button.text, button.link);
-                                final isAvailable = serviceKey.isEmpty ||
-                                    controller.isServiceAvailable(serviceKey);
-
-                                return Opacity(
-                                  opacity: isAvailable ? 1.0 : 0.5,
-                                  child: TouchableOpacity(
-                                      onTap: () {},
-                                      child: Container(
+                                      ? 8
+                                      : controller.actionButtonz.length,
+                                  itemBuilder: (BuildContext ctx, index) {
+                                    if (controller.isLoading.value &&
+                                        controller.actionButtonz.isEmpty) {
+                                      return Container(
                                         decoration: BoxDecoration(
                                             color: const Color(0xffF3FFF7),
-                                            borderRadius:
-                                                BorderRadius.circular(15)),
-                                        child: InkWell(
-                                          onTap: () async {
-                                            // Check service availability first
-                                            final isAvailable = await controller
-                                                .handleServiceNavigation(
+                                            borderRadius: BorderRadius.circular(
+                                                15)),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment
+                                              .center,
+                                          children: [
+                                            const Icon(Icons.category,
+                                                color: AppColors.primaryColor2),
+                                            const Gap(5),
+                                            TextSemiBold(
+                                              "Service",
+                                              textAlign: TextAlign.center,
+                                              color: AppColors.primaryColor2,
+                                              fontSize: 10,
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }
+                                    final button = controller
+                                        .actionButtonz[index];
+                                    final serviceKey = controller.getServiceKey(
+                                        button.text, button.link);
+                                    final isAvailable = serviceKey.isEmpty ||
+                                        controller.isServiceAvailable(
+                                            serviceKey);
+
+                                    return Opacity(
+                                      opacity: isAvailable ? 1.0 : 0.5,
+                                      child: TouchableOpacity(
+                                          onTap: () {},
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                                color: const Color(0xffF3FFF7),
+                                                borderRadius: BorderRadius
+                                                    .circular(15)),
+                                            child: InkWell(
+                                              onTap: () async {
+                                                final isAvailable = await controller
+                                                    .handleServiceNavigation(
                                                     controller
                                                         .actionButtonz[index]);
 
-                                            if (!isAvailable) {
-                                              return; // Service not available, dialog already shown
-                                            }
+                                                if (!isAvailable) {
+                                                  return;
+                                                }
 
-                                            // Proceed with navigation if service is available
-                                            if (controller
+                                                if (controller
                                                     .actionButtonz[index]
                                                     .link ==
-                                                Routes.RESULT_CHECKER_MODULE) {
-                                              _showResultCheckerOptions(
-                                                  context);
-                                            } else if (controller
+                                                    Routes
+                                                        .RESULT_CHECKER_MODULE) {
+                                                  _showResultCheckerOptions(
+                                                      context);
+                                                } else if (controller
                                                     .actionButtonz[index]
                                                     .link ==
-                                                "epin") {
-                                              _showEpinOptionsBottomSheet(
-                                                  context);
-                                            } else if (controller
+                                                    "epin") {
+                                                  _showEpinOptionsBottomSheet(
+                                                      context);
+                                                } else if (controller
                                                     .actionButtonz[index]
                                                     .link ==
-                                                Routes.AIRTIME_MODULE) {
-                                              _showAirtimeSelectionBottomSheet(
-                                                  context);
-                                            } else if (controller
+                                                    Routes.AIRTIME_MODULE) {
+                                                  _showAirtimeSelectionBottomSheet(
+                                                      context);
+                                                } else if (controller
                                                     .actionButtonz[index]
                                                     .link ==
-                                                Routes.DATA_MODULE) {
-                                              _showDataSelectionBottomSheet(
-                                                  context);
-                                            } else if (controller
-                                                .actionButtonz[index]
-                                                .link
-                                                .isNotEmpty) {
-                                              Get.toNamed(controller
-                                                  .actionButtonz[index].link);
-                                            }
-                                          },
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              SvgPicture.asset(
-                                                  controller
+                                                    Routes.DATA_MODULE) {
+                                                  _showDataSelectionBottomSheet(
+                                                      context);
+                                                } else if (controller
+                                                    .actionButtonz[index]
+                                                    .link.isNotEmpty) {
+                                                  Get.toNamed(controller
                                                       .actionButtonz[index]
-                                                      .icon,
-                                                  colorFilter:
-                                                      const ColorFilter.mode(
+                                                      .link);
+                                                }
+                                              },
+                                              child: Column(
+                                                mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                                children: [
+                                                  SvgPicture.asset(
+                                                      controller
+                                                          .actionButtonz[index]
+                                                          .icon,
+                                                      colorFilter: const ColorFilter
+                                                          .mode(
                                                           AppColors
                                                               .primaryColor2,
                                                           BlendMode.srcIn)),
-                                              const Gap(5),
-                                              TextSemiBold(
-                                                controller
-                                                    .actionButtonz[index].text,
-                                                textAlign: TextAlign.center,
-                                                color: AppColors.primaryColor2,
-                                                fontSize: 10,
+                                                  const Gap(5),
+                                                  TextSemiBold(
+                                                    controller
+                                                        .actionButtonz[index]
+                                                        .text,
+                                                    textAlign: TextAlign.center,
+                                                    color: AppColors
+                                                        .primaryColor2,
+                                                    fontSize: 10,
+                                                  ),
+                                                ],
                                               ),
-                                            ],
-                                          ),
-                                        ),
-                                      )),
-                                );
-                              }),
+                                            ),
+                                          )),
+                                    );
+                                  })),
                           const Divider(
                             color: AppColors.boxColor,
                           ),
                           const Gap(10),
-                          // image slider carousel
+                          Obx(() =>
                           controller.imageSliders.isNotEmpty
                               ? _buildImageSlider()
-                              : controller.isLoading &&
-                                      controller.imageSliders.isEmpty
-                                  ? Container(
-                                      height: 200,
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[300],
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(),
+                              : controller.isLoading.value &&
+                              controller.imageSliders.isEmpty
+                              ? Container(
+                            height: 200,
+                            margin:
+                            const EdgeInsets.symmetric(horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          )
+                              : const SizedBox.shrink()),
                         ],
                       ),
-                    )),
-          )),
-        bottomNavigationBar: const BottomNavigation(
-          selectedIndex: 0,
-        ),)
-    ));
+                    ),
+                  ),
+                ),
+            onLoading: const Center(
+                child: CircularProgressIndicator(
+                    color: AppColors.primaryColor)),
+            onError: (error) =>
+                Center(child: Text(error ?? 'An error occurred')),
+          ),
+          bottomNavigationBar: const BottomNavigation(
+            selectedIndex: 0,
+          ),
+        );
+      }),
+    );
   }
 
   Future<bool?> _showExitDialog(BuildContext context) {
     return showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        title: TextSemiBold('Exit App'),
-        content: TextSemiBold('Do you want to exit the app?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: TextSemiBold(
-              'No',
-              color: AppColors.textPrimaryColor,
-            ),
+      builder: (context) =>
+          AlertDialog(
+            backgroundColor: Colors.white,
+            title: TextSemiBold('Exit App'),
+            content: TextSemiBold('Do you want to exit the app?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: TextSemiBold(
+                  'No',
+                  color: AppColors.textPrimaryColor,
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: TextSemiBold(
+                  'Yes',
+                  color: AppColors.textPrimaryColor,
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: TextSemiBold(
-              'Yes',
-              color: AppColors.textPrimaryColor,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -966,7 +977,7 @@ class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             widget.images.length,
-            (index) {
+                (index) {
               final isActive = (_currentPage % widget.images.length) == index;
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
@@ -989,6 +1000,7 @@ class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
 
 class _ImageItem extends StatefulWidget {
   final String url;
+
   const _ImageItem({required this.url});
 
   @override
@@ -1017,15 +1029,16 @@ class _ImageItemState extends State<_ImageItem> {
           fit: BoxFit.cover,
           width: double.infinity,
           height: 160,
-          placeholder: (context, url) => Container(
-            color: Colors.grey[100],
-            child: const Center(
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: AppColors.primaryColor,
+          placeholder: (context, url) =>
+              Container(
+                color: Colors.grey[100],
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.primaryColor,
+                  ),
+                ),
               ),
-            ),
-          ),
           errorWidget: (context, url, error) {
             // dev.log("failure: error loading image $url: $error".toLowerCase());
             return Container(
@@ -1064,6 +1077,7 @@ class _ImageItemState extends State<_ImageItem> {
 class _LoggedImage extends StatefulWidget {
   final ImageProvider imageProvider;
   final String url;
+
   const _LoggedImage({required this.imageProvider, required this.url});
 
   @override

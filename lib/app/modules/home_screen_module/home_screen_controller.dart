@@ -19,31 +19,28 @@ import '../../../core/network/dio_api_service.dart';
  * */
 
 class HomeScreenController extends GetxController
-    with ServiceAvailabilityMixin {
+    with ServiceAvailabilityMixin, StateMixin {
   var _obj = ''.obs;
   set obj(value) => _obj.value = value;
   get obj => _obj.value;
 
-  final _actionButtonz = <ButtonModel>[].obs;
-  List<ButtonModel> get actionButtonz => _actionButtonz;
+  final actionButtonz = <ButtonModel>[].obs;
 
-  final _dashboardData = Rxn<DashboardModel>();
-  set dashboardData(value) => _dashboardData.value = value;
-  get dashboardData => _dashboardData.value;
+  final dashboardDataRx = Rxn<DashboardModel>();
+  DashboardModel? get dashboardData => dashboardDataRx.value;
+  set dashboardData(DashboardModel? value) => dashboardDataRx.value = value;
 
-  final _isLoading = false.obs;
-  set isLoading(value) => _isLoading.value = value;
-  get isLoading => _isLoading.value;
+  final isLoading = false.obs;
 
   final _errorMessage = ''.obs;
   set errorMessage(value) => _errorMessage.value = value;
   get errorMessage => _errorMessage.value;
 
-  final _gmBalance = '0'.obs;
-  set gmBalance(value) => _gmBalance.value = value;
-  get gmBalance => _gmBalance.value;
-  final _imageSliders = <String>[].obs;
-  List<String> get imageSliders => _imageSliders;
+  final gmBalanceRx = '0'.obs;
+  String get gmBalance => gmBalanceRx.value;
+  set gmBalance(String value) => gmBalanceRx.value = value;
+
+  final imageSliders = <String>[].obs;
   final apiService = DioApiService();
   final box = GetStorage();
 
@@ -92,6 +89,7 @@ class HomeScreenController extends GetxController
     final ssc = Get.find<ServiceStatusController>();
     ever(ssc.serviceStatus, (_) => _loadServiceData());
 
+    change(null, status: RxStatus.success());
     super.onInit();
   }
 
@@ -158,7 +156,7 @@ class HomeScreenController extends GetxController
     final filtered = allButtons.where((b) => isEnabled(b.text)).toList();
     dev.log('Service buttons: ${filtered.map((b) => b.text).join(', ')}',
         name: 'HomeScreen');
-    _actionButtonz.assignAll(filtered);
+    actionButtonz.assignAll(filtered);
   }
 
   @override
@@ -204,7 +202,7 @@ class HomeScreenController extends GetxController
       return;
     }
 
-    isLoading = true;
+    isLoading.value = true;
     errorMessage = "";
     dev.log("Starting dashboard fetch...");
 
@@ -246,12 +244,12 @@ class HomeScreenController extends GetxController
         if (force) {
           // Get.snackbar("Updated", "Dashboard refreshed", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
           dev.log("Dashboard refreshed successfully");
-          dev.log(dashboardData?.user.fullName);
+          dev.log(dashboardData?.user.fullName??"");
         }
       },
     );
 
-    isLoading = false;
+    isLoading.value = false;
   }
 
   void _showNewsDialog(String news) {
@@ -418,7 +416,7 @@ class HomeScreenController extends GetxController
 
       final sliders = ssc.getImageSliders();
       if (sliders.isNotEmpty) {
-        _imageSliders.assignAll(sliders);
+        imageSliders.assignAll(sliders);
       }
     } catch (e) {
       dev.log('Error loading service data: $e', name: 'HomeScreen');

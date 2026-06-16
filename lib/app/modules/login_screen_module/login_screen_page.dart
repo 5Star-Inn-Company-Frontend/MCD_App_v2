@@ -7,8 +7,16 @@ import 'package:mcd/core/import/imports.dart';
  * GetX Template Generator - fb.com/htngu.99
  * */
 
-class LoginScreenPage extends GetView<LoginScreenController> {
+class LoginScreenPage extends StatefulWidget {
   const LoginScreenPage({super.key});
+
+  @override
+  State<LoginScreenPage> createState() => _LoginScreenPageState();
+}
+
+class _LoginScreenPageState extends State<LoginScreenPage> {
+  final _localFormKey = GlobalKey<FormState>();
+  final controller = Get.find<LoginScreenController>();
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +43,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                   padding:
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: Form(
-                    key: controller.formKey,
+                    key: _localFormKey,
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,9 +176,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                         }
                                         return null;
                                       },
-                                      onChanged: (_) =>
-                                          controller.setFormValidState(),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontFamily: AppFonts.manRope),
                                       decoration: textInputDecoration.copyWith(
                                         filled: false,
@@ -198,9 +204,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                         }
                                         return null;
                                       },
-                                      onChanged: (_) =>
-                                          controller.setFormValidState(),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontFamily: AppFonts.manRope),
                                       decoration: textInputDecoration.copyWith(
                                         filled: false,
@@ -239,9 +243,8 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                                 }
                                 return null;
                               },
-                              onChanged: (_) => controller.setFormValidState(),
                               obscuringCharacter: '•',
-                              style: TextStyle(fontFamily: AppFonts.manRope),
+                              style: const TextStyle(fontFamily: AppFonts.manRope),
                               decoration: textInputDecoration.copyWith(
                                 hintText: "•••••••••",
                                 hintStyle: const TextStyle(
@@ -281,8 +284,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                         Obx(() => TouchableOpacity(
                               disabled: !controller.isFormValid,
                               onTap: () {
-                                if (!controller.formKey.currentState!
-                                    .validate()) {
+                                if (!_localFormKey.currentState!.validate()) {
                                   return;
                                 }
 
@@ -322,87 +324,12 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                             )),
                         const Gap(20),
 
-                        // Center(child: TextSemiBold("Or")),
-                        // const Gap(20),
-
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Facebook login
-                            // InkWell(
-                            //   onTap: () async {
-                            //     try {
-                            //       final LoginResult fbResult = await FacebookAuth.instance.login(
-                            //         permissions: ['email', 'public_profile'],
-                            //       );
-
-                            //       if (fbResult.status == LoginStatus.success) {
-                            //         final userData = await FacebookAuth.instance.getUserData();
-
-                            //         final email = userData['email'] ?? '';
-                            //         final name = userData['name'] ?? '';
-                            //         final avatar = userData['picture']?['data']?['url'] ?? '';
-                            //         final accessToken = fbResult.accessToken!.tokenString;
-                            //         // Sign in to Firebase with the Facebook credential to keep auth in sync
-                            //         final credential = FacebookAuthProvider.credential(accessToken);
-                            //         final firebaseUser = await FirebaseAuth.instance.signInWithCredential(credential);
-                            //         final firebaseIdToken = await firebaseUser.user?.getIdToken();
-                            //         const source = 'facebook';
-
-                            //         await controller.socialLogin(
-                            //           context,
-                            //           email,
-                            //           name,
-                            //           avatar,
-                            //           accessToken,
-                            //           source,
-                            //           firebaseIdToken: firebaseIdToken,
-                            //         );
-                            //         dev.log('Facebook login successful');
-                            //       } else if (fbResult.status == LoginStatus.cancelled) {
-                            //         Get.snackbar(
-                            //           "Login Cancelled",
-                            //           "Facebook login was cancelled",
-                            //           backgroundColor: AppColors.errorBgColor,
-                            //           colorText: AppColors.textSnackbarColor,
-                            //         );
-                            //       } else {
-                            //         Get.snackbar(
-                            //           "Error",
-                            //           "Facebook login failed: ${fbResult.message}",
-                            //           backgroundColor: AppColors.errorBgColor,
-                            //           colorText: AppColors.textSnackbarColor,
-                            //         );
-                            //       }
-                            //     } catch (e) {
-                            //       dev.log("Facebook login error: $e");
-                            //       Get.snackbar(
-                            //         "Error",
-                            //         "Facebook login error: $e",
-                            //         backgroundColor: AppColors.errorBgColor,
-                            //         colorText: AppColors.textSnackbarColor,
-                            //       );
-                            //     }
-                            //   },
-                            //   child: SvgPicture.asset(AppAsset.facebook, width: 50),
-                            // ),
-                            const Gap(10),
-                            // Google login
-                            // InkWell(
-                            //   onTap: () async {
-                            //     controller.handleSignIn(context);
-                            //     // Get.snackbar(
-                            //     //   "Coming Soon",
-                            //     //   "Google Sign-In will be available soon",
-                            //     //   backgroundColor: AppColors.errorBgColor,
-                            //     //   colorText: AppColors.textSnackbarColor,
-                            //     // );
-                            //   },
-                            //   child: Image.asset(AppAsset.google, width: 50),
-                            // ),
+                          children: const [
+                            Gap(10),
                           ],
                         ),
-                        // const Expanded(child: SetFingerPrint()),
 
                         const Gap(30),
                         Center(
@@ -444,7 +371,6 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                               )
                             : const SizedBox.shrink()),
 
-                        // Spacer(),
                         const Gap(30),
                         controller.adsService.showBannerAdWidget(),
                       ],
