@@ -16,7 +16,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
       ),
       body: Obx(() {
         return Skeletonizer(
-          enabled: controller.isLoading.value && controller.service.isEmpty,
+          enabled: controller.isLoading.value,
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
             child: GridView(

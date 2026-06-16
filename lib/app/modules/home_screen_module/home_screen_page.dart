@@ -82,8 +82,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: Obx(() => Skeletonizer(
-                      enabled: controller.isLoading &&
-                          controller.dashboardData == null,
+                      enabled: controller.isLoading,
                       child: ListView(
                         children: [
                           const Gap(10),
@@ -292,12 +291,12 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                 mainAxisSpacing: 10,
                               ),
                               itemCount: controller.isLoading &&
-                                      controller.dashboardData == null
+                                      controller.actionButtonz.isEmpty
                                   ? 8
                                   : controller.actionButtonz.length,
                               itemBuilder: (BuildContext ctx, index) {
                                 if (controller.isLoading &&
-                                    controller.dashboardData == null) {
+                                    controller.actionButtonz.isEmpty) {
                                   return Container(
                                     decoration: BoxDecoration(
                                         color: const Color(0xffF3FFF7),
@@ -415,7 +414,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                           controller.imageSliders.isNotEmpty
                               ? _buildImageSlider()
                               : controller.isLoading &&
-                                      controller.dashboardData == null
+                                      controller.imageSliders.isEmpty
                                   ? Container(
                                       height: 200,
                                       margin: const EdgeInsets.symmetric(
@@ -429,11 +428,11 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                         ],
                       ),
                     )),
-            bottomNavigationBar: const BottomNavigation(
-              selectedIndex: 0,
-            ),
           )),
-    );
+        bottomNavigationBar: const BottomNavigation(
+          selectedIndex: 0,
+        ),)
+    ));
   }
 
   Future<bool?> _showExitDialog(BuildContext context) {

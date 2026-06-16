@@ -29,7 +29,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
       ),
       body: Obx(() {
         return Skeletonizer(
-          enabled: controller.isLoading && controller.leaderboardData == null,
+          enabled: controller.isLoading,
           child: controller.leaderboardData == null && !controller.isLoading
               ? const Center(
                   child: Text('No leaderboard data available',

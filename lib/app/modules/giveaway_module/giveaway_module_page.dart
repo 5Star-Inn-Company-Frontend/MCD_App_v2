@@ -1,4 +1,5 @@
 import 'package:google_fonts/google_fonts.dart';
+import 'models/giveaway_model.dart';
 import 'widgets/giveaway_detail_sheet.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -30,7 +31,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
       ),
       body: Obx(() {
         return Skeletonizer(
-          enabled: controller.isLoading && controller.giveaways.isEmpty,
+          enabled: controller.isLoading,
           child: RefreshIndicator(
             color: AppColors.primaryColor,
             backgroundColor: AppColors.white,
@@ -201,7 +202,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   type: "airtime",
                   typeCode: "mtn",
                   image: "",
-                  description: "Please wait...",
+                  description: "Please wait...", status: 0, showContact: 0, public: '', createdAt: '', updatedAt: '', expiredAt: '',
                 ))
         : controller.giveaways;
 
