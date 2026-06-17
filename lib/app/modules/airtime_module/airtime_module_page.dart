@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/airtime_module/model/airtime_provider_model.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../../../core/import/imports.dart';
 import './airtime_module_controller.dart';
 
@@ -173,81 +174,85 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
               Flexible(
                 flex: 2,
                 child: Obx(() {
-                  if (controller.isLoading) {
-                    return const SizedBox(
-                      height: 40,
-                      child: Center(
-                          child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppColors.primaryColor,
-                      )),
-                    );
-                  }
-
-                  if (controller.errorMessage != null) {
-                    return SizedBox(
-                      height: 40,
-                      child: Center(
-                        child: Text(
-                          "Failed to load",
-                          style:
-                              const TextStyle(color: Colors.red, fontSize: 12),
-                        ),
-                      ),
-                    );
-                  }
-
-                  return DropdownButtonHideUnderline(
-                    child: DropdownButton2<AirtimeProvider>(
-                      isExpanded: true,
-                      iconStyleData: const IconStyleData(
-                          icon: Icon(Icons.keyboard_arrow_down_rounded,
-                              size: 30)),
-                      items: controller.airtimeProviders
-                          .map((provider) => DropdownMenuItem<AirtimeProvider>(
-                                value: provider,
-                                child: Row(
-                                  children: [
-                                    Image.asset(
-                                      controller
-                                          .getProviderLogo(provider.network),
-                                      width: 30,
-                                      height: 30,
-                                    ),
-                                    const Gap(12),
-                                    Expanded(
-                                      child: Text(
-                                        provider.network.toUpperCase(),
-                                        style: const TextStyle(
-                                          fontFamily: AppFonts.manRope,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
+                  return Skeletonizer(
+                    enabled: controller.isLoading,
+                    child: controller.errorMessage != null
+                        ? SizedBox(
+                            height: 40,
+                            child: Center(
+                              child: Text(
+                                "Failed to load",
+                                style: const TextStyle(
+                                    color: Colors.red, fontSize: 12),
+                              ),
+                            ),
+                          )
+                        : DropdownButtonHideUnderline(
+                            child: DropdownButton2<AirtimeProvider?>(
+                              isExpanded: true,
+                              iconStyleData: const IconStyleData(
+                                  icon: Icon(Icons.keyboard_arrow_down_rounded,
+                                      size: 30)),
+                              items: controller.isLoading
+                                  ? [
+                                      const DropdownMenuItem<AirtimeProvider?>(
+                                        value: null,
+                                        child: Text("Loading..."),
+                                      )
+                                    ]
+                                  : controller.airtimeProviders
+                                      .map((provider) =>
+                                          DropdownMenuItem<AirtimeProvider?>(
+                                            value: provider,
+                                            child: Row(
+                                              children: [
+                                                Image.asset(
+                                                  controller.getProviderLogo(
+                                                      provider.network),
+                                                  width: 30,
+                                                  height: 30,
+                                                ),
+                                                const Gap(12),
+                                                Expanded(
+                                                  child: Text(
+                                                    provider.network
+                                                        .toUpperCase(),
+                                                    style: const TextStyle(
+                                                      fontFamily:
+                                                          AppFonts.manRope,
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ))
+                                      .toList(),
+                              value: controller.isLoading
+                                  ? null
+                                  : controller.selectedProvider.value,
+                              onChanged: (value) =>
+                                  controller.onProviderSelected(value),
+                              buttonStyleData: const ButtonStyleData(
+                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                  height: 40,
+                                  width: 140),
+                              menuItemStyleData: const MenuItemStyleData(
+                                height: 70,
+                              ),
+                              dropdownStyleData: DropdownStyleData(
+                                elevation: 4,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: Colors.white,
                                 ),
-                              ))
-                          .toList(),
-                      value: controller.selectedProvider.value,
-                      onChanged: (value) =>
-                          controller.onProviderSelected(value),
-                      buttonStyleData: const ButtonStyleData(
-                          padding: EdgeInsets.symmetric(horizontal: 8),
-                          height: 40,
-                          width: 140),
-                      menuItemStyleData: const MenuItemStyleData(
-                        height: 70,
-                      ),
-                      dropdownStyleData: DropdownStyleData(
-                        elevation: 4,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                              ),
+                            ),
+                          ),
                   );
                 }),
               ),
@@ -272,7 +277,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                     return null;
                   },
                   keyboardType: TextInputType.phone,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontFamily: AppFonts.manRope,
                   ),
                   decoration: textInputDecoration.copyWith(
@@ -296,28 +301,6 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
         ),
 
         const Gap(25),
-
-        //bonus container
-        // Container(
-        //   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        //   decoration: BoxDecoration(
-        //     color: const Color(0xffF3FFF7),
-        //     border: Border.all(color: AppColors.primaryColor),
-        //   ),
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     children: [
-        //       Text("Bonus ₦10", style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w500)),
-        //       Container(
-        //         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-        //         decoration: BoxDecoration(
-        //             color: AppColors.primaryColor,
-        //             borderRadius: BorderRadius.circular(5)),
-        //         child: TextSemiBold("Claim", color: AppColors.white),
-        //       )
-        //     ],
-        //   ),
-        // ),
 
         _gistPlusRow(),
 
@@ -391,13 +374,13 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                           return null;
                         },
                         keyboardType: TextInputType.number,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: AppFonts.manRope,
                         ),
                         decoration: InputDecoration(
                           hintText: hintText,
-                          hintStyle: TextStyle(color: AppColors.primaryGrey),
-                          focusedBorder: UnderlineInputBorder(
+                          hintStyle: const TextStyle(color: AppColors.primaryGrey),
+                          focusedBorder: const UnderlineInputBorder(
                             borderSide:
                                 BorderSide(color: AppColors.primaryColor),
                           ),
@@ -418,8 +401,6 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
               isLoading: controller.isPaying,
             )),
         const Gap(30),
-        // SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
-        // const Gap(20)
       ],
     );
   }
@@ -440,81 +421,85 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
               Flexible(
                 flex: 2,
                 child: Obx(() {
-                  if (controller.isLoading) {
-                    return const SizedBox(
-                      height: 40,
-                      child: Center(
-                          child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppColors.primaryColor,
-                      )),
-                    );
-                  }
-
-                  if (controller.errorMessage != null) {
-                    return SizedBox(
-                      height: 40,
-                      child: Center(
-                        child: Text(
-                          "Failed to load",
-                          style:
-                              const TextStyle(color: Colors.red, fontSize: 12),
-                        ),
-                      ),
-                    );
-                  }
-
-                  return DropdownButtonHideUnderline(
-                    child: DropdownButton2<AirtimeProvider>(
-                      isExpanded: true,
-                      iconStyleData: const IconStyleData(
-                          icon: Icon(Icons.keyboard_arrow_down_rounded,
-                              size: 30)),
-                      items: controller.airtimeProviders
-                          .map((provider) => DropdownMenuItem<AirtimeProvider>(
-                                value: provider,
-                                child: Row(
-                                  children: [
-                                    Image.asset(
-                                      controller
-                                          .getProviderLogo(provider.network),
-                                      width: 30,
-                                      height: 30,
-                                    ),
-                                    const Gap(12),
-                                    Expanded(
-                                      child: Text(
-                                        provider.network.toUpperCase(),
-                                        style: const TextStyle(
-                                          fontFamily: AppFonts.manRope,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
+                  return Skeletonizer(
+                    enabled: controller.isLoading,
+                    child: controller.errorMessage != null
+                        ? SizedBox(
+                            height: 40,
+                            child: Center(
+                              child: Text(
+                                "Failed to load",
+                                style: const TextStyle(
+                                    color: Colors.red, fontSize: 12),
+                              ),
+                            ),
+                          )
+                        : DropdownButtonHideUnderline(
+                            child: DropdownButton2<AirtimeProvider?>(
+                              isExpanded: true,
+                              iconStyleData: const IconStyleData(
+                                  icon: Icon(Icons.keyboard_arrow_down_rounded,
+                                      size: 30)),
+                              items: controller.isLoading
+                                  ? [
+                                      const DropdownMenuItem<AirtimeProvider?>(
+                                        value: null,
+                                        child: Text("Loading..."),
+                                      )
+                                    ]
+                                  : controller.airtimeProviders
+                                      .map((provider) =>
+                                          DropdownMenuItem<AirtimeProvider?>(
+                                            value: provider,
+                                            child: Row(
+                                              children: [
+                                                Image.asset(
+                                                  controller.getProviderLogo(
+                                                      provider.network),
+                                                  width: 30,
+                                                  height: 30,
+                                                ),
+                                                const Gap(12),
+                                                Expanded(
+                                                  child: Text(
+                                                    provider.network
+                                                        .toUpperCase(),
+                                                    style: const TextStyle(
+                                                      fontFamily:
+                                                          AppFonts.manRope,
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ))
+                                      .toList(),
+                              value: controller.isLoading
+                                  ? null
+                                  : controller.selectedProvider.value,
+                              onChanged: (value) =>
+                                  controller.onProviderSelected(value),
+                              buttonStyleData: const ButtonStyleData(
+                                  padding: EdgeInsets.symmetric(horizontal: 8),
+                                  height: 40,
+                                  width: 140),
+                              menuItemStyleData: const MenuItemStyleData(
+                                height: 70,
+                              ),
+                              dropdownStyleData: DropdownStyleData(
+                                elevation: 4,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: Colors.white,
                                 ),
-                              ))
-                          .toList(),
-                      value: controller.selectedProvider.value,
-                      onChanged: (value) =>
-                          controller.onProviderSelected(value),
-                      buttonStyleData: const ButtonStyleData(
-                          padding: EdgeInsets.symmetric(horizontal: 8),
-                          height: 40,
-                          width: 140),
-                      menuItemStyleData: const MenuItemStyleData(
-                        height: 70,
-                      ),
-                      dropdownStyleData: DropdownStyleData(
-                        elevation: 4,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                              ),
+                            ),
+                          ),
                   );
                 }),
               ),
@@ -528,7 +513,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                 flex: 4,
                 child: Obx(() => TextFormField(
                       enabled: !controller.isNumberVerified.value,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: AppFonts.manRope,
                       ),
                       keyboardType: TextInputType.phone,
@@ -593,7 +578,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                   const Gap(8),
                   Text(
                     'Verified as ${controller.verifiedNetwork.value}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: AppFonts.manRope,
                       color: Colors.green,
                       fontWeight: FontWeight.w600,
@@ -704,15 +689,15 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                               return TextFormField(
                                 controller: controller.amountController,
                                 keyboardType: TextInputType.number,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontFamily: AppFonts.manRope,
                                 ),
                                 decoration: InputDecoration(
                                   hintText: hintText,
-                                  hintStyle: TextStyle(
+                                  hintStyle: const TextStyle(
                                       color: AppColors.primaryGrey,
                                       fontFamily: AppFonts.manRope),
-                                  focusedBorder: UnderlineInputBorder(
+                                  focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(
                                         color: AppColors.primaryColor),
                                   ),
@@ -774,7 +759,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                     Icon(Icons.list_alt,
                         size: 40, color: AppColors.primaryGrey2),
                     const Gap(10),
-                    Text(
+                    const Text(
                       'You can add upto 5 number',
                       style: TextStyle(
                         fontFamily: AppFonts.manRope,

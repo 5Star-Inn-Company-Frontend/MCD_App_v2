@@ -1,7 +1,9 @@
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mcd/app/modules/data_module/model/data_plan_model.dart';
 import 'package:mcd/app/modules/data_module/network_provider.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import './data_module_controller.dart';
 
@@ -37,10 +39,7 @@ class DataModulePage extends GetView<DataModuleController> {
                 children: [
                   _buildNetworkSelector(),
                   const Gap(30),
-                  // _buildBonusSection(),
-                  // const Gap(20),
                   _buildPlanContent(context),
-                  // const Spacer(),
                   const Gap(16),
                   Obx(() => BusyButton(
                         title: "Buy Plan",
@@ -48,8 +47,6 @@ class DataModulePage extends GetView<DataModuleController> {
                         onTap: controller.pay,
                       )),
                   const Gap(25),
-                  // SizedBox(width: double.infinity, child: Image.asset(AppAsset.banner)),
-                  // const Gap(20)
                 ],
               ),
             ),
@@ -69,34 +66,38 @@ class DataModulePage extends GetView<DataModuleController> {
         children: [
           Flexible(
             flex: 1,
-            child: Obx(() => DropdownButtonHideUnderline(
-                  child: DropdownButton2<NetworkProvider>(
-                    isExpanded: true,
-                    iconStyleData: const IconStyleData(
-                        icon:
-                            Icon(Icons.keyboard_arrow_down_rounded, size: 30)),
-                    items: controller.networkProviders
-                        .map((provider) => DropdownMenuItem<NetworkProvider>(
-                              value: provider,
-                              child:
-                                  Image.asset(provider.imageAsset, width: 50),
-                            ))
-                        .toList(),
-                    value: controller.selectedNetworkProvider.value,
-                    onChanged: (value) => controller.onNetworkSelected(value),
-                    buttonStyleData: const ButtonStyleData(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      height: 40,
-                      width: 140,
-                    ),
-                    menuItemStyleData: const MenuItemStyleData(
-                      height: 70,
-                    ),
-                    dropdownStyleData: DropdownStyleData(
-                      elevation: 4,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: Colors.white,
+            child: Obx(() => Skeletonizer(
+                  enabled: controller.isLoading.value &&
+                      controller.networkProviders.isEmpty,
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton2<NetworkProvider?>(
+                      isExpanded: true,
+                      iconStyleData: const IconStyleData(
+                          icon:
+                              Icon(Icons.keyboard_arrow_down_rounded, size: 30)),
+                      items: controller.networkProviders
+                          .map((provider) => DropdownMenuItem<NetworkProvider?>(
+                                value: provider,
+                                child:
+                                    Image.asset(provider.imageAsset, width: 50),
+                              ))
+                          .toList(),
+                      value: controller.selectedNetworkProvider.value,
+                      onChanged: (value) => controller.onNetworkSelected(value),
+                      buttonStyleData: const ButtonStyleData(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        height: 40,
+                        width: 140,
+                      ),
+                      menuItemStyleData: const MenuItemStyleData(
+                        height: 70,
+                      ),
+                      dropdownStyleData: DropdownStyleData(
+                        elevation: 4,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -113,7 +114,7 @@ class DataModulePage extends GetView<DataModuleController> {
             child: TextFormField(
                 readOnly: true,
                 controller: controller.phoneController,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: AppFonts.manRope,
                 ),
                 decoration: textInputDecoration.copyWith(
@@ -132,56 +133,30 @@ class DataModulePage extends GetView<DataModuleController> {
     );
   }
 
-  // Widget _buildBonusSection() {
-  //   return Container(
-  //     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-  //     decoration: BoxDecoration(
-  //       color: const Color(0xffF3FFF7),
-  //       border: Border.all(color: AppColors.primaryColor),
-  //     ),
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //       children: [
-  //         const Text("Bonus ₦10", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-  //         Container(
-  //           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-  //           decoration: BoxDecoration(
-  //               color: AppColors.primaryColor,
-  //               borderRadius: BorderRadius.circular(5)),
-  //           child: TextSemiBold("Claim", color: AppColors.white),
-  //         )
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget _buildPlanContent(BuildContext context) {
     return Obx(() {
-      if (controller.isLoading.value) {
-        return const Center(
-            child: CircularProgressIndicator(
-          color: AppColors.primaryColor,
-        ));
-      }
-      if (controller.errorMessage.value != null) {
-        return Center(
-            child: Text(controller.errorMessage.value!,
-                style: TextStyle(
-                  fontFamily: AppFonts.manRope,
-                )));
-      }
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildCategoryTabs(),
-          const Gap(20),
-          _buildAmountFilters(),
-          const Gap(20),
-          Flexible(
-            child: SizedBox(
-                height: screenHeight(context) * 0.50, child: _buildPlanGrid(context)),
-          ),
-        ],
+      return Skeletonizer(
+        enabled: controller.isLoading.value,
+        child: controller.errorMessage.value != null
+            ? Center(
+                child: Text(controller.errorMessage.value!,
+                    style: const TextStyle(
+                      fontFamily: AppFonts.manRope,
+                    )))
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildCategoryTabs(),
+                  const Gap(20),
+                  _buildAmountFilters(),
+                  const Gap(20),
+                  Flexible(
+                    child: SizedBox(
+                        height: screenHeight(context) * 0.50,
+                        child: _buildPlanGrid(context)),
+                  ),
+                ],
+              ),
       );
     });
   }
@@ -262,12 +237,23 @@ class DataModulePage extends GetView<DataModuleController> {
 
   Widget _buildPlanGrid(BuildContext context) {
     return Obx(() {
-      if (controller.filteredDataPlans.isEmpty) {
+      if (controller.filteredDataPlans.isEmpty && !controller.isLoading.value) {
         return Center(
             child: TextSemiBold("No plans available for this category."));
       }
       final double textScaleFactor = MediaQuery.textScaleFactorOf(context);
       final double aspectRatio = 1.7 / textScaleFactor;
+
+      final items = (controller.isLoading.value && controller.filteredDataPlans.isEmpty)
+          ? List.generate(6, (index) => DataPlanModel(
+              name: "Loading Plan Name",
+              coded: "coded",
+              price: "0",
+              network: "network",
+              category: "category",
+              id: 0,
+            ))
+          : controller.filteredDataPlans;
 
       return GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -276,9 +262,9 @@ class DataModulePage extends GetView<DataModuleController> {
           crossAxisSpacing: 18,
           childAspectRatio: aspectRatio,
         ),
-        itemCount: controller.filteredDataPlans.length,
+        itemCount: items.length,
         itemBuilder: (context, index) {
-          final plan = controller.filteredDataPlans[index];
+          final plan = items[index];
           return Obx(() {
             final isSelected = controller.selectedPlan.value == plan;
             return TouchableOpacity(

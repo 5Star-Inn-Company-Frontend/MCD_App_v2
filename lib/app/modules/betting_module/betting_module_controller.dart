@@ -17,6 +17,7 @@ class BettingModuleController extends GetxController {
   final bettingProviders = <BettingProvider>[].obs;
 
   final isLoading = true.obs;
+  final isValidating = true.obs;
   final isPaying = false.obs;
   final errorMessage = RxnString();
 

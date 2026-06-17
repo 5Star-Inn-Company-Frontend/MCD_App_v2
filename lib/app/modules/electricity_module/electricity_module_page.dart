@@ -10,6 +10,7 @@ import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
 import 'package:mcd/core/constants/fonts.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import './electricity_module_controller.dart';
 
 class ElectricityModulePage extends GetView<ElectricityModuleController> {
@@ -42,8 +43,6 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                 const Gap(25),
                 _buildFormFields(),
                 const Gap(25),
-                // TextSemiBold("Select Amount"),
-                // const Gap(14),
                 _buildAmountGrid(context),
                 const Gap(40),
                 Obx(() => BusyButton(
@@ -66,39 +65,52 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
         border: Border(bottom: BorderSide(color: AppColors.primaryGrey)),
       ),
       child: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.primaryColor,));
-        }
-        if (controller.errorMessage.value != null) {
-          return Center(child: Text(controller.errorMessage.value!));
-        }
-        return DropdownButtonHideUnderline(
-        child: DropdownButton2<ElectricityProvider>(
-          isExpanded: true,
-          value: controller.selectedProvider.value,
-          items: controller.electricityProviders.map((provider) {
-            final imageUrl = controller.providerImages[provider.name] ?? controller.providerImages['DEFAULT']!;
-            return DropdownMenuItem<ElectricityProvider>(
-              value: provider,
-              child: Row(children: [
-                Image.asset(imageUrl, width: 40, height: 40),
-                const Gap(30),
-                Text(provider.name, style: const TextStyle(fontFamily: AppFonts.manRope)),
-              ]),
-            );
-          }).toList(),
-          onChanged: (value) => controller.onProviderSelected(value),
-          dropdownStyleData: DropdownStyleData(
-            elevation: 2,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: Colors.white,)
-          ),
-          iconStyleData: const IconStyleData(
-                icon: Icon(Icons.keyboard_arrow_down),
-              ),
-        ),
-      );}),
+        return Skeletonizer(
+          enabled: controller.isLoading.value,
+          child: controller.errorMessage.value != null
+              ? Center(child: Text(controller.errorMessage.value!))
+              : DropdownButtonHideUnderline(
+                  child: DropdownButton2<ElectricityProvider?>(
+                    isExpanded: true,
+                    value: controller.isLoading.value
+                        ? null
+                        : controller.selectedProvider.value,
+                    items: controller.isLoading.value
+                        ? [
+                            const DropdownMenuItem<ElectricityProvider?>(
+                              value: null,
+                              child: Text("Loading Providers..."),
+                            )
+                          ]
+                        : controller.electricityProviders.map((provider) {
+                            final imageUrl =
+                                controller.providerImages[provider.name] ??
+                                    controller.providerImages['DEFAULT']!;
+                            return DropdownMenuItem<ElectricityProvider?>(
+                              value: provider,
+                              child: Row(children: [
+                                Image.asset(imageUrl, width: 40, height: 40),
+                                const Gap(30),
+                                Text(provider.name,
+                                    style: const TextStyle(
+                                        fontFamily: AppFonts.manRope)),
+                              ]),
+                            );
+                          }).toList(),
+                    onChanged: (value) => controller.onProviderSelected(value),
+                    dropdownStyleData: DropdownStyleData(
+                        elevation: 2,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.white,
+                        )),
+                    iconStyleData: const IconStyleData(
+                      icon: Icon(Icons.keyboard_arrow_down),
+                    ),
+                  ),
+                ),
+        );
+      }),
     );
   }
 
@@ -240,20 +252,6 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
       ),
       child: Column(
         children: [
-          // GridView(
-          //   shrinkWrap: true,
-          //   physics: const NeverScrollableScrollPhysics(),
-          //   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          //     crossAxisCount: 3,
-          //     mainAxisSpacing: 10,
-          //     crossAxisSpacing: 10,
-          //     childAspectRatio: 2.5,
-          //   ),
-          //   children: [
-          //     _amountCard('0.00'), _amountCard('0.00'), _amountCard('0.00'),
-          //     _amountCard('0.00'), _amountCard('0.00'), _amountCard('0.00'),
-          //   ],
-          // ),
           const Gap(15),
           Obx(() => Row(
             children: [
@@ -268,7 +266,6 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                     final amount = double.tryParse(value);
                     if (amount == null) return "Invalid amount";
                     
-                    // Check minimum amount if available
                     if (controller.minimumAmount.value != null && amount < controller.minimumAmount.value!) {
                       return "Minimum amount is ₦${controller.minimumAmount.value!.toStringAsFixed(2)}";
                     }
@@ -302,27 +299,4 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
       ),
     );
   }
-
-  // Widget _amountCard(String amount) {
-  //   return TouchableOpacity(
-  //     onTap: () => controller.onAmountSelected(amount),
-  //     child: Container(
-  //       decoration: BoxDecoration(
-  //         color: AppColors.primaryColor,
-  //         borderRadius: BorderRadius.circular(8),
-  //       ),
-  //       child: Center(
-  //         child: Text(
-  //           '₦$amount',
-  //           style: const TextStyle(
-  //             color: AppColors.white,
-  //             fontFamily: AppFonts.manRope,
-  //             fontSize: 14,
-  //             fontWeight: FontWeight.w600,
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 }

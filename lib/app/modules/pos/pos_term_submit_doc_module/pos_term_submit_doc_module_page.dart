@@ -1,4 +1,3 @@
-import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -104,42 +103,37 @@ class PosTermSubmitDocModulePage extends GetView<PosTermSubmitDocModuleControlle
   Widget _fileUploadContainer(BuildContext context) {
     return Obx(() => GestureDetector(
       onTap: _selectFile,
-      child: DottedBorder(
-        strokeCap: StrokeCap.round,
-        dashPattern: const [12, 6],
-        strokeWidth: 3,
-        borderType: BorderType.RRect,
-        radius: const Radius.circular(12),
-        color: controller.fileUploaded.value
-            ? const Color.fromRGBO(90, 187, 123, 1)
-            : const Color.fromRGBO(112, 112, 112, 1),
-        child: Container(
-          height: screenHeight(context) * 0.25,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+      child: Container(
+        height: screenHeight(context) * 0.25,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          image: DecorationImage(
+            image: AssetImage('assets/images/${controller.fileUploaded.value
+                ? "greenborder" : "greyborder"}.png'),
+            fit: BoxFit.cover,
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(
-                'assets/icons/document.svg',
-                height: screenHeight(context) * 0.08,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              'assets/icons/document.svg',
+              height: screenHeight(context) * 0.08,
+            ),
+            const Gap(20),
+            Text(
+              controller.fileUploaded.value
+                  ? controller.selectedFileName.value
+                  : 'Click to upload document',
+              style: GoogleFonts.manrope(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w400,
+                color: const Color.fromRGBO(112, 112, 112, 1)
               ),
-              const Gap(20),
-              Text(
-                controller.fileUploaded.value
-                    ? controller.selectedFileName.value
-                    : 'Click to upload document',
-                style: GoogleFonts.manrope(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w400,
-                  color: const Color.fromRGBO(112, 112, 112, 1)
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     ));

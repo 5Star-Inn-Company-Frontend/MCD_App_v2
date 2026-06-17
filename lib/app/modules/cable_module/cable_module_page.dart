@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:mcd/app/modules/cable_module/cable_module_controller.dart';
 import 'package:mcd/app/modules/cable_module/model/cable_provider_model.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class CableModulePage extends GetView<CableModuleController> {
   const CableModulePage({super.key});
@@ -56,35 +57,50 @@ class CableModulePage extends GetView<CableModuleController> {
         border: Border(bottom: BorderSide(color: AppColors.primaryGrey)),
       ),
       child: Obx(() {
-        if (controller.isLoadingProviders.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (controller.errorMessage.value != null) {
-          return Center(child: Text(controller.errorMessage.value!));
-        }
-        return DropdownButtonHideUnderline(
-          child: DropdownButton<CableProvider>(
-            dropdownColor: Colors.white,
-            isExpanded: true,
-            value: controller.selectedProvider.value,
-            items: controller.cableProviders.map((provider) {
-              final imageUrl = controller.providerImages[provider.name] ??
-                  controller.providerImages['DEFAULT']!;
-              return DropdownMenuItem<CableProvider>(
-                value: provider,
-                child: Row(children: [
-                  Image.asset(imageUrl, width: 40),
-                  const Gap(30),
-                  TextSemiBold(provider.name),
-                ]),
-              );
-            }).toList(),
-            onChanged: (value) => controller.onProviderSelected(value),
-            icon: const Icon(Icons.keyboard_arrow_down),
-            borderRadius: BorderRadius.circular(08),
-            menuWidth: screenWidth(context) * 0.9,
-            alignment: Alignment.center,
-          ),
+        return Skeletonizer(
+          enabled: controller.isLoadingProviders.value &&
+              controller.cableProviders.isEmpty,
+          child: controller.errorMessage.value != null
+              ? Center(child: Text(controller.errorMessage.value!))
+              : DropdownButtonHideUnderline(
+                  child: DropdownButton<CableProvider>(
+                    dropdownColor: Colors.white,
+                    isExpanded: true,
+                    value: controller.selectedProvider.value,
+                    items: controller.isLoadingProviders.value
+                        ? [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Row(children: [
+                                Container(
+                                    width: 40,
+                                    height: 40,
+                                    color: Colors.grey[300]),
+                                const Gap(30),
+                                const Text("Loading Provider..."),
+                              ]),
+                            )
+                          ]
+                        : controller.cableProviders.map((provider) {
+                            final imageUrl =
+                                controller.providerImages[provider.name] ??
+                                    controller.providerImages['DEFAULT']!;
+                            return DropdownMenuItem<CableProvider>(
+                              value: provider,
+                              child: Row(children: [
+                                Image.asset(imageUrl, width: 40),
+                                const Gap(30),
+                                TextSemiBold(provider.name),
+                              ]),
+                            );
+                          }).toList(),
+                    onChanged: (value) => controller.onProviderSelected(value),
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    borderRadius: BorderRadius.circular(08),
+                    menuWidth: screenWidth(context) * 0.9,
+                    alignment: Alignment.center,
+                  ),
+                ),
         );
       }),
     );
