@@ -10,6 +10,8 @@ import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:developer' as dev;
 
+import '../home_screen_module/model/dashboard_model.dart';
+
 class UssdTopupModuleController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
@@ -64,21 +66,24 @@ class UssdTopupModuleController extends GetxController {
 
   void _loadVirtualAccount() {
     try {
-      final homeController = Get.find<HomeScreenController>();
-      final dashboard = homeController.dashboardData;
-
-      if (dashboard != null && dashboard.virtualAccounts.hasPrimary) {
-        hasVirtualAccount.value = true;
-        virtualAccountNumber.value =
-            dashboard.virtualAccounts.primaryAccountNumber;
-        dev.log('Virtual account loaded: ${virtualAccountNumber.value}',
-            name: 'UssdTopup');
-      } else {
-        hasVirtualAccount.value = false;
-        dev.log('No virtual account found', name: 'UssdTopup');
+      // Try to load from cached dashboard data
+      final cachedDashboard = box.read('cached_dashboard');
+      if (cachedDashboard != null) {
+        final dashboard = DashboardModel.fromJson(cachedDashboard);
+        if (dashboard.virtualAccounts.hasPrimary) {
+          hasVirtualAccount.value = true;
+          virtualAccountNumber.value =
+              dashboard.virtualAccounts.primaryAccountNumber;
+          dev.log('Virtual account loaded from cache: ${virtualAccountNumber.value}',
+              name: 'UssdTopup');
+          return;
+        }
       }
+      
+      hasVirtualAccount.value = false;
+      dev.log('No virtual account found in cache', name: 'UssdTopup');
     } catch (e) {
-      dev.log('Error loading virtual account', name: 'UssdTopup', error: e);
+      dev.log('Error loading virtual account from cache', name: 'UssdTopup', error: e);
       hasVirtualAccount.value = false;
     }
   }

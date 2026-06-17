@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/app.dart';
+import 'package:mcd/core/services/storage_service.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:mcd/core/controllers/payment_config_controller.dart';
 import 'package:mcd/core/controllers/service_status_controller.dart';
@@ -42,6 +43,7 @@ Future<void> main() async {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
   await GetStorage.init();
+  await Get.putAsync(() => StorageService().init());
   await DeviceInfoService().initialize();
   await AdsService().initialize(testMode: false);
 
@@ -142,7 +144,7 @@ void _handleNotificationData(Map<String, dynamic> data) {
             'App initializing, deferring notification giveaway: $giveawayId',
             name: 'FCM');
         try {
-          final deepLinkService = Get.find<DeepLinkService>();
+          final deepLinkService = DeepLinkService.to;
           deepLinkService.savePendingGiveawayId(giveawayId,
               route: Routes.GIVEAWAY_DETAIL);
           return;

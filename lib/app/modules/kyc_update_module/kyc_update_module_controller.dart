@@ -9,8 +9,7 @@ class KycUpdateModuleController extends GetxController {
   final box = GetStorage();
   // static SprintCheck? _sprintCheckPlugin;
   // SprintCheck get sprintCheckPlugin => _sprintCheckPlugin ?? SprintCheck();
-  final LoginScreenController authController =
-      Get.find<LoginScreenController>();
+  LoginScreenController get authController => LoginScreenController.to;
 
   final bvnController = TextEditingController();
   final identifierController = TextEditingController();

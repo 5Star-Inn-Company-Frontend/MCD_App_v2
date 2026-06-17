@@ -140,10 +140,8 @@ class VirtualCardFullDetailsController extends GetxController
               colorText: AppColors.textSnackbarColor,
             );
 
-            // Refresh home list
-            if (Get.isRegistered<VirtualCardDetailsController>()) {
-              Get.find<VirtualCardDetailsController>().fetchAllCards();
-            }
+            // Refresh home list via storage flag
+            box.write('vcard_refresh_needed', true);
 
             Get.until(
                 (route) => route.settings.name == Routes.VIRTUAL_CARD_DETAILS);

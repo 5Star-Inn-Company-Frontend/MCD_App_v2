@@ -3,7 +3,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 
-class PaymentConfigController extends GetxController {
+class PaymentConfigController extends GetxService {
+  static late PaymentConfigController to;
   final DioApiService apiService = DioApiService();
   final storage = GetStorage();
 
@@ -14,6 +15,7 @@ class PaymentConfigController extends GetxController {
 
   @override
   void onInit() {
+    to = this;
     super.onInit();
     _loadCachedPaymentConfig();
 

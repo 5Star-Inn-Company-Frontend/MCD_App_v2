@@ -21,6 +21,7 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/widgets/loading_dialog.dart';
 import 'package:mcd/core/services/ads_service.dart';
 
+import '../../../core/constants/fonts.dart';
 import '../../../core/controllers/service_status_controller.dart';
 import '../../../core/controllers/payment_config_controller.dart';
 import '../../../core/network/api_constants.dart';
@@ -28,16 +29,18 @@ import '../../../core/network/dio_api_service.dart';
 // import '../../../core/services/deep_link_service.dart';
 import '../../../core/utils/validator.dart';
 import '../../routes/app_pages.dart';
+import '../../styles/fonts.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */
 
-class LoginScreenController extends GetxController {
+class LoginScreenController extends GetxService {
+  static late LoginScreenController to;
   final _obj = ''.obs;
   set obj(value) => _obj.value = value;
   String get obj => _obj.value;
 
-  final formKey = GlobalKey<FormState>();
+  var formKey = GlobalKey<FormState>();
 
   final _isEmail = true.obs;
   set isEmail(value) {
@@ -123,6 +126,7 @@ class LoginScreenController extends GetxController {
 
   @override
   void onInit() {
+    to = this;
     super.onInit();
     countryController.text = "+234";
     checkBiometricSupport();
@@ -516,8 +520,8 @@ class LoginScreenController extends GetxController {
     // parallel fetch all post-auth data
     try {
       await Future.wait([
-        Get.find<ServiceStatusController>().fetchServiceStatus(),
-        Get.find<PaymentConfigController>().fetchPaymentMethods(),
+        ServiceStatusController.to.fetchServiceStatus(),
+        PaymentConfigController.to.fetchPaymentMethods(),
         fetchDashboard(force: true),
       ]);
     } catch (e) {
@@ -546,20 +550,8 @@ class LoginScreenController extends GetxController {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null || transactionUrl.isEmpty) return;
 
-      // reuse CountrySelectionController if already registered, else create temp instance
-      CountrySelectionController? ctrl;
-      try {
-        ctrl = Get.find<CountrySelectionController>();
-      } catch (_) {
-        ctrl = null;
-      }
-
-      if (ctrl != null) {
-        ctrl.fetchCountries();
-      } else {
-        // standalone fetch — write directly to storage without a controller
-        _fetchAndCacheCountries(transactionUrl);
-      }
+      // standalone fetch — write directly to storage without a controller
+      _fetchAndCacheCountries(transactionUrl);
     } catch (e) {
       dev.log('Countries prefetch error: $e', name: 'Login');
     }
@@ -955,12 +947,59 @@ class LoginScreenController extends GetxController {
       dashboardData = null;
 
       // delete controllers to clear memory state
-      Get.delete<AccountInfoModuleController>(force: true);
       Get.delete<HomeScreenController>(force: true);
       // optionally clear biometric data on logout
       // await box.remove('biometric_enabled');
     } catch (e) {
       dev.log("Logout error: $e");
+    }
+  }
+
+  Future<void> confirmLogout() async {
+    // Show confirmation dialog
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: AppColors.white,
+        title: TextSemiBold(
+          'Confirm Logout',
+          fontSize: 18,
+        ),
+        content: const Text(
+          'Are you sure you want to logout?',
+          style: TextStyle(
+            fontSize: 14,
+            fontFamily: AppFonts.manRope,
+          ),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: TextSemiBold(
+              'Cancel',
+              fontSize: 14,
+              color: AppColors.primaryGrey2,
+            ),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: TextSemiBold(
+              'Logout',
+              fontSize: 14,
+              color: AppColors.errorBgColor,
+            ),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
+
+    // If user confirmed, proceed with logout
+    if (confirmed == true) {
+      await logout();
+      Get.offAllNamed(Routes.LOGIN_SCREEN);
     }
   }
 }

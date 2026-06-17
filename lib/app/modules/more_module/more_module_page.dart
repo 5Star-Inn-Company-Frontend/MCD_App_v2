@@ -103,18 +103,10 @@ class MoreModulePage extends GetView<MoreModuleController> {
                       Get.toNamed(Routes.SETTINGS_SCREEN);
                     }, false),
                     rowcard('Logout', () {
-                      if (Get.isRegistered<MoreModuleController>()) {
-                        controller.logoutUser();
-                      } else {
-                        Get.put(MoreModuleController()).logoutUser();
-                      }
+                      LoginScreenController.to.confirmLogout();
                     }, true),
                     rowcard('Delete Account', () {
-                      if (Get.isRegistered<MoreModuleController>()) {
-                        controller.deleteAccount();
-                      } else {
-                        Get.put(MoreModuleController()).deleteAccount();
-                      }
+                      controller.deleteAccount();
                     }, true),
                   ],
                 ),
@@ -391,7 +383,7 @@ class MoreModulePage extends GetView<MoreModuleController> {
             title: 'Chat with us on Whatsapp',
             onTap: () async {
               try {
-                final authController = Get.find<LoginScreenController>();
+                final authController = LoginScreenController.to;
                 final username =
                     authController.dashboardData?.user.userName ?? 'User';
                 String url =
@@ -436,7 +428,7 @@ class MoreModulePage extends GetView<MoreModuleController> {
             title: 'Send a mail',
             onTap: () async {
               try {
-                final authController = Get.find<LoginScreenController>();
+                final authController = LoginScreenController.to;
                 final username =
                     authController.dashboardData?.user.userName ?? 'User';
                 String mail =

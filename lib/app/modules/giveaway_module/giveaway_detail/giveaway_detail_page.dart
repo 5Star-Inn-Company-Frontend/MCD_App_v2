@@ -40,10 +40,7 @@ class GiveawayDetailPage extends GetView<GiveawayDetailController> {
 
             return IconButton(
               onPressed: () {
-                if (Get.isRegistered<GiveawayModuleController>()) {
-                  Get.find<GiveawayModuleController>()
-                      .shareGiveaway(detail.giveaway.id);
-                }
+                controller.shareGiveaway(detail.giveaway.id);
               },
               icon: const Icon(Icons.share, color: Colors.black, size: 20),
               tooltip: 'Share Giveaway',

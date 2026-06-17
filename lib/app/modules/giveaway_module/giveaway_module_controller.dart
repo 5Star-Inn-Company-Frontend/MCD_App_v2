@@ -157,7 +157,7 @@ class GiveawayModuleController extends GetxController {
 
     // import is in controller already via widgets/giveaway_detail_sheet.dart
     Get.bottomSheet(
-      GiveawayDetailSheet(giveawayId: giveawayId),
+      GiveawayDetailSheet(giveawayId: giveawayId, controller: this),
       isScrollControlled: true,
       ignoreSafeArea: false,
     );

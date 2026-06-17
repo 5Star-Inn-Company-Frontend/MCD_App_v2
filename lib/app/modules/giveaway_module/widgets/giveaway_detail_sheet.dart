@@ -6,10 +6,9 @@ import '../models/giveaway_model.dart';
 
 class GiveawayDetailSheet extends StatelessWidget {
   final int giveawayId;
-  final GiveawayModuleController controller =
-      Get.find<GiveawayModuleController>();
+  final GiveawayModuleController controller;
 
-  GiveawayDetailSheet({super.key, required this.giveawayId});
+  const GiveawayDetailSheet({super.key, required this.giveawayId, required this.controller});
 
   @override
   Widget build(BuildContext context) {

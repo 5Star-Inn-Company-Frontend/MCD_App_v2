@@ -6,6 +6,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 
 class DeepLinkService extends GetxService {
+  static late DeepLinkService to;
   late final AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
   final _box = GetStorage();
@@ -20,6 +21,7 @@ class DeepLinkService extends GetxService {
   Uri? _initialLinkUri;
 
   Future<DeepLinkService> init() async {
+    to = this;
     _appLinks = AppLinks();
     _setupDeepLinkListener();
     await _persistInitialLink();

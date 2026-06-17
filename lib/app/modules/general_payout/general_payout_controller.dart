@@ -29,7 +29,6 @@ enum PaymentType {
 class GeneralPayoutController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
-  PaymentConfigController? _paymentConfig;
   final _gmPaymentService = GeneralMarketPaymentService();
 
   // Paystack plugin
@@ -112,14 +111,6 @@ class GeneralPayoutController extends GetxController {
 
     // add listener for card type detection
     cardNumberController.addListener(_detectCardType);
-
-    // Get payment config controller
-    try {
-      _paymentConfig = Get.find<PaymentConfigController>();
-    } catch (e) {
-      dev.log('PaymentConfigController not found, will fetch directly',
-          name: 'GeneralPayout');
-    }
 
     final args = Get.arguments as Map<String, dynamic>? ?? {};
     paymentType = args['paymentType'] ?? PaymentType.airtime;
@@ -492,80 +483,36 @@ class GeneralPayoutController extends GetxController {
     );
   }
 
+
+  final storage = GetStorage();
+
+  final RxBool isLoading = false.obs;
+  final RxString errorMessage = ''.obs;
+
   Future<void> fetchPaymentMethodAvailability() async {
     try {
-      // Use PaymentConfigController if available
-      if (_paymentConfig != null) {
-        dev.log(
-            'Using cached payment method availability from PaymentConfigController',
-            name: 'GeneralPayout');
-
-        paymentMethodStatus.value = _paymentConfig!.paymentMethodStatus;
-        paymentMethodDetails.value = _paymentConfig!.paymentMethodDetails;
-
-        dev.log('Payment method availability: $paymentMethodStatus',
-            name: 'GeneralPayout');
-
-        // If not loaded yet, trigger refresh
-        if (paymentMethodStatus.isEmpty) {
-          dev.log('Payment methods not loaded, refreshing...',
-              name: 'GeneralPayout');
-          isLoadingPaymentMethods.value = true;
-          await _paymentConfig!.refresh();
-          paymentMethodStatus.value = _paymentConfig!.paymentMethodStatus;
-          paymentMethodDetails.value = _paymentConfig!.paymentMethodDetails;
-          isLoadingPaymentMethods.value = false;
-        }
-        return;
-      }
-
-      // Fallback: Fetch directly if PaymentConfigController not available
-      dev.log('Fetching payment method availability directly...',
+      // Use PaymentConfigController
+      final config = PaymentConfigController.to;
+      dev.log(
+          'Using cached payment method availability from PaymentConfigController',
           name: 'GeneralPayout');
-      isLoadingPaymentMethods.value = true;
 
-      final transactionUrl = box.read('transaction_service_url');
-      if (transactionUrl == null) {
-        dev.log('Transaction URL not found',
-            name: 'GeneralPayout', error: 'URL missing');
+      paymentMethodStatus.value = config.paymentMethodStatus;
+      paymentMethodDetails.value = config.paymentMethodDetails;
+
+      dev.log('Payment method availability: $paymentMethodStatus',
+          name: 'GeneralPayout');
+
+      // If not loaded yet, trigger refresh
+      if (paymentMethodStatus.isEmpty) {
+        dev.log('Payment methods not loaded, refreshing...',
+            name: 'GeneralPayout');
+        isLoadingPaymentMethods.value = true;
+        await config.fetchPaymentMethods();
+        paymentMethodStatus.value = config.paymentMethodStatus;
+        paymentMethodDetails.value = config.paymentMethodDetails;
         isLoadingPaymentMethods.value = false;
-        return;
       }
-
-      final result =
-          await apiService.getrequest('${transactionUrl}payment-methods');
-      result.fold(
-        (failure) {
-          dev.log('Failed to fetch payment method availability',
-              name: 'GeneralPayout', error: failure.message);
-          isLoadingPaymentMethods.value = false;
-        },
-        (data) {
-          if (data['success'] == 1 &&
-              data['data'] != null &&
-              data['data']['status'] != null) {
-            final status = data['data']['status'] as Map<String, dynamic>;
-            paymentMethodStatus.value =
-                status.map((key, value) => MapEntry(key, value.toString()));
-            dev.log('Payment method availability: $paymentMethodStatus',
-                name: 'GeneralPayout');
-
-            if (data['data']['details'] != null) {
-              final details = data['data']['details'] as Map<String, dynamic>;
-              paymentMethodDetails.value =
-                  details.map((key, value) => MapEntry(key, value.toString()));
-
-              if (details['paystack_public'] != null) {
-                box.write('paystack_public_key', details['paystack_public']);
-                dev.log(
-                    'Paystack public key stored: ${details['paystack_public']}',
-                    name: 'GeneralPayout');
-              }
-            }
-          }
-          isLoadingPaymentMethods.value = false;
-        },
-      );
     } catch (e) {
       dev.log('Error fetching payment method availability',
           name: 'GeneralPayout', error: e);

@@ -13,10 +13,11 @@ class ConnectivityService extends GetxService {
   final connectionType = ConnectivityResult.none.obs;
   final showBanner = false.obs;
 
-  static ConnectivityService get to => Get.find<ConnectivityService>();
+  static late ConnectivityService to;
 
   @override
   void onInit() {
+    to = this;
     super.onInit();
     _initConnectivity();
     _connectivitySubscription =

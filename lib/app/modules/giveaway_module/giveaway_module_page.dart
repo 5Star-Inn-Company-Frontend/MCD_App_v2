@@ -237,7 +237,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   giveaway.userName,
                   'N${giveaway.amount} • ${giveaway.quantity} Qty • ${giveaway.views} Seen \n${giveaway.type.toUpperCase()} • ${giveaway.typeCode.toUpperCase()}',
                   () => Get.bottomSheet(
-                    GiveawayDetailSheet(giveawayId: giveaway.id),
+                    GiveawayDetailSheet(giveawayId: giveaway.id, controller: controller),
                     isScrollControlled: true,
                     ignoreSafeArea: false,
                   ),

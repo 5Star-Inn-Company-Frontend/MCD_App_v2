@@ -760,7 +760,7 @@ class TransactionDetailModulePage
                 }, SvgPicture.asset(AppAsset.rotateIcon), "Add to recurring"),
                 actionButtons(() async {
                   try {
-                    final authController = Get.find<LoginScreenController>();
+                    final authController = LoginScreenController.to;
                     final username =
                         authController.dashboardData?.user.userName ?? 'User';
                     final reference = controller.transactionId;

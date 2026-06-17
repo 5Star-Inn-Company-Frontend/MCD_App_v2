@@ -12,7 +12,7 @@ class VcardReceipt extends StatefulWidget {
 
 class _VcardReceiptState extends State<VcardReceipt> {
   late ConfettiController _confettiController;
-  final controller = Get.find<VirtualCardTopUpController>();
+  final GlobalKey _receiptKey = GlobalKey();
 
   @override
   void initState() {
@@ -72,7 +72,7 @@ class _VcardReceiptState extends State<VcardReceipt> {
               ),
               const Gap(20),
               RepaintBoundary(
-                key: controller.receiptKey,
+                key: _receiptKey,
                 child: Container(
                   height: MediaQuery.sizeOf(context).height * 0.75,
                   width: double.infinity,

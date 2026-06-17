@@ -3,7 +3,7 @@ import 'package:mcd/core/controllers/service_status_controller.dart';
 
 /// Mixin to add service availability checking to controllers
 mixin ServiceAvailabilityMixin {
-  final ServiceStatusController _serviceStatusController = Get.find<ServiceStatusController>();
+  ServiceStatusController get _serviceStatusController => ServiceStatusController.to;
 
   /// Check if service is available before navigation
   /// Returns true if available, false if not (and shows dialog)

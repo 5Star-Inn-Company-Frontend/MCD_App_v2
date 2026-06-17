@@ -12,6 +12,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'package:mcd/core/import/imports.dart';
 
+import '../../../../core/services/storage_service.dart';
+
 class MyQrcodeModuleController extends GetxController {
   final GetStorage _storage = GetStorage();
 
@@ -45,22 +47,14 @@ class MyQrcodeModuleController extends GetxController {
 
   void _loadUserData() {
     try {
-      // Try to get data from HomeScreenController first
-      final homeController = Get.find<HomeScreenController>();
-      if (homeController.dashboardData != null) {
-        _username.value = homeController.dashboardData!.user.userName ?? 'User';
-        _email.value =
-            homeController.dashboardData!.user.email ?? 'user@example.com';
-        dev.log(
-            'Loaded user data from dashboard - Username: ${_username.value}, Email: ${_email.value}');
-      } else {
-        // Fallback to storage
-        _username.value = _storage.read('username') ?? 'User';
-        _email.value = _storage.read('email') ?? 'user@example.com';
-        dev.log('Dashboard data not available, loaded from storage');
-      }
+      // Load from StorageService or fallback to direct storage
+      final storage = StorageService.to;
+      _username.value = storage.username ?? _storage.read('username') ?? 'User';
+      _email.value = storage.userEmail ?? _storage.read('email') ?? 'user@example.com';
+      dev.log(
+          'Loaded user data from storage - Username: ${_username.value}, Email: ${_email.value}');
     } catch (e) {
-      dev.log('Error loading user data: $e');
+      dev.log('Error loading user data from storage: $e');
       // Final fallback to storage
       _username.value = _storage.read('username') ?? 'User';
       _email.value = _storage.read('email') ?? 'user@example.com';

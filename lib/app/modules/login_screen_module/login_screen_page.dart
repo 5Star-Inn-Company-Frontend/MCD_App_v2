@@ -1,25 +1,17 @@
 import 'package:mcd/core/import/imports.dart';
-// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'dart:developer' as dev;
+import 'package:flutter/material.dart';
+import './login_screen_controller.dart';
 
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */
 
-class LoginScreenPage extends StatefulWidget {
+class LoginScreenPage extends GetView<LoginScreenController> {
   const LoginScreenPage({super.key});
 
   @override
-  State<LoginScreenPage> createState() => _LoginScreenPageState();
-}
-
-class _LoginScreenPageState extends State<LoginScreenPage> {
-  final _localFormKey = GlobalKey<FormState>();
-  final controller = Get.find<LoginScreenController>();
-
-  @override
   Widget build(BuildContext context) {
+    controller.formKey = GlobalKey<FormState>();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.white,
@@ -43,7 +35,7 @@ class _LoginScreenPageState extends State<LoginScreenPage> {
                   padding:
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: Form(
-                    key: _localFormKey,
+                    key: controller.formKey,
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,7 +276,7 @@ class _LoginScreenPageState extends State<LoginScreenPage> {
                         Obx(() => TouchableOpacity(
                               disabled: !controller.isFormValid,
                               onTap: () {
-                                if (!_localFormKey.currentState!.validate()) {
+                                if (!controller.formKey.currentState!.validate()) {
                                   return;
                                 }
 

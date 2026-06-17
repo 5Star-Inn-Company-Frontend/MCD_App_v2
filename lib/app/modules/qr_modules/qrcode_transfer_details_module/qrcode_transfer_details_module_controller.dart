@@ -6,6 +6,8 @@ import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'dart:developer' as dev;
 
+import '../../home_screen_module/model/dashboard_model.dart';
+
 class QrcodeTransferDetailsModuleController extends GetxController {
   final GetStorage _storage = GetStorage();
   final apiService = DioApiService();
@@ -46,18 +48,19 @@ class QrcodeTransferDetailsModuleController extends GetxController {
   }
 
   void _loadData() async {
-    // Load current wallet balance from home dashboard
+    // Load current wallet balance from cached dashboard
     try {
-      final homeController = Get.find<HomeScreenController>();
-      if (homeController.dashboardData != null) {
-        final walletBalance = homeController.dashboardData!.balance.wallet;
+      final cachedDashboard = _storage.read('cached_dashboard');
+      if (cachedDashboard != null) {
+        final dashboard = DashboardModel.fromJson(cachedDashboard);
+        final walletBalance = dashboard.balance.wallet;
         _currentWallet.value = double.tryParse(walletBalance) ?? 0.0;
-        dev.log('Current wallet balance: ${_currentWallet.value}');
+        dev.log('Current wallet balance loaded from cache: ${_currentWallet.value}');
       } else {
         _currentWallet.value = 0.0;
       }
     } catch (e) {
-      dev.log('Error loading wallet balance: $e');
+      dev.log('Error loading wallet balance from cache: $e');
       _currentWallet.value = 0.0;
     }
     
@@ -221,13 +224,8 @@ class QrcodeTransferDetailsModuleController extends GetxController {
 
             _currentTxRef = null; // Clear on success
 
-            // Refresh dashboard to update balance
-            try {
-              final homeController = Get.find<HomeScreenController>();
-              homeController.refreshDashboard();
-            } catch (e) {
-              dev.log('Could not refresh dashboard: $e');
-            }
+            // Refresh dashboard data via API directly if needed, or just notify user
+            // Dashboard refresh usually happens on home page entry
 
             // Navigate back
             Get.back();

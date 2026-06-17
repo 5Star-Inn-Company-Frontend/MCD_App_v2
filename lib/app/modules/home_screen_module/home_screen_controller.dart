@@ -20,6 +20,7 @@ import '../../../core/network/dio_api_service.dart';
 
 class HomeScreenController extends GetxController
     with ServiceAvailabilityMixin, StateMixin {
+  static late HomeScreenController to;
   var _obj = ''.obs;
   set obj(value) => _obj.value = value;
   get obj => _obj.value;
@@ -46,6 +47,7 @@ class HomeScreenController extends GetxController
 
   @override
   void onInit() {
+    to = this;
     dev.log("HomeScreenController initialized");
 
     // load dashboard from cache first for instant loading
@@ -61,7 +63,7 @@ class HomeScreenController extends GetxController
 
     // if dashboard was already loaded during login, reuse it
     try {
-      final loginCtrl = Get.find<LoginScreenController>();
+      final loginCtrl = LoginScreenController.to;
       if (loginCtrl.dashboardData != null) {
         dashboardData = loginCtrl.dashboardData;
         dev.log("Dashboard loaded from login session, skipping fetch");
@@ -86,7 +88,7 @@ class HomeScreenController extends GetxController
     _loadServiceData();
 
     // react to future updates from ServiceStatusController
-    final ssc = Get.find<ServiceStatusController>();
+    final ssc = ServiceStatusController.to;
     ever(ssc.serviceStatus, (_) => _loadServiceData());
 
     change(null, status: RxStatus.success());
@@ -174,7 +176,7 @@ class HomeScreenController extends GetxController
     // _checkClipboardForPhoneNumber();
 
     try {
-      final deepLinkService = Get.find<DeepLinkService>();
+      final deepLinkService = DeepLinkService.to;
       deepLinkService.markNavigationReady();
       deepLinkService.consumePendingDeepLink();
     } catch (e) {
@@ -371,7 +373,7 @@ class HomeScreenController extends GetxController
     await Future.wait([
       fetchDashboard(force: true),
       fetchGMBalance(),
-      Get.find<ServiceStatusController>().fetchServiceStatus(),
+      ServiceStatusController.to.fetchServiceStatus(),
     ]);
     // service data updates reactively via the ever() listener
   }
@@ -408,7 +410,7 @@ class HomeScreenController extends GetxController
   // reads service data from ServiceStatusController — no own API call
   void _loadServiceData() {
     try {
-      final ssc = Get.find<ServiceStatusController>();
+      final ssc = ServiceStatusController.to;
       final rawServices = ssc.getRawServices();
       if (rawServices.isNotEmpty) {
         updateActionButtons(rawServices);

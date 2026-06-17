@@ -42,6 +42,19 @@ class VirtualCardDetailsController extends GetxController {
     });
   }
 
+  @override
+  void onReady() {
+    super.onReady();
+    _checkRefreshNeeded();
+  }
+
+  void _checkRefreshNeeded() {
+    if (box.read('vcard_refresh_needed') == true) {
+      box.write('vcard_refresh_needed', false);
+      fetchAllCards();
+    }
+  }
+
   // call this whenever returning to this screen from a sub-screen
   void refreshAllBalances() {
     for (final card in cards) {

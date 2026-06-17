@@ -27,36 +27,37 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final service = Get.find<ConnectivityService>();
-      final isOffline = !service.isConnected.value;
+    return Column(
+      children: [
+        Obx(() {
+          final service = ConnectivityService.to;
+          final isOffline = !service.isConnected.value;
 
-      // track back-online transition
-      if (_wasOffline && !isOffline) {
-        _showBackOnline = true;
-        _backOnlineTimer?.cancel();
-        _backOnlineTimer = Timer(const Duration(seconds: 3), () {
-          if (mounted) setState(() => _showBackOnline = false);
-        });
-      }
-      _wasOffline = isOffline;
+          // track back-online transition
+          if (_wasOffline && !isOffline) {
+            _showBackOnline = true;
+            _backOnlineTimer?.cancel();
+            _backOnlineTimer = Timer(const Duration(seconds: 3), () {
+              if (mounted) setState(() => _showBackOnline = false);
+            });
+          }
+          _wasOffline = isOffline;
 
-      return Column(
-        children: [
           // offline banner
-          if (isOffline)
-            _OfflineBanner(onRetry: service.retryConnection)
-          else if (_showBackOnline)
+          if (isOffline) {
+            return _OfflineBanner(onRetry: service.retryConnection);
+          } else if (_showBackOnline) {
             // back online banner
-            _BackOnlineBanner()
-          else
-            const SizedBox.shrink(),
+            return _BackOnlineBanner();
+          } else {
+            return const SizedBox.shrink();
+          }
+        }),
 
-          // actual page content
-          Expanded(child: widget.child),
-        ],
-      );
-    });
+        // actual page content - keep outside Obx to prevent reparenting and GlobalKey issues
+        Expanded(child: widget.child),
+      ],
+    );
   }
 }
 

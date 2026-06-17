@@ -4,7 +4,8 @@ import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/models/service_status_model.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 
-class ServiceStatusController extends GetxController {
+class ServiceStatusController extends GetxService {
+  static late ServiceStatusController to;
   final DioApiService apiService = DioApiService();
   final storage = GetStorage();
 
@@ -15,6 +16,7 @@ class ServiceStatusController extends GetxController {
 
   @override
   void onInit() {
+    to = this;
     super.onInit();
     _loadCachedStatus();
 

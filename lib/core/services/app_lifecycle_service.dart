@@ -75,7 +75,7 @@ class AppLifecycleService extends GetxService with WidgetsBindingObserver {
     }
 
     try {
-      Get.find<LoginScreenController>().logout();
+      LoginScreenController.to.logout();
       dev.log('Session cleared via LoginScreenController', name: 'Lifecycle');
     } catch (e) {
       dev.log('Error calling logout: $e', name: 'Lifecycle');

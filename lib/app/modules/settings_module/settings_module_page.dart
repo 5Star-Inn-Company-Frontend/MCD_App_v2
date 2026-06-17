@@ -110,12 +110,8 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                         _showBiometricLogoutModal(context);
                       }
 
-                      // update login controller biometric setup status if it exists
-                      if (Get.isRegistered<LoginScreenController>()) {
-                        final loginController =
-                            Get.find<LoginScreenController>();
-                        loginController.checkBiometricSetup();
-                      }
+                      // update login controller biometric setup status
+                      LoginScreenController.to.checkBiometricSetup();
                     },
                   )),
               Obx(() => rowcard(
@@ -211,12 +207,8 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // trigger logout
-              if (Get.isRegistered<MoreModuleController>()) {
-                Get.find<MoreModuleController>().logoutUser();
-              } else {
-                Get.put(MoreModuleController()).logoutUser();
-              }
+              // trigger logout via stable service
+              LoginScreenController.to.confirmLogout();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryGreen,
