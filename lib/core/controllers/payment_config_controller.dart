@@ -26,7 +26,7 @@ class PaymentConfigController extends GetxService {
     }
   }
 
-  Future<void> fetchPaymentMethods() async {
+  Future<bool> fetchPaymentMethods() async {
     // only show loader if we have no cached data
     if (paymentMethodStatus.isEmpty) {
       isLoading.value = true;
@@ -39,10 +39,12 @@ class PaymentConfigController extends GetxService {
       dev.log('Transaction URL not found, will retry when available', name: 'PaymentConfig');
       _loadCachedPaymentConfig();
       isLoading.value = false;
-      return;
+      return false;
     }
 
     final result = await apiService.getrequest('${transactionUrl}payment-methods');
+
+    bool isSuccess = false;
 
     result.fold(
       (failure) {
@@ -91,6 +93,7 @@ class PaymentConfigController extends GetxService {
           
           // Cache the entire response
           storage.write('cached_payment_methods', data);
+          isSuccess = true;
         } else {
           dev.log('Payment methods fetch failed', name: 'PaymentConfig', error: data['message']);
           errorMessage.value = data['message'] ?? 'Failed to fetch payment methods';
@@ -100,6 +103,7 @@ class PaymentConfigController extends GetxService {
     );
  
     isLoading.value = false;
+    return isSuccess;
   }
 
   // Load cached payment configuration

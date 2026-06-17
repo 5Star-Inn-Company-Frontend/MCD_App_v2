@@ -103,7 +103,7 @@ class LoginScreenController extends GetxService {
       final phone = phoneNumberController.text.trim();
       isValid = phone.isNotEmpty && phone.length >= 10 && isPasswordValid;
     }
-    
+
     // Only update if value changed to avoid redundant rebuilds
     if (isFormValid != isValid) {
       isFormValid = isValid;
@@ -213,11 +213,11 @@ class LoginScreenController extends GetxService {
   var apiService = DioApiService();
 
   final box = GetStorage();
-  
+
   static const _androidOptions = AndroidOptions(
     encryptedSharedPreferences: true,
   );
-  
+
   final secureStorage = const FlutterSecureStorage(
     aOptions: _androidOptions,
   );
@@ -323,12 +323,12 @@ class LoginScreenController extends GetxService {
     }
   }
 
-  Future<void> fetchDashboard({bool force = false}) async {
+  Future<bool> fetchDashboard({bool force = false}) async {
     dev.log("LoginController fetchDashboard called, force: $force");
 
     if (dashboardData != null && !force) {
       dev.log("Dashboard already loaded in LoginController");
-      return;
+      return true;
     }
 
     isLoading = true;
@@ -338,6 +338,7 @@ class LoginScreenController extends GetxService {
     final result =
         await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
 
+    bool isSuccess = false;
     result.fold(
       (failure) {
         errorMessage = failure.message;
@@ -354,10 +355,12 @@ class LoginScreenController extends GetxService {
         if (force) {
           // Get.snackbar("Updated", "Dashboard refreshed", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
         }
+        isSuccess = true;
       },
     );
 
     isLoading = false;
+    return isSuccess;
   }
 
   /// check if device supports biometrics
@@ -518,14 +521,52 @@ class LoginScreenController extends GetxService {
   /// navigate to home after successful login
   Future<void> handleLoginSuccess() async {
     // parallel fetch all post-auth data
-    try {
-      await Future.wait([
-        ServiceStatusController.to.fetchServiceStatus(),
-        PaymentConfigController.to.fetchPaymentMethods(),
-        fetchDashboard(force: true),
-      ]);
-    } catch (e) {
-      dev.log('Error in post-login data fetch: $e', name: 'Login');
+    bool fetchSuccess = false;
+    await Future.wait([
+      ServiceStatusController.to.fetchServiceStatus(),
+      PaymentConfigController.to.fetchPaymentMethods(),
+      fetchDashboard(force: true),
+    ]);
+
+    for (int i = 0; i < 2; i++) {
+      try {
+        final results = await Future.wait([
+          serviceStatusCtrl
+              .fetchServiceStatus()
+              .timeout(const Duration(seconds: 10)),
+          paymentConfigCtrl
+              .fetchPaymentMethods()
+              .timeout(const Duration(seconds: 10)),
+          fetchDashboard(force: true).timeout(const Duration(seconds: 10)),
+        ]).timeout(const Duration(seconds: 30));
+
+        // check if any of the endpoints failed
+        if (results.contains(false)) {
+          throw Exception("One or more services failed to load properly");
+        }
+
+        fetchSuccess = true;
+        break; // Exit loop on success
+      } catch (e) {
+        dev.log('Error in post-login data fetch (attempt ${i + 1}): $e',
+            name: 'Login');
+        if (i == 0) {
+          // little delay before the second attempt
+          await Future.delayed(const Duration(seconds: 2));
+        }
+      }
+    }
+
+    if (!fetchSuccess) {
+      // Inform the user after retries have failed
+      Get.snackbar(
+        "Connection Slow",
+        "Some data is still loading. Please swipe down to refresh the home screen later.",
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+        duration: const Duration(seconds: 4),
+        snackPosition: SnackPosition.TOP,
+      );
     }
 
     // non-blocking prefetches
@@ -943,7 +984,7 @@ class LoginScreenController extends GetxService {
       await box.remove('cached_profile');
       await box.remove('biometric_username_real');
       await box.remove('user_email');
-      
+
       dashboardData = null;
 
       // delete controllers to clear memory state

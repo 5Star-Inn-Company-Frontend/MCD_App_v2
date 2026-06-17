@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:advert/advert.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'connectivity_service.dart';
 
 class AdsService {
   static final AdsService _instance = AdsService._internal();
@@ -13,6 +14,8 @@ class AdsService {
 
   final _advertPlugin = Advert();
   bool _isInitialized = false;
+  bool _isSequenceActive = false;
+  Timer? _sequenceTimer;
 
   static final String bannerAdUnitId = Platform.isAndroid
       ? 'ca-app-pub-6117361441866120/3287545689'
@@ -101,6 +104,7 @@ class AdsService {
   Widget showBannerAdWidget() {
     if (!_isInitialized) {
       dev.log('Error: Ads not initialized');
+      return const SizedBox.shrink();
     }
 
     try {
@@ -110,7 +114,7 @@ class AdsService {
       dev.log('Error showing banner ad: $e');
     }
 
-    return Container();
+    return const SizedBox.shrink();
   }
 
   void showInterstitialAd() {
@@ -247,24 +251,45 @@ class AdsService {
         Function? onAdClicked,
         Function? onAdImpression,
   }) async {
+    if (_isSequenceActive) {
+      dev.log('Ad sequence is already active. Ignoring duplicate request.');
+      return;
+    }
+
+    if (!ConnectivityService.to.isConnected.value) {
+      dev.log('Ad sequence failed: No internet connection.');
+      if (onAdFailed != null) {
+        onAdFailed('No internet connection. Please check your network and try again.');
+      }
+      return;
+    }
+
     if (!_isInitialized) {
       dev.log('Ads not initialized yet, initializing now...');
       await initialize(testMode: false);
 
       if (!_isInitialized) {
         dev.log('Error: Failed to initialize ads');
+        if (onAdFailed != null) {
+          onAdFailed('Unable to load ads. Please try again later.');
+        }
         return;
       }
     }
 
     try {
+      _isSequenceActive = true;
       final defaultCustomData =
           customData ?? {"username": "", "platform": "", "type": ""};
 
       bool sequenceCompleted = false;
       bool wasShowing = false; // track ad activation
 
-      if (!context.mounted) return;
+      if (!context.mounted) {
+        _isSequenceActive = false;
+        return;
+      }
+
       _advertPlugin.adsProv.startAdSequence(
         context,
         total: maxAds,
@@ -273,6 +298,7 @@ class AdsService {
         customData: defaultCustomData,
         onComplete: () {
           sequenceCompleted = true;
+          _isSequenceActive = false;
           if (onAdCompleted != null) onAdCompleted();
         },
         onAdClicked: onAdClicked,
@@ -281,8 +307,19 @@ class AdsService {
 
       // watch for premature abort or stalls
       int noAdShowingTicks = 0; // track ticks while no ad is showing
-      Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      _sequenceTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
         if (sequenceCompleted) {
+          timer.cancel();
+          return;
+        }
+
+        // abort instantly if network drops while waiting for ads
+        if (!ConnectivityService.to.isConnected.value) {
+          dev.log('Ad sequence failed: Network connection lost during ad sequence.');
+          _isSequenceActive = false;
+          if (onAdFailed != null) {
+            onAdFailed('Network connection lost. Please check your internet and try again.');
+          }
           timer.cancel();
           return;
         }
@@ -291,21 +328,33 @@ class AdsService {
         
         if (!isShowing) {
           noAdShowingTicks++;
-          // 30 ticks = 15 seconds maximum wait time between ads or before first ad
-          if (noAdShowingTicks > 30) { 
-            dev.log('Ad sequence failed: Timeout waiting for ad to load or sequence stalled.');
-            if (onAdFailed != null) {
-              if (wasShowing) {
-                onAdFailed('Ad sequence encountered an error while loading the next advertisement. Please try again.');
-              } else {
+          
+          if (wasShowing) {
+            // user likely closed the ad prematurely or is waiting for the next one
+            // give a 3-second (6 ticks) grace period
+            if (noAdShowingTicks > 6) {
+              dev.log('Ad sequence failed: Sequence aborted by user or failed to load next ad.');
+              _isSequenceActive = false;
+              if (onAdFailed != null) {
+                onAdFailed('Ad sequence was interrupted or you closed the ad early. You must watch the full ad to proceed.');
+              }
+              timer.cancel();
+              return;
+            }
+          } else {
+            // waiting for the first ad to show for 5 seconds
+            if (noAdShowingTicks > 10) { 
+              dev.log('Ad sequence failed: Timeout waiting for ad to load or sequence stalled.');
+              _isSequenceActive = false;
+              if (onAdFailed != null) {
                 onAdFailed('Ads are temporarily unavailable. Please try again or choose another payment method.');
               }
+              timer.cancel();
+              return;
             }
-            timer.cancel();
-            return;
           }
         } else {
-          // Reset ticks as long as an ad is showing
+          // reset ticks as long as an ad is showing
           noAdShowingTicks = 0;
           if (!wasShowing) {
             wasShowing = true;
@@ -314,6 +363,7 @@ class AdsService {
       });
     } catch (e) {
       dev.log('Error showing multiple rewarded ads: $e');
+      _isSequenceActive = false;
       if (onAdFailed != null) {
         onAdFailed(
             'An error occurred while loading ads. Please check your network and try again.');
@@ -323,6 +373,12 @@ class AdsService {
   }
 
   bool get isInitialized => _isInitialized;
+
+  void cancelSequence() {
+    _isSequenceActive = false;
+    _sequenceTimer?.cancel();
+    _sequenceTimer = null;
+  }
 
   bool isCurrentlyShowingAds() {
     return _advertPlugin.adsProv.isShowingAds;

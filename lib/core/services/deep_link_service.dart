@@ -167,10 +167,18 @@ class DeepLinkService extends GetxService {
     dev.log('consuming pending deep link: id=$pendingId route=$targetRoute',
         name: 'DeepLink');
 
-    Get.toNamed(targetRoute, arguments: {
-      'id': pendingId,
-      'giveaway_id': pendingId,
-    });
+    final String currentRoute = Get.currentRoute;
+    if (currentRoute == targetRoute) {
+      Get.offNamed(targetRoute, arguments: {
+        'id': pendingId,
+        'giveaway_id': pendingId,
+      });
+    } else {
+      Get.toNamed(targetRoute, arguments: {
+        'id': pendingId,
+        'giveaway_id': pendingId,
+      });
+    }
 
     return true;
   }

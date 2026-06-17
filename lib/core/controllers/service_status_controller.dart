@@ -27,7 +27,7 @@ class ServiceStatusController extends GetxService {
     }
   }
 
-  Future<void> fetchServiceStatus() async {
+  Future<bool> fetchServiceStatus() async {
     // only show loader if we have no cached data
     if (serviceStatus.value == null) {
       isLoading.value = true;
@@ -39,11 +39,13 @@ class ServiceStatusController extends GetxService {
       errorMessage.value = 'Transaction URL not found';
       _loadCachedStatus();
       isLoading.value = false;
-      return;
+      return false;
     }
 
     final url = '${transactionUrl}services';
     final result = await apiService.getrequest(url);
+
+    bool isSuccess = false;
 
     result.fold(
       (failure) {
@@ -61,6 +63,7 @@ class ServiceStatusController extends GetxService {
             dev.log('Service status cached successfully',
                 name: 'ServiceStatus');
           }
+          isSuccess = true;
         } else {
           errorMessage.value =
               data['message'] ?? 'Failed to fetch service status';
@@ -70,6 +73,7 @@ class ServiceStatusController extends GetxService {
     );
 
     isLoading.value = false;
+    return isSuccess;
   }
 
   // Load cached service status
