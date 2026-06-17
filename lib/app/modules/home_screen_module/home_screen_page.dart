@@ -30,16 +30,15 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                   "Hello ${controller.dashboardData?.user.userName ?? 'User'} 👋🏼",
               elevation: 0,
               actions: [
-                TouchableOpacity(
-                    child: InkWell(
-                        onTap: () {
-                          Get.toNamed(Routes.QRCODE_MODULE);
-                        },
-                        child: SvgPicture.asset(
-                          'assets/icons/bx_scan.svg',
-                          colorFilter: const ColorFilter.mode(
-                              Colors.black, BlendMode.srcIn),
-                        ))),
+                InkWell(
+                    onTap: () {
+                      Get.toNamed(Routes.QRCODE_MODULE);
+                    },
+                    child: SvgPicture.asset(
+                      'assets/icons/bx_scan.svg',
+                      colorFilter: const ColorFilter.mode(
+                          Colors.black, BlendMode.srcIn),
+                    )),
                 // const Gap(10),
                 // TouchableOpacity(
                 //     child: InkWell(
@@ -337,67 +336,48 @@ class HomeScreenPage extends GetView<HomeScreenController> {
 
                           return Opacity(
                             opacity: isAvailable ? 1.0 : 0.5,
-                            child: TouchableOpacity(
-                                onTap: () {},
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      color: const Color(0xffF3FFF7),
-                                      borderRadius: BorderRadius.circular(15)),
-                                  child: InkWell(
-                                    onTap: () async {
-                                      // Check service availability first
-                                      final isAvailable = await controller
-                                          .handleServiceNavigation(
-                                              controller.actionButtonz[index]);
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: const Color(0xffF3FFF7),
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: InkWell(
+                                onTap: () async {
+                                  // Check service availability first
+                                  final isAvailable = await controller
+                                      .handleServiceNavigation(
+                                          controller.actionButtonz[index]);
 
-                                      if (!isAvailable) {
-                                        return; // Service not available, dialog already shown
-                                      }
+                                  if (!isAvailable) {
+                                    return; // Service not available, dialog already shown
+                                  }
 
-                                      // Proceed with navigation if service is available
-                                      if (controller
-                                              .actionButtonz[index].link ==
-                                          Routes.RESULT_CHECKER_MODULE) {
-                                        _showResultCheckerOptions(context);
-                                      } else if (controller
-                                              .actionButtonz[index].link ==
-                                          "epin") {
-                                        _showEpinOptionsBottomSheet(context);
-                                      } else if (controller
-                                              .actionButtonz[index].link ==
-                                          Routes.AIRTIME_MODULE) {
-                                        _showAirtimeSelectionBottomSheet(
-                                            context);
-                                      } else if (controller
-                                              .actionButtonz[index].link ==
-                                          Routes.DATA_MODULE) {
-                                        _showDataSelectionBottomSheet(context);
-                                      }
-                                      // else if (controller
-                                      //         .actionButtonz[index].text ==
-                                      //     "Mega Bulk Service") {
-                                      //   try {
-                                      //     final url = Uri.parse(
-                                      //         'https://megabulk.5starcompany.com.ng/');
-                                      //     await launcher.launchUrl(url);
-                                      //   } catch (e) {
-                                      //     Get.snackbar(
-                                      //       "Error",
-                                      //       "Could not open Mega Bulk Service",
-                                      //       backgroundColor:
-                                      //           AppColors.errorBgColor,
-                                      //       colorText:
-                                      //           AppColors.textSnackbarColor,
-                                      //     );
-                                      //   }
-                                      else if (controller.actionButtonz[index]
-                                          .link.isNotEmpty) {
-                                        Get.toNamed(controller
-                                            .actionButtonz[index].link);
-                                      }
-                                    },
-                                    child: Column(
-                                      mainAxisAlignment:
+                                  // Proceed with navigation if service is available
+                                  if (controller
+                                          .actionButtonz[index].link ==
+                                      Routes.RESULT_CHECKER_MODULE) {
+                                    _showResultCheckerOptions(context);
+                                  } else if (controller
+                                          .actionButtonz[index].link ==
+                                      "epin") {
+                                    _showEpinOptionsBottomSheet(context);
+                                  } else if (controller
+                                          .actionButtonz[index].link ==
+                                      Routes.AIRTIME_MODULE) {
+                                    _showAirtimeSelectionBottomSheet(
+                                        context);
+                                  } else if (controller
+                                          .actionButtonz[index].link ==
+                                      Routes.DATA_MODULE) {
+                                    _showDataSelectionBottomSheet(context);
+                                  }
+                                  else if (controller.actionButtonz[index]
+                                      .link.isNotEmpty) {
+                                    Get.toNamed(controller
+                                        .actionButtonz[index].link);
+                                  }
+                                },
+                                child: Column(
+                                  mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
                                         SvgPicture.asset(
@@ -416,7 +396,7 @@ class HomeScreenPage extends GetView<HomeScreenController> {
                                       ],
                                     ),
                                   ),
-                                )),
+                                ),
                           );
                         }),
                     const Divider(

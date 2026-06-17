@@ -1095,7 +1095,6 @@ class GeneralPayoutController extends GetxController {
         // payment successful
         isCardLoading.value = false;
         _currentTxRef = null; // clear reference on success
-        Get.back(); // close dialog
 
         Get.snackbar(
           'Payment Successful',
@@ -1106,7 +1105,7 @@ class GeneralPayoutController extends GetxController {
         );
 
         dev.log('Navigating to receipt...', name: 'GeneralPayout');
-        // Navigate to receipt
+        // navigate to receipt
         _navigateToReceipt(_currentReference, _currentAmount.toDouble(), {
           'message': response.message,
           'status': response.status,
@@ -1231,6 +1230,9 @@ class GeneralPayoutController extends GetxController {
           name: 'GeneralPayout');
       return;
     }
+
+    // always generate a fresh transaction reference for each new attempt
+    _currentTxRef = null;
 
     isPaying.value = true;
     dev.log('Confirming payment for ${paymentType.name}',
@@ -1412,7 +1414,8 @@ class GeneralPayoutController extends GetxController {
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () {
-                              GeneralMarketPaymentService().forceCancelPayment();
+                              // GeneralMarketPaymentService().forceCancelPayment();
+                              _gmPaymentService.forceCancelPayment();
                               Get.back(); // close dialog
                               Get.snackbar(
                                 'Reset Successful', 
@@ -1467,7 +1470,7 @@ class GeneralPayoutController extends GetxController {
   double _getTransactionAmount() {
     if (isMultipleAirtime.value) {
       return multipleAirtimeList.fold<double>(
-          0, (sum, item) => sum + double.parse(item['amount']));
+          0, (sum, item) => sum + (double.tryParse(item['amount']?.toString() ?? '0') ?? 0));
     }
     // cable amount comes from bouquet details, not paymentData['amount']
     if (paymentType == PaymentType.cable) {
@@ -1516,7 +1519,7 @@ class GeneralPayoutController extends GetxController {
       // Refresh GM balance after successful transaction
       dev.log('Transaction complete, refreshing GM balance',
           name: 'GeneralPayout');
-      await fetchGMBalance();
+      await fetchGMBalance(); 
     } catch (e) {
       dev.log('Transaction processing error', name: 'GeneralPayout', error: e);
       isPaying.value = false;
@@ -1685,7 +1688,7 @@ class GeneralPayoutController extends GetxController {
     };
 
     final totalAmount = multipleAirtimeList.fold<double>(
-        0, (sum, item) => sum + double.parse(item['amount'].toString()));
+        0, (sum, item) => sum + (double.tryParse(item['amount']?.toString() ?? '0') ?? 0));
 
     await _performHandshake(
       endpoint: 'airtime-multiple',

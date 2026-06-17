@@ -220,11 +220,10 @@ class LoginScreenController extends GetxController {
           "${ApiConstants.authUrlV2}/login",
           {"user_name": username, "password": password});
 
-      Get.back();
-      isLoading = false;
-
       result.fold(
         (failure) {
+          Get.back();
+          isLoading = false;
           errorMessage = failure.message;
           dev.log("Login failed: ${failure.message}");
           Get.snackbar("Error", errorMessage!,
@@ -255,11 +254,15 @@ class LoginScreenController extends GetxController {
 
             await handleLoginSuccess();
           } else if (success == 2 && data['pin'] == true) {
+            Get.back();
+            isLoading = false;
             dev.log("PIN verification required");
             Get.toNamed(Routes.PIN_VERIFY, arguments: {"username": username});
           } else if (success == 2 ||
               data['message']?.toString().toLowerCase().contains("device") ==
                   true) {
+            Get.back();
+            isLoading = false;
             // new device verification required
             dev.log("New device verification required");
             Get.snackbar(
@@ -273,6 +276,8 @@ class LoginScreenController extends GetxController {
               "password": password,
             });
           } else {
+            Get.back();
+            isLoading = false;
             dev.log('Login error: ${data['message']}');
             Get.snackbar("Error", data['message'] ?? "Login failed",
                 backgroundColor: AppColors.errorBgColor,
@@ -281,23 +286,24 @@ class LoginScreenController extends GetxController {
         },
       );
     } catch (e) {
-      Get.back();
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+      isLoading = false;
       errorMessage = "Unexpected error: $e";
       dev.log('Login exception: $errorMessage');
       Get.snackbar("Error", errorMessage!,
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor);
-    } finally {
-      isLoading = false;
     }
   }
 
-  Future<void> fetchDashboard({bool force = false}) async {
+  Future<bool> fetchDashboard({bool force = false}) async {
     dev.log("LoginController fetchDashboard called, force: $force");
 
     if (dashboardData != null && !force) {
       dev.log("Dashboard already loaded in LoginController");
-      return;
+      return true;
     }
 
     isLoading = true;
@@ -307,6 +313,7 @@ class LoginScreenController extends GetxController {
     final result =
         await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
 
+    bool isSuccess = false;
     result.fold(
       (failure) {
         errorMessage = failure.message;
@@ -323,10 +330,12 @@ class LoginScreenController extends GetxController {
         if (force) {
           // Get.snackbar("Updated", "Dashboard refreshed", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
         }
+        isSuccess = true;
       },
     );
 
     isLoading = false;
+    return isSuccess;
   }
 
   /// check if device supports biometrics
@@ -484,17 +493,51 @@ class LoginScreenController extends GetxController {
     }
   }
 
-  /// navigate to home after successful login
   Future<void> handleLoginSuccess() async {
-    // parallel fetch all post-auth data
-    try {
-      await Future.wait([
-        Get.find<ServiceStatusController>().fetchServiceStatus(),
-        Get.find<PaymentConfigController>().fetchPaymentMethods(),
-        fetchDashboard(force: true),
-      ]);
-    } catch (e) {
-      dev.log('Error in post-login data fetch: $e', name: 'Login');
+    // parallel fetching all post-auth data with a retry mechanism
+    bool fetchSuccess = false;
+    final serviceStatusCtrl = Get.find<ServiceStatusController>();
+    final paymentConfigCtrl = Get.find<PaymentConfigController>();
+
+    for (int i = 0; i < 2; i++) {
+      try {
+        final results = await Future.wait([
+          serviceStatusCtrl
+              .fetchServiceStatus()
+              .timeout(const Duration(seconds: 10)),
+          paymentConfigCtrl
+              .fetchPaymentMethods()
+              .timeout(const Duration(seconds: 10)),
+          fetchDashboard(force: true).timeout(const Duration(seconds: 10)),
+        ]).timeout(const Duration(seconds: 30));
+        
+        // check if any of the endpoints failed
+        if (results.contains(false)) {
+          throw Exception("One or more services failed to load properly");
+        }
+
+        fetchSuccess = true;
+        break; // Exit loop on success
+      } catch (e) {
+        dev.log('Error in post-login data fetch (attempt ${i + 1}): $e',
+            name: 'Login');
+        if (i == 0) {
+          // little delay before the second attempt
+          await Future.delayed(const Duration(seconds: 2));
+        }
+      }
+    }
+
+    if (!fetchSuccess) {
+      // Inform the user after retries have failed
+      Get.snackbar(
+        "Connection Slow",
+        "Some data is still loading. Please swipe down to refresh the home screen later.",
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+        duration: const Duration(seconds: 4),
+        snackPosition: SnackPosition.TOP,
+      );
     }
 
     // non-blocking prefetches
@@ -924,7 +967,7 @@ class LoginScreenController extends GetxController {
       await box.remove('cached_profile');
       await box.remove('biometric_username_real');
       await box.remove('user_email');
-      
+
       dashboardData = null;
 
       // delete controllers to clear memory state
