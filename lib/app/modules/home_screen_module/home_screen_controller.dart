@@ -12,6 +12,7 @@ import 'package:mcd/core/services/deep_link_service.dart';
 
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
+import '../../../core/services/storage_service.dart';
 // import 'package:mcd/core/services/ads_service.dart';
 
 /**
@@ -21,6 +22,9 @@ import '../../../core/network/dio_api_service.dart';
 class HomeScreenController extends GetxController
     with ServiceAvailabilityMixin, StateMixin {
   static late HomeScreenController to;
+  HomeScreenController() {
+    to = this;
+  }
   var _obj = ''.obs;
   set obj(value) => _obj.value = value;
   get obj => _obj.value;
@@ -49,6 +53,12 @@ class HomeScreenController extends GetxController
   void onInit() {
     to = this;
     dev.log("HomeScreenController initialized");
+
+    final token = box.read('token');
+    if (token == null || token.toString().isEmpty) {
+      dev.log("No token found, skipping dashboard fetch in onInit");
+      return;
+    }
 
     // load dashboard from cache first for instant loading
     final cachedData = box.read('cached_dashboard');
@@ -223,6 +233,7 @@ class HomeScreenController extends GetxController
         // dev.log("Dashboard fetch success: ${data.toString()}");
         dashboardData = DashboardModel.fromJson(data);
         box.write('cached_dashboard', data);
+        await StorageService.to.setDashboardData(data);
         dev.log(
             "Dashboard model created and cached - User: ${dashboardData?.user.userName}, Balance: ${dashboardData?.balance.wallet}");
 

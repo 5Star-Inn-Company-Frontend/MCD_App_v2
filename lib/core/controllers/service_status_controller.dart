@@ -6,6 +6,9 @@ import 'package:mcd/core/network/dio_api_service.dart';
 
 class ServiceStatusController extends GetxService {
   static late ServiceStatusController to;
+  ServiceStatusController() {
+    to = this;
+  }
   final DioApiService apiService = DioApiService();
   final storage = GetStorage();
 

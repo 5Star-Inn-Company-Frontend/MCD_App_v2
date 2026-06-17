@@ -5,6 +5,9 @@ import 'package:mcd/core/network/dio_api_service.dart';
 
 class PaymentConfigController extends GetxService {
   static late PaymentConfigController to;
+  PaymentConfigController() {
+    to = this;
+  }
   final DioApiService apiService = DioApiService();
   final storage = GetStorage();
 

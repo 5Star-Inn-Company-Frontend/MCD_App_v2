@@ -1,11 +1,15 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import '../../app/modules/home_screen_module/model/dashboard_model.dart';
 
 /// Centralized storage service to avoid Get.find dependencies
 class StorageService extends GetxService {
   static late StorageService to;
 
   final _box = GetStorage();
+
+  // Reactive state
+  final Rxn<DashboardModel> dashboardData = Rxn<DashboardModel>();
 
   // Keys
   static const String keyToken = 'token';
@@ -17,10 +21,24 @@ class StorageService extends GetxService {
   static const String keyTwoFactorEnabled = 'twofa_enabled';
   static const String keyGiveawayNotify = 'giveaway_notification_enabled';
   static const String keyPromoEnabled = 'promo_enabled';
+  static const String keyCachedDashboard = 'cached_dashboard';
+
+  StorageService() {
+    to = this;
+  }
 
   Future<StorageService> init() async {
-    to = this;
+    _loadInitialData();
     return this;
+  }
+
+  void _loadInitialData() {
+    final cached = _box.read(keyCachedDashboard);
+    if (cached != null) {
+      try {
+        dashboardData.value = DashboardModel.fromJson(cached);
+      } catch (_) {}
+    }
   }
 
   // Getters
@@ -40,15 +58,24 @@ class StorageService extends GetxService {
     await _box.write(keyTransactionUrl, transaction);
     await _box.write(keyUtilityUrl, utility);
   }
+
   Future<void> setUsername(String value) => _box.write(keyUsername, value);
   Future<void> setEmail(String value) => _box.write(keyUserEmail, value);
+
+  Future<void> setDashboardData(Map<String, dynamic> data) async {
+    await _box.write(keyCachedDashboard, data);
+    try {
+      dashboardData.value = DashboardModel.fromJson(data);
+    } catch (_) {}
+  }
 
   // Clear session
   Future<void> clearAuthData() async {
     await _box.remove(keyToken);
-    await _box.remove('cached_dashboard');
+    await _box.remove(keyCachedDashboard);
     await _box.remove('cached_profile');
     await _box.remove(keyUsername);
     await _box.remove(keyUserEmail);
+    dashboardData.value = null;
   }
 }

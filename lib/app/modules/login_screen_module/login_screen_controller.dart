@@ -27,6 +27,7 @@ import '../../../core/controllers/payment_config_controller.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
 // import '../../../core/services/deep_link_service.dart';
+import '../../../core/services/storage_service.dart';
 import '../../../core/utils/validator.dart';
 import '../../routes/app_pages.dart';
 import '../../styles/fonts.dart';
@@ -349,7 +350,7 @@ class LoginScreenController extends GetxService {
       },
       (data) {
         dashboardData = DashboardModel.fromJson(data);
-        box.write('cached_dashboard', data);
+        StorageService.to.setDashboardData(data);
         dev.log(
             "LoginController dashboard loaded and cached: ${dashboardData?.user.userName}");
         if (force) {
@@ -521,52 +522,14 @@ class LoginScreenController extends GetxService {
   /// navigate to home after successful login
   Future<void> handleLoginSuccess() async {
     // parallel fetch all post-auth data
-    bool fetchSuccess = false;
-    await Future.wait([
-      ServiceStatusController.to.fetchServiceStatus(),
-      PaymentConfigController.to.fetchPaymentMethods(),
-      fetchDashboard(force: true),
-    ]);
-
-    for (int i = 0; i < 2; i++) {
-      try {
-        final results = await Future.wait([
-          serviceStatusCtrl
-              .fetchServiceStatus()
-              .timeout(const Duration(seconds: 10)),
-          paymentConfigCtrl
-              .fetchPaymentMethods()
-              .timeout(const Duration(seconds: 10)),
-          fetchDashboard(force: true).timeout(const Duration(seconds: 10)),
-        ]).timeout(const Duration(seconds: 30));
-
-        // check if any of the endpoints failed
-        if (results.contains(false)) {
-          throw Exception("One or more services failed to load properly");
-        }
-
-        fetchSuccess = true;
-        break; // Exit loop on success
-      } catch (e) {
-        dev.log('Error in post-login data fetch (attempt ${i + 1}): $e',
-            name: 'Login');
-        if (i == 0) {
-          // little delay before the second attempt
-          await Future.delayed(const Duration(seconds: 2));
-        }
-      }
-    }
-
-    if (!fetchSuccess) {
-      // Inform the user after retries have failed
-      Get.snackbar(
-        "Connection Slow",
-        "Some data is still loading. Please swipe down to refresh the home screen later.",
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-        duration: const Duration(seconds: 4),
-        snackPosition: SnackPosition.TOP,
-      );
+    try {
+      await Future.wait([
+        ServiceStatusController.to.fetchServiceStatus(),
+        PaymentConfigController.to.fetchPaymentMethods(),
+        fetchDashboard(force: true),
+      ]);
+    } catch (e) {
+      dev.log('Error in post-login data fetch: $e', name: 'Login');
     }
 
     // non-blocking prefetches
