@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:advert/advert.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'connectivity_service.dart';
 
@@ -16,6 +17,26 @@ class AdsService {
   bool _isInitialized = false;
   bool _isSequenceActive = false;
   Timer? _sequenceTimer;
+
+  // test-only: bypass real plugin calls entirely
+  @visibleForTesting
+  bool testMode = false;
+
+  @visibleForTesting
+  bool testIsShowingAds = false;
+
+  @visibleForTesting
+  void setInitializedForTesting(bool value) => _isInitialized = value;
+
+  @visibleForTesting
+  void resetForTesting() {
+    _isInitialized = false;
+    _isSequenceActive = false;
+    _sequenceTimer?.cancel();
+    _sequenceTimer = null;
+    testMode = false;
+    testIsShowingAds = false;
+  }
 
   static final String bannerAdUnitId = Platform.isAndroid
       ? 'ca-app-pub-6117361441866120/3287545689'
@@ -47,12 +68,11 @@ class AdsService {
       ? 'ca-app-pub-6117361441866120/5165063317'
       : 'ca-app-pub-6117361441866120/9202838992';
 
-
   final gameid = Platform.isAndroid ? "3717787" : '3717786';
   final bannerAdPlacementId =
-  Platform.isAndroid ? ['newandroidbanner'] : ['iOS_Banner'];
+      Platform.isAndroid ? ['newandroidbanner'] : ['iOS_Banner'];
   final interstitialVideoAdPlacementId =
-  Platform.isAndroid ? ['video'] : ['iOS_Interstitial'];
+      Platform.isAndroid ? ['video'] : ['iOS_Interstitial'];
   final rewardedVideoAdPlacementId = Platform.isAndroid
       ? ['Android_Rewarded', "rewardedVideo"]
       : ['iOS_Rewarded'];
@@ -148,12 +168,13 @@ class AdsService {
           customData ?? {"username": "", "platform": "", "type": ""};
 
       final response = await _advertPlugin.adsProv.showRewardedAd(
-          onRewarded:() {
-        if (!completer.isCompleted) {
-          completer.complete();
-          onRewarded?.call();
-        }
-      }, customData: defaultCustomData,
+        onRewarded: () {
+          if (!completer.isCompleted) {
+            completer.complete();
+            onRewarded?.call();
+          }
+        },
+        customData: defaultCustomData,
         onAdClicked: onAdClicked,
         onAdImpression: onAdImpression,
       );
@@ -172,8 +193,8 @@ class AdsService {
     }
   }
 
-
-  void showspinAndWinAd(BuildContext context,{
+  void showspinAndWinAd(
+    BuildContext context, {
     VoidCallback? onRewarded,
     Map<String, String>? customData,
     Function? onAdClicked,
@@ -182,7 +203,7 @@ class AdsService {
   }) async {
     if (!_isInitialized) {
       dev.log('Error: Ads not initialized');
-      return ;
+      return;
     }
     final defaultCustomData =
         customData ?? {"username": "", "platform": "", "type": ""};
@@ -193,7 +214,7 @@ class AdsService {
       adType: 'spinAndWin',
       reason: "Spin and Win",
       customData: defaultCustomData,
-      onComplete: onRewarded ?? (){},
+      onComplete: onRewarded ?? () {},
       onAdClicked: onAdClicked,
       onAdImpression: onAdImpression,
     );
@@ -216,15 +237,15 @@ class AdsService {
           customData ?? {"username": "", "platform": "", "type": ""};
 
       final response = await _advertPlugin.adsProv.showfreemoney(
-        onRewarded:() {
+        onRewarded: () {
           if (!completer.isCompleted) {
             completer.complete();
             onRewarded?.call();
           }
         },
         customData: defaultCustomData,
-          onAdClicked: onAdClicked,
-          onAdImpression: onAdImpression,
+        onAdClicked: onAdClicked,
+        onAdImpression: onAdImpression,
       );
 
       if (response.status) {
@@ -242,14 +263,14 @@ class AdsService {
   }
 
   void showMultipleRewardedAds(
-      BuildContext context, {
+    BuildContext context, {
     required int maxAds,
     Map<String, String>? customData,
-        VoidCallback? onAdCompleted,
-        Function(String)? onAdFailed,
-        required String reason,
-        Function? onAdClicked,
-        Function? onAdImpression,
+    VoidCallback? onAdCompleted,
+    Function(String)? onAdFailed,
+    required String reason,
+    Function? onAdClicked,
+    Function? onAdImpression,
   }) async {
     if (_isSequenceActive) {
       dev.log('Ad sequence is already active. Ignoring duplicate request.');
@@ -259,7 +280,8 @@ class AdsService {
     if (!ConnectivityService.to.isConnected.value) {
       dev.log('Ad sequence failed: No internet connection.');
       if (onAdFailed != null) {
-        onAdFailed('No internet connection. Please check your network and try again.');
+        onAdFailed(
+            'No internet connection. Please check your network and try again.');
       }
       return;
     }
@@ -283,78 +305,105 @@ class AdsService {
           customData ?? {"username": "", "platform": "", "type": ""};
 
       bool sequenceCompleted = false;
-      bool wasShowing = false; // track ad activation
+      bool wasShowing = false;
 
       if (!context.mounted) {
         _isSequenceActive = false;
         return;
       }
 
-      _advertPlugin.adsProv.startAdSequence(
-        context,
-        total: maxAds,
-        adType: 'mergeRewarded',
-        reason: reason,
-        customData: defaultCustomData,
-        onComplete: () {
-          sequenceCompleted = true;
-          _isSequenceActive = false;
-          if (onAdCompleted != null) onAdCompleted();
-        },
-        onAdClicked: onAdClicked,
-        onAdImpression: onAdImpression,
-      );
+      if (!testMode) {
+        // reset plugin counters before starting new sequence
+        _advertPlugin.adsProv.adsWatched = 0;
 
-      // watch for premature abort or stalls
-      int noAdShowingTicks = 0; // track ticks while no ad is showing
-      _sequenceTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+        _advertPlugin.adsProv.startAdSequence(
+          context,
+          total: maxAds,
+          adType: 'mergeRewarded',
+          reason: reason,
+          customData: defaultCustomData,
+          onComplete: () {
+            sequenceCompleted = true;
+            _isSequenceActive = false;
+            _sequenceTimer?.cancel();
+            if (onAdCompleted != null) onAdCompleted();
+          },
+          onAdClicked: onAdClicked,
+          onAdImpression: onAdImpression,
+        );
+      }
+
+      // watchdog: detect stalls, network drops, and stuck native activities
+      int noAdShowingTicks = 0;
+      int totalTicks = 0;
+      // absolute max timeout (60 ticks * 500ms = 30 seconds)
+      const int absoluteMaxTicks = 60;
+
+      _sequenceTimer =
+          Timer.periodic(const Duration(milliseconds: 500), (timer) {
         if (sequenceCompleted) {
           timer.cancel();
           return;
         }
 
-        // abort instantly if network drops while waiting for ads
-        if (!ConnectivityService.to.isConnected.value) {
-          dev.log('Ad sequence failed: Network connection lost during ad sequence.');
-          _isSequenceActive = false;
-          if (onAdFailed != null) {
-            onAdFailed('Network connection lost. Please check your internet and try again.');
-          }
+        totalTicks++;
+        bool isShowing =
+            testMode ? testIsShowingAds : _advertPlugin.adsProv.isShowingAds;
+
+        // absolute timeout - prevent infinite stuck states
+        if (totalTicks >= absoluteMaxTicks) {
+          dev.log(
+              'Ad sequence failed: Absolute timeout reached (${totalTicks * 500}ms).');
+          _cleanupSequenceState();
           timer.cancel();
+          if (onAdFailed != null) {
+            onAdFailed('Ad session timed out. Please try again.');
+          }
           return;
         }
-        
-        bool isShowing = _advertPlugin.adsProv.isShowingAds;
-        
+
+        // abort if network drops while no ad is actively on screen
+        if (!isShowing && !ConnectivityService.to.isConnected.value) {
+          dev.log('Ad sequence failed: Network lost while waiting for ad.');
+          _cleanupSequenceState();
+          timer.cancel();
+          if (onAdFailed != null) {
+            onAdFailed(
+                'Network connection lost. Please check your internet and try again.');
+          }
+          return;
+        }
+
         if (!isShowing) {
           noAdShowingTicks++;
-          
+
           if (wasShowing) {
-            // user likely closed the ad prematurely or is waiting for the next one
-            // give a 3-second (6 ticks) grace period
+            // ad was showing before but stopped; grace period for next ad
             if (noAdShowingTicks > 6) {
-              dev.log('Ad sequence failed: Sequence aborted by user or failed to load next ad.');
-              _isSequenceActive = false;
-              if (onAdFailed != null) {
-                onAdFailed('Ad sequence was interrupted or you closed the ad early. You must watch the full ad to proceed.');
-              }
+              dev.log(
+                  'Ad sequence failed: Sequence aborted by user or failed to load next ad.');
+              _cleanupSequenceState();
               timer.cancel();
+              if (onAdFailed != null) {
+                onAdFailed(
+                    'Ad sequence was interrupted or you closed the ad early. You must watch the full ad to proceed.');
+              }
               return;
             }
           } else {
-            // waiting for the first ad to show for 5 seconds
-            if (noAdShowingTicks > 10) { 
-              dev.log('Ad sequence failed: Timeout waiting for ad to load or sequence stalled.');
-              _isSequenceActive = false;
-              if (onAdFailed != null) {
-                onAdFailed('Ads are temporarily unavailable. Please try again or choose another payment method.');
-              }
+            // waiting for first ad to appear
+            if (noAdShowingTicks > 10) {
+              dev.log('Ad sequence failed: Timeout waiting for ad to load.');
+              _cleanupSequenceState();
               timer.cancel();
+              if (onAdFailed != null) {
+                onAdFailed(
+                    'Ads are temporarily unavailable. Please try again or choose another payment method.');
+              }
               return;
             }
           }
         } else {
-          // reset ticks as long as an ad is showing
           noAdShowingTicks = 0;
           if (!wasShowing) {
             wasShowing = true;
@@ -368,23 +417,39 @@ class AdsService {
         onAdFailed(
             'An error occurred while loading ads. Please check your network and try again.');
       }
-      return ;
+      return;
     }
   }
 
   bool get isInitialized => _isInitialized;
+  bool get isSequenceActive => _isSequenceActive;
+
+  // cleanup shared by watchdog abort and manual cancellation
+  void _cleanupSequenceState() {
+    _isSequenceActive = false;
+    if (!testMode) {
+      _advertPlugin.adsProv.isShowingAds = false;
+      _advertPlugin.adsProv.adsWatched = 0;
+    }
+    if (Get.isDialogOpen ?? false) Get.back();
+  }
 
   void cancelSequence() {
     _isSequenceActive = false;
     _sequenceTimer?.cancel();
     _sequenceTimer = null;
+    if (!testMode) {
+      _advertPlugin.adsProv.isShowingAds = false;
+      _advertPlugin.adsProv.adsWatched = 0;
+    }
   }
 
   bool isCurrentlyShowingAds() {
-    return _advertPlugin.adsProv.isShowingAds;
+    return testMode ? testIsShowingAds : _advertPlugin.adsProv.isShowingAds;
   }
 
   void forceResetAdState() {
-    _advertPlugin.adsProv.isShowingAds = false;
+    dev.log('Force resetting ad state and cancelling sequence.');
+    cancelSequence();
   }
 }
