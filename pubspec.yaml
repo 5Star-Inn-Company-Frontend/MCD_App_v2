@@ -44,7 +44,8 @@ dependencies:
   google_sign_in: ^6.3.0
   flutter_facebook_auth: ^7.1.7
   image_picker: ^1.2.2
-  sprint_check: ^0.1.7
+  sprint_check: #^0.1.7
+    path: ../sprint_check
   confetti: ^0.8.0
   url_launcher: ^6.3.2
   share_plus: ^13.1.0

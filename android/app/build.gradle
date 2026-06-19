@@ -53,9 +53,17 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug
+            
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            
+            ndk {
+                // Filter architectures to reduce size. 
+                // arm64-v8a and armeabi-v7a cover most physical devices.
+                // x86_64 is only needed for some tablets and emulators.
+                abiFilters 'arm64-v8a', 'armeabi-v7a'
+            }
         }
     }
 }
