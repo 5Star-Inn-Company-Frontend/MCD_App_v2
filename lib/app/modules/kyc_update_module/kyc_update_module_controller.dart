@@ -9,7 +9,6 @@ class KycUpdateModuleController extends GetxController {
   final box = GetStorage();
   // static SprintCheck? _sprintCheckPlugin;
   // SprintCheck get sprintCheckPlugin => _sprintCheckPlugin ?? SprintCheck();
-  LoginScreenController get authController => LoginScreenController.to;
 
   final bvnController = TextEditingController();
   final identifierController = TextEditingController();
@@ -28,8 +27,6 @@ class KycUpdateModuleController extends GetxController {
     try {
       isLoading.value = true;
       // Fetch fresh dashboard data to get the email
-      await authController.fetchDashboard(force: true);
-
       // Now set identifier and check BVN status with fresh data
       setIdentifier();
       checkBvnStatus();

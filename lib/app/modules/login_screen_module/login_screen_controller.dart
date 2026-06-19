@@ -236,9 +236,6 @@ class LoginScreenController extends GetxService {
   set isOtpSent(value) => _isOtpSent.value = value;
   bool get isOtpSent => _isOtpSent.value;
 
-  final _dashboardData = Rxn<DashboardModel>();
-  set dashboardData(value) => _dashboardData.value = value;
-  DashboardModel? get dashboardData => _dashboardData.value;
 
   Future<void> login(
       BuildContext context, String username, String password) async {
@@ -327,11 +324,6 @@ class LoginScreenController extends GetxService {
   Future<bool> fetchDashboard({bool force = false}) async {
     dev.log("LoginController fetchDashboard called, force: $force");
 
-    if (dashboardData != null && !force) {
-      dev.log("Dashboard already loaded in LoginController");
-      return true;
-    }
-
     isLoading = true;
     errorMessage = null;
     dev.log("Fetching dashboard from LoginController...");
@@ -349,10 +341,7 @@ class LoginScreenController extends GetxService {
             colorText: AppColors.textSnackbarColor);
       },
       (data) {
-        dashboardData = DashboardModel.fromJson(data);
         StorageService.to.setDashboardData(data);
-        dev.log(
-            "LoginController dashboard loaded and cached: ${dashboardData?.user.userName}");
         if (force) {
           // Get.snackbar("Updated", "Dashboard refreshed", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
         }
@@ -947,8 +936,6 @@ class LoginScreenController extends GetxService {
       await box.remove('cached_profile');
       await box.remove('biometric_username_real');
       await box.remove('user_email');
-
-      dashboardData = null;
 
       // delete controllers to clear memory state
       Get.delete<HomeScreenController>(force: true);

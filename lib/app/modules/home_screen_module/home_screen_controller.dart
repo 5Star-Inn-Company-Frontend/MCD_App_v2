@@ -22,9 +22,6 @@ import '../../../core/services/storage_service.dart';
 class HomeScreenController extends GetxController
     with ServiceAvailabilityMixin, StateMixin {
   static late HomeScreenController to;
-  HomeScreenController() {
-    to = this;
-  }
   var _obj = ''.obs;
   set obj(value) => _obj.value = value;
   get obj => _obj.value;
@@ -72,26 +69,7 @@ class HomeScreenController extends GetxController
     }
 
     // if dashboard was already loaded during login, reuse it
-    try {
-      final loginCtrl = LoginScreenController.to;
-      if (loginCtrl.dashboardData != null) {
-        dashboardData = loginCtrl.dashboardData;
-        dev.log("Dashboard loaded from login session, skipping fetch");
-
-        // still handle news dialog
-        if (box.read('show_news_dialog') == true &&
-            dashboardData?.news != null &&
-            dashboardData!.news.isNotEmpty) {
-          box.write('show_news_dialog', false);
-          _showNewsDialog(dashboardData!.news);
-        }
-      } else {
-        fetchDashboard(force: true);
-      }
-    } catch (e) {
-      // login controller not found, fetch fresh
-      fetchDashboard(force: true);
-    }
+     fetchDashboard(force: true);
 
     fetchGMBalance();
 
