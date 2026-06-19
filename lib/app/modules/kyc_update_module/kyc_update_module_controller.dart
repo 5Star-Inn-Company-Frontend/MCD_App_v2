@@ -1,20 +1,26 @@
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/api_constants.dart';
-// import 'package:sprint_check/sprint_check.dart';
-// import 'package:sprint_check/sprint_check_method_channel.dart';
+import 'package:sprint_check/sprint_check.dart';
+import 'package:sprint_check/sprint_check_method_channel.dart';
 import 'dart:developer' as dev;
+
+import '../home_screen_module/model/dashboard_model.dart';
 
 class KycUpdateModuleController extends GetxController {
   final box = GetStorage();
-  // static SprintCheck? _sprintCheckPlugin;
-  // SprintCheck get sprintCheckPlugin => _sprintCheckPlugin ?? SprintCheck();
+  static SprintCheck? _sprintCheckPlugin;
+  SprintCheck get sprintCheckPlugin => _sprintCheckPlugin ?? SprintCheck();
 
   final bvnController = TextEditingController();
   final identifierController = TextEditingController();
 
   final isLoading = false.obs;
   final isBvnVerified = false.obs;
+
+  final dashboardDataRx = Rxn<DashboardModel>();
+  DashboardModel? get dashboardData => dashboardDataRx.value;
+  set dashboardData(DashboardModel? value) => dashboardDataRx.value = value;
 
   @override
   void onInit() {
@@ -28,6 +34,15 @@ class KycUpdateModuleController extends GetxController {
       isLoading.value = true;
       // Fetch fresh dashboard data to get the email
       // Now set identifier and check BVN status with fresh data
+      final cachedData = box.read('cached_dashboard');
+      if (cachedData != null) {
+        try {
+          dashboardData = DashboardModel.fromJson(cachedData);
+          dev.log("Dashboard loaded from local cache");
+        } catch (e) {
+          dev.log("Error loading dashboard from cache: $e");
+        }
+      }
       setIdentifier();
       checkBvnStatus();
     } catch (e) {
@@ -38,10 +53,10 @@ class KycUpdateModuleController extends GetxController {
   }
 
   void _initializeSprintCheckOnce() {
-    // if (_sprintCheckPlugin == null) {
-    //   _sprintCheckPlugin = SprintCheck();
-    //   initializeSprintCheck();
-    // }
+    if (_sprintCheckPlugin == null) {
+      _sprintCheckPlugin = SprintCheck();
+      initializeSprintCheck();
+    }
   }
 
   @override
@@ -53,10 +68,10 @@ class KycUpdateModuleController extends GetxController {
 
   void initializeSprintCheck() {
     try {
-      // sprintCheckPlugin.initialize(
-      //   apiKey: ApiConstants.sprintCheckApiKey,
-      //   encryptionKey: ApiConstants.sprintCheckEncryptionKey,
-      // );
+      sprintCheckPlugin.initialize(
+        apiKey: ApiConstants.sprintCheckApiKey,
+        encryptionKey: ApiConstants.sprintCheckEncryptionKey,
+      );
       dev.log('Sprint Check SDK initialized', name: 'KycUpdate');
     } catch (e) {
       dev.log('Error initializing Sprint Check SDK',
@@ -66,10 +81,10 @@ class KycUpdateModuleController extends GetxController {
 
   void setIdentifier() {
     // Use email as identifier - ensure it's not empty
-    final email = authController.dashboardData?.user.email ?? '';
-    final username = authController.dashboardData?.user.userName ?? '';
+    final email = dashboardData?.user.email ?? '';
+    final username = dashboardData?.user.userName ?? '';
 
-    dev.log('Dashboard data available: ${authController.dashboardData != null}',
+    dev.log('Dashboard data available: ${dashboardData != null}',
         name: 'KycUpdate');
     dev.log('Email from dashboard: $email', name: 'KycUpdate');
     dev.log('Username from dashboard: $username', name: 'KycUpdate');
@@ -90,7 +105,7 @@ class KycUpdateModuleController extends GetxController {
 
   void checkBvnStatus() {
     // Check if BVN is already verified from dashboard data
-    final bvnValid = authController.dashboardData?.user.bvn ?? false;
+    final bvnValid = dashboardData?.user.bvn ?? false;
     isBvnVerified.value = bvnValid;
     dev.log('BVN verification status: $bvnValid', name: 'KycUpdate');
   }
@@ -145,17 +160,17 @@ class KycUpdateModuleController extends GetxController {
         return;
       }
 
-      // final response = await sprintCheckPlugin.checkout(
-      //   context,
-      //   CheckoutMethod.bvn,
-      //   identifier,
-      //   bvn: bvnNumber,
-      // );
+      final response = await sprintCheckPlugin.checkout(
+        context,
+        CheckoutMethod.bvn,
+        identifier,
+        bvn: bvnNumber,
+      );
 
-      // dev.log('BVN verification response: $response', name: 'KycUpdate');
-      //
-      // // Parse response and handle success/failure
-      // handleVerificationResponse(response);
+      dev.log('BVN verification response: $response', name: 'KycUpdate');
+
+      // Parse response and handle success/failure
+      handleVerificationResponse(response);
     } catch (e) {
       dev.log('Error during BVN verification', name: 'KycUpdate', error: e);
       Get.snackbar(

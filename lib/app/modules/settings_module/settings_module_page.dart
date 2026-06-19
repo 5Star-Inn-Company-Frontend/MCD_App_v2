@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mcd/core/import/imports.dart';
+import '../../../core/utils/confirmlogout.dart';
 import './settings_module_controller.dart';
 import '../more_module/more_module_controller.dart';
 
@@ -111,7 +112,7 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
                       }
 
                       // update login controller biometric setup status
-                      LoginScreenController.to.checkBiometricSetup();
+                      controller.checkBiometricSetup();
                     },
                   )),
               Obx(() => rowcard(
@@ -208,7 +209,7 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
             onPressed: () {
               Navigator.of(context).pop();
               // trigger logout via stable service
-              LoginScreenController.to.confirmLogout();
+              Confirmlogout.confirmLogout();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryGreen,

@@ -5,6 +5,8 @@ import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/modules/login_screen_module/login_screen_controller.dart';
 import 'dart:developer' as dev;
 
+import '../utils/confirmlogout.dart';
+
 /// service to handle auto-logout when app is minimized for too long
 class AppLifecycleService extends GetxService with WidgetsBindingObserver {
   static const int sessionTimeoutMinutes = 10;
@@ -75,7 +77,8 @@ class AppLifecycleService extends GetxService with WidgetsBindingObserver {
     }
 
     try {
-      LoginScreenController.to.logout();
+
+      Confirmlogout.logout();
       dev.log('Session cleared via LoginScreenController', name: 'Lifecycle');
     } catch (e) {
       dev.log('Error calling logout: $e', name: 'Lifecycle');

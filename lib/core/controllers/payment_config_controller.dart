@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer' as dev;
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -5,9 +6,6 @@ import 'package:mcd/core/network/dio_api_service.dart';
 
 class PaymentConfigController extends GetxService {
   static late PaymentConfigController to;
-  PaymentConfigController() {
-    to = this;
-  }
   final DioApiService apiService = DioApiService();
   final storage = GetStorage();
 
@@ -55,7 +53,7 @@ class PaymentConfigController extends GetxService {
         errorMessage.value = failure.message;
         _loadCachedPaymentConfig();
       },
-      (data) {
+      (data) async {
         if (data['success'] == 1 && data['data'] != null) {
           dev.log('Payment methods fetched successfully', name: 'PaymentConfig');
           
@@ -63,6 +61,7 @@ class PaymentConfigController extends GetxService {
           if (data['data']['status'] != null) {
             final status = data['data']['status'] as Map<String, dynamic>;
             paymentMethodStatus.value = status.map((key, value) => MapEntry(key, value.toString()));
+            await storage.write('payment_method_status', jsonEncode(paymentMethodStatus.value));
             dev.log('Payment method status: $paymentMethodStatus', name: 'PaymentConfig');
           }
           
@@ -70,7 +69,7 @@ class PaymentConfigController extends GetxService {
           if (data['data']['details'] != null) {
             final details = data['data']['details'] as Map<String, dynamic>;
             paymentMethodDetails.value = details.map((key, value) => MapEntry(key, value.toString()));
-            
+            await storage.write('payment_method_details', jsonEncode(paymentMethodDetails.value));
             // Store Paystack public key
             if (details['paystack_public'] != null) {
               storage.write('paystack_public_key', details['paystack_public']);

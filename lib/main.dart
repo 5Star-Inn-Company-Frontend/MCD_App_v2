@@ -51,8 +51,6 @@ Future<void> main() async {
 
   Get.put(ServiceStatusController());
   Get.put(PaymentConfigController());
-  Get.put(LoginScreenController());
-  Get.put(HomeScreenController(), permanent: true);
 
   // Initialize app lifecycle service for auto-logout
   Get.put(AppLifecycleService());

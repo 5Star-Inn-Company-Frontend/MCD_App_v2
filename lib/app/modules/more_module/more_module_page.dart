@@ -3,6 +3,7 @@ import 'package:mcd/app/utils/bottom_navigation.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
+import '../../../core/utils/confirmlogout.dart';
 import './more_module_controller.dart';
 
 class MoreModulePage extends GetView<MoreModuleController> {
@@ -103,7 +104,7 @@ class MoreModulePage extends GetView<MoreModuleController> {
                       Get.toNamed(Routes.SETTINGS_SCREEN);
                     }, false),
                     rowcard('Logout', () {
-                      LoginScreenController.to.confirmLogout();
+                      Confirmlogout.confirmLogout();
                     }, true),
                     rowcard('Delete Account', () {
                       controller.deleteAccount();
@@ -383,9 +384,7 @@ class MoreModulePage extends GetView<MoreModuleController> {
             title: 'Chat with us on Whatsapp',
             onTap: () async {
               try {
-                final authController = LoginScreenController.to;
-                final username =
-                    authController.dashboardData?.user.userName ?? 'User';
+                final username = controller.dashboardData?.user.userName ?? 'User';
                 String url =
                     "https://wa.me/2347011223737?text=Hi, my user name is $username";
                 await launcher.launchUrl(Uri.parse(url));
@@ -428,9 +427,8 @@ class MoreModulePage extends GetView<MoreModuleController> {
             title: 'Send a mail',
             onTap: () async {
               try {
-                final authController = LoginScreenController.to;
                 final username =
-                    authController.dashboardData?.user.userName ?? 'User';
+                    controller.dashboardData?.user.userName ?? 'User';
                 String mail =
                     "mailto:info@5starcompany.com.ng?subject=Support Needed by $username";
                 await launcher.launchUrl(Uri.parse(mail));

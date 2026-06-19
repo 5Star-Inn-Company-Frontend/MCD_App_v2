@@ -52,6 +52,23 @@ class SettingsModuleController extends GetxController {
     }
   }
 
+  final _isBiometricSetup = false.obs;
+  set isBiometricSetup(value) => _isBiometricSetup.value = value;
+  bool get isBiometricSetup => _isBiometricSetup.value;
+
+  var isBiometricEnabled = true.obs;
+
+  /// check if biometric is fully setup (enabled and has saved credentials)
+  void checkBiometricSetup() {
+    isBiometricEnabled.value = box.read('biometric_enabled') ?? true;
+    final savedUsername = box.read('biometric_username');
+    isBiometricSetup = (isBiometricEnabled.value == true &&
+        savedUsername != null &&
+        savedUsername.toString().isNotEmpty);
+    dev.log(
+        "Biometric setup status: $isBiometricSetup (enabled: ${isBiometricEnabled.value}, username saved: ${savedUsername != null}");
+  }
+
   void loadTwoFASetting() {
     final storedValue = box.read('twofa_enabled');
     if (storedValue is bool) {

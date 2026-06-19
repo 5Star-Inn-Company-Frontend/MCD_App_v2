@@ -366,98 +366,63 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
         );
       }
 
-      return Container(
-        constraints: const BoxConstraints(maxHeight: 400),
-        child: SingleChildScrollView(
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 0.85,
-            ),
-            itemCount: controller.cablePackages.length,
-            itemBuilder: (context, index) {
-              final package = controller.cablePackages[index];
-              final isSelected =
-                  selectedName == package['name']?.toString();
-
-              return TouchableOpacity(
-                onTap: () => controller.onCablePackageSelected(package),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: isSelected
-                          ? const Color(0xFF5ABB7B)
-                          : const Color(0xffE0E0E0),
-                      width: isSelected ? 2 : 1,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                    color: isSelected
-                        ? const Color(0xFF5ABB7B).withOpacity(0.1)
-                        : Colors.white,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          package['name'] ?? 'N/A',
-                          style: TextStyle(
-                            fontFamily: AppFonts.manRope,
-                            fontSize: 12,
-                            fontWeight: isSelected
-                                ? FontWeight.w600
-                                : FontWeight.normal,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 1.0,
         ),
+        itemCount: controller.cablePackages.length,
+        itemBuilder: (context, index) {
+          final package = controller.cablePackages[index];
+          final isSelected =
+              selectedName == package['name']?.toString();
+
+          return TouchableOpacity(
+            onTap: () => controller.onCablePackageSelected(package),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: isSelected
+                      ? const Color(0xFF5ABB7B)
+                      : const Color(0xffE0E0E0),
+                  width: isSelected ? 2 : 1,
+                ),
+                borderRadius: BorderRadius.circular(8),
+                color: isSelected
+                    ? const Color(0xFF5ABB7B).withOpacity(0.1)
+                    : Colors.white,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Text(
+                      package['name'] ?? 'N/A',
+                      style: TextStyle(
+                        fontFamily: AppFonts.manRope,
+                        fontSize: 12,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       );
     });
   }
-
-  // Widget _buildPointsSwitch() {
-  //   return Obx(() => Container(
-  //         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-  //         decoration: BoxDecoration(
-  //           border: Border.all(color: const Color(0xffE0E0E0)),
-  //           borderRadius: BorderRadius.circular(8),
-  //         ),
-  //         child: Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: [
-  //             TextSemiBold('Points', fontSize: 14),
-  //             Row(
-  //               children: [
-  //                 Text(
-  //                   '₦${AmountUtil.formatFigure(double.tryParse(controller.pointsBalance.value.toString()) ?? 0)} available',
-  //                   style: GoogleFonts.plusJakartaSans(fontSize: 14),
-  //                 ),
-  //                 const Gap(8),
-  //                 Switch(
-  //                   value: controller.usePoints.value,
-  //                   onChanged: controller.toggleUsePoints,
-  //                   activeColor: AppColors.primaryColor,
-  //                 ),
-  //               ],
-  //             ),
-  //           ],
-  //         ),
-  //       ));
-  // }
 
   Widget _buildPromoCodeField() {
     final box = GetStorage();

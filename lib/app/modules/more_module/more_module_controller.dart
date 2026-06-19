@@ -1,14 +1,21 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../home_screen_module/model/dashboard_model.dart';
+
 class MoreModuleController extends GetxController
     with GetSingleTickerProviderStateMixin {
-  LoginScreenController get authController => LoginScreenController.to;
   final box = GetStorage();
 
   late TabController tabController;
+
+  final dashboardDataRx = Rxn<DashboardModel>();
+  DashboardModel? get dashboardData => dashboardDataRx.value;
+  set dashboardData(DashboardModel? value) => dashboardDataRx.value = value;
 
   @override
   void onInit() {
@@ -25,6 +32,16 @@ class MoreModuleController extends GetxController
       vsync: this,
       initialIndex: startIndex,
     );
+
+    final cachedData = box.read('cached_dashboard');
+    if (cachedData != null) {
+      try {
+        dashboardData = DashboardModel.fromJson(cachedData);
+        dev.log("Dashboard loaded from local cache");
+      } catch (e) {
+        dev.log("Error loading dashboard from cache: $e");
+      }
+    }
   }
 
   @override
@@ -56,7 +73,7 @@ class MoreModuleController extends GetxController
       return storedUsername.toString();
     }
     // Fallback to dashboard data if local storage is empty
-    return authController.dashboardData?.user.userName ?? '';
+    return dashboardData?.user.userName ?? '';
   }
 
   // copy referral code to clipboard
@@ -96,4 +113,5 @@ class MoreModuleController extends GetxController
     var url = Uri.parse(mail).toString();
     await launchUrl(Uri.parse(url));
   }
+
 }

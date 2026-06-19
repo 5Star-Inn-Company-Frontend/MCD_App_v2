@@ -760,9 +760,7 @@ class TransactionDetailModulePage
                 }, SvgPicture.asset(AppAsset.rotateIcon), "Add to recurring"),
                 actionButtons(() async {
                   try {
-                    final authController = LoginScreenController.to;
-                    final username =
-                        authController.dashboardData?.user.userName ?? 'User';
+                    final username = controller.dashboardData?.user.userName ?? 'User';
                     final reference = controller.transactionId;
                     String mail =
                         "mailto:info@5starcompany.com.ng?subject=Support Needed on $reference&body=Hi, my username is $username, I will like to ";

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
@@ -48,8 +49,8 @@ class GeneralPayoutController extends GetxController {
   final gmBalance = '0'.obs;
 
   // Payment method availability
-  final paymentMethodStatus = <String, String>{}.obs;
-  final paymentMethodDetails = <String, String>{}.obs;
+  final paymentMethodStatus = <String, dynamic>{}.obs;
+  final paymentMethodDetails = <String, dynamic>{}.obs;
   final isLoadingPaymentMethods = true.obs;
 
   // Card Input State (Paystack)
@@ -491,14 +492,12 @@ class GeneralPayoutController extends GetxController {
 
   Future<void> fetchPaymentMethodAvailability() async {
     try {
-      // Use PaymentConfigController
-      final config = PaymentConfigController.to;
       dev.log(
           'Using cached payment method availability from PaymentConfigController',
           name: 'GeneralPayout');
 
-      paymentMethodStatus.value = config.paymentMethodStatus;
-      paymentMethodDetails.value = config.paymentMethodDetails;
+      paymentMethodStatus.value = jsonDecode(storage.read("payment_method_status"));
+      paymentMethodDetails.value = jsonDecode(storage.read("payment_method_details"));
 
       dev.log('Payment method availability: $paymentMethodStatus',
           name: 'GeneralPayout');
@@ -508,9 +507,7 @@ class GeneralPayoutController extends GetxController {
         dev.log('Payment methods not loaded, refreshing...',
             name: 'GeneralPayout');
         isLoadingPaymentMethods.value = true;
-        await config.fetchPaymentMethods();
-        paymentMethodStatus.value = config.paymentMethodStatus;
-        paymentMethodDetails.value = config.paymentMethodDetails;
+        await fetchPaymentMethods();
         isLoadingPaymentMethods.value = false;
       }
     } catch (e) {
@@ -520,7 +517,85 @@ class GeneralPayoutController extends GetxController {
     }
   }
 
+
+  Future<bool> fetchPaymentMethods() async {
+    // only show loader if we have no cached data
+    errorMessage.value = '';
+    dev.log('Fetching payment methods configuration', name: 'PaymentConfig');
+
+    final transactionUrl = storage.read('transaction_service_url');
+    if (transactionUrl == null) {
+      dev.log('Transaction URL not found, will retry when available', name: 'PaymentConfig');
+
+      isLoadingPaymentMethods.value = false;
+      return false;
+    }
+
+    final result = await apiService.getrequest('${transactionUrl}payment-methods');
+
+    bool isSuccess = false;
+
+    result.fold(
+          (failure) {
+        dev.log('Failed to fetch payment methods', name: 'PaymentConfig', error: failure.message);
+        errorMessage.value = failure.message;
+      },
+          (data) {
+        if (data['success'] == 1 && data['data'] != null) {
+          dev.log('Payment methods fetched successfully', name: 'PaymentConfig');
+
+          // Store payment method status
+          if (data['data']['status'] != null) {
+            final status = data['data']['status'] as Map<String, dynamic>;
+            paymentMethodStatus.value = status.map((key, value) => MapEntry(key, value.toString()));
+            storage.write('payment_method_status', jsonEncode(paymentMethodStatus.value));
+            dev.log('Payment method status: $paymentMethodStatus', name: 'PaymentConfig');
+          }
+
+          // Store payment method details (keys, etc.)
+          if (data['data']['details'] != null) {
+            final details = data['data']['details'] as Map<String, dynamic>;
+            paymentMethodDetails.value = details.map((key, value) => MapEntry(key, value.toString()));
+            storage.write('payment_method_details', jsonEncode(paymentMethodDetails.value));
+            // Store Paystack public key
+            if (details['paystack_public'] != null) {
+              storage.write('paystack_public_key', details['paystack_public']);
+              dev.log('Paystack public key found', name: 'PaymentConfig');
+            }
+
+            // Store other payment gateway keys if needed
+            if (details['rave_public'] != null) {
+              storage.write('rave_public_key', details['rave_public']);
+            }
+            if (details['rave_enckey'] != null) {
+              storage.write('rave_encryption_key', details['rave_enckey']);
+            }
+            if (details['monnify_apikey'] != null) {
+              storage.write('monnify_api_key', details['monnify_apikey']);
+            }
+            if (details['monnify_contractcode'] != null) {
+              storage.write('monnify_contract_code', details['monnify_contractcode']);
+            }
+
+            dev.log('Payment gateway keys stored successfully', name: 'PaymentConfig');
+          }
+
+          // Cache the entire response
+          storage.write('cached_payment_methods', data);
+          isSuccess = true;
+        } else {
+          dev.log('Payment methods fetch failed', name: 'PaymentConfig', error: data['message']);
+          errorMessage.value = data['message'] ?? 'Failed to fetch payment methods';
+        }
+      },
+    );
+
+    isLoadingPaymentMethods.value = false;
+    return isSuccess;
+  }
+
   bool isPaymentMethodAvailable(String method) {
+    print('Payment method status: ${paymentMethodStatus.value}');
     final status = paymentMethodStatus[method];
     return status == '1';
   }

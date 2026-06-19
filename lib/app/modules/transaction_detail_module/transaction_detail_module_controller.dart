@@ -12,6 +12,7 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/app/modules/history_screen_module/models/transaction_history_model.dart';
 import 'dart:developer' as dev;
+import '../home_screen_module/model/dashboard_model.dart';
 import './receipt_template.dart';
 import 'package:mcd/core/utils/date_util.dart';
 
@@ -219,10 +220,25 @@ class TransactionDetailModuleController extends GetxController {
     return code.contains('airtime_pin') || code.contains('data_pin');
   }
 
+
+  final dashboardDataRx = Rxn<DashboardModel>();
+  DashboardModel? get dashboardData => dashboardDataRx.value;
+  set dashboardData(DashboardModel? value) => dashboardDataRx.value = value;
+
   @override
   void onInit() {
     super.onInit();
     final arguments = Get.arguments as Map<String, dynamic>?;
+
+    final cachedData = box.read('cached_dashboard');
+    if (cachedData != null) {
+      try {
+        dashboardData = DashboardModel.fromJson(cachedData);
+        dev.log("Dashboard loaded from local cache");
+      } catch (e) {
+        dev.log("Error loading dashboard from cache: $e");
+      }
+    }
 
     if (arguments != null && arguments['transaction'] != null) {
       transaction = arguments['transaction'] as Transaction;

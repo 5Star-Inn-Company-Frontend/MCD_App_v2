@@ -36,10 +36,11 @@ import '../../styles/fonts.dart';
  * */
 
 class LoginScreenController extends GetxService {
-  static late LoginScreenController to;
   final _obj = ''.obs;
   set obj(value) => _obj.value = value;
   String get obj => _obj.value;
+
+  final storage = GetStorage();
 
   var formKey = GlobalKey<FormState>();
 
@@ -127,7 +128,6 @@ class LoginScreenController extends GetxService {
 
   @override
   void onInit() {
-    to = this;
     super.onInit();
     countryController.text = "+234";
     checkBiometricSupport();
@@ -514,7 +514,7 @@ class LoginScreenController extends GetxService {
     try {
       await Future.wait([
         ServiceStatusController.to.fetchServiceStatus(),
-        PaymentConfigController.to.fetchPaymentMethods(),
+        fetchPaymentMethods(),
         fetchDashboard(force: true),
       ]);
     } catch (e) {
@@ -687,6 +687,70 @@ class LoginScreenController extends GetxService {
   }
 
   Future<void> _handleSignOut() => _googleSignIn.disconnect();
+
+  Future<bool> fetchPaymentMethods() async {
+    // only show loader if we have no cached data
+
+    dev.log('Fetching payment methods configuration', name: 'PaymentConfig');
+
+    final transactionUrl = storage.read('transaction_service_url');
+    if (transactionUrl == null) {
+      dev.log('Transaction URL not found, will retry when available', name: 'PaymentConfig');
+      return false;
+    }
+
+    final result = await apiService.getrequest('${transactionUrl}payment-methods');
+
+    bool isSuccess = false;
+
+    result.fold(
+          (failure) {
+        dev.log('Failed to fetch payment methods', name: 'PaymentConfig', error: failure.message);
+
+      },
+          (data) {
+        if (data['success'] == 1 && data['data'] != null) {
+          dev.log('Payment methods fetched successfully', name: 'PaymentConfig');
+
+
+          // Store payment method details (keys, etc.)
+          if (data['data']['details'] != null) {
+            final details = data['data']['details'] as Map<String, dynamic>;
+            // Store Paystack public key
+            if (details['paystack_public'] != null) {
+              storage.write('paystack_public_key', details['paystack_public']);
+              dev.log('Paystack public key found', name: 'PaymentConfig');
+            }
+
+            // Store other payment gateway keys if needed
+            if (details['rave_public'] != null) {
+              storage.write('rave_public_key', details['rave_public']);
+            }
+            if (details['rave_enckey'] != null) {
+              storage.write('rave_encryption_key', details['rave_enckey']);
+            }
+            if (details['monnify_apikey'] != null) {
+              storage.write('monnify_api_key', details['monnify_apikey']);
+            }
+            if (details['monnify_contractcode'] != null) {
+              storage.write('monnify_contract_code', details['monnify_contractcode']);
+            }
+
+            dev.log('Payment gateway keys stored successfully', name: 'PaymentConfig');
+          }
+
+          // Cache the entire response
+          storage.write('cached_payment_methods', data);
+          isSuccess = true;
+        } else {
+          dev.log('Payment methods fetch failed', name: 'PaymentConfig', error: data['message']);
+        }
+      },
+    );
+
+    return isSuccess;
+  }
+
 
   /// social login (facebook/google)
   Future<void> socialLogin(BuildContext context, String email, String name,
@@ -930,69 +994,6 @@ class LoginScreenController extends GetxService {
     }
   }
 
-  Future<void> logout() async {
-    try {
-      await box.remove('token');
-      await box.remove('cached_profile');
-      await box.remove('biometric_username_real');
-      await box.remove('user_email');
-
-      // delete controllers to clear memory state
-      Get.delete<HomeScreenController>(force: true);
-      // optionally clear biometric data on logout
-      // await box.remove('biometric_enabled');
-    } catch (e) {
-      dev.log("Logout error: $e");
-    }
-  }
-
-  Future<void> confirmLogout() async {
-    // Show confirmation dialog
-    final confirmed = await Get.dialog<bool>(
-      AlertDialog(
-        backgroundColor: AppColors.white,
-        title: TextSemiBold(
-          'Confirm Logout',
-          fontSize: 18,
-        ),
-        content: const Text(
-          'Are you sure you want to logout?',
-          style: TextStyle(
-            fontSize: 14,
-            fontFamily: AppFonts.manRope,
-          ),
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: TextSemiBold(
-              'Cancel',
-              fontSize: 14,
-              color: AppColors.primaryGrey2,
-            ),
-          ),
-          TextButton(
-            onPressed: () => Get.back(result: true),
-            child: TextSemiBold(
-              'Logout',
-              fontSize: 14,
-              color: AppColors.errorBgColor,
-            ),
-          ),
-        ],
-      ),
-      barrierDismissible: false,
-    );
-
-    // If user confirmed, proceed with logout
-    if (confirmed == true) {
-      await logout();
-      Get.offAllNamed(Routes.LOGIN_SCREEN);
-    }
-  }
 }
 
 GoogleSignIn _googleSignIn = GoogleSignIn(

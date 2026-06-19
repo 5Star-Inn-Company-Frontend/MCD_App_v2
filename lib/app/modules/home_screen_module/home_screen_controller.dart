@@ -21,7 +21,6 @@ import '../../../core/services/storage_service.dart';
 
 class HomeScreenController extends GetxController
     with ServiceAvailabilityMixin, StateMixin {
-  static late HomeScreenController to;
   var _obj = ''.obs;
   set obj(value) => _obj.value = value;
   get obj => _obj.value;
@@ -48,7 +47,6 @@ class HomeScreenController extends GetxController
 
   @override
   void onInit() {
-    to = this;
     dev.log("HomeScreenController initialized");
 
     final token = box.read('token');
