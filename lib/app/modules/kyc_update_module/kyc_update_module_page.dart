@@ -22,9 +22,9 @@ class KycUpdateModulePage extends GetView<KycUpdateModuleController> {
           );
         }
 
-        if (controller.isBvnVerified.value) {
-          return _buildAlreadyVerifiedView(context);
-        }
+        // if (controller.isBvnVerified.value) {
+        //   return _buildAlreadyVerifiedView(context);
+        // }
         return _buildVerificationForm(context);
       }),
     );

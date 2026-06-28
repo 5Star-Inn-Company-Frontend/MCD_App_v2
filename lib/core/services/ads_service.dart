@@ -348,7 +348,7 @@ class AdsService {
 
         totalTicks++;
         bool isShowing =
-            testMode ? testIsShowingAds : _advertPlugin.adsProv.isShowingAds;
+            testMode ? testIsShowingAds : _advertPlugin.adsProv.isShowingAds.value;
 
         // absolute timeout - prevent infinite stuck states
         if (totalTicks >= absoluteMaxTicks) {
@@ -428,7 +428,7 @@ class AdsService {
   void _cleanupSequenceState() {
     _isSequenceActive = false;
     if (!testMode) {
-      _advertPlugin.adsProv.isShowingAds = false;
+      _advertPlugin.adsProv.isShowingAds.value = false;
       _advertPlugin.adsProv.adsWatched = 0;
     }
     if (Get.isDialogOpen ?? false) Get.back();
@@ -439,13 +439,13 @@ class AdsService {
     _sequenceTimer?.cancel();
     _sequenceTimer = null;
     if (!testMode) {
-      _advertPlugin.adsProv.isShowingAds = false;
+      _advertPlugin.adsProv.isShowingAds.value = false;
       _advertPlugin.adsProv.adsWatched = 0;
     }
   }
 
   bool isCurrentlyShowingAds() {
-    return testMode ? testIsShowingAds : _advertPlugin.adsProv.isShowingAds;
+    return testMode ? testIsShowingAds : _advertPlugin.adsProv.isShowingAds.value;
   }
 
   void forceResetAdState() {
