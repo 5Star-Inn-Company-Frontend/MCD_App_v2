@@ -10,8 +10,15 @@ class CreateGiveawayPage extends GetView<GiveawayModuleController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PaylonyAppBarTwo(
-        title: "Create Giveaway",
+      appBar: AppBar(
+        title: const Text("Create Giveaway"),
+        backgroundColor: AppColors.primaryColor,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Get.back();
+          },
+        ),
         centerTitle: false,
       ),
       body: SingleChildScrollView(

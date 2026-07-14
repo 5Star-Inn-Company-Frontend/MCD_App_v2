@@ -12,25 +12,18 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:mcd/app/modules/account_info_module/account_info_module_controller.dart';
-import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
-import 'package:mcd/app/modules/foreign_airtime_module/country_selection_controller.dart';
-import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/app/modules/login_screen_module/models/user_signup_data.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/widgets/loading_dialog.dart';
 import 'package:mcd/core/services/ads_service.dart';
 
-import '../../../core/constants/fonts.dart';
 import '../../../core/controllers/service_status_controller.dart';
-import '../../../core/controllers/payment_config_controller.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
 // import '../../../core/services/deep_link_service.dart';
 import '../../../core/services/storage_service.dart';
 import '../../../core/utils/validator.dart';
 import '../../routes/app_pages.dart';
-import '../../styles/fonts.dart';
 /**
  * GetX Template Generator - fb.com/htngu.99
  * */
@@ -227,6 +220,12 @@ class LoginScreenController extends GetxService {
   set isLoading(value) => _isLoading.value = value;
   bool get isLoading => _isLoading.value;
 
+  void dismissLoadingDialog() {
+    if (Get.isDialogOpen == true) {
+      Get.back();
+    }
+  }
+
   final _errorMessage = RxnString();
   set errorMessage(value) => _errorMessage.value = value;
   String? get errorMessage => _errorMessage.value;
@@ -239,6 +238,7 @@ class LoginScreenController extends GetxService {
 
   Future<void> login(
       BuildContext context, String username, String password) async {
+    var keepLoadingForBootstrap = false;
     try {
       showLoadingDialog(context: context);
       isLoading = true;
@@ -248,9 +248,6 @@ class LoginScreenController extends GetxService {
       final result = await apiService.postrequest(
           "${ApiConstants.authUrlV2}/login",
           {"user_name": username, "password": password});
-
-      Get.back();
-      isLoading = false;
 
       result.fold(
         (failure) {
@@ -282,6 +279,7 @@ class LoginScreenController extends GetxService {
 
             dev.log("Token saved, navigating to home...");
 
+            keepLoadingForBootstrap = true;
             await handleLoginSuccess();
           } else if (success == 2 && data['pin'] == true) {
             dev.log("PIN verification required");
@@ -310,7 +308,6 @@ class LoginScreenController extends GetxService {
         },
       );
     } catch (e) {
-      Get.back();
       errorMessage = "Unexpected error: $e";
       dev.log('Login exception: $errorMessage');
       Get.snackbar("Error", errorMessage!,
@@ -318,6 +315,9 @@ class LoginScreenController extends GetxService {
           colorText: AppColors.textSnackbarColor);
     } finally {
       isLoading = false;
+      if (!keepLoadingForBootstrap) {
+        dismissLoadingDialog();
+      }
     }
   }
 
@@ -516,14 +516,12 @@ class LoginScreenController extends GetxService {
         ServiceStatusController.to.fetchServiceStatus(),
         fetchPaymentMethods(),
         fetchDashboard(force: true),
+        _prefetchCountries(),
+        _prefetchBanks(),
       ]);
     } catch (e) {
       dev.log('Error in post-login data fetch: $e', name: 'Login');
     }
-
-    // non-blocking prefetches
-    _prefetchCountries();
-    _prefetchBanks();
 
     // flag to show news dialog on first home screen load
     await box.write('show_news_dialog', true);
@@ -538,13 +536,13 @@ class LoginScreenController extends GetxService {
     // }
   }
 
-  void _prefetchCountries() {
+  Future<void> _prefetchCountries() async {
     try {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null || transactionUrl.isEmpty) return;
 
       // standalone fetch — write directly to storage without a controller
-      _fetchAndCacheCountries(transactionUrl);
+      await _fetchAndCacheCountries(transactionUrl);
     } catch (e) {
       dev.log('Countries prefetch error: $e', name: 'Login');
     }
@@ -603,11 +601,11 @@ class LoginScreenController extends GetxService {
     }
   }
 
-  void _prefetchBanks() {
+  Future<void> _prefetchBanks() async {
     try {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null || transactionUrl.isEmpty) return;
-      _fetchAndCacheBanks(transactionUrl);
+      await _fetchAndCacheBanks(transactionUrl);
     } catch (e) {
       dev.log('Banks prefetch error: $e', name: 'Login');
     }
@@ -676,7 +674,7 @@ class LoginScreenController extends GetxService {
       dev.log("Google Sign-In successful: ${result?.displayName}");
       if (result != null) {
         socialLogin(context, result.email, result.displayName ?? "",
-            result.photoUrl ?? "", result.id ?? "", "google");
+        result.photoUrl ?? "", result.id, "google");
       }
     } catch (error) {
       dev.log("Google Sign-In error: ${error.toString()}");
@@ -685,8 +683,6 @@ class LoginScreenController extends GetxService {
       }
     }
   }
-
-  Future<void> _handleSignOut() => _googleSignIn.disconnect();
 
   Future<bool> fetchPaymentMethods() async {
     // only show loader if we have no cached data
@@ -756,6 +752,7 @@ class LoginScreenController extends GetxService {
   Future<void> socialLogin(BuildContext context, String email, String name,
       String avatar, String accessToken, String source,
       {String? firebaseIdToken}) async {
+    var keepLoadingForBootstrap = false;
     try {
       showLoadingDialog(context: context);
       isLoading = true;
@@ -781,8 +778,6 @@ class LoginScreenController extends GetxService {
         body,
       );
 
-      Get.back(); // close loader
-
       result.fold(
         (failure) {
           errorMessage = failure.message;
@@ -805,6 +800,7 @@ class LoginScreenController extends GetxService {
             await box.write('utility_service_url', utilityUrl);
 
             dev.log("Social login successful, navigating to home...");
+            keepLoadingForBootstrap = true;
             await handleLoginSuccess();
           } else {
             errorMessage = data['message'] ?? "Social login failed";
@@ -816,7 +812,6 @@ class LoginScreenController extends GetxService {
         },
       );
     } catch (e) {
-      Get.back();
       errorMessage = "Social login error: $e";
       dev.log("Social login exception: $errorMessage");
       Get.snackbar("Error", "Authentication failed. Please try again.",
@@ -824,6 +819,9 @@ class LoginScreenController extends GetxService {
           colorText: AppColors.textSnackbarColor);
     } finally {
       isLoading = false;
+      if (!keepLoadingForBootstrap) {
+        dismissLoadingDialog();
+      }
     }
   }
 

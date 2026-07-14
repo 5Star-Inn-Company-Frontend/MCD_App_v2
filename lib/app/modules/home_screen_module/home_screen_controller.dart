@@ -1,4 +1,5 @@
 import 'dart:developer' as dev;
+import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
@@ -7,6 +8,7 @@ import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/controllers/service_status_controller.dart';
 import 'package:mcd/core/mixins/service_availability_mixin.dart';
+import 'package:mcd/app/modules/login_screen_module/login_screen_controller.dart';
 import 'package:mcd/core/services/notification_permission_service.dart';
 import 'package:mcd/core/services/deep_link_service.dart';
 
@@ -55,23 +57,7 @@ class HomeScreenController extends GetxController
       return;
     }
 
-    // load dashboard from cache first for instant loading
-    final cachedData = box.read('cached_dashboard');
-    if (cachedData != null) {
-      try {
-        dashboardData = DashboardModel.fromJson(cachedData);
-        dev.log("Dashboard loaded from local cache");
-      } catch (e) {
-        dev.log("Error loading dashboard from cache: $e");
-      }
-    }
-
-    // if dashboard was already loaded during login, reuse it
-     fetchDashboard(force: true);
-
-    fetchGMBalance();
-
-    _loadServiceData();
+    unawaited(_bootstrapAfterLogin());
 
     // react to future updates from ServiceStatusController
     final ssc = ServiceStatusController.to;
@@ -79,6 +65,33 @@ class HomeScreenController extends GetxController
 
     change(null, status: RxStatus.success());
     super.onInit();
+  }
+
+  Future<void> _bootstrapAfterLogin() async {
+    try {
+      final cachedData = box.read('cached_dashboard');
+      if (cachedData != null) {
+        try {
+          dashboardData = DashboardModel.fromJson(cachedData);
+          dev.log("Dashboard loaded from local cache");
+        } catch (e) {
+          dev.log("Error loading dashboard from cache: $e");
+        }
+      }
+
+      await Future.wait([
+        fetchDashboard(),
+        fetchGMBalance(),
+      ]);
+
+      _loadServiceData();
+    } finally {
+      try {
+        Get.find<LoginScreenController>().dismissLoadingDialog();
+      } catch (e) {
+        dev.log('Unable to dismiss login loader: $e', name: 'HomeScreen');
+      }
+    }
   }
 
   void updateActionButtons(Map<String, dynamic> services) {
