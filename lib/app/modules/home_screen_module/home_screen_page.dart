@@ -240,7 +240,7 @@ class HomeScreenPage extends StatelessWidget {
                               SizedBox(
                                 height: screenHeight(context) * 0.03,
                                 child: Marquee(
-                                  text: controller.dashboardData?.news ??
+                                  text: controller.dashboardData?.cleanNews ??
                                       'Welcome to Mega Cheap Data',
                                   style: const TextStyle(
                                       fontWeight: FontWeight.w500,

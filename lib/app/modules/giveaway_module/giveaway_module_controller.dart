@@ -603,6 +603,7 @@ class GiveawayModuleController extends GetxController {
       final url = '${utilityUrl}create-giveaway';
 
       final response = await apiService.postrequest(url, body);
+      dev.log('Raw response from create giveaway: $response', name: 'GiveawayModule');
 
       bool success = false;
       int giveawayId = 0;

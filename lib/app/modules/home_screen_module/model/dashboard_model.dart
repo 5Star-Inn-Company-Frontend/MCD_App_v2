@@ -5,6 +5,14 @@ class DashboardModel {
   final String news;
   final List<dynamic> specialOffers;
 
+  String get cleanNews => news
+      .replaceAll(r'\r\n', ' ')
+      .replaceAll(r'\n', ' ')
+      .replaceAll(r'\r', ' ')
+      .replaceAll(r'\t', ' ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+
   DashboardModel({
     required this.user,
     required this.balance,
@@ -15,20 +23,12 @@ class DashboardModel {
 
   factory DashboardModel.fromJson(Map<String, dynamic> json) {
     final data = json['data'];
-    // clean news text by removing escape characters
-    String cleanNews = (data['news'] ?? "")
-        .replaceAll(r'\r\n', ' ')
-        .replaceAll(r'\n', ' ')
-        .replaceAll(r'\r', ' ')
-        .replaceAll(r'\t', ' ')
-        .replaceAll(RegExp(r'\s+'), ' ') 
-        .trim();
-    
+
     return DashboardModel(
       user: UserModel.fromJson(data['user']),
       balance: BalanceModel.fromJson(data['balance']),
       virtualAccounts: VirtualAccounts.fromJson(data['virtual_accounts']),
-      news: cleanNews,
+      news: data['news'] ?? "",
       specialOffers: data['special_offers'] ?? [],
     );
   }
@@ -200,12 +200,12 @@ class VirtualAccounts {
       primaryRaw.isNotEmpty && primaryRaw != "0" && primaryRaw.contains("|");
 
   bool get hasSecondary =>
-      secondaryRaw.isNotEmpty && secondaryRaw != "0" && secondaryRaw.contains("|");
+      secondaryRaw.isNotEmpty &&
+      secondaryRaw != "0" &&
+      secondaryRaw.contains("|");
 
   @override
   String toString() {
     return "VirtualAccounts(primary: $primaryRaw, secondary: $secondaryRaw)";
   }
 }
-
-

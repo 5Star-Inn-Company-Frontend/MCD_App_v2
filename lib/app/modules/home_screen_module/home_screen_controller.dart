@@ -241,6 +241,7 @@ class HomeScreenController extends GetxController
             dashboardData!.news.isNotEmpty) {
           await box.write('show_news_dialog', false);
           _showNewsDialog(dashboardData!.news);
+          dev.log("news ${dashboardData?.news}");
         }
 
         if (force) {

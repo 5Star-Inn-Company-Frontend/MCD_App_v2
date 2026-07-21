@@ -11,9 +11,15 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PaylonyAppBarTwo(
-        title: "Giveaway",
+      appBar: AppBar(
+        title: const Text("Giveaway"),
         centerTitle: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Get.back();
+          },
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8),
@@ -99,8 +105,8 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                                       AppColors.primaryColor.withOpacity(0.08),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: AppColors.primaryColor
-                                        .withOpacity(0.2),
+                                    color:
+                                        AppColors.primaryColor.withOpacity(0.2),
                                   ),
                                 ),
                                 child: Row(
@@ -202,7 +208,13 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   type: "airtime",
                   typeCode: "mtn",
                   image: "",
-                  description: "Please wait...", status: 0, showContact: 0, public: '', createdAt: '', updatedAt: '', expiredAt: '',
+                  description: "Please wait...",
+                  status: 0,
+                  showContact: 0,
+                  public: '',
+                  createdAt: '',
+                  updatedAt: '',
+                  expiredAt: '',
                 ))
         : controller.giveaways;
 
@@ -237,7 +249,8 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   giveaway.userName,
                   'N${giveaway.amount} • ${giveaway.quantity} Qty • ${giveaway.views} Seen \n${giveaway.type.toUpperCase()} • ${giveaway.typeCode.toUpperCase()}',
                   () => Get.bottomSheet(
-                    GiveawayDetailSheet(giveawayId: giveaway.id, controller: controller),
+                    GiveawayDetailSheet(
+                        giveawayId: giveaway.id, controller: controller),
                     isScrollControlled: true,
                     ignoreSafeArea: false,
                   ),
@@ -1239,7 +1252,6 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
   //   );
   //   Get.toNamed(Routes.GIVEAWAY_DETAIL, arguments: {'id': giveawayId});
   // }
-
 
   Widget _detailRow(String label, String value) {
     return Row(
