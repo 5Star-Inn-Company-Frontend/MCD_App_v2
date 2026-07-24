@@ -2,6 +2,7 @@ import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/app/widgets/skeleton_loader.dart';
 import 'package:mcd/core/services/general_market_payment_service.dart';
 import './account_info_module_controller.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:developer' as dev;
 
 class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
@@ -227,12 +228,12 @@ class AccountInfoModulePage extends GetView<AccountInfoModuleController> {
                                       child: profile?.photo != null &&
                                               profile!.photo!.isNotEmpty
                                           ? ClipOval(
-                                              child: Image.network(
-                                                profile.photo!,
+                                              child: CachedNetworkImage(
+                                                imageUrl: profile.photo!,
                                                 width: 100,
                                                 height: 100,
                                                 fit: BoxFit.cover,
-                                                errorBuilder: (_, __, ___) =>
+                                                errorWidget: (_, __, ___) =>
                                                     Padding(
                                                   padding: const EdgeInsets.all(
                                                       25.0),

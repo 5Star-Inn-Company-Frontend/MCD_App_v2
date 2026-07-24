@@ -1,6 +1,7 @@
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../giveaway_module_controller.dart';
 import '../models/giveaway_model.dart';
 
@@ -79,7 +80,7 @@ class GiveawayDetailSheet extends StatelessWidget {
                 if (detail.giver.photo.isNotEmpty)
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: NetworkImage(detail.giver.photo),
+                    backgroundImage: CachedNetworkImageProvider(detail.giver.photo),
                     backgroundColor: const Color(0xffF3FFF7),
                   )
                 else

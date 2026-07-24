@@ -3,6 +3,7 @@ import 'models/giveaway_model.dart';
 import 'widgets/giveaway_detail_sheet.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import './giveaway_module_controller.dart';
 
 class GiveawayModulePage extends GetView<GiveawayModuleController> {
@@ -311,11 +312,11 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(6),
                     child: imageUrl.isNotEmpty
-                        ? Image.network(
-                            imageUrl,
+                        ? CachedNetworkImage(
+                            imageUrl: imageUrl,
                             width: double.infinity,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
+                            errorWidget: (context, error, stackTrace) =>
                                 Container(
                               color: const Color(0xffF3FFF7),
                               child: const Center(

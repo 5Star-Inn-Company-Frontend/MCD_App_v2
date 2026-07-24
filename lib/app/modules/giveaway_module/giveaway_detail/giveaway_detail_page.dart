@@ -1,8 +1,8 @@
 import 'package:mcd/core/import/imports.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'giveaway_detail_controller.dart';
 
-import '../giveaway_module_controller.dart';
 
 class GiveawayDetailPage extends GetView<GiveawayDetailController> {
   const GiveawayDetailPage({super.key});
@@ -81,10 +81,10 @@ class GiveawayDetailPage extends GetView<GiveawayDetailController> {
                       child: AspectRatio(
                         aspectRatio: 16 / 9,
                         child: giveaway.image.isNotEmpty
-                            ? Image.network(
-                                giveaway.image,
+                            ? CachedNetworkImage(
+                                imageUrl: giveaway.image,
                                 fit: BoxFit.cover,
-                                errorBuilder: (c, e, s) => Container(
+                                errorWidget: (c, e, s) => Container(
                                   color: AppColors.primaryGrey.withOpacity(0.1),
                                   child: const Icon(Icons.image,
                                       size: 50, color: AppColors.primaryGrey),
@@ -165,7 +165,7 @@ class GiveawayDetailPage extends GetView<GiveawayDetailController> {
                           CircleAvatar(
                             radius: 25,
                             backgroundImage: giver.photo.isNotEmpty
-                                ? NetworkImage(giver.photo)
+                                ? CachedNetworkImageProvider(giver.photo)
                                 : null,
                             backgroundColor:
                                 AppColors.primaryColor.withOpacity(0.1),

@@ -8,6 +8,7 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
 import 'package:mcd/core/constants/fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class MomoModulePage extends GetView<MomoModuleController> {
   const MomoModulePage({super.key});
@@ -111,10 +112,11 @@ class MomoModulePage extends GetView<MomoModuleController> {
                               if (provider['logo'] != null)
                                 Padding(
                                   padding: const EdgeInsets.only(right: 8.0),
-                                  child: Image.network(provider['logo'],
+                                  child: CachedNetworkImage(
+                                      imageUrl: provider['logo'],
                                       width: 24,
                                       height: 24,
-                                      errorBuilder: (_, __, ___) =>
+                                      errorWidget: (_, __, ___) =>
                                           const SizedBox()),
                                 ),
                               Text(provider['name'] ?? '',

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import './pos_request_new_term_module_controller.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class PosRequestNewTermModulePage extends GetView<PosRequestNewTermModuleController> {
   const PosRequestNewTermModulePage({super.key});
@@ -120,23 +121,19 @@ class PosRequestNewTermModulePage extends GetView<PosRequestNewTermModuleControl
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                terminal.image,
+              child: CachedNetworkImage(
+                imageUrl: terminal.image,
                 fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
+                progressIndicatorBuilder: (context, url, downloadProgress) {
                   return Center(
                     child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
+                      value: downloadProgress.progress,
                       strokeWidth: 2,
                       color: const Color.fromRGBO(90, 187, 123, 1),
                     ),
                   );
                 },
-                errorBuilder: (context, error, stackTrace) {
+                errorWidget: (context, url, error) {
                   return const Center(
                     child: Icon(
                       Icons.image_not_supported_outlined,

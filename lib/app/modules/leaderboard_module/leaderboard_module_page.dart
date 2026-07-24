@@ -2,6 +2,7 @@ import 'package:mcd/app/modules/leaderboard_module/leaderboard_module_controller
 import 'package:mcd/app/modules/leaderboard_module/models/leaderboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
   const LeaderboardModulePage({super.key});
@@ -164,7 +165,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
               CircleAvatar(
                 radius: 28,
                 backgroundImage:
-                    user.avatar.isNotEmpty ? NetworkImage(user.avatar) : null,
+                    user.avatar.isNotEmpty ? CachedNetworkImageProvider(user.avatar) : null,
                 backgroundColor: Colors.white,
                 child: user.avatar.isEmpty
                     ? Icon(Icons.person, size: 28, color: color)
@@ -255,7 +256,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
           CircleAvatar(
             radius: 20,
             backgroundImage:
-                user.avatar.isNotEmpty ? NetworkImage(user.avatar) : null,
+                user.avatar.isNotEmpty ? CachedNetworkImageProvider(user.avatar) : null,
             backgroundColor: AppColors.primaryColor.withOpacity(0.1),
             child: user.avatar.isEmpty
                 ? Icon(
@@ -273,7 +274,7 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextSemiBold(
-                  user.fullName ?? 'N/A',
+                  user.fullName,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   maxLines: 1,

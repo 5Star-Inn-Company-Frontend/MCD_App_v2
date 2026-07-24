@@ -1,5 +1,6 @@
 import 'package:mcd/core/import/imports.dart';
 import './referral_list_module_controller.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ReferralListModulePage extends GetView<ReferralListModuleController> {
   const ReferralListModulePage({super.key});
@@ -151,12 +152,12 @@ class ReferralListModulePage extends GetView<ReferralListModuleController> {
                       fontWeight: FontWeight.w700,
                     )
                   : ClipOval(
-                      child: Image.network(
-                        photo,
+                      child: CachedNetworkImage(
+                        imageUrl: photo,
                         width: 48,
                         height: 48,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
+                        errorWidget: (context, error, stackTrace) {
                           return TextSemiBold(
                             username.isNotEmpty ? username[0].toUpperCase() : '?',
                             fontSize: 20,
