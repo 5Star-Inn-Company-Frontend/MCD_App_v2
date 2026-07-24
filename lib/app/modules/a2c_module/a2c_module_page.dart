@@ -138,6 +138,12 @@ class A2CModulePage extends GetView<A2CModuleController> {
                           if (amount == null || amount <= 0) {
                             return 'Please enter a valid amount';
                           }
+                          if (controller.selectedPaymentMethod == 'wallet' && amount < 100) {
+                            return 'Minimum amount for wallet is NGR 100';
+                          }
+                          if (controller.selectedPaymentMethod == 'bank' && amount < 1000) {
+                            return 'Minimum amount for bank is NGR 1000';
+                          }
                           return null;
                         },
                       ),
