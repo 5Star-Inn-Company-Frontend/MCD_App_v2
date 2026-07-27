@@ -1253,6 +1253,17 @@ class GeneralPayoutController extends GetxController {
       return;
     }
 
+    if (!isPaymentMethodAvailable(getPaymentMethodKey())) {
+      dev.log('Attempted to pay with unavailable payment method', name: 'GeneralPayout');
+      Get.snackbar(
+        'Unavailable',
+        'The selected payment method is currently unavailable.',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+
     // always generate a fresh transaction reference for each new attempt
     _currentTxRef = null;
 
