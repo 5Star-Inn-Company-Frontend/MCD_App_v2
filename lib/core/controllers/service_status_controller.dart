@@ -60,6 +60,8 @@ class ServiceStatusController extends GetxService {
           final model = ServiceStatusModel.fromJson(data);
           serviceStatus.value = model.data;
 
+          dev.log('Available services fetched: ${model.data?.rawServices}', name: 'ServiceStatus');
+
           // Cache the service status
           if (model.data != null) {
             storage.write('cached_service_status', data);
@@ -87,7 +89,7 @@ class ServiceStatusController extends GetxService {
         final model = ServiceStatusModel.fromJson(cached);
         serviceStatus.value = model.data;
         hasLoadedFromCache.value = true;
-        dev.log('Loaded service status from cache', name: 'ServiceStatus');
+        dev.log('Loaded service status from cache. Available services: ${model.data?.rawServices}', name: 'ServiceStatus');
       } catch (e) {
         dev.log('Error loading cached status: $e', name: 'ServiceStatus');
       }

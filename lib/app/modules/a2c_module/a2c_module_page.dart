@@ -46,10 +46,9 @@ class A2CModulePage extends GetView<A2CModuleController> {
                               child: Text(
                                 'Fill out the form below and transfer the airtime to the shown phone number',
                                 style: TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.primaryColor,
-                                  fontFamily: AppFonts.manRope
-                                ),
+                                    fontSize: 13,
+                                    color: AppColors.primaryColor,
+                                    fontFamily: AppFonts.manRope),
                               ),
                             ),
                           ],
@@ -57,13 +56,12 @@ class A2CModulePage extends GetView<A2CModuleController> {
                       ),
                       const Gap(10),
                       Text(
-                            '(MTN Charges: 20% AIRTEL Charges: 20%)',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.primaryGrey2,
-                              fontFamily: AppFonts.manRope
-                            ),
-                          ),
+                        '(MTN Charges: 20% AIRTEL Charges: 20%)',
+                        style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.primaryGrey2,
+                            fontFamily: AppFonts.manRope),
+                      ),
                       const Gap(20),
 
                       // Network Selection
@@ -97,7 +95,7 @@ class A2CModulePage extends GetView<A2CModuleController> {
                           fontFamily: AppFonts.manRope,
                         ),
                         decoration: InputDecoration(
-                          hintText: 'NGR 50,000',
+                          hintText: 'NGN 50,000',
                           hintStyle: const TextStyle(
                             color: AppColors.placeholderColor,
                             fontFamily: AppFonts.manRope,
@@ -138,11 +136,13 @@ class A2CModulePage extends GetView<A2CModuleController> {
                           if (amount == null || amount <= 0) {
                             return 'Please enter a valid amount';
                           }
-                          if (controller.selectedPaymentMethod == 'wallet' && amount < 100) {
-                            return 'Minimum amount for wallet is NGR 100';
+                          if (controller.selectedPaymentMethod == 'wallet' &&
+                              amount < 100) {
+                            return 'Minimum amount for wallet is NGN 100';
                           }
-                          if (controller.selectedPaymentMethod == 'bank' && amount < 1000) {
-                            return 'Minimum amount for bank is NGR 1000';
+                          if (controller.selectedPaymentMethod == 'bank' &&
+                              amount < 1000) {
+                            return 'Minimum amount for bank is NGN 1000';
                           }
                           return null;
                         },
@@ -218,7 +218,8 @@ class A2CModulePage extends GetView<A2CModuleController> {
                       ),
                       const Gap(10),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
                           border: Border.all(color: AppColors.primaryGrey),
                           borderRadius: BorderRadius.circular(8),
@@ -244,225 +245,236 @@ class A2CModulePage extends GetView<A2CModuleController> {
                                   'Select bank',
                                   fontSize: 15,
                                   fontWeight: FontWeight.w500,
-                                  style: const TextStyle(fontFamily: AppFonts.manRope),
+                                  style: const TextStyle(
+                                      fontFamily: AppFonts.manRope),
                                 ),
                                 const Gap(10),
                                 Obx(() {
                                   if (controller.isLoadingBanks) {
-                                  return Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppColors.primaryGrey,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Center(
-                                      child: CircularProgressIndicator(
-                                        color: AppColors.primaryColor,
-                                        strokeWidth: 2,
-                                      ),
-                                    ),
-                                  );
-                                }
-
-                                return InkWell(
-                                  onTap: () {
-                                    if (controller.banks.isEmpty) {
-                                      controller.fetchBanks();
-                                    }
-                                    _showBankSelector(context);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 16,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppColors.primaryGrey,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Obx(() => Text(
-                                              controller.selectedBank.value
-                                                      ?.name ??
-                                                  'Choose bank',
-                                              style: TextStyle(
-                                                color: controller.selectedBank
-                                                            .value !=
-                                                        null
-                                                    ? Colors.black
-                                                    : AppColors
-                                                        .placeholderColor,
-                                                fontFamily: AppFonts.manRope,
-                                                fontSize: 15,
-                                              ),
-                                            )),
-                                        const Icon(
-                                          Icons.keyboard_arrow_right,
-                                          color: AppColors.primaryGrey2,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }),
-                              const Gap(20),
-                              TextSemiBold(
-                                'Enter Account Number',
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                style: const TextStyle(fontFamily: AppFonts.manRope),
-                              ),
-                              const Gap(10),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: TextFormField(
-                                      controller:
-                                          controller.accountNumberController,
-                                      keyboardType: TextInputType.number,
-                                      style: const TextStyle(
-                                        fontFamily: AppFonts.manRope,
-                                      ),
-                                      decoration: InputDecoration(
-                                        hintText: '0000000000',
-                                        hintStyle: const TextStyle(
-                                          color: AppColors.placeholderColor,
-                                          fontFamily: AppFonts.manRope,
-                                        ),
-                                        filled: true,
-                                        fillColor: AppColors.white,
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          borderSide: const BorderSide(
-                                            color: AppColors.primaryGrey,
-                                          ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          borderSide: const BorderSide(
-                                            color: AppColors.primaryGrey,
-                                          ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          borderSide: const BorderSide(
-                                            color: AppColors.primaryColor,
-                                            width: 2,
-                                          ),
-                                        ),
-                                        errorBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          borderSide: const BorderSide(
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      ),
-                                      validator: (value) {
-                                        if (controller.selectedPaymentMethod ==
-                                            'bank') {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Please enter account number';
-                                          }
-                                          if (value.length != 10) {
-                                            return 'Account number must be 10 digits';
-                                          }
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  ),
-                                  const Gap(8),
-                                  InkWell(
-                                    onTap: () {
-                                      if (controller.accountNumberController.text.length == 10 && 
-                                          controller.selectedBank.value != null) {
-                                        controller.verifyBankAccount();
-                                      } else {
-                                        Get.snackbar(
-                                          "Error", 
-                                          controller.selectedBank.value == null 
-                                              ? "Please select a bank first"
-                                              : "Please enter a valid 10-digit account number", 
-                                          backgroundColor: AppColors.errorBgColor, 
-                                          colorText: AppColors.textSnackbarColor,
-                                        );
-                                      }
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.all(12),
+                                    return Container(
+                                      padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
-                                        color: AppColors.primaryColor,
+                                        border: Border.all(
+                                          color: AppColors.primaryGrey,
+                                        ),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: const Icon(
-                                        Icons.check,
-                                        color: AppColors.white,
-                                        size: 24,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Gap(10),
-                              Obx(() {
-                                if (controller.isVerifyingAccount) {
-                                  return Row(
-                                    children: [
-                                      const SizedBox(
-                                        width: 16,
-                                        height: 16,
+                                      child: const Center(
                                         child: CircularProgressIndicator(
                                           color: AppColors.primaryColor,
                                           strokeWidth: 2,
                                         ),
                                       ),
-                                      const Gap(8),
-                                      Text(
-                                        'Verifying account...',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: AppColors.primaryColor,
+                                    );
+                                  }
+
+                                  return InkWell(
+                                    onTap: () {
+                                      if (controller.banks.isEmpty) {
+                                        controller.fetchBanks();
+                                      }
+                                      _showBankSelector(context);
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 16,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: AppColors.primaryGrey,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Obx(() => Text(
+                                                controller.selectedBank.value
+                                                        ?.name ??
+                                                    'Choose bank',
+                                                style: TextStyle(
+                                                  color: controller.selectedBank
+                                                              .value !=
+                                                          null
+                                                      ? Colors.black
+                                                      : AppColors
+                                                          .placeholderColor,
+                                                  fontFamily: AppFonts.manRope,
+                                                  fontSize: 15,
+                                                ),
+                                              )),
+                                          const Icon(
+                                            Icons.keyboard_arrow_right,
+                                            color: AppColors.primaryGrey2,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }),
+                                const Gap(20),
+                                TextSemiBold(
+                                  'Enter Account Number',
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                  style: const TextStyle(
+                                      fontFamily: AppFonts.manRope),
+                                ),
+                                const Gap(10),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextFormField(
+                                        controller:
+                                            controller.accountNumberController,
+                                        keyboardType: TextInputType.number,
+                                        style: const TextStyle(
                                           fontFamily: AppFonts.manRope,
                                         ),
+                                        decoration: InputDecoration(
+                                          hintText: '0000000000',
+                                          hintStyle: const TextStyle(
+                                            color: AppColors.placeholderColor,
+                                            fontFamily: AppFonts.manRope,
+                                          ),
+                                          filled: true,
+                                          fillColor: AppColors.white,
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            borderSide: const BorderSide(
+                                              color: AppColors.primaryGrey,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            borderSide: const BorderSide(
+                                              color: AppColors.primaryGrey,
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            borderSide: const BorderSide(
+                                              color: AppColors.primaryColor,
+                                              width: 2,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            borderSide: const BorderSide(
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (controller
+                                                  .selectedPaymentMethod ==
+                                              'bank') {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'Please enter account number';
+                                            }
+                                            if (value.length != 10) {
+                                              return 'Account number must be 10 digits';
+                                            }
+                                          }
+                                          return null;
+                                        },
                                       ),
-                                    ],
-                                  );
-                                }
+                                    ),
+                                    const Gap(8),
+                                    InkWell(
+                                      onTap: () {
+                                        if (controller.accountNumberController
+                                                    .text.length ==
+                                                10 &&
+                                            controller.selectedBank.value !=
+                                                null) {
+                                          controller.verifyBankAccount();
+                                        } else {
+                                          Get.snackbar(
+                                            "Error",
+                                            controller.selectedBank.value ==
+                                                    null
+                                                ? "Please select a bank first"
+                                                : "Please enter a valid 10-digit account number",
+                                            backgroundColor:
+                                                AppColors.errorBgColor,
+                                            colorText:
+                                                AppColors.textSnackbarColor,
+                                          );
+                                        }
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryColor,
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: const Icon(
+                                          Icons.check,
+                                          color: AppColors.white,
+                                          size: 24,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Gap(10),
+                                Obx(() {
+                                  if (controller.isVerifyingAccount) {
+                                    return Row(
+                                      children: [
+                                        const SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            color: AppColors.primaryColor,
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
+                                        const Gap(8),
+                                        Text(
+                                          'Verifying account...',
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: AppColors.primaryColor,
+                                            fontFamily: AppFonts.manRope,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }
 
-                                if (controller.accountName != null) {
+                                  if (controller.accountName != null) {
+                                    return Text(
+                                      '${controller.accountName}',
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: AppColors.primaryGrey2,
+                                        fontFamily: AppFonts.manRope,
+                                      ),
+                                    );
+                                  }
+
                                   return Text(
-                                    '${controller.accountName}',
-                                    style: const TextStyle(
+                                    '(validated name will appear here)',
+                                    style: TextStyle(
                                       fontSize: 13,
-                                      color: AppColors.primaryGrey2,
+                                      color: AppColors.placeholderColor,
                                       fontFamily: AppFonts.manRope,
                                     ),
                                   );
-                                }
-
-                                return Text(
-                                  '(validated name will appear here)',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: AppColors.placeholderColor,
-                                    fontFamily: AppFonts.manRope,
-                                  ),
-                                );
-                              }),
-                              const Gap(20),
-                            ],
-                          )
+                                }),
+                                const Gap(20),
+                              ],
+                            )
                           : const SizedBox.shrink()),
 
                       const Spacer(),
@@ -522,7 +534,8 @@ class A2CModulePage extends GetView<A2CModuleController> {
                 title,
                 style: const TextStyle(
                   fontSize: 15,
-                  fontWeight: FontWeight.w500, fontFamily: AppFonts.manRope,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: AppFonts.manRope,
                 ),
               ),
               Container(
@@ -559,7 +572,7 @@ class A2CModulePage extends GetView<A2CModuleController> {
     // Reset search when opening modal
     controller.bankSearchQuery = '';
     controller.bankSearchController.clear();
-    
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -662,7 +675,7 @@ class A2CModulePage extends GetView<A2CModuleController> {
                     }
 
                     final filteredBanks = controller.filteredBanks;
-                    
+
                     if (filteredBanks.isEmpty) {
                       return Center(
                         child: TextSemiBold(
