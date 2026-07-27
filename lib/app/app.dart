@@ -7,7 +7,8 @@ import 'package:mcd/app/theme/lightTheme.dart';
 import 'package:mcd/app/widgets/connectivity_banner.dart';
 import 'package:mcd/core/services/notification_permission_service.dart';
 // import 'package:upgrader/upgrader.dart';
-import 'package:mcd/app/widgets/custom_upgrade_alert.dart';
+// import 'package:mcd/app/widgets/custom_upgrade_alert.dart';
+import 'package:mcd/app/widgets/platform_update_handler.dart';
 
 class McdApp extends StatefulWidget {
   const McdApp({super.key});
@@ -42,9 +43,7 @@ class _McdAppState extends State<McdApp> {
         defaultTransition: Transition.cupertino,
         transitionDuration: const Duration(milliseconds: 300),
         builder: (context, child) {
-          return CustomUpgradeAlert(
-            navigatorKey: Get.key,
-            // upgrader: Upgrader(debugDisplayAlways: true),
+          return PlatformUpdateHandler(
             child: ConnectivityBanner(child: child ?? const SizedBox.shrink()),
           );
         },
