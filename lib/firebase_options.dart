@@ -27,10 +27,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -56,13 +53,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyB4bCAxYWuDE62rsiMKXSdgJRxeAjDG0To',
-    appId: '1:246642385825:android:6f1671742642f61d',
+    appId: '1:246642385825:android:f53f3b7bf425c3dd9921e0',
     messagingSenderId: '246642385825',
     projectId: 'mega-cheap-data',
     databaseURL: 'https://mega-cheap-data.firebaseio.com',
     storageBucket: 'mega-cheap-data.appspot.com',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAIrwfumuf7W7iStNl8RHI-7pPtKg2x1jA',
     appId: '1:246642385825:ios:d54da772d2dec2ee9921e0',
@@ -70,20 +66,30 @@ class DefaultFirebaseOptions {
     projectId: 'mega-cheap-data',
     databaseURL: 'https://mega-cheap-data.firebaseio.com',
     storageBucket: 'mega-cheap-data.appspot.com',
-    androidClientId: '246642385825-khms495ln6n0tkgbdek3s155sv7vvemr.apps.googleusercontent.com',
+    androidClientId: '246642385825-jn0qgvf7b28dikk28gl1h2vb4nan6gr6.apps.googleusercontent.com',
     iosClientId: '246642385825-f522liust25qb7r3vgja85tno0qjhtl8.apps.googleusercontent.com',
     iosBundleId: 'a5starcompany.com.megacheapdata',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyAIrwfumuf7W7iStNl8RHI-7pPtKg2x1jA',
-    appId: '1:246642385825:ios:d54da772d2dec2ee9921e0',
+    appId: '1:246642385825:ios:1dfc0c02111367f29921e0',
     messagingSenderId: '246642385825',
     projectId: 'mega-cheap-data',
     databaseURL: 'https://mega-cheap-data.firebaseio.com',
     storageBucket: 'mega-cheap-data.appspot.com',
-    androidClientId: '246642385825-khms495ln6n0tkgbdek3s155sv7vvemr.apps.googleusercontent.com',
-    iosClientId: '246642385825-f522liust25qb7r3vgja85tno0qjhtl8.apps.googleusercontent.com',
-    iosBundleId: 'a5starcompany.com.megacheapdata',
+    androidClientId: '246642385825-jn0qgvf7b28dikk28gl1h2vb4nan6gr6.apps.googleusercontent.com',
+    iosClientId: '246642385825-2lepl7pf2m9ilnlcgcj638um2rq8t49i.apps.googleusercontent.com',
+    iosBundleId: 'com.example.mcd',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyCzVLzC45hEaqEsQW4grgSSnugNjmxrjn4',
+    appId: '1:246642385825:web:8bf541d7b8d1df5f9921e0',
+    messagingSenderId: '246642385825',
+    projectId: 'mega-cheap-data',
+    authDomain: 'mega-cheap-data.firebaseapp.com',
+    databaseURL: 'https://mega-cheap-data.firebaseio.com',
+    storageBucket: 'mega-cheap-data.appspot.com',
+    measurementId: 'G-GS5N6CJTZ9',
   );
 }

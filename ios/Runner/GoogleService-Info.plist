@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>246642385825-f522liust25qb7r3vgja85tno0qjhtl8.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.246642385825-f522liust25qb7r3vgja85tno0qjhtl8</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>246642385825-jn0qgvf7b28dikk28gl1h2vb4nan6gr6.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAIrwfumuf7W7iStNl8RHI-7pPtKg2x1jA</string>
+	<key>GCM_SENDER_ID</key>
+	<string>246642385825</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>a5starcompany.com.megacheapdata</string>
+	<key>PROJECT_ID</key>
+	<string>mega-cheap-data</string>
+	<key>STORAGE_BUCKET</key>
+	<string>mega-cheap-data.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:246642385825:ios:d54da772d2dec2ee9921e0</string>
+	<key>DATABASE_URL</key>
+	<string>https://mega-cheap-data.firebaseio.com</string>
+	<key>ADMOB_APP_ID</key>
+	<string>ca-app-pub-6117361441866120~7211527566</string>
+</dict>
+</plist>
