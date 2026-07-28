@@ -25,6 +25,11 @@ subprojects {
     def configureProject = { p ->
         if (p.hasProperty('android')) {
             p.android {
+                try {
+                    if (namespace == null) {
+                        namespace = p.group
+                    }
+                } catch (Exception e) {}
                 compileOptions {
                     sourceCompatibility JavaVersion.VERSION_17
                     targetCompatibility JavaVersion.VERSION_17

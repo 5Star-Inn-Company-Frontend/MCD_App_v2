@@ -1,5 +1,4 @@
 import 'package:get_storage/get_storage.dart';
-import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'dart:developer' as dev;
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -8,7 +7,7 @@ import 'dart:ui' as ui;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:gal/gal.dart';
 
 import 'package:mcd/core/import/imports.dart';
 
@@ -65,7 +64,7 @@ class MyQrcodeModuleController extends GetxController {
   bool get isSharing => _isSharing.value;
 
   // helper to capture and save qr image, returns path
-  Future<String?> _captureAndSaveQRCode() async {
+  Future<String?> _captureAndSaveQRCode({bool forGallery = false}) async {
     final boundary =
         qrKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
     if (boundary == null) {
@@ -76,67 +75,22 @@ class MyQrcodeModuleController extends GetxController {
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     final pngBytes = byteData!.buffer.asUint8List();
 
-    String? savedPath;
-    if (Platform.isAndroid) {
-      PermissionStatus status = await Permission.photos.status;
-
-      if (!status.isGranted) {
-        status = await Permission.photos.request();
-
-        if (!status.isGranted) {
-          status = await Permission.storage.status;
-          if (!status.isGranted) {
-            status = await Permission.storage.request();
-          }
-        }
-      }
-
-      if (status.isPermanentlyDenied) {
-        Get.snackbar(
-          'Permission Required',
-          'Please enable storage permission in Settings',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-          duration: const Duration(seconds: 3),
-          mainButton: TextButton(
-            onPressed: () => openAppSettings(),
-            child:
-                const Text('Settings', style: TextStyle(color: Colors.white)),
-          ),
-        );
-        return null;
-      }
-
-      if (!status.isGranted) {
-        Get.snackbar(
-          'Permission Denied',
-          'Storage permission is required to save QR code',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-        return null;
-      }
-
-      // save to downloads folder
-      final directory = Directory('/storage/emulated/0/Download');
-      if (!await directory.exists()) {
-        await directory.create(recursive: true);
-      }
-      final file = File(
-          '${directory.path}/MCD_QR_${username}_${DateTime.now().millisecondsSinceEpoch}.png');
+    if (forGallery) {
+      final tempDir = await getTemporaryDirectory();
+      final fileName = 'MCD_QR_${username}_${DateTime.now().millisecondsSinceEpoch}.png';
+      final file = File('${tempDir.path}/$fileName');
       await file.writeAsBytes(pngBytes);
-      savedPath = file.path;
-      dev.log('QR code saved to: $savedPath', name: 'MyQRCode');
+      
+      await Gal.putImage(file.path);
+      dev.log('QR code saved to gallery', name: 'MyQRCode');
+      return 'gallery';
     } else {
-      // for ios or other platforms
       final tempDir = await getTemporaryDirectory();
       final file = File(
           '${tempDir.path}/MCD_QR_${username}_${DateTime.now().millisecondsSinceEpoch}.png');
       await file.writeAsBytes(pngBytes);
-      savedPath = file.path;
+      return file.path;
     }
-
-    return savedPath;
   }
 
   // save qr code to gallery only (no share)
@@ -145,7 +99,7 @@ class MyQrcodeModuleController extends GetxController {
       _isSaving.value = true;
       dev.log('Saving QR code to gallery', name: 'MyQRCode');
 
-      final savedPath = await _captureAndSaveQRCode();
+      final savedPath = await _captureAndSaveQRCode(forGallery: true);
       if (savedPath == null) return;
 
       Get.snackbar(
@@ -175,7 +129,7 @@ class MyQrcodeModuleController extends GetxController {
       _isSharing.value = true;
       dev.log('Sharing QR code with message', name: 'MyQRCode');
 
-      final savedPath = await _captureAndSaveQRCode();
+      final savedPath = await _captureAndSaveQRCode(forGallery: false);
       if (savedPath == null) return;
 
       // share with fund request message

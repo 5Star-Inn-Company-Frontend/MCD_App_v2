@@ -6,7 +6,7 @@ import 'dart:ui' as ui;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:gal/gal.dart';
 import 'dart:developer' as dev;
 import 'package:mcd/core/utils/amount_formatter.dart';
 
@@ -114,56 +114,17 @@ class QrcodeRequestFundDetailsModuleController extends GetxController {
       final pngBytes = byteData!.buffer.asUint8List();
       
       // Save to device storage
-      String? savedPath;
-      if (Platform.isAndroid) {
-        PermissionStatus status = await Permission.photos.status;
-        
-        if (!status.isGranted) {
-          status = await Permission.photos.request();
-          
-          if (!status.isGranted) {
-            status = await Permission.storage.status;
-            if (!status.isGranted) {
-              status = await Permission.storage.request();
-            }
-          }
-        }
-        
-        if (status.isPermanentlyDenied) {
-          Get.snackbar(
-            'Permission Required',
-            'Please enable storage permission in Settings',
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-            duration: const Duration(seconds: 3),
-            mainButton: TextButton(
-              onPressed: () => openAppSettings(),
-              child: const Text('Settings', style: TextStyle(color: Colors.white)),
-            ),
-          );
-          throw Exception('Storage permission denied');
-        }
-        
-        if (!status.isGranted) {
-          throw Exception('Storage permission is required');
-        }
-        
-        // Save to Downloads folder
-        final directory = Directory('/storage/emulated/0/Download');
-        if (!await directory.exists()) {
-          await directory.create(recursive: true);
-        }
-        final file = File('${directory.path}/MCD_FundRequest_${scannedUsername}_${DateTime.now().millisecondsSinceEpoch}.png');
-        await file.writeAsBytes(pngBytes);
-        savedPath = file.path;
-        dev.log('QR code saved to: $savedPath', name: 'RequestFund');
-      } else {
-        // For iOS or other platforms
-        final tempDir = await getTemporaryDirectory();
-        final file = File('${tempDir.path}/MCD_FundRequest_${scannedUsername}_${DateTime.now().millisecondsSinceEpoch}.png');
-        await file.writeAsBytes(pngBytes);
-        savedPath = file.path;
-      }
+      // Save to temporary directory first
+      final fileName = 'MCD_FundRequest_${scannedUsername}_${DateTime.now().millisecondsSinceEpoch}.png';
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/$fileName');
+      await file.writeAsBytes(pngBytes);
+      
+      // Save to device gallery
+      await Gal.putImage(file.path);
+      
+      final savedPath = file.path;
+      dev.log('QR code saved to temp path: $savedPath', name: 'RequestFund');
       
       // Share the QR code
       await Share.shareXFiles(

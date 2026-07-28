@@ -7,6 +7,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:gal/gal.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
@@ -1110,66 +1111,15 @@ class TransactionDetailModuleController extends GetxController {
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
 
-      // Save to appropriate directory based on platform
-      Directory? directory;
-      String fileName;
+      final tempDir = await getTemporaryDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final fileName = 'Receipt_${transactionId}_$timestamp.png';
+      final file = File('${tempDir.path}/$fileName');
+      await file.writeAsBytes(pngBytes);
+      
+      await Gal.putImage(file.path);
 
-      if (Platform.isAndroid) {
-        // Try to save to public Downloads folder
-        directory = Directory('/storage/emulated/0/Download');
-        if (!await directory.exists()) {
-          // Fallback to Documents folder
-          directory = Directory('/storage/emulated/0/Documents');
-          if (!await directory.exists()) {
-            // Final fallback to app-specific external storage
-            directory = await getExternalStorageDirectory();
-          }
-        }
-
-        final timestamp = DateTime.now().millisecondsSinceEpoch;
-        fileName = 'Receipt_${transactionId}_$timestamp.png';
-      } else if (Platform.isIOS) {
-        directory = await getApplicationDocumentsDirectory();
-        final timestamp = DateTime.now().millisecondsSinceEpoch;
-        fileName = 'Receipt_${transactionId}_$timestamp.png';
-      } else {
-        directory = await getApplicationDocumentsDirectory();
-        final timestamp = DateTime.now().millisecondsSinceEpoch;
-        fileName = 'Receipt_${transactionId}_$timestamp.png';
-      }
-
-      if (directory == null) {
-        throw Exception('Unable to access storage');
-      }
-      // Ensure the directory exists (create if necessary)
-      try {
-        if (!await directory.exists()) {
-          await directory.create(recursive: true);
-        }
-      } catch (e) {
-        dev.log('Failed to create directory: ${directory.path}',
-            name: 'TransactionDetail', error: e);
-      }
-
-      File file = File('${directory.path}/$fileName');
-
-      try {
-        await file.writeAsBytes(pngBytes);
-      } on FileSystemException catch (e) {
-        dev.log('Primary save failed, attempting fallback',
-            name: 'TransactionDetail', error: e);
-
-        // Fallback: save to app documents directory
-        final fallbackDir = await getApplicationDocumentsDirectory();
-        if (!await fallbackDir.exists()) {
-          await fallbackDir.create(recursive: true);
-        }
-        final fallbackFile = File('${fallbackDir.path}/$fileName');
-        await fallbackFile.writeAsBytes(pngBytes);
-        file = fallbackFile;
-      }
-
-      dev.log('Receipt saved to: ${file.path}', name: 'TransactionDetail');
+      dev.log('Receipt saved to gallery', name: 'TransactionDetail');
 
       // Show success message with the file path
       Get.snackbar(
