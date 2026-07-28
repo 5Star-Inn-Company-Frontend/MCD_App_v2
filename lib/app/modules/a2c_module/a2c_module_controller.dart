@@ -1,10 +1,7 @@
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/a2c_module/models/bank_model.dart';
-import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
@@ -50,9 +47,10 @@ class A2CModuleController extends GetxController {
     if (bankSearchQuery.isEmpty) {
       return _banks;
     }
-    return _banks.where((bank) => 
-      bank.name.toLowerCase().contains(bankSearchQuery.toLowerCase())
-    ).toList();
+    return _banks
+        .where((bank) =>
+            bank.name.toLowerCase().contains(bankSearchQuery.toLowerCase()))
+        .toList();
   }
 
   final _isLoadingBanks = false.obs;
@@ -112,7 +110,8 @@ class A2CModuleController extends GetxController {
 
       response.fold(
         (failure) {
-          dev.log('Failed to fetch banks', name: 'A2CModule', error: failure.message);
+          dev.log('Failed to fetch banks',
+              name: 'A2CModule', error: failure.message);
           Get.snackbar(
             'Error',
             failure.message,
@@ -125,7 +124,8 @@ class A2CModuleController extends GetxController {
           dev.log('Banks fetched successfully', name: 'A2CModule');
           if (data['success'] == 1 && data['data'] != null) {
             final List<dynamic> bankList = data['data'];
-            _banks.value = bankList.map((item) => BankModel.fromJson(item)).toList();
+            _banks.value =
+                bankList.map((item) => BankModel.fromJson(item)).toList();
             dev.log('Loaded ${_banks.length} banks', name: 'A2CModule');
           }
         },
@@ -190,7 +190,8 @@ class A2CModuleController extends GetxController {
 
       response.fold(
         (failure) {
-          dev.log('Account verification failed', name: 'A2CModule', error: failure.message);
+          dev.log('Account verification failed',
+              name: 'A2CModule', error: failure.message);
           Get.snackbar(
             'Error',
             failure.message,
@@ -277,12 +278,12 @@ class A2CModuleController extends GetxController {
 
       // Generate reference
       final username = box.read('biometric_username_real') ?? 'A2C';
-      final userPrefix = username.length >= 2 
-          ? username.substring(0, 2).toUpperCase() 
-          : 'A2C';
+      final userPrefix =
+          username.length >= 2 ? username.substring(0, 2).toUpperCase() : 'A2C';
       final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
       final body = {
+        'bankname': selectedBank.value!.name,
         'network': selectedNetwork,
         'number': phoneController.text,
         'amount': amountController.text,
@@ -303,7 +304,8 @@ class A2CModuleController extends GetxController {
 
       response.fold(
         (failure) {
-          dev.log('Conversion failed', name: 'A2CModule', error: failure.message);
+          dev.log('Conversion failed',
+              name: 'A2CModule', error: failure.message);
           Get.snackbar(
             'Error',
             failure.message,
@@ -336,10 +338,12 @@ class A2CModuleController extends GetxController {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Image.asset('assets/images/a2c-avatar-icon.png', width: 120, height: 120),
+                      Image.asset('assets/images/a2c-avatar-icon.png',
+                          width: 120, height: 120),
                       const SizedBox(height: 10),
                       Text(
-                        data['message'] ?? 'Your airtime conversion has been initiated successfully.',
+                        data['message'] ??
+                            'Your airtime conversion has been initiated successfully.',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 14,
@@ -349,7 +353,8 @@ class A2CModuleController extends GetxController {
                       Gap(30),
                       GestureDetector(
                         onTap: () async {
-                          await Clipboard.setData(const ClipboardData(text: '08166939205'));
+                          await Clipboard.setData(
+                              const ClipboardData(text: '08166939205'));
                           Get.snackbar(
                             'Copied',
                             'Phone number copied to clipboard',
@@ -362,9 +367,13 @@ class A2CModuleController extends GetxController {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('08166939205', style: TextStyle(fontSize: 18, color: AppColors.primaryColor)),
+                            Text('08166939205',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: AppColors.primaryColor)),
                             Gap(20),
-                            Icon(Icons.copy, size: 22, color: AppColors.primaryColor),
+                            Icon(Icons.copy,
+                                size: 22, color: AppColors.primaryColor),
                           ],
                         ),
                       ),
@@ -378,20 +387,22 @@ class A2CModuleController extends GetxController {
                               borderRadius: BorderRadius.circular(32),
                               color: AppColors.primaryColor,
                               textColor: Colors.white,
-                              onTap: () { Get.back(); }, 
+                              onTap: () {
+                                Get.back();
+                              },
                             ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: BusyButton(
-                              title: 'Home', 
+                              title: 'Home',
                               borderRadius: BorderRadius.circular(32),
                               color: AppColors.primaryColor.withOpacity(0.1),
                               textColor: AppColors.primaryColor,
-                              onTap: () { 
-                                Get.back(); 
+                              onTap: () {
+                                Get.back();
                                 Get.toNamed(Routes.HOME_SCREEN);
-                              }, 
+                              },
                             ),
                           ),
                         ],
@@ -401,7 +412,7 @@ class A2CModuleController extends GetxController {
                 ),
               ),
             );
-            
+
             // Clear form
             phoneController.clear();
             amountController.clear();
@@ -409,7 +420,7 @@ class A2CModuleController extends GetxController {
             _accountName.value = null;
             _isAccountVerified.value = false;
             selectedBank.value = null;
-            
+
             // Navigate back after delay
             // Future.delayed(const Duration(seconds: 3), () {
             //   Get.back();

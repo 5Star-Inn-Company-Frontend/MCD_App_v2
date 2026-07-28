@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/airtime_module/model/airtime_provider_model.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:mcd/core/controllers/service_status_controller.dart';
 import '../../../core/import/imports.dart';
 import './airtime_module_controller.dart';
 
@@ -302,7 +303,9 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
 
         const Gap(25),
 
-        _gistPlusRow(),
+        Obx(() => ServiceStatusController.to.isServiceAvailable('airtime_gistplus')
+            ? _gistPlusRow()
+            : const SizedBox.shrink()),
 
         const Gap(25),
         TextSemiBold("Select Amount"),
