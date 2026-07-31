@@ -656,6 +656,7 @@ class CardTopupModuleController extends GetxController {
       isLoading.value = true;
 
       final userEmail = box.read('user_email') ?? 'user@mcd.com';
+      final username = box.read('biometric_username_real') ?? 'MCD User';
 
       dev.log(
           'chargeCard request: ref=$_currentReference, amount=${_currentAmount * 100}, email=$userEmail',
@@ -667,6 +668,8 @@ class CardTopupModuleController extends GetxController {
       charge.email = userEmail;
       charge.reference = _currentReference;
       charge.putCustomField('Charged From', 'MCD App');
+      charge.putCustomField('Payment Type', 'Wallet Funding');
+      charge.putCustomField('Username', username);
 
       final context = Get.context!;
       

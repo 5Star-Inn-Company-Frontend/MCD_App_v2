@@ -1056,6 +1056,7 @@ class GeneralPayoutController extends GetxController {
       isCardLoading.value = true;
 
       final userEmail = box.read('user_email') ?? 'user@mcd.com';
+      final username = box.read('biometric_username_real') ?? 'MCD User';
       dev.log('Initiating Paystack payment...', name: 'GeneralPayout');
       dev.log('User Email: $userEmail', name: 'GeneralPayout');
       dev.log('Reference: $_currentReference', name: 'GeneralPayout');
@@ -1073,6 +1074,8 @@ class GeneralPayoutController extends GetxController {
       charge.email = userEmail;
       charge.reference = _currentReference;
       charge.putCustomField('Charged From', 'MCD App');
+      charge.putCustomField('Transaction Info', serviceName);
+      charge.putCustomField('Username', username);
 
       // Re-initialize plugin to ensure we have the latest key from storage
       // This handles cases where onInit ran before the key was fetched/updated
