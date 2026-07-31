@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:get/get.dart';
 
-showLoadingDialog({String? lottie, BuildContext? context}) async {
-  showDialog(
-    context: context!,
-    barrierDismissible: false,
-    builder: (_) => WillPopScope(
+Future<void> showLoadingDialog({String? lottie, BuildContext? context}) async {
+  Get.dialog(
+    WillPopScope(
       onWillPop: willpop,
       child: Center(
         child: SizedBox(
@@ -21,6 +20,7 @@ showLoadingDialog({String? lottie, BuildContext? context}) async {
         ),
       ),
     ),
+    barrierDismissible: false,
   );
 }
 

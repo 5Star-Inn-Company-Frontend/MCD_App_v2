@@ -65,7 +65,6 @@ class PaymentConfigController extends GetxService {
             dev.log('Payment method status: $paymentMethodStatus', name: 'PaymentConfig');
           }
           
-          // Store payment method details (keys, etc.)
           if (data['data']['details'] != null) {
             final details = data['data']['details'] as Map<String, dynamic>;
             paymentMethodDetails.value = details.map((key, value) => MapEntry(key, value.toString()));
@@ -134,7 +133,9 @@ class PaymentConfigController extends GetxService {
 
   // Check if a payment method is available
   bool isPaymentMethodAvailable(String method) {
-    final status = paymentMethodStatus[method];
+    // Mapping the internal key 'general_market' to API key 'pay_gm' for availability check
+    final statusKey = method == 'general_market' ? 'pay_gm' : method;
+    final status = paymentMethodStatus[statusKey];
     return status == '1';
   }
 

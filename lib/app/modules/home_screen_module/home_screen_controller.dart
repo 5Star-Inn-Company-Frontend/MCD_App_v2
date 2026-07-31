@@ -43,6 +43,13 @@ class HomeScreenController extends GetxController
   String get gmBalance => gmBalanceRx.value;
   set gmBalance(String value) => gmBalanceRx.value = value;
 
+  final isBalanceVisible = true.obs;
+
+  void toggleBalanceVisibility() {
+    isBalanceVisible.value = !isBalanceVisible.value;
+    box.write('is_balance_visible', isBalanceVisible.value);
+  }
+
   final imageSliders = <String>[].obs;
   final apiService = DioApiService();
   final box = GetStorage();
@@ -50,6 +57,8 @@ class HomeScreenController extends GetxController
   @override
   void onInit() {
     dev.log("HomeScreenController initialized");
+
+    isBalanceVisible.value = box.read('is_balance_visible') ?? true;
 
     final token = box.read('token');
     if (token == null || token.toString().isEmpty) {
@@ -80,7 +89,7 @@ class HomeScreenController extends GetxController
       }
 
       await Future.wait([
-        fetchDashboard(),
+        fetchDashboard(force: true),
         fetchGMBalance(),
       ]);
 

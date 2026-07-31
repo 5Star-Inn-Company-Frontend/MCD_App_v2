@@ -251,6 +251,7 @@ class LoginScreenController extends GetxService {
 
       result.fold(
         (failure) {
+          dismissLoadingDialog();
           errorMessage = failure.message;
           dev.log("Login failed: ${failure.message}");
           Get.snackbar("Error", errorMessage!,
@@ -283,12 +284,14 @@ class LoginScreenController extends GetxService {
             await handleLoginSuccess();
           } else if (success == 2 && data['pin'] == true) {
             dev.log("PIN verification required");
+            dismissLoadingDialog();
             Get.toNamed(Routes.PIN_VERIFY, arguments: {"username": username});
           } else if (success == 2 ||
               data['message']?.toString().toLowerCase().contains("device") ==
                   true) {
             // new device verification required
             dev.log("New device verification required");
+            dismissLoadingDialog();
             Get.snackbar(
               "Verification Required",
               "Please check your email for the verification code",
@@ -301,6 +304,7 @@ class LoginScreenController extends GetxService {
             });
           } else {
             dev.log('Login error: ${data['message']}');
+            dismissLoadingDialog();
             Get.snackbar("Error", data['message'] ?? "Login failed",
                 backgroundColor: AppColors.errorBgColor,
                 colorText: AppColors.textSnackbarColor);
@@ -308,6 +312,7 @@ class LoginScreenController extends GetxService {
         },
       );
     } catch (e) {
+      dismissLoadingDialog();
       errorMessage = "Unexpected error: $e";
       dev.log('Login exception: $errorMessage');
       Get.snackbar("Error", errorMessage!,

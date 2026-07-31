@@ -14,6 +14,7 @@ import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/core/services/general_market_payment_service.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
+import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 
 enum PaymentType {
   airtime,
@@ -484,7 +485,6 @@ class GeneralPayoutController extends GetxController {
     );
   }
 
-
   final storage = GetStorage();
 
   final RxBool isLoading = false.obs;
@@ -496,8 +496,10 @@ class GeneralPayoutController extends GetxController {
           'Using cached payment method availability from PaymentConfigController',
           name: 'GeneralPayout');
 
-      paymentMethodStatus.value = jsonDecode(storage.read("payment_method_status"));
-      paymentMethodDetails.value = jsonDecode(storage.read("payment_method_details"));
+      paymentMethodStatus.value =
+          jsonDecode(storage.read("payment_method_status"));
+      paymentMethodDetails.value =
+          jsonDecode(storage.read("payment_method_details"));
 
       dev.log('Payment method availability: $paymentMethodStatus',
           name: 'GeneralPayout');
@@ -517,7 +519,6 @@ class GeneralPayoutController extends GetxController {
     }
   }
 
-
   Future<bool> fetchPaymentMethods() async {
     // only show loader if we have no cached data
     errorMessage.value = '';
@@ -525,38 +526,47 @@ class GeneralPayoutController extends GetxController {
 
     final transactionUrl = storage.read('transaction_service_url');
     if (transactionUrl == null) {
-      dev.log('Transaction URL not found, will retry when available', name: 'PaymentConfig');
+      dev.log('Transaction URL not found, will retry when available',
+          name: 'PaymentConfig');
 
       isLoadingPaymentMethods.value = false;
       return false;
     }
 
-    final result = await apiService.getrequest('${transactionUrl}payment-methods');
+    final result =
+        await apiService.getrequest('${transactionUrl}payment-methods');
 
     bool isSuccess = false;
 
     result.fold(
-          (failure) {
-        dev.log('Failed to fetch payment methods', name: 'PaymentConfig', error: failure.message);
+      (failure) {
+        dev.log('Failed to fetch payment methods',
+            name: 'PaymentConfig', error: failure.message);
         errorMessage.value = failure.message;
       },
-          (data) {
+      (data) {
         if (data['success'] == 1 && data['data'] != null) {
-          dev.log('Payment methods fetched successfully', name: 'PaymentConfig');
+          dev.log('Payment methods fetched successfully',
+              name: 'PaymentConfig');
 
           // Store payment method status
           if (data['data']['status'] != null) {
             final status = data['data']['status'] as Map<String, dynamic>;
-            paymentMethodStatus.value = status.map((key, value) => MapEntry(key, value.toString()));
-            storage.write('payment_method_status', jsonEncode(paymentMethodStatus.value));
-            dev.log('Payment method status: $paymentMethodStatus', name: 'PaymentConfig');
+            paymentMethodStatus.value =
+                status.map((key, value) => MapEntry(key, value.toString()));
+            storage.write(
+                'payment_method_status', jsonEncode(paymentMethodStatus.value));
+            dev.log('Payment method status: $paymentMethodStatus',
+                name: 'PaymentConfig');
           }
 
           // Store payment method details (keys, etc.)
           if (data['data']['details'] != null) {
             final details = data['data']['details'] as Map<String, dynamic>;
-            paymentMethodDetails.value = details.map((key, value) => MapEntry(key, value.toString()));
-            storage.write('payment_method_details', jsonEncode(paymentMethodDetails.value));
+            paymentMethodDetails.value =
+                details.map((key, value) => MapEntry(key, value.toString()));
+            storage.write('payment_method_details',
+                jsonEncode(paymentMethodDetails.value));
             // Store Paystack public key
             if (details['paystack_public'] != null) {
               storage.write('paystack_public_key', details['paystack_public']);
@@ -574,18 +584,22 @@ class GeneralPayoutController extends GetxController {
               storage.write('monnify_api_key', details['monnify_apikey']);
             }
             if (details['monnify_contractcode'] != null) {
-              storage.write('monnify_contract_code', details['monnify_contractcode']);
+              storage.write(
+                  'monnify_contract_code', details['monnify_contractcode']);
             }
 
-            dev.log('Payment gateway keys stored successfully', name: 'PaymentConfig');
+            dev.log('Payment gateway keys stored successfully',
+                name: 'PaymentConfig');
           }
 
           // Cache the entire response
           storage.write('cached_payment_methods', data);
           isSuccess = true;
         } else {
-          dev.log('Payment methods fetch failed', name: 'PaymentConfig', error: data['message']);
-          errorMessage.value = data['message'] ?? 'Failed to fetch payment methods';
+          dev.log('Payment methods fetch failed',
+              name: 'PaymentConfig', error: data['message']);
+          errorMessage.value =
+              data['message'] ?? 'Failed to fetch payment methods';
         }
       },
     );
@@ -595,8 +609,9 @@ class GeneralPayoutController extends GetxController {
   }
 
   bool isPaymentMethodAvailable(String method) {
-    print('Payment method status: ${paymentMethodStatus.value}');
-    final status = paymentMethodStatus[method];
+    // Map internal key 'general_market' to API key 'pay_gm' for availability check
+    final statusKey = method == 'general_market' ? 'pay_gm' : method;
+    final status = paymentMethodStatus[statusKey];
     return status == '1';
   }
 
@@ -1073,10 +1088,10 @@ class GeneralPayoutController extends GetxController {
       dev.log('Invoking Paystack plugin.chargeCard...', name: 'GeneralPayout');
 
       final context = Get.context!;
-      
+
       // Close the card input dialog so it doesn't block Paystack's OTP/3DS window
       Get.back();
-      
+
       // show "Verifying" overlay so user knows we are still processing after OTP
       Get.dialog(
         const Center(
@@ -1099,9 +1114,9 @@ class GeneralPayoutController extends GetxController {
         ),
         barrierDismissible: false,
       );
-      
+
       final response = await plugin.chargeCard(context, charge: charge);
-      
+
       // close the "Verifying" overlay
       if (Get.isDialogOpen ?? false) Get.back();
 
@@ -1254,7 +1269,8 @@ class GeneralPayoutController extends GetxController {
     }
 
     if (!isPaymentMethodAvailable(getPaymentMethodKey())) {
-      dev.log('Attempted to pay with unavailable payment method', name: 'GeneralPayout');
+      dev.log('Attempted to pay with unavailable payment method',
+          name: 'GeneralPayout');
       Get.snackbar(
         'Unavailable',
         'The selected payment method is currently unavailable.',
@@ -1336,7 +1352,7 @@ class GeneralPayoutController extends GetxController {
       onPaymentSuccess: () async {
         dev.log('GM ads completed, processing actual transaction',
             name: 'GeneralPayout');
-        
+
         // show loading overlay
         Get.dialog(
           const Center(
@@ -1367,7 +1383,7 @@ class GeneralPayoutController extends GetxController {
         dev.log('GM payment failed: $errorMessage', name: 'GeneralPayout');
         isPaying.value = false;
         _currentTxRef = null;
-        
+
         if (errorMessage.contains('already in progress')) {
           Get.dialog(
             Dialog(
@@ -1395,7 +1411,7 @@ class GeneralPayoutController extends GetxController {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // title
                     Text(
                       'Payment Stuck?',
@@ -1407,7 +1423,7 @@ class GeneralPayoutController extends GetxController {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 12),
-                    
+
                     // description
                     Text(
                       'A General Market payment session is currently in progress. If your advertisements did not show or load, you can force cancel it to reset the state.',
@@ -1419,7 +1435,7 @@ class GeneralPayoutController extends GetxController {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
-                    
+
                     // buttons
                     Row(
                       children: [
@@ -1450,12 +1466,10 @@ class GeneralPayoutController extends GetxController {
                               // GeneralMarketPaymentService().forceCancelPayment();
                               _gmPaymentService.forceCancelPayment();
                               Get.back(); // close dialog
-                              Get.snackbar(
-                                'Reset Successful', 
-                                'State cleared. You can try your payment again.', 
-                                backgroundColor: AppColors.successBgColor, 
-                                colorText: AppColors.textSnackbarColor
-                              );
+                              Get.snackbar('Reset Successful',
+                                  'State cleared. You can try your payment again.',
+                                  backgroundColor: AppColors.successBgColor,
+                                  colorText: AppColors.textSnackbarColor);
                             },
                             style: OutlinedButton.styleFrom(
                               backgroundColor: Colors.orange,
@@ -1503,12 +1517,20 @@ class GeneralPayoutController extends GetxController {
   double _getTransactionAmount() {
     if (isMultipleAirtime.value) {
       return multipleAirtimeList.fold<double>(
-          0, (sum, item) => sum + (double.tryParse(item['amount']?.toString() ?? '0') ?? 0));
+          0,
+          (sum, item) =>
+              sum + (double.tryParse(item['amount']?.toString() ?? '0') ?? 0));
     }
     // cable amount comes from bouquet details, not paymentData['amount']
     if (paymentType == PaymentType.cable) {
       return double.tryParse(
               cableBouquetDetails['bouquetPrice']?.toString() ?? '0') ??
+          0.0;
+    }
+    // data amount comes from dataPlan price
+    if (paymentType == PaymentType.data) {
+      return double.tryParse(
+              paymentData['dataPlan']?.price?.toString() ?? '0') ??
           0.0;
     }
     return double.tryParse(paymentData['amount']?.toString() ?? '0') ?? 0.0;
@@ -1552,7 +1574,7 @@ class GeneralPayoutController extends GetxController {
       // Refresh GM balance after successful transaction
       dev.log('Transaction complete, refreshing GM balance',
           name: 'GeneralPayout');
-      await fetchGMBalance(); 
+      await fetchGMBalance();
     } catch (e) {
       dev.log('Transaction processing error', name: 'GeneralPayout', error: e);
       isPaying.value = false;
@@ -1595,10 +1617,10 @@ class GeneralPayoutController extends GetxController {
       (failure) async {
         dev.log('Handshake failed: $endpoint',
             name: 'GeneralPayout', error: failure.message);
-        
+
         // format gm error
         final isGM = getPaymentMethodKey() == 'general_market';
-        final errorText = isGM 
+        final errorText = isGM
             ? 'Ads verified, but transaction failed: ${failure.message}'
             : failure.message;
 
@@ -1721,7 +1743,9 @@ class GeneralPayoutController extends GetxController {
     };
 
     final totalAmount = multipleAirtimeList.fold<double>(
-        0, (sum, item) => sum + (double.tryParse(item['amount']?.toString() ?? '0') ?? 0));
+        0,
+        (sum, item) =>
+            sum + (double.tryParse(item['amount']?.toString() ?? '0') ?? 0));
 
     await _performHandshake(
       endpoint: 'airtime-multiple',
@@ -2140,8 +2164,8 @@ class GeneralPayoutController extends GetxController {
           _navigateToReceipt(transactionId.toString(), amount, data);
         } else {
           if (Get.isDialogOpen ?? false) Get.back();
-          Get.snackbar("Payment Failed",
-              data['message'] ?? "An unknown error occurred.",
+          Get.snackbar(
+              "Payment Failed", data['message'] ?? "An unknown error occurred.",
               backgroundColor: AppColors.errorBgColor,
               colorText: AppColors.textSnackbarColor);
         }
@@ -2182,8 +2206,8 @@ class GeneralPayoutController extends GetxController {
           _navigateToReceipt(transactionId.toString(), amount, data);
         } else {
           if (Get.isDialogOpen ?? false) Get.back();
-          Get.snackbar("Payment Failed",
-              data['message'] ?? "An unknown error occurred.",
+          Get.snackbar(
+              "Payment Failed", data['message'] ?? "An unknown error occurred.",
               backgroundColor: AppColors.errorBgColor,
               colorText: AppColors.textSnackbarColor);
         }
@@ -2197,7 +2221,6 @@ class GeneralPayoutController extends GetxController {
     String? successMessage,
     String? localRef,
   }) {
-
     final isPaystack = getPaymentMethodKey() == 'paystack';
 
     if (isPaystack) {
@@ -2217,7 +2240,8 @@ class GeneralPayoutController extends GetxController {
           name: 'GeneralPayout');
       _currentTxRef = null; // clear reference on success
 
-      if (paymentType == PaymentType.airtime || paymentType == PaymentType.data) {
+      if (paymentType == PaymentType.airtime ||
+          paymentType == PaymentType.data) {
         box.remove('cached_beneficiaries_airtime_ts');
         dev.log('Beneficiaries cache timestamp cleared for refresh',
             name: 'GeneralPayout');
@@ -2234,17 +2258,16 @@ class GeneralPayoutController extends GetxController {
     } else {
       dev.log('Payment unsuccessful',
           name: 'GeneralPayout', error: data['message']);
-      
+
       // format gm error
       final isGM = getPaymentMethodKey() == 'general_market';
-      final errorText = isGM 
+      final errorText = isGM
           ? 'Ads verified, but provider failed: ${data['message'] ?? "An unknown error occurred."}'
           : (data['message'] ?? "An unknown error occurred.");
 
       if (Get.isDialogOpen ?? false) Get.back();
 
-      Get.snackbar(
-          "Payment Failed", errorText,
+      Get.snackbar("Payment Failed", errorText,
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor,
           duration: const Duration(seconds: 5));
@@ -2252,7 +2275,7 @@ class GeneralPayoutController extends GetxController {
   }
 
   void _navigateToReceipt(
-    String transactionId, double amount, Map<String, dynamic> data) {
+      String transactionId, double amount, Map<String, dynamic> data) {
     final userId = box.read('biometric_username_real') ?? 'N/A';
 
     // extract token if present
@@ -2309,6 +2332,4 @@ class GeneralPayoutController extends GetxController {
         return serviceName;
     }
   }
-
-  
 }
