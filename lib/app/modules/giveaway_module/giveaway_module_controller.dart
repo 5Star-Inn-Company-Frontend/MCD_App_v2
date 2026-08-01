@@ -94,7 +94,7 @@ class GiveawayModuleController extends GetxController {
       onResume: () => checkNotificationStatus(),
     );
 
-    adsService.showInterstitialAd();
+    // adsService.showInterstitialAd();
 
     final uniqueProviders = <String, Map<String, dynamic>>{};
     final providerList = [

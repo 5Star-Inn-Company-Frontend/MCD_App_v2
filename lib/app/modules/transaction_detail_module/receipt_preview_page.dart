@@ -397,21 +397,21 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700)),
                         const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(
-                                color: Colors.white.withOpacity(0.5), width: 1),
-                          ),
-                          child: Text(_amount,
-                              style: GoogleFonts.plusJakartaSans(
-                                  color: Colors.white,
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w800)),
-                        ),
+                        // Container(
+                        //   padding: const EdgeInsets.symmetric(
+                        //       horizontal: 20, vertical: 8),
+                        //   decoration: BoxDecoration(
+                        //     color: Colors.white.withOpacity(0.2),
+                        //     borderRadius: BorderRadius.circular(30),
+                        //     border: Border.all(
+                        //         color: Colors.white.withOpacity(0.5), width: 1),
+                        //   ),
+                        //   child: Text(_amount,
+                        //       style: GoogleFonts.plusJakartaSans(
+                        //           color: Colors.white,
+                        //           fontSize: 26,
+                        //           fontWeight: FontWeight.w800)),
+                        // ),
                         const SizedBox(height: 12),
                         _statusChip(
                             bg: Colors.white.withOpacity(0.1),
@@ -536,11 +536,11 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700)),
                         const SizedBox(height: 6),
-                        Text(_amount,
-                            style: GoogleFonts.plusJakartaSans(
-                                color: Colors.white,
-                                fontSize: 28,
-                                fontWeight: FontWeight.w800)),
+                        // Text(_amount,
+                        //     style: GoogleFonts.plusJakartaSans(
+                        //         color: Colors.white,
+                        //         fontSize: 28,
+                        //         fontWeight: FontWeight.w800)),
                         const SizedBox(height: 10),
                         _statusChip(light: true),
                       ],
@@ -660,20 +660,20 @@ class _ReceiptPreviewPageState extends State<ReceiptPreviewPage>
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700)),
                         const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: gold.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(color: gold.withOpacity(0.6)),
-                          ),
-                          child: Text(_amount,
-                              style: GoogleFonts.plusJakartaSans(
-                                  color: gold,
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w800)),
-                        ),
+                        // Container(
+                        //   padding: const EdgeInsets.symmetric(
+                        //       horizontal: 20, vertical: 8),
+                        //   decoration: BoxDecoration(
+                        //     color: gold.withOpacity(0.15),
+                        //     borderRadius: BorderRadius.circular(30),
+                        //     border: Border.all(color: gold.withOpacity(0.6)),
+                        //   ),
+                        //   child: Text(_amount,
+                        //       style: GoogleFonts.plusJakartaSans(
+                        //           color: gold,
+                        //           fontSize: 26,
+                        //           fontWeight: FontWeight.w800)),
+                        // ),
                         const SizedBox(height: 12),
                         _statusChip(
                             bg: Colors.white.withOpacity(0.12),

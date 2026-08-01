@@ -59,7 +59,6 @@ class PredictWinModuleController extends GetxController {
     super.onInit();
     dev.log('PredictWinModuleController initialized', name: 'PredictWin');
     fetchPredictions();
-    adsService.showInterstitialAd();
   }
 
   void _showInfoDialog() {

@@ -2,7 +2,7 @@ name: mcd
 description: "A new Flutter project."
 publish_to: 'none'
 
-version: 7.0.2+85
+version: 7.0.7+90
 
 environment:
   sdk: ^3.6.0

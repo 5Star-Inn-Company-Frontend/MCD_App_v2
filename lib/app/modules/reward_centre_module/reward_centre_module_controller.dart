@@ -23,7 +23,7 @@ class RewardCentreModuleController extends GetxController {
   void onInit() {
     super.onInit();
     fetchservicestatus();
-    adsService.showInterstitialAd();
+    // adsService.showInterstitialAd();
   }
 
   @override
