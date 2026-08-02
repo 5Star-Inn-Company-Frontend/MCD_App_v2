@@ -3,18 +3,19 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
-import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
+import 'package:mcd/core/constants/fonts.dart';
 import 'dart:developer' as dev;
 
 import '../../home_screen_module/model/dashboard_model.dart';
+import '../../home_screen_module/home_screen_controller.dart';
 
 class QrcodeTransferDetailsModuleController extends GetxController {
   final GetStorage _storage = GetStorage();
   final apiService = DioApiService();
-  
+
   // Form key
   final formKey = GlobalKey<FormState>();
-  
+
   // Text editing controller
   final amountController = TextEditingController();
   final referenceController = TextEditingController();
@@ -55,7 +56,8 @@ class QrcodeTransferDetailsModuleController extends GetxController {
         final dashboard = DashboardModel.fromJson(cachedDashboard);
         final walletBalance = dashboard.balance.wallet;
         _currentWallet.value = double.tryParse(walletBalance) ?? 0.0;
-        dev.log('Current wallet balance loaded from cache: ${_currentWallet.value}');
+        dev.log(
+            'Current wallet balance loaded from cache: ${_currentWallet.value}');
       } else {
         _currentWallet.value = 0.0;
       }
@@ -63,13 +65,13 @@ class QrcodeTransferDetailsModuleController extends GetxController {
       dev.log('Error loading wallet balance from cache: $e');
       _currentWallet.value = 0.0;
     }
-    
+
     // Load scanned user data from arguments
     final args = Get.arguments;
     if (args != null && args['username'] != null) {
       _scannedUsername.value = args['username'];
       dev.log('Scanned username: ${_scannedUsername.value}');
-      
+
       // Check if email was provided in QR code (new format)
       if (args['email'] != null && args['email'].toString().isNotEmpty) {
         _scannedEmail.value = args['email'];
@@ -88,13 +90,14 @@ class QrcodeTransferDetailsModuleController extends GetxController {
 
   Future<void> _fetchUserDetails() async {
     _isFetchingUserData.value = true;
-    
+
     try {
       // Get utility service URL from storage
       final utilityUrl = _storage.read('utility_service_url');
       if (utilityUrl == null) {
         dev.log('Utility URL not found', name: 'QRTransfer');
-        _scannedEmail.value = '${_scannedUsername.value.toLowerCase()}@example.com';
+        _scannedEmail.value =
+            '${_scannedUsername.value.toLowerCase()}@example.com';
         _isFetchingUserData.value = false;
         return;
       }
@@ -109,27 +112,33 @@ class QrcodeTransferDetailsModuleController extends GetxController {
         (failure) {
           dev.log('Failed to fetch user details: ${failure.message}');
           // Use placeholder email if fetch fails
-          _scannedEmail.value = '${_scannedUsername.value.toLowerCase()}@example.com';
+          _scannedEmail.value =
+              '${_scannedUsername.value.toLowerCase()}@example.com';
         },
         (data) {
           dev.log('User details response: $data', name: 'QRTransfer');
           if (data['success'] == true || data['success'] == 1) {
             final userData = data['data'];
             if (userData != null) {
-              _scannedEmail.value = userData['email'] ?? '${_scannedUsername.value.toLowerCase()}@example.com';
+              _scannedEmail.value = userData['email'] ??
+                  '${_scannedUsername.value.toLowerCase()}@example.com';
               dev.log('User details fetched - Email: ${_scannedEmail.value}');
             } else {
-              _scannedEmail.value = '${_scannedUsername.value.toLowerCase()}@example.com';
+              _scannedEmail.value =
+                  '${_scannedUsername.value.toLowerCase()}@example.com';
             }
           } else {
-            _scannedEmail.value = '${_scannedUsername.value.toLowerCase()}@example.com';
-            dev.log('User details not found: ${data['message'] ?? 'Unknown error'}');
+            _scannedEmail.value =
+                '${_scannedUsername.value.toLowerCase()}@example.com';
+            dev.log(
+                'User details not found: ${data['message'] ?? 'Unknown error'}');
           }
         },
       );
     } catch (e) {
       dev.log('Error fetching user details: $e');
-      _scannedEmail.value = '${_scannedUsername.value.toLowerCase()}@example.com';
+      _scannedEmail.value =
+          '${_scannedUsername.value.toLowerCase()}@example.com';
     } finally {
       _isFetchingUserData.value = false;
     }
@@ -175,7 +184,6 @@ class QrcodeTransferDetailsModuleController extends GetxController {
         return;
       }
 
-      // Get transaction URL from storage
       final transactionUrl = _storage.read('transaction_service_url');
       if (transactionUrl == null) {
         dev.log('Transaction URL not found', name: 'QRTransfer');
@@ -189,9 +197,8 @@ class QrcodeTransferDetailsModuleController extends GetxController {
         return;
       }
 
-      // Prepare request body with auto-generated reference
       final body = {
-        'user_name': _scannedUsername.value,
+        'username': _scannedUsername.value,
         'amount': amount.toString(),
         'reference': ref,
       };
@@ -199,7 +206,8 @@ class QrcodeTransferDetailsModuleController extends GetxController {
       dev.log('Transfer request body: $body', name: 'QRTransfer');
 
       // Call the transfer endpoint
-      final result = await apiService.postrequest('${transactionUrl}w2w/transfer', body);
+      final result =
+          await apiService.postrequest('${transactionUrl}w2w/transfer', body);
 
       result.fold(
         (failure) {
@@ -213,22 +221,106 @@ class QrcodeTransferDetailsModuleController extends GetxController {
         },
         (data) {
           dev.log('Transfer response: $data', name: 'QRTransfer');
-          
-          if (data['success'] == true) {
-            Get.snackbar(
-              'Success',
-              data['message'] ?? 'Transfer successful',
-              backgroundColor: AppColors.successBgColor,
-              colorText: AppColors.textSnackbarColor,
-            );
 
+          if (data['success'] == true || data['success'] == 1) {
             _currentTxRef = null; // Clear on success
 
-            // Refresh dashboard data via API directly if needed, or just notify user
-            // Dashboard refresh usually happens on home page entry
+            // Force dashboard refresh
+            try {
+              if (Get.isRegistered<HomeScreenController>()) {
+                Get.find<HomeScreenController>().refreshDashboard();
+              }
+            } catch (e) {
+              dev.log('Error refreshing dashboard: $e');
+            }
 
-            // Navigate back
-            Get.back();
+            // Success Dialog
+            Get.dialog(
+              Center(
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(height: 10),
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              color: Colors.green.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.check_circle,
+                                  color: Colors.green, size: 50),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'Transfer Successful',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: AppFonts.manRope,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 22,
+                              color: Colors.black,
+                            ),
+                          ),
+                          // const SizedBox(height: 12),
+                          // Text(
+                          //   data['message'] ?? 'Your transfer has been completed successfully.',
+                          //   textAlign: TextAlign.center,
+                          //   style: const TextStyle(
+                          //     fontFamily: AppFonts.manRope,
+                          //     fontSize: 15,
+                          //     height: 1.5,
+                          //     color: Colors.black87,
+                          //   ),
+                          // ),
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Get.back(); // close dialog
+                                Get.back(); // navigate back to previous screen
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryColor,
+                                foregroundColor: Colors.white,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(35),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: const Text(
+                                'Done',
+                                style: TextStyle(
+                                  fontFamily: AppFonts.manRope,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              barrierDismissible: false,
+            );
           } else {
             Get.snackbar(
               'Error',
