@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart' as launcher;
 
 import '../../../core/utils/confirmlogout.dart';
 import './more_module_controller.dart';
+import 'package:mcd/core/controllers/service_status_controller.dart';
 
 class MoreModulePage extends GetView<MoreModuleController> {
   const MoreModulePage({super.key});
@@ -88,9 +89,12 @@ class MoreModulePage extends GetView<MoreModuleController> {
                     rowcard('Account Information', () {
                       Get.toNamed(Routes.ACCOUNT_INFO);
                     }, false),
-                    rowcard('KYC Update', () {
-                      Get.toNamed(Routes.KYC_UPDATE_MODULE);
-                    }, false),
+                    Obx(() {
+                      final isAvailable = ServiceStatusController.to.isServiceAvailable('bvn_verification');
+                      return rowcard('KYC Update', () {
+                        Get.toNamed(Routes.KYC_UPDATE_MODULE);
+                      }, false, isAvailable: isAvailable);
+                    }),
                     rowcard('Agent Request', () {
                       Get.toNamed(Routes.AGENT_REQUEST_MODULE);
                     }, false),
@@ -649,11 +653,11 @@ class MoreModulePage extends GetView<MoreModuleController> {
   //   );
   // }
 
-  Widget rowcard(String name, VoidCallback onTap, bool isLogout) {
+  Widget rowcard(String name, VoidCallback onTap, bool isLogout, {bool isAvailable = true}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 25),
       child: TouchableOpacity(
-        onTap: onTap,
+        onTap: isAvailable ? onTap : () {},
         child: Container(
           decoration: BoxDecoration(
               border: Border.all(
@@ -667,10 +671,30 @@ class MoreModulePage extends GetView<MoreModuleController> {
             padding: const EdgeInsets.all(15.0),
             child: Row(
               children: [
-                TextSemiBold(name),
-                const Spacer(),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextSemiBold(
+                        name,
+                        color: isAvailable ? AppColors.textPrimaryColor : AppColors.primaryGrey,
+                      ),
+                      if (!isAvailable) ...[
+                        const Gap(4),
+                        const Text(
+                          'This service is currently unavailable. Please try again later.',
+                          style: TextStyle(
+                            fontFamily: AppFonts.manRope,
+                            fontSize: 12,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
                 name == "Delete Account"
-                    ? Icon(Icons.delete)
+                    ? const Icon(Icons.delete)
                     : SvgPicture.asset(isLogout == false
                         ? AppAsset.arrowRight
                         : AppAsset.logout),

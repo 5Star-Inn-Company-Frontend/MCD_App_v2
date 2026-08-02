@@ -754,19 +754,32 @@ class HomeScreenPage extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                option['title'] as String,
-                                style: const TextStyle(
-                                  fontFamily: AppFonts.manRope,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.background,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  option['title'] as String,
+                                  style: const TextStyle(
+                                    fontFamily: AppFonts.manRope,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.background,
+                                  ),
                                 ),
-                              ),
-                            ],
+                                if (!isAvailable) ...[
+                                  const Gap(4),
+                                  const Text(
+                                    'This service is currently unavailable. Please try again later.',
+                                    style: TextStyle(
+                                      fontFamily: AppFonts.manRope,
+                                      fontSize: 12,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
                           const Icon(
                             Icons.chevron_right,
@@ -844,19 +857,32 @@ class HomeScreenPage extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                option['title'] as String,
-                                style: const TextStyle(
-                                  fontFamily: AppFonts.manRope,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.background,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  option['title'] as String,
+                                  style: const TextStyle(
+                                    fontFamily: AppFonts.manRope,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.background,
+                                  ),
                                 ),
-                              ),
-                            ],
+                                if (!isAvailable) ...[
+                                  const Gap(4),
+                                  const Text(
+                                    'This service is currently unavailable. Please try again later.',
+                                    style: TextStyle(
+                                      fontFamily: AppFonts.manRope,
+                                      fontSize: 12,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
                           const Icon(
                             Icons.chevron_right,

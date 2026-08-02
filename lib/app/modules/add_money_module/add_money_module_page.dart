@@ -7,6 +7,8 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/core/constants/app_asset.dart';
+import 'package:mcd/core/constants/fonts.dart';
+import 'package:mcd/core/controllers/service_status_controller.dart';
 
 import './add_money_module_controller.dart';
 
@@ -27,7 +29,9 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
             child: Obx(() {
               final user = controller.dashboardData.value;
-          
+              final isBvnAvailable = ServiceStatusController.to
+                  .isServiceAvailable('bvn_verification');
+
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -40,7 +44,7 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
                     fontSize: 15,
                   ),
                   const Gap(20),
-          
+
                   // check if user has no accounts
                   if (user?.virtualAccounts.hasPrimary != true &&
                       user?.virtualAccounts.hasSecondary != true) ...[
@@ -85,11 +89,17 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () =>
-                                  Get.toNamed(Routes.KYC_UPDATE_MODULE),
+                              onPressed: isBvnAvailable
+                                  ? () {
+                                      Get.toNamed(Routes.KYC_UPDATE_MODULE);
+                                    }
+                                  : null,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primaryColor,
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                backgroundColor: isBvnAvailable
+                                    ? AppColors.primaryColor
+                                    : AppColors.primaryGrey,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -101,6 +111,20 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
                               ),
                             ),
                           ),
+                          if (!isBvnAvailable) ...[
+                            const Gap(8),
+                            const Center(
+                              child: Text(
+                                'This service is currently unavailable. Please try again later.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: AppFonts.manRope,
+                                  fontSize: 12,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -113,7 +137,8 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
                             ? "MCD-${user!.user.userName}"
                             : "N/A",
                         bankName: user!.virtualAccounts.primaryBankName,
-                        accountNumber: user.virtualAccounts.primaryAccountNumber,
+                        accountNumber:
+                            user.virtualAccounts.primaryAccountNumber,
                         onShare: () {
                           controller.shareAccountDetails(
                             user.virtualAccounts.primaryAccountNumber,
@@ -155,13 +180,13 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
                       ),
                     ],
                   ],
-          
+
                   const Gap(20),
-          
+
                   // Other Funding Options
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 10),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       border: Border.all(

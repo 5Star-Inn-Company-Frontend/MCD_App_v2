@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:mcd/core/import/imports.dart';
 import './kyc_update_module_controller.dart';
+import 'package:mcd/core/controllers/service_status_controller.dart';
 
 class KycUpdateModulePage extends GetView<KycUpdateModuleController> {
   const KycUpdateModulePage({super.key});
@@ -22,9 +23,9 @@ class KycUpdateModulePage extends GetView<KycUpdateModuleController> {
           );
         }
 
-        // if (controller.isBvnVerified.value) {
-        //   return _buildAlreadyVerifiedView(context);
-        // }
+        if (controller.isBvnVerified.value) {
+          return _buildAlreadyVerifiedView(context);
+        }
         return _buildVerificationForm(context);
       }),
     );
@@ -219,12 +220,31 @@ class KycUpdateModulePage extends GetView<KycUpdateModuleController> {
           ),
           const Gap(40),
           Center(
-            child: Obx(() => BusyButton(
-                  width: screenWidth(context) * 0.8,
-                  title: "Start Face Verification",
-                  onTap: () => controller.startBvnVerification(context),
-                  disabled: controller.isLoading.value,
-                )),
+            child: Obx(() {
+              final isAvailable = ServiceStatusController.to.isServiceAvailable('bvn_verification');
+              return Column(
+                children: [
+                  BusyButton(
+                    width: screenWidth(context) * 0.8,
+                    title: "Start Face Verification",
+                    onTap: isAvailable ? () => controller.startBvnVerification(context) : () {},
+                    disabled: controller.isLoading.value || !isAvailable,
+                  ),
+                  if (!isAvailable) ...[
+                    const Gap(8),
+                    const Text(
+                      'This service is currently unavailable. Please try again later.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: AppFonts.manRope,
+                        fontSize: 12,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ],
+                ],
+              );
+            }),
           ),
           const Gap(20),
         ],

@@ -16,46 +16,45 @@ class QrcodeTransferModulePage extends GetView<QrcodeTransferModuleController> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
-                'Scan the other party QR Code to transfer too',
+                "Scan the other party's QR Code to transfer",
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.black,
                   fontFamily: AppFonts.manRope,
                   fontWeight: FontWeight.w600,
-                  fontSize: 13,
+                  fontSize: 14,
                 ),
               ),
-              SizedBox(height: screenHeight(context) * 0.1),
-              Center(
-                child: InkWell(
-                  onTap: () {
+              const Gap(30),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
                     Get.toNamed(Routes.SCAN_QRCODE_MODULE);
                   },
-                  child: SizedBox(
-                    height: screenHeight(context) * 0.058,
-                    width: screenWidth(context) * 0.38,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(17),
-                        color: const Color.fromRGBO(51, 160, 88, 1),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 25, right: 25),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            SvgPicture.asset('assets/icons/scan_icon.svg'),
-                            const Text(
-                              'Scan QR',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: AppFonts.manRope,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  icon: SvgPicture.asset(
+                    'assets/icons/scan_icon.svg',
+                    colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                    height: 20,
+                  ),
+                  label: const Text(
+                    'Scan QR',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: AppFonts.manRope,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),

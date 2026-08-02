@@ -1,5 +1,5 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
+// import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
 import './qrcode_transfer_details_module_controller.dart';
@@ -24,22 +24,20 @@ class QrcodeTransferDetailsModulePage
               child: Column(
                 children: [
                   Container(
-                    height: screenHeight(context) * 0.2,
                     width: double.infinity,
-                    padding: const EdgeInsets.only(
-                      top: 24,
-                      bottom: 24,
-                      right: 10,
-                      left: 10,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 16,
                     ),
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: const Color.fromRGBO(224, 224, 224, 1),
                         width: 1,
                       ),
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
+                      spacing: 20,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
@@ -48,10 +46,10 @@ class QrcodeTransferDetailsModulePage
                             const Text(
                               'Username',
                               style: TextStyle(
-                                color: Colors.black,
+                                color: Colors.grey,
                                 fontFamily: AppFonts.manRope,
                                 fontWeight: FontWeight.w500,
-                                fontSize: 15,
+                                fontSize: 13,
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -63,8 +61,8 @@ class QrcodeTransferDetailsModulePage
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontFamily: AppFonts.manRope,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
                                     ),
                                   )),
                             ),
@@ -76,10 +74,10 @@ class QrcodeTransferDetailsModulePage
                             const Text(
                               'Email address',
                               style: TextStyle(
-                                color: Colors.black,
+                                color: Colors.grey,
                                 fontFamily: AppFonts.manRope,
                                 fontWeight: FontWeight.w500,
-                                fontSize: 15,
+                                fontSize: 13,
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -99,35 +97,35 @@ class QrcodeTransferDetailsModulePage
                                       style: const TextStyle(
                                         color: Colors.black,
                                         fontFamily: AppFonts.manRope,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
                                       ),
                                     )),
                             ),
                           ],
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Current Wallet',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontFamily: AppFonts.manRope,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 15,
-                              ),
-                            ),
-                            Obx(() => Text(
-                                  '₦${AmountUtil.formatFigure(controller.currentWallet)}',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 15,
-                                  ),
-                                )),
-                          ],
-                        ),
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //   children: [
+                        //     const Text(
+                        //       'Current Wallet',
+                        //       style: TextStyle(
+                        //         color: Colors.black,
+                        //         fontFamily: AppFonts.manRope,
+                        //         fontWeight: FontWeight.w500,
+                        //         fontSize: 15,
+                        //       ),
+                        //     ),
+                        //     Obx(() => Text(
+                        //           '₦${AmountUtil.formatFigure(controller.currentWallet)}',
+                        //           style: GoogleFonts.plusJakartaSans(
+                        //             color: Colors.black,
+                        //             fontWeight: FontWeight.w500,
+                        //             fontSize: 15,
+                        //           ),
+                        //         )),
+                        //   ],
+                        // ),
                       ],
                     ),
                   ),
@@ -158,9 +156,9 @@ class QrcodeTransferDetailsModulePage
                     decoration: InputDecoration(
                       hintText: '0.00',
                       hintStyle: TextStyle(
-                        color: Colors.black,
+                        color: Colors.grey,
                         fontFamily: AppFonts.manRope,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                         fontSize: 12.sp,
                       ),
                       enabledBorder: OutlineInputBorder(
@@ -185,64 +183,31 @@ class QrcodeTransferDetailsModulePage
                       return null;
                     },
                   ),
-                  // SizedBox(height: screenHeight(context) * 0.03),
-                  // const Row(
-                  //   mainAxisAlignment: MainAxisAlignment.start,
-                  //   children: [
-                  //     Text(
-                  //       'Reference',
-                  //       style: TextStyle(
-                  //         color: Colors.black,
-                  //         fontFamily: AppFonts.manRope,
-                  //         fontWeight: FontWeight.w500,
-                  //         fontSize: 13,
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  // TextFormField(
-                  //   controller: controller.referenceController,
-                  //   style: TextStyle(
-                  //     color: Colors.black,
-                  //     fontFamily: AppFonts.manRope,
-                  //     fontWeight: FontWeight.w600,
-                  //     fontSize: 12.sp,
-                  //   ),
-                  //   keyboardType: TextInputType.text,
-                  //   decoration: InputDecoration(
-                  //     hintText: 'Enter reference',
-                  //     hintStyle: TextStyle(
-                  //       color: Colors.grey,
-                  //       fontFamily: AppFonts.manRope,
-                  //       fontWeight: FontWeight.w400,
-                  //       fontSize: 12.sp,
-                  //     ),
-                  //     enabledBorder: OutlineInputBorder(
-                  //       borderSide: const BorderSide(
-                  //         color: Color.fromRGBO(224, 224, 224, 1),
-                  //         width: 1,
-                  //       ),
-                  //       borderRadius: BorderRadius.circular(3),
-                  //     ),
-                  //     focusedBorder: OutlineInputBorder(
-                  //       borderSide: const BorderSide(
-                  //         color: Color.fromRGBO(224, 224, 224, 1),
-                  //         width: 1,
-                  //       ),
-                  //       borderRadius: BorderRadius.circular(3),
-                  //     ),
-                  //   ),
-                  //   validator: (value) {
-                  //     if (value == null || value.isEmpty) {
-                  //       return 'Please enter reference';
-                  //     }
-                  //     return null;
-                  //   },
-                  // ),
+                  const Gap(8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Current Wallet: ',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontFamily: AppFonts.manRope,
+                          fontSize: 13,
+                        ),
+                      ),
+                      Obx(() => Text(
+                            '₦${AmountUtil.formatFigure(controller.currentWallet)}',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontFamily: AppFonts.manRope,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          )),
+                    ],
+                  ),
                   SizedBox(height: screenHeight(context) * 0.08),
                   Obx(() => BusyButton(
-                        height: screenHeight(context) * 0.06,
-                        width: screenWidth(context) * 0.65,
                         title: "Transfer",
                         onTap: controller.transfer,
                         isLoading: controller.isLoading,

@@ -9,9 +9,10 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/core/constants/fonts.dart';
+import 'package:mcd/core/controllers/service_status_controller.dart';
 
 class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
-  const UssdTopupModulePage({Key? key}) : super(key: key);
+  const UssdTopupModulePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,8 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
       body: SafeArea(
         child: Obx(() {
           if (!controller.hasVirtualAccount.value) {
-            return _buildKycPrompt();
+            final isBvnAvailable = ServiceStatusController.to.isServiceAvailable('bvn_verification');
+            return _buildKycPrompt(isBvnAvailable);
           }
           return _buildFormView();
         }),
@@ -32,7 +34,7 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
     );
   }
 
-  Widget _buildKycPrompt() {
+  Widget _buildKycPrompt(bool isBvnAvailable) {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -79,9 +81,11 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () => Get.toNamed(Routes.KYC_UPDATE_MODULE),
+                    onPressed: isBvnAvailable ? () {
+                      Get.toNamed(Routes.KYC_UPDATE_MODULE);
+                    } : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
+                      backgroundColor: isBvnAvailable ? AppColors.primaryColor : AppColors.primaryGrey,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -94,6 +98,20 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
                     ),
                   ),
                 ),
+                if (!isBvnAvailable) ...[
+                  const Gap(8),
+                  const Center(
+                    child: Text(
+                      'This service is currently unavailable. Please try again later.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: AppFonts.manRope,
+                        fontSize: 12,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

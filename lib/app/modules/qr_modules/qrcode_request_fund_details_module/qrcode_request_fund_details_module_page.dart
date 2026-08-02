@@ -215,8 +215,6 @@ class QrcodeRequestFundDetailsModulePage
                   ),
                   SizedBox(height: screenHeight(context) * 0.08),
                   Obx(() => BusyButton(
-                        height: screenHeight(context) * 0.06,
-                        width: screenWidth(context) * 0.65,
                         title: "Request Transfer",
                         onTap: controller.requestFund,
                         isLoading: controller.isLoading,
