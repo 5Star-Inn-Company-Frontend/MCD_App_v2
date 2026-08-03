@@ -108,7 +108,7 @@ class QrcodeTransferDetailsModulePage
                         //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         //   children: [
                         //     const Text(
-                        //       'Current Wallet',
+                        //       'Current Balance',
                         //       style: TextStyle(
                         //         color: Colors.black,
                         //         fontFamily: AppFonts.manRope,
@@ -188,7 +188,7 @@ class QrcodeTransferDetailsModulePage
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       const Text(
-                        'Current Wallet: ',
+                        'Current Balance: ',
                         style: TextStyle(
                           color: Colors.grey,
                           fontFamily: AppFonts.manRope,

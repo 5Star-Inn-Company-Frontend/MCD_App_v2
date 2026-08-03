@@ -6,10 +6,7 @@ import 'package:dartz/dartz.dart' hide State;
 import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/network/errors.dart';
@@ -33,6 +30,35 @@ class DioApiService {
       // Allow all status codes to be handled in the success block
       return status != null;
     };
+
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        if (_isShowingSessionExpiredDialog) {
+          return handler.reject(
+            DioException(
+              requestOptions: options,
+              type: DioExceptionType.cancel,
+              error: "Session Expired",
+            ),
+          );
+        }
+
+        final token = _storage.read("token");
+        if (token != null && _isTokenExpired(token)) {
+          _handleUnauthorized();
+          return handler.reject(
+            DioException(
+              requestOptions: options,
+              type: DioExceptionType.cancel,
+              error: "Token Expired locally",
+            ),
+          );
+        }
+
+        return handler.next(options);
+      },
+    ));
+
     dev.log(
         '[DioApiService] ONINIT CALLED! Setting timeout to ${defaultTimeout.inSeconds} seconds.');
   }
@@ -327,6 +353,32 @@ class DioApiService {
       _showSessionExpiredCountdown();
     } else {
       _isShowingSessionExpiredDialog = false;
+    }
+  }
+
+  // decodes JWT token to check if it's expired
+  bool _isTokenExpired(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return false;
+      
+      final payload = parts[1];
+      final String normalized = base64Url.normalize(payload);
+      final String resp = utf8.decode(base64Url.decode(normalized));
+      final Map<String, dynamic> payloadMap = jsonDecode(resp);
+      
+      if (payloadMap.containsKey('exp')) {
+        // JWT exp is in seconds, DateTime.now().millisecondsSinceEpoch is in ms
+        final exp = payloadMap['exp'] * 1000;
+        // adding a 5-second buffer to prevent edge cases
+        if (DateTime.now().millisecondsSinceEpoch >= exp - 5000) {
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      dev.log('[DioApiService] Error parsing JWT token', error: e);
+      return false;
     }
   }
 
