@@ -77,7 +77,9 @@ class KycUpdateModulePage extends GetView<KycUpdateModuleController> {
   Widget _buildVerificationForm(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-      child: Column(
+      child: Form(
+        key: controller.formKey,
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Gap(10),
@@ -119,6 +121,15 @@ class KycUpdateModulePage extends GetView<KycUpdateModuleController> {
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
                   ],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your BVN';
+                    }
+                    if (value.length != 11) {
+                      return 'BVN must be 11 digits';
+                    }
+                    return null;
+                  },
                   style: const TextStyle(
                     fontFamily: AppFonts.manRope,
                   ),
@@ -248,6 +259,7 @@ class KycUpdateModulePage extends GetView<KycUpdateModuleController> {
           ),
           const Gap(20),
         ],
+      ),
       ),
     );
   }

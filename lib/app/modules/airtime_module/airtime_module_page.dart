@@ -269,11 +269,11 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                   readOnly: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return ("Pls input phone number");
+                      return ("Please input phone number");
                     }
                     // Only enforce 11-digit validation for Nigerian numbers
                     if (!controller.isForeign && value.length != 11) {
-                      return ("Pls Input valid 11-digit number");
+                      return ("Please Input valid 11-digit number");
                     }
                     return null;
                   },
@@ -362,7 +362,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                         controller: controller.amountController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return ("Pls input amount");
+                            return ("Please input amount");
                           }
                           final amount = double.tryParse(value);
                           if (amount == null) {
@@ -516,6 +516,16 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                 flex: 4,
                 child: Obx(() => TextFormField(
                       enabled: !controller.isNumberVerified.value,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return ("Please input phone number");
+                        }
+                        // only enforce 11-digit validation for Nigerian numbers
+                        if (!controller.isForeign && value.length != 11) {
+                          return ("Please Input valid 11-digit number");
+                        }
+                        return null;
+                      },
                       style: const TextStyle(
                         fontFamily: AppFonts.manRope,
                       ),
@@ -691,6 +701,22 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
 
                               return TextFormField(
                                 controller: controller.amountController,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return ("Please input amount");
+                                  }
+                                  final amount = double.tryParse(value);
+                                  if (amount == null) {
+                                    return ("Enter a valid amount");
+                                  }
+                                  if (minAmount != null && amount < minAmount) {
+                                    return ("Amount must be at least ${minAmount.toStringAsFixed(0)}");
+                                  }
+                                  if (maxAmount != null && amount > maxAmount) {
+                                    return ("Amount must not exceed ${maxAmount.toStringAsFixed(0)}");
+                                  }
+                                  return null;
+                                },
                                 keyboardType: TextInputType.number,
                                 style: const TextStyle(
                                   fontFamily: AppFonts.manRope,

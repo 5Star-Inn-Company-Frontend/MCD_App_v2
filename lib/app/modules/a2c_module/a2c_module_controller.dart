@@ -157,14 +157,7 @@ class A2CModuleController extends GetxController {
       return;
     }
 
-    if (accountNumberController.text.length != 10) {
-      Get.snackbar(
-        'Error',
-        'Please enter a valid 10-digit account number',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-        duration: const Duration(seconds: 2),
-      );
+    if (!(formKey.currentState?.validate() ?? false)) {
       return;
     }
 

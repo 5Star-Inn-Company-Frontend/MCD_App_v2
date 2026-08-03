@@ -162,7 +162,9 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                   controller: controller.meterNoController,
                   style: const TextStyle(fontFamily: AppFonts.manRope),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return "Meter No needed";
+                    if (value == null || value.isEmpty) {
+                      return "Please enter your meter number.";
+                    }
                     if (value.length < 5) return "Meter no not valid";
                     return null;
                   },
@@ -262,7 +264,9 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                   controller: controller.amountController,
                   keyboardType: TextInputType.number,
                   validator: (value) {
-                    if (value == null || value.isEmpty) return "Amount needed";
+                    if (value == null || value.isEmpty) {
+                      return "Please enter amount.";
+                    }
                     final amount = double.tryParse(value);
                     if (amount == null) return "Invalid amount";
                     

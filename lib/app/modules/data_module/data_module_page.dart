@@ -26,33 +26,35 @@ class DataModulePage extends GetView<DataModuleController> {
           )
         ],
       ),
-      body: LayoutBuilder(builder: (context, constraints) {
-        return SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-                minWidth: constraints.maxWidth,
-                minHeight: constraints.maxHeight - kToolbarHeight),
-            child: IntrinsicHeight(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildNetworkSelector(),
-                  const Gap(30),
-                  _buildPlanContent(context),
-                  const Gap(16),
-                  Obx(() => BusyButton(
-                        title: "Buy Plan",
-                        isLoading: controller.isPaying.value,
-                        onTap: controller.pay,
-                      )),
-                  const Gap(25),
-                ],
+      body: Form(
+          key: controller.formKey,
+          child: LayoutBuilder(builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                    minWidth: constraints.maxWidth,
+                    minHeight: constraints.maxHeight - kToolbarHeight),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildNetworkSelector(),
+                      const Gap(30),
+                      _buildPlanContent(context),
+                      const Gap(16),
+                      Obx(() => BusyButton(
+                            title: "Buy Plan",
+                            isLoading: controller.isPaying.value,
+                            onTap: controller.pay,
+                          )),
+                      const Gap(25),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-        );
-      }),
+            );
+          })),
     );
   }
 
@@ -73,8 +75,8 @@ class DataModulePage extends GetView<DataModuleController> {
                     child: DropdownButton2<NetworkProvider?>(
                       isExpanded: true,
                       iconStyleData: const IconStyleData(
-                          icon:
-                              Icon(Icons.keyboard_arrow_down_rounded, size: 30)),
+                          icon: Icon(Icons.keyboard_arrow_down_rounded,
+                              size: 30)),
                       items: controller.networkProviders
                           .map((provider) => DropdownMenuItem<NetworkProvider?>(
                                 value: provider,
@@ -112,6 +114,15 @@ class DataModulePage extends GetView<DataModuleController> {
           Flexible(
             flex: 3,
             child: TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return ("Please input phone number");
+                  }
+                  if (!controller.isForeign && value.length != 11) {
+                    return ("Please Input valid 11-digit number");
+                  }
+                  return null;
+                },
                 readOnly: true,
                 controller: controller.phoneController,
                 style: const TextStyle(
@@ -209,7 +220,8 @@ class DataModulePage extends GetView<DataModuleController> {
         child: Obx(() => Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: controller.amountFilters.map((filter) {
-                bool isSelected = filter == controller.selectedAmountFilter.value;
+                bool isSelected =
+                    filter == controller.selectedAmountFilter.value;
                 return TouchableOpacity(
                   onTap: () => controller.onAmountFilterSelected(filter),
                   child: Container(
@@ -244,16 +256,19 @@ class DataModulePage extends GetView<DataModuleController> {
       final double textScaleFactor = MediaQuery.textScaleFactorOf(context);
       final double aspectRatio = 1.7 / textScaleFactor;
 
-      final items = (controller.isLoading.value && controller.filteredDataPlans.isEmpty)
-          ? List.generate(6, (index) => DataPlanModel(
-              name: "Loading Plan Name",
-              coded: "coded",
-              price: "0",
-              network: "network",
-              category: "category",
-              id: 0,
-            ))
-          : controller.filteredDataPlans;
+      final items =
+          (controller.isLoading.value && controller.filteredDataPlans.isEmpty)
+              ? List.generate(
+                  6,
+                  (index) => DataPlanModel(
+                        name: "Loading Plan Name",
+                        coded: "coded",
+                        price: "0",
+                        network: "network",
+                        category: "category",
+                        id: 0,
+                      ))
+              : controller.filteredDataPlans;
 
       return GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

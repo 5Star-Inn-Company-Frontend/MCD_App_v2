@@ -140,16 +140,7 @@ class AirtimePinModuleController extends GetxController {
       return;
     }
 
-    final quantity = int.tryParse(quantityController.text);
-    if (quantity == null || quantity < 1 || quantity > 10) {
-      Get.snackbar(
-        "Validation Error",
-        "Quantity must be between 1 and 10",
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
-      return;
-    }
+
 
     // Navigate to payout page
     final selectedNetworkData = networks.firstWhere(

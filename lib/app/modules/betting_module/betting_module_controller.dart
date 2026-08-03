@@ -10,6 +10,7 @@ class BettingModuleController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
 
+  final formKey = GlobalKey<FormState>();
   final userIdController = TextEditingController();
   final amountController = TextEditingController();
   final selectedAmount = ''.obs;
@@ -248,21 +249,7 @@ class BettingModuleController extends GetxController {
       return;
     }
 
-    if (userIdController.text.isEmpty) {
-      dev.log('Navigation failed: No user ID',
-          name: 'BettingModule', error: 'User ID missing');
-      Get.snackbar("Error", "Please enter a User ID.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    if (amountController.text.isEmpty) {
-      dev.log('Navigation failed: No amount',
-          name: 'BettingModule', error: 'Amount missing');
-      Get.snackbar("Error", "Please enter an amount.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
+    if (!(formKey.currentState?.validate() ?? false)) {
       return;
     }
 

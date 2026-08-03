@@ -49,7 +49,8 @@ class ElectricityModuleController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    dev.log('ElectricityModuleController initialized', name: 'ElectricityModule');
+    dev.log('ElectricityModuleController initialized',
+        name: 'ElectricityModule');
     fetchElectricityProviders();
 
     // Add listener to clear validation when meter number changes
@@ -62,7 +63,8 @@ class ElectricityModuleController extends GetxController {
         // Clear validation if meter number is changed after validation
         validatedCustomerName.value = null;
         minimumAmount.value = null;
-        dev.log('Meter number changed, clearing validation', name: 'ElectricityModule');
+        dev.log('Meter number changed, clearing validation',
+            name: 'ElectricityModule');
       }
     });
   }
@@ -103,18 +105,20 @@ class ElectricityModuleController extends GetxController {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null || transactionUrl.isEmpty) {
         errorMessage.value = "Service URL not found.";
-        dev.log('Transaction URL not found', name: 'ElectricityModule', error: errorMessage.value);
+        dev.log('Transaction URL not found',
+            name: 'ElectricityModule', error: errorMessage.value);
         return;
       }
 
-      final fullUrl = '$transactionUrl''electricity';
+      final fullUrl = '$transactionUrl' 'electricity';
       dev.log('Request URL: $fullUrl', name: 'ElectricityModule');
       final result = await apiService.getrequest(fullUrl);
 
       result.fold(
         (failure) {
           errorMessage.value = failure.message;
-          dev.log('Failed to fetch providers', name: 'ElectricityModule', error: failure.message);
+          dev.log('Failed to fetch providers',
+              name: 'ElectricityModule', error: failure.message);
         },
         (data) {
           dev.log('Providers fetched successfully', name: 'ElectricityModule');
@@ -123,14 +127,17 @@ class ElectricityModuleController extends GetxController {
                 .map((item) => ElectricityProvider.fromJson(item))
                 .toList();
             electricityProviders.assignAll(providers);
-            dev.log('Loaded ${providers.length} providers', name: 'ElectricityModule');
+            dev.log('Loaded ${providers.length} providers',
+                name: 'ElectricityModule');
             if (providers.isNotEmpty) {
               selectedProvider.value = providers.first;
-              dev.log('Auto-selected provider: ${selectedProvider.value?.name}', name: 'ElectricityModule');
+              dev.log('Auto-selected provider: ${selectedProvider.value?.name}',
+                  name: 'ElectricityModule');
             }
           } else {
             errorMessage.value = "No providers found.";
-            dev.log('No providers in response', name: 'ElectricityModule', error: errorMessage.value);
+            dev.log('No providers in response',
+                name: 'ElectricityModule', error: errorMessage.value);
           }
         },
       );
@@ -142,19 +149,25 @@ class ElectricityModuleController extends GetxController {
   Future<void> validateMeterNumber() async {
     // Prevent multiple simultaneous validations
     if (isValidating.value) {
-      dev.log('Validation already in progress, skipping', name: 'ElectricityModule');
+      dev.log('Validation already in progress, skipping',
+          name: 'ElectricityModule');
       return;
     }
 
     isValidating.value = true;
     validatedCustomerName.value = null;
-    dev.log('Validating meter: ${meterNoController.text} for provider: ${selectedProvider.value?.code}', name: 'ElectricityModule');
+    dev.log(
+        'Validating meter: ${meterNoController.text} for provider: ${selectedProvider.value?.code}',
+        name: 'ElectricityModule');
 
     try {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null) {
-        dev.log('Transaction URL not found during validation', name: 'ElectricityModule', error: 'URL missing');
-        Get.snackbar("Error", "Transaction URL not found.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+        dev.log('Transaction URL not found during validation',
+            name: 'ElectricityModule', error: 'URL missing');
+        Get.snackbar("Error", "Transaction URL not found.",
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor);
         return;
       }
 
@@ -165,70 +178,83 @@ class ElectricityModuleController extends GetxController {
       };
 
       dev.log('Validation request body: $body', name: 'ElectricityModule');
-      final result = await apiService.postrequest('$transactionUrl''validate', body);
+      final result =
+          await apiService.postrequest('$transactionUrl' 'validate', body);
 
       result.fold(
         (failure) {
-          dev.log('Validation failed', name: 'ElectricityModule', error: failure.message);
-          Get.snackbar("Validation Failed", failure.message, backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+          dev.log('Validation failed',
+              name: 'ElectricityModule', error: failure.message);
+          Get.snackbar("Validation Failed", failure.message,
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor);
         },
         (data) {
           dev.log('Validation response: $data', name: 'ElectricityModule');
           if (data['success'] == 1) {
             // Try multiple possible locations for customer name
             String? customerName;
-            
+
             // Check if data field is a string (customer name directly)
             if (data['data'] != null && data['data'] is String) {
               customerName = data['data'].toString().trim();
             }
             // Check details object
-            else if (data['details'] != null && data['details']['Customer_Name'] != null) {
+            else if (data['details'] != null &&
+                data['details']['Customer_Name'] != null) {
               customerName = data['details']['Customer_Name'].toString().trim();
             }
             // Check data object with name field
-            else if (data['data'] != null && data['data'] is Map && data['data']['name'] != null) {
+            else if (data['data'] != null &&
+                data['data'] is Map &&
+                data['data']['name'] != null) {
               customerName = data['data']['name'].toString().trim();
             }
-            
+
             if (customerName != null && customerName.isNotEmpty) {
               validatedCustomerName.value = customerName;
               // Store full validation details
               validationDetails.value = data['details'] ?? {};
-              
+
               // Extract and store minimum amount
               if (data['details'] != null) {
-                final minAmount = data['details']['Minimum_Amount'] ?? data['details']['Min_Purchase_Amount'];
+                final minAmount = data['details']['Minimum_Amount'] ??
+                    data['details']['Min_Purchase_Amount'];
                 if (minAmount != null) {
                   minimumAmount.value = double.tryParse(minAmount.toString());
-                  dev.log('Minimum amount set to: ₦${minimumAmount.value}', name: 'ElectricityModule');
+                  dev.log('Minimum amount set to: ₦${minimumAmount.value}',
+                      name: 'ElectricityModule');
                 }
               }
-              
-              dev.log('Meter validated successfully: ${validatedCustomerName.value}', name: 'ElectricityModule');
+
+              dev.log(
+                  'Meter validated successfully: ${validatedCustomerName.value}',
+                  name: 'ElectricityModule');
               Get.snackbar(
-                "Validation Successful", 
-                "Customer: ${validatedCustomerName.value}", 
-                backgroundColor: AppColors.successBgColor, 
+                "Validation Successful",
+                "Customer: ${validatedCustomerName.value}",
+                backgroundColor: AppColors.successBgColor,
                 colorText: AppColors.textSnackbarColor,
                 duration: const Duration(seconds: 2),
               );
             } else {
-              dev.log('Validation unsuccessful: No customer name found', name: 'ElectricityModule', error: 'Customer name missing');
+              dev.log('Validation unsuccessful: No customer name found',
+                  name: 'ElectricityModule', error: 'Customer name missing');
               Get.snackbar(
-                "Validation Failed", 
-                "Could not retrieve customer name.", 
-                backgroundColor: AppColors.errorBgColor, 
+                "Validation Failed",
+                "Could not retrieve customer name.",
+                backgroundColor: AppColors.errorBgColor,
                 colorText: AppColors.textSnackbarColor,
                 duration: const Duration(seconds: 2),
               );
             }
           } else {
-            dev.log('Validation unsuccessful', name: 'ElectricityModule', error: data['message']);
+            dev.log('Validation unsuccessful',
+                name: 'ElectricityModule', error: data['message']);
             Get.snackbar(
-              "Validation Failed", 
-              data['message'] ?? "Could not validate meter number.", 
-              backgroundColor: AppColors.errorBgColor, 
+              "Validation Failed",
+              data['message'] ?? "Could not validate meter number.",
+              backgroundColor: AppColors.errorBgColor,
               colorText: AppColors.textSnackbarColor,
               duration: const Duration(seconds: 2),
             );
@@ -244,20 +270,20 @@ class ElectricityModuleController extends GetxController {
     dev.log('Payment initiated', name: 'ElectricityModule');
 
     if (selectedProvider.value == null) {
-      dev.log('Payment failed: No provider selected', name: 'ElectricityModule', error: 'Provider missing');
-      Get.snackbar("Error", "Please select an electricity provider.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    if (meterNoController.text.isEmpty) {
-      dev.log('Payment failed: No meter number', name: 'ElectricityModule', error: 'Meter number missing');
-      Get.snackbar("Error", "Please enter your meter number.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      dev.log('Payment failed: No provider selected',
+          name: 'ElectricityModule', error: 'Provider missing');
+      Get.snackbar("Error", "Please select an electricity provider.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
       return;
     }
 
     if (validatedCustomerName.value == null) {
-      dev.log('Payment failed: Meter not validated', name: 'ElectricityModule', error: 'Validation missing');
-      Get.snackbar("Error", "Please validate your meter number first.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      dev.log('Payment failed: Meter not validated',
+          name: 'ElectricityModule', error: 'Validation missing');
+      Get.snackbar("Error", "Please validate your meter number first.",
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
       return;
     }
 
@@ -265,10 +291,14 @@ class ElectricityModuleController extends GetxController {
       // Get provider image
       String providerImage = '';
       if (selectedProvider.value?.name != null) {
-        providerImage = providerImages[selectedProvider.value!.name.toUpperCase()] ?? providerImages['DEFAULT']!;
+        providerImage =
+            providerImages[selectedProvider.value!.name.toUpperCase()] ??
+                providerImages['DEFAULT']!;
       }
-      
-      dev.log('Navigating to payout with: Provider=${selectedProvider.value?.name}, Amount=₦${amountController.text}', name: 'ElectricityModule');
+
+      dev.log(
+          'Navigating to payout with: Provider=${selectedProvider.value?.name}, Amount=₦${amountController.text}',
+          name: 'ElectricityModule');
       Get.toNamed(
         Routes.GENERAL_PAYOUT,
         arguments: {

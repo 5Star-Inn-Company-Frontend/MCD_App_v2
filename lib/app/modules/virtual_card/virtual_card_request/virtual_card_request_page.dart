@@ -24,7 +24,9 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-        child: Column(
+        child: Form(
+          key: controller.formKey,
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Gap(10),
@@ -132,6 +134,12 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
               controller: controller.amountController,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter amount';
+                }
+                return null;
+              },
               style: const TextStyle(fontFamily: AppFonts.manRope),
               onChanged: (value) => controller.calculateConversion(),
               decoration: InputDecoration(
@@ -254,12 +262,16 @@ class VirtualCardRequestPage extends GetView<VirtualCardRequestController> {
             Obx(() => BusyButton(
                   title: 'Proceed',
                   isLoading: controller.isCreating.value,
-                  onTap: () => controller.createVirtualCard(),
+                  onTap: () {
+                    if (controller.formKey.currentState!.validate()) {
+                      controller.createVirtualCard();
+                    }
+                  },
                 )),
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildDetailRow(String label, String value) {

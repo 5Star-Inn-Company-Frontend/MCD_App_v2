@@ -11,6 +11,7 @@ class VirtualCardRequestController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
 
+  final formKey = GlobalKey<FormState>();
   final amountController = TextEditingController();
 
   final selectedCurrency1 = ''.obs;
@@ -98,13 +99,7 @@ class VirtualCardRequestController extends GetxController {
       );
       return false;
     }
-    if (amountController.text.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Please enter amount',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
+    if (!(formKey.currentState?.validate() ?? false)) {
       return false;
     }
     return true;

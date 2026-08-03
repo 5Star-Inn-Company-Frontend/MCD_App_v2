@@ -12,6 +12,7 @@ class KycUpdateModuleController extends GetxController {
   static SprintCheck? _sprintCheckPlugin;
   SprintCheck get sprintCheckPlugin => _sprintCheckPlugin ?? SprintCheck();
 
+  final formKey = GlobalKey<FormState>();
   final bvnController = TextEditingController();
   final identifierController = TextEditingController();
 
@@ -111,25 +112,7 @@ class KycUpdateModuleController extends GetxController {
   }
 
   Future<void> startBvnVerification(BuildContext context) async {
-    if (bvnController.text.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Please enter your BVN',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-        snackPosition: SnackPosition.TOP,
-      );
-      return;
-    }
-
-    if (bvnController.text.length != 11) {
-      Get.snackbar(
-        'Error',
-        'BVN must be 11 digits',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-        snackPosition: SnackPosition.TOP,
-      );
+    if (!(formKey.currentState?.validate() ?? false)) {
       return;
     }
 

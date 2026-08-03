@@ -38,6 +38,8 @@ class GiveawayModuleController extends GetxController {
   final descriptionController = TextEditingController();
   final receiverController = TextEditingController();
 
+  final formKeyCreate = GlobalKey<FormState>();
+
   // Form data
   final _selectedType = 'airtime'.obs;
   final _selectedTypeCode = RxnString('mtn');
@@ -1241,30 +1243,10 @@ class GiveawayModuleController extends GetxController {
   }
 
   bool _validateCreateForm() {
-    if (amountController.text.isEmpty) {
-      Get.snackbar('Error', 'Please enter amount');
+    if (!(formKeyCreate.currentState?.validate() ?? false)) {
       return false;
     }
 
-    final amount = double.tryParse(amountController.text);
-    if (amount == null || amount < 100) {
-      Get.snackbar(
-        'Invalid Amount',
-        'Minimum amount for creating a giveaway is ₦100',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.white,
-      );
-      return false;
-    }
-
-    if (quantityController.text.isEmpty) {
-      Get.snackbar('Error', 'Please enter quantity');
-      return false;
-    }
-    if (descriptionController.text.isEmpty) {
-      Get.snackbar('Error', 'Please enter description');
-      return false;
-    }
     if (_selectedImage.value == null) {
       Get.snackbar('Error', 'Please select an image',
           backgroundColor: AppColors.errorBgColor, colorText: AppColors.white);

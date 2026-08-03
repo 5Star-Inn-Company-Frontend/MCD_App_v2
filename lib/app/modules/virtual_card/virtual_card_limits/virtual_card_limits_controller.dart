@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class VirtualCardLimitsController extends GetxController {
+  final formKey = GlobalKey<FormState>();
   final limitController = TextEditingController();
   final isLimitEnabled = false.obs;
   
@@ -26,13 +27,7 @@ class VirtualCardLimitsController extends GetxController {
   }
   
   void setLimit() {
-    if (limitController.text.isEmpty || limitController.text == '0.00') {
-      Get.snackbar(
-        'Error',
-        'Please enter a valid limit amount',
-        backgroundColor: const Color(0xFFF44336).withOpacity(0.1),
-        colorText: const Color(0xFFF44336),
-      );
+    if (!(formKey.currentState?.validate() ?? false)) {
       return;
     }
     

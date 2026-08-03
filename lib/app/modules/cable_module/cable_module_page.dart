@@ -125,7 +125,9 @@ class CableModulePage extends GetView<CableModuleController> {
                   keyboardType: TextInputType.number,
                   style: const TextStyle(fontFamily: AppFonts.manRope),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return "Card No needed";
+                    if (value == null || value.isEmpty) {
+                      return "Please enter your smart card number.";
+                    }
                     if (value.length < 5) return "Card no not valid";
                     return null;
                   },

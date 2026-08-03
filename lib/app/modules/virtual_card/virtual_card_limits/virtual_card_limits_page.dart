@@ -22,7 +22,9 @@ class VirtualCardLimitsPage extends GetView<VirtualCardLimitsController> {
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-        child: Column(
+        child: Form(
+          key: controller.formKey,
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Gap(20),
@@ -58,6 +60,12 @@ class VirtualCardLimitsPage extends GetView<VirtualCardLimitsController> {
               controller: controller.limitController,
               enabled: controller.isLimitEnabled.value,
               keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty || value == '0.00') {
+                  return 'Please enter a valid limit amount';
+                }
+                return null;
+              },
               style: TextStyle(
                 fontSize: 16,
                 fontFamily: AppFonts.manRope,
@@ -138,6 +146,7 @@ class VirtualCardLimitsPage extends GetView<VirtualCardLimitsController> {
             )),
           ],
         ),
+      ),
       ),
     );
   }

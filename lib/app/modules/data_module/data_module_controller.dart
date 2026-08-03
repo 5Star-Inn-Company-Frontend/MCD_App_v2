@@ -16,6 +16,7 @@ import '../../utils/strings.dart';
 class DataModuleController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
+  final formKey = GlobalKey<FormState>();
 
   final phoneController = TextEditingController();
   final networkProviders = <NetworkProvider>[].obs;
@@ -494,6 +495,10 @@ class DataModuleController extends GetxController {
   }
 
   void pay() async {
+    if (!(formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
     if (selectedPlan.value == null) {
       Get.snackbar("Error", "Please select a data plan to purchase.",
           backgroundColor: AppColors.errorBgColor,

@@ -25,7 +25,9 @@ class PosTermReqFormModulePage extends GetView<PosTermReqFormModuleController> {
         backgroundColor: const Color.fromRGBO(251, 251, 251, 1),
         body: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-            child: Column(children: [
+            child: Form(
+              key: controller.formKey,
+              child: Column(children: [
               Obx(() => _readOnlyTextField(
                   context, controller.terminalType.value, 'Terminal Type')),
               Gap(10.h),
@@ -61,9 +63,14 @@ class PosTermReqFormModulePage extends GetView<PosTermReqFormModuleController> {
                   )),
               Gap(10.h),
               Gap(10.h),
-              _textfieldWidget(context, controller.addressDeliveryController,
-                  'Address For Delivery',
-                  keyboardType: TextInputType.streetAddress),
+              _buildTextField(
+                  context, controller.addressDeliveryController, 'Address',
+                  validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter delivery address';
+                }
+                return null;
+              }),
               Gap(10.h),
 
               // State Dropdown
@@ -81,28 +88,49 @@ class PosTermReqFormModulePage extends GetView<PosTermReqFormModuleController> {
                   )),
 
               Gap(10.h),
-              _textfieldWidget(context, controller.cityController, 'City',
-                  keyboardType: TextInputType.text),
+              _buildTextField(context, controller.cityController, 'City',
+                  validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter city';
+                }
+                return null;
+              }),
               Gap(10.h),
-              _textfieldWidget(
+              _buildTextField(
                   context, controller.contactNameController, 'Contact Name',
-                  keyboardType: TextInputType.name),
+                  validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter contact name';
+                }
+                return null;
+              }),
               Gap(10.h),
-              _textfieldWidget(
+              _buildTextField(
                   context, controller.contactEmailController, 'Contact Email',
-                  keyboardType: TextInputType.emailAddress),
+                  validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter contact email';
+                }
+                if (!GetUtils.isEmail(value)) {
+                  return 'Please enter a valid email address';
+                }
+                return null;
+              }),
               Gap(10.h),
-              _textfieldWidget(
-                context,
-                controller.phoneNumberController,
-                'Phone Number',
-                keyboardType: TextInputType.phone,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(11),
-                ],
-              ),
-              Gap(9.h),
+              _buildTextField(
+                  context, controller.phoneNumberController, 'Phone Number',
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter phone number';
+                }
+                if (value.length < 11) {
+                  return 'Phone number must be at least 11 digits';
+                }
+                return null;
+              }),
+              Gap(40.h),
               Obx(() => InkWell(
                     onTap: controller.isLoading.value
                         ? null
@@ -137,16 +165,14 @@ class PosTermReqFormModulePage extends GetView<PosTermReqFormModuleController> {
                       ),
                     ),
                   ))
-            ])));
+            ]))));
   }
 
-  Widget _textfieldWidget(
-    BuildContext context,
-    TextEditingController? controller,
-    String tfieldname, {
-    TextInputType? keyboardType,
-    List<TextInputFormatter>? inputFormatters,
-  }) {
+  Widget _buildTextField(
+      BuildContext context, TextEditingController controller, String tfieldname,
+      {TextInputType? keyboardType,
+      List<TextInputFormatter>? inputFormatters,
+      String? Function(String?)? validator}) {
     return Column(
       children: [
         Row(
@@ -162,10 +188,11 @@ class PosTermReqFormModulePage extends GetView<PosTermReqFormModuleController> {
           ],
         ),
         Gap(5.h),
-        TextField(
+        TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
+          validator: validator,
           style: GoogleFonts.manrope(
               fontSize: 14.sp,
               fontWeight: FontWeight.w400,

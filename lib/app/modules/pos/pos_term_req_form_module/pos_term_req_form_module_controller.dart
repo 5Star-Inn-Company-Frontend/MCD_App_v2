@@ -12,6 +12,7 @@ class PosTermReqFormModuleController extends GetxController {
   final apiService = DioApiService();
   final box = GetStorage();
 
+  final formKey = GlobalKey<FormState>();
   final isLoading = false.obs;
 
   final addressDeliveryController = TextEditingController();
@@ -142,79 +143,7 @@ class PosTermReqFormModuleController extends GetxController {
       return false;
     }
 
-    if (addressDeliveryController.text.isEmpty) {
-      Get.snackbar(
-        'Validation Error',
-        'Please enter delivery address',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
-      return false;
-    }
-
-    if (selectedState.value.isEmpty) {
-      Get.snackbar(
-        'Validation Error',
-        'Please select state',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
-      return false;
-    }
-
-    if (cityController.text.isEmpty) {
-      Get.snackbar(
-        'Validation Error',
-        'Please enter city',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
-      return false;
-    }
-
-    if (contactNameController.text.isEmpty) {
-      Get.snackbar(
-        'Validation Error',
-        'Please enter contact name',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
-      return false;
-    }
-
-    if (contactEmailController.text.isEmpty) {
-      Get.snackbar(
-        'Validation Error',
-        'Please enter contact email',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
-      return false;
-    } else if (!GetUtils.isEmail(contactEmailController.text)) {
-      Get.snackbar(
-        'Validation Error',
-        'Please enter a valid email address',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
-      return false;
-    }
-
-    if (phoneNumberController.text.isEmpty) {
-      Get.snackbar(
-        'Validation Error',
-        'Please enter phone number',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
-      return false;
-    } else if (phoneNumberController.text.length < 11) {
-      Get.snackbar(
-        'Validation Error',
-        'Phone number must be at least 11 digits',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
+    if (!(formKey.currentState?.validate() ?? false)) {
       return false;
     }
 

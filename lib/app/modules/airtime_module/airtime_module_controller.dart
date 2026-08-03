@@ -488,18 +488,7 @@ class AirtimeModuleController extends GetxController {
 
   // verify number inline without navigating away
   Future<void> verifyNumberInline() async {
-    // Only enforce 11-digit validation for Nigerian numbers
-    if (phoneController.text.isEmpty) {
-      Get.snackbar("Error", "Please enter a phone number.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    if (!_isForeign && phoneController.text.length != 11) {
-      Get.snackbar("Error", "Please enter a valid 11-digit phone number.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
+    if (!(formKey.currentState?.validate() ?? false)) {
       return;
     }
 
@@ -573,41 +562,12 @@ class AirtimeModuleController extends GetxController {
 
   // add verified number to multiple list
   void addToMultipleList() {
+    if (!(formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
     if (!isNumberVerified.value) {
       Get.snackbar("Error", "Please verify the number first.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    if (amountController.text.isEmpty) {
-      Get.snackbar("Error", "Please enter an amount.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    // Validate amount against min/max
-    final amount = double.tryParse(amountController.text);
-    if (amount == null) {
-      Get.snackbar("Error", "Please enter a valid amount.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    final provider = selectedProvider.value;
-    if (provider?.minAmount != null && amount < provider!.minAmount!) {
-      Get.snackbar("Amount Too Low",
-          "Amount must be at least ${provider.minAmount!.toStringAsFixed(0)}.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
-      return;
-    }
-
-    if (provider?.maxAmount != null && amount > provider!.maxAmount!) {
-      Get.snackbar("Amount Too High",
-          "Amount must not exceed ${provider.maxAmount!.toStringAsFixed(0)}.",
           backgroundColor: AppColors.errorBgColor,
           colorText: AppColors.textSnackbarColor);
       return;

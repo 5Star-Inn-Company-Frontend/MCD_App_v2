@@ -43,8 +43,23 @@ class DioApiService {
           );
         }
 
-        final token = _storage.read("token");
-        if (token != null && _isTokenExpired(token)) {
+        String? tokenToCheck;
+        final authHeader = options.headers["Authorization"] as String?;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+          final extracted = authHeader.substring(7);
+          if (extracted != "null" && extracted.isNotEmpty) {
+            tokenToCheck = extracted;
+          }
+        }
+        
+        if (tokenToCheck == null) {
+          final storedToken = _storage.read("token");
+          if (storedToken != null && storedToken.toString().isNotEmpty) {
+            tokenToCheck = storedToken;
+          }
+        }
+
+        if (tokenToCheck != null && _isTokenExpired(tokenToCheck)) {
           _handleUnauthorized();
           return handler.reject(
             DioException(
@@ -369,10 +384,23 @@ class DioApiService {
       
       if (payloadMap.containsKey('exp')) {
         // JWT exp is in seconds, DateTime.now().millisecondsSinceEpoch is in ms
-        final exp = payloadMap['exp'] * 1000;
-        // adding a 5-second buffer to prevent edge cases
-        if (DateTime.now().millisecondsSinceEpoch >= exp - 5000) {
-          return true;
+        final expValue = payloadMap['exp'];
+        int expInSeconds = 0;
+        
+        if (expValue is int) {
+          expInSeconds = expValue;
+        } else if (expValue is double) {
+          expInSeconds = expValue.toInt();
+        } else if (expValue is String) {
+          expInSeconds = int.tryParse(expValue) ?? 0;
+        }
+
+        if (expInSeconds > 0) {
+          final exp = expInSeconds * 1000;
+          // adding a 5-second buffer to prevent edge cases
+          if (DateTime.now().millisecondsSinceEpoch >= exp - 5000) {
+            return true;
+          }
         }
       }
       return false;

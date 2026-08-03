@@ -263,16 +263,10 @@ class CableModuleController extends GetxController {
       return;
     }
 
-    if (smartCardController.text.isEmpty) {
-      dev.log('Navigation failed: No smart card number',
-          name: 'CableModule', error: 'Smart card missing');
-      Get.snackbar("Error", "Please enter your smart card number.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
+    if (!(formKey.currentState?.validate() ?? false)) {
       return;
     }
 
-    if (formKey.currentState?.validate() ?? false) {
       // Check if smart card is already validated
       if (validatedCustomerName.value == null) {
         // Not validated yet, validate first
@@ -302,7 +296,6 @@ class CableModuleController extends GetxController {
           'isRenewal': true,
         },
       });
-    }
   }
 
   Future<void> verifyAndNavigate() async {
@@ -317,16 +310,10 @@ class CableModuleController extends GetxController {
       return;
     }
 
-    if (smartCardController.text.isEmpty) {
-      dev.log('Verification failed: No smart card number',
-          name: 'CableModule', error: 'Smart card missing');
-      Get.snackbar("Error", "Please enter your smart card number.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
+    if (!(formKey.currentState?.validate() ?? false)) {
       return;
     }
 
-    if (formKey.currentState?.validate() ?? false) {
       // Validate the smart card first
       await validateSmartCard();
 
@@ -349,7 +336,6 @@ class CableModuleController extends GetxController {
         dev.log('Navigation cancelled: Smart card validation failed',
             name: 'CableModule');
       }
-    }
   }
 
   void pay() async {
@@ -373,12 +359,7 @@ class CableModuleController extends GetxController {
       return;
     }
 
-    if (smartCardController.text.isEmpty) {
-      dev.log('Payment failed: No smart card number',
-          name: 'CableModule', error: 'Smart card missing');
-      Get.snackbar("Error", "Please enter your smart card number.",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
+    if (!(formKey.currentState?.validate() ?? false)) {
       return;
     }
 
@@ -391,20 +372,18 @@ class CableModuleController extends GetxController {
       return;
     }
 
-    if (formKey.currentState?.validate() ?? false) {
-      dev.log(
-          'Navigating to payout with: Provider=${selectedProvider.value?.name}, Package=${selectedPackage.value?.name}',
-          name: 'CableModule');
-      Get.toNamed(Routes.GENERAL_PAYOUT, arguments: {
-        'paymentType': PaymentType.cable,
-        'paymentData': {
-          'provider': selectedProvider.value,
-          'smartCardNumber': smartCardController.text,
-          'package': selectedPackage.value,
-          'customerName': validatedCustomerName.value,
-          'isRenewal': false,
-        },
-      });
-    }
+    dev.log(
+        'Navigating to payout with: Provider=${selectedProvider.value?.name}, Package=${selectedPackage.value?.name}',
+        name: 'CableModule');
+    Get.toNamed(Routes.GENERAL_PAYOUT, arguments: {
+      'paymentType': PaymentType.cable,
+      'paymentData': {
+        'provider': selectedProvider.value,
+        'smartCardNumber': smartCardController.text,
+        'package': selectedPackage.value,
+        'customerName': validatedCustomerName.value,
+        'isRenewal': false,
+      },
+    });
   }
 }

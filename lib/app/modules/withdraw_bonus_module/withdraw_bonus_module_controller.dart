@@ -178,13 +178,7 @@ class WithdrawBonusModuleController extends GetxController {
   }
 
   Future<void> validateAccountNumber() async {
-    if (accountNumberController.text.length != 10) {
-      Get.snackbar(
-        'Error',
-        'Please enter a valid 10-digit account number',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
+    if (!(formKey.currentState?.validate() ?? false)) {
       return;
     }
 

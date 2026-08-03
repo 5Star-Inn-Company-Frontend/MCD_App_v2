@@ -35,8 +35,10 @@ class BettingModulePage extends GetView<BettingModuleController> {
               ? Center(child: Text(controller.errorMessage.value!))
               : SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
+                  child: Form(
+                    key: controller.formKey,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
                       minWidth: MediaQuery.of(context).size.width,
                       minHeight:
                           MediaQuery.of(context).size.height - kToolbarHeight,
@@ -102,6 +104,12 @@ class BettingModulePage extends GetView<BettingModuleController> {
                                                 color: AppColors.primaryColor),
                                           ),
                                         ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Please enter a User ID.";
+                                          }
+                                          return null;
+                                        },
                                       ),
                                     ),
                                     const Gap(8),
@@ -241,6 +249,12 @@ class BettingModulePage extends GetView<BettingModuleController> {
                                                 color: AppColors.primaryColor),
                                           ),
                                         ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Please enter an amount.";
+                                          }
+                                          return null;
+                                        },
                                       ),
                                     ),
                                   ],
@@ -260,6 +274,7 @@ class BettingModulePage extends GetView<BettingModuleController> {
                       ),
                     ),
                   ),
+                ),
                 ),
         );
       }),
