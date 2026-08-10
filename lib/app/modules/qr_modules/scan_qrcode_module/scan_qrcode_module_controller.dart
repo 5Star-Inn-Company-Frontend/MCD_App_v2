@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'dart:developer' as dev;
@@ -15,6 +16,35 @@ class ScanQrcodeModuleController extends GetxController {
 
   final _isProcessing = false.obs;
   bool get isProcessing => _isProcessing.value;
+
+  final box = GetStorage();
+  final savedQRCodes = <Map<String, dynamic>>[].obs;
+  final saveContact = false.obs;
+  final nicknameController = TextEditingController();
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadSavedQRCodes();
+  }
+
+  void loadSavedQRCodes() {
+    final List<dynamic>? stored = box.read<List<dynamic>>('saved_qr_contacts');
+    if (stored != null) {
+      savedQRCodes.assignAll(stored.map((e) => Map<String, dynamic>.from(e)).toList());
+    }
+  }
+
+  void saveQRCode(String username, String? email, String nickname) {
+    final contact = {
+      'username': username,
+      'email': email,
+      'nickname': nickname,
+      'date': DateTime.now().toIso8601String(),
+    };
+    savedQRCodes.insert(0, contact);
+    box.write('saved_qr_contacts', savedQRCodes.toList());
+  }
 
   void onQRViewCreated(QRViewController controller) {
     qrController = controller;
@@ -65,6 +95,9 @@ class ScanQrcodeModuleController extends GetxController {
   }
 
   void _showConfirmationDialog(String username, String? email) {
+    saveContact.value = false;
+    nicknameController.clear();
+
     Get.dialog(
       Center(
         child: Material(
@@ -146,7 +179,36 @@ class ScanQrcodeModuleController extends GetxController {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
+                Obx(() => CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Save this contact for later', style: TextStyle(fontSize: 14)),
+                      value: saveContact.value,
+                      activeColor: AppColors.primaryColor,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      onChanged: (val) {
+                        saveContact.value = val ?? false;
+                      },
+                    )),
+                Obx(() => saveContact.value
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: TextField(
+                          controller: nicknameController,
+                          decoration: InputDecoration(
+                            hintText: 'Enter nickname (e.g. John Doe)',
+                            filled: true,
+                            fillColor: Colors.grey.shade100,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink()),
+                const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
@@ -169,6 +231,9 @@ class ScanQrcodeModuleController extends GetxController {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
+                          if (saveContact.value && nicknameController.text.trim().isNotEmpty) {
+                            saveQRCode(username, email, nicknameController.text.trim());
+                          }
                           Get.back(); // close dialog
                           Get.offNamed(
                             Routes.QRCODE_TRANSFER_DETAILS_MODULE,

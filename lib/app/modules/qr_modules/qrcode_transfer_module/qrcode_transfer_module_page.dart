@@ -59,6 +59,90 @@ class QrcodeTransferModulePage extends GetView<QrcodeTransferModuleController> {
                   ),
                 ),
               ),
+              Obx(() {
+                if (controller.savedQRCodes.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Gap(40),
+                    TextSemiBold(
+                      "Saved QR Contacts",
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
+                    const Gap(15),
+                    SizedBox(
+                      height: 100,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: controller.savedQRCodes.length,
+                        separatorBuilder: (_, __) => const Gap(16),
+                        itemBuilder: (context, index) {
+                          final contact = controller.savedQRCodes[index];
+                          final nickname = contact['nickname']?.toString() ?? 'Unknown';
+                          
+                          return GestureDetector(
+                            onTap: () => controller.selectSavedQRCode(contact),
+                            onLongPress: () {
+                              Get.dialog(
+                                AlertDialog(
+                                  title: const Text('Delete Contact'),
+                                  content: Text('Are you sure you want to delete "$nickname"?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Get.back(),
+                                      child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        controller.deleteSavedQRCode(index);
+                                        Get.back();
+                                      },
+                                      child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                                    ),
+                                  ],
+                                )
+                              );
+                            },
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  width: 56,
+                                  height: 56,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryColor.withValues(alpha: 0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.qr_code,
+                                      color: AppColors.primaryColor,
+                                      size: 28,
+                                    ),
+                                  ),
+                                ),
+                                const Gap(8),
+                                Text(
+                                  nickname,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontFamily: AppFonts.manRope,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              }),
             ],
           ),
         ),
