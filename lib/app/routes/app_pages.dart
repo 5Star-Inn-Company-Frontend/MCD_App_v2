@@ -106,6 +106,8 @@ import 'package:mcd/app/modules/paystack_payment/paystack_payment_page.dart';
 import 'package:mcd/app/modules/momo_module/momo_module_binding.dart';
 import 'package:mcd/app/modules/momo_module/momo_module_page.dart';
 import 'package:mcd/app/modules/notification_module/notification_detail_page.dart';
+import 'package:mcd/app/modules/store_front_module/store_front_page.dart';
+import 'package:mcd/app/modules/store_front_module/store_front_binding.dart';
 
 // POS Module Imports
 import 'package:mcd/app/modules/pos/pos_home_module/pos_home_module_bindings.dart';
@@ -617,5 +619,9 @@ abstract class AppPages {
     GetPage(
         name: Routes.NOTIFICATION_DETAIL,
         page: () => const NotificationDetailPage()),
+    GetPage(
+        name: Routes.STORE_FRONT,
+        page: () => const StoreFrontPage(),
+        binding: StoreFrontBinding()),
   ];
 }
