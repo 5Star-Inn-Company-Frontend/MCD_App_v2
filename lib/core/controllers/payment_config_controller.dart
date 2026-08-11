@@ -55,20 +55,21 @@ class PaymentConfigController extends GetxService {
       },
       (data) async {
         if (data['success'] == 1 && data['data'] != null) {
-          dev.log('Payment methods fetched successfully', name: 'PaymentConfig');
+          dev.log('Payment methods fetched successfully: $data', name: 'PaymentConfig');
           
           // Store payment method status
           if (data['data']['status'] != null) {
             final status = data['data']['status'] as Map<String, dynamic>;
             paymentMethodStatus.value = status.map((key, value) => MapEntry(key, value.toString()));
-            await storage.write('payment_method_status', jsonEncode(paymentMethodStatus.value));
+            await storage.write('payment_method_status', jsonEncode(paymentMethodStatus));
             dev.log('Payment method status: $paymentMethodStatus', name: 'PaymentConfig');
           }
           
           if (data['data']['details'] != null) {
             final details = data['data']['details'] as Map<String, dynamic>;
             paymentMethodDetails.value = details.map((key, value) => MapEntry(key, value.toString()));
-            await storage.write('payment_method_details', jsonEncode(paymentMethodDetails.value));
+            await storage.write('payment_method_details', jsonEncode(paymentMethodDetails));
+
             // Store Paystack public key
             if (details['paystack_public'] != null) {
               storage.write('paystack_public_key', details['paystack_public']);

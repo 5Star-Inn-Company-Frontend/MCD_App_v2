@@ -9,6 +9,9 @@ import 'package:mcd/core/services/storage_service.dart';
 import 'package:mcd/core/controllers/payment_config_controller.dart';
 import 'package:mcd/core/controllers/service_status_controller.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/services/bank_service.dart';
+import 'package:mcd/core/services/country_service.dart';
+import 'package:mcd/core/services/dashboard_service.dart';
 import 'package:mcd/core/services/ads_service.dart';
 import 'package:mcd/core/services/app_lifecycle_service.dart';
 import 'package:mcd/core/services/connectivity_service.dart';
@@ -50,6 +53,9 @@ Future<void> main() async {
 
   Get.put(ServiceStatusController());
   Get.put(PaymentConfigController());
+  Get.put(BankService());
+  Get.put(CountryService());
+  Get.put(DashboardService());
 
   // Initialize app lifecycle service for auto-logout
   Get.put(AppLifecycleService());
@@ -171,3 +177,4 @@ void _handleNotificationData(Map<String, dynamic> data) {
     dev.log('Error handling notification data', error: e, name: 'FCM');
   }
 }
+  

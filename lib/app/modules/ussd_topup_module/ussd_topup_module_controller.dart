@@ -11,6 +11,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dart:developer' as dev;
 
 import '../home_screen_module/model/dashboard_model.dart';
+import 'package:mcd/core/models/bank_model.dart';
+import 'package:mcd/core/services/bank_service.dart';
 
 class UssdTopupModuleController extends GetxController {
   final apiService = DioApiService();
@@ -26,8 +28,8 @@ class UssdTopupModuleController extends GetxController {
   final selectedBankUssdTemplate = ''.obs;
   final selectedBankBaseUssd = ''.obs;
   final generatedCode = ''.obs;
-  final banks = <Map<String, dynamic>>[].obs;
-  final isLoadingBanks = false.obs;
+  List<BankModel> get banks => BankService.to.banks;
+  bool get isLoadingBanks => BankService.to.isLoadingBanks.value;
   final isGeneratingCode = false.obs;
   final _bankSearchQuery = ''.obs;
 
@@ -38,12 +40,12 @@ class UssdTopupModuleController extends GetxController {
   String get bankSearchQuery => _bankSearchQuery.value;
   set bankSearchQuery(String value) => _bankSearchQuery.value = value;
 
-  List<Map<String, dynamic>> get filteredBanks {
+  List<BankModel> get filteredBanks {
     if (bankSearchQuery.isEmpty) {
-      return banks;
+      return BankService.to.banks;
     }
-    return banks
-        .where((bank) => (bank['name'] as String)
+    return BankService.to.banks
+        .where((bank) => bank.name
             .toLowerCase()
             .contains(bankSearchQuery.toLowerCase()))
         .toList();
@@ -89,98 +91,7 @@ class UssdTopupModuleController extends GetxController {
   }
 
   Future<void> fetchBanks() async {
-    try {
-      isLoadingBanks.value = true;
-
-      // try loading from cache first
-      final cachedData = box.read('cached_banks');
-      if (cachedData != null) {
-        try {
-          final List<dynamic> cached = jsonDecode(cachedData);
-          banks.clear();
-          for (var bank in cached) {
-            banks.add({
-              'name': bank['name'] ?? '',
-              'code': bank['code'] ?? '',
-              'ussdTemplate': bank['ussdTemplate'],
-              'baseUssdCode': bank['baseUssdCode'],
-            });
-          }
-          dev.log('Banks loaded from cache: ${banks.length}',
-              name: 'UssdTopup');
-          return;
-        } catch (e) {
-          dev.log('Cache parse error, fetching from API', name: 'UssdTopup');
-        }
-      }
-
-      // fallback to API
-      final transactionUrl = box.read('transaction_service_url');
-      if (transactionUrl == null) {
-        dev.log('Transaction URL not found', name: 'UssdTopup');
-        Get.snackbar(
-          'Error',
-          'Service configuration error. Please login again.',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-        return;
-      }
-
-      final result = await apiService.getrequest('${transactionUrl}banklist');
-
-      result.fold(
-        (failure) {
-          dev.log('Failed to fetch banks',
-              name: 'UssdTopup', error: failure.message);
-          Get.snackbar(
-            'Error',
-            'Failed to load banks: ${failure.message}',
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-          );
-        },
-        (data) {
-          // handle both response formats
-          List<dynamic>? bankList;
-          if (data['success'] == 1 && data['data'] != null) {
-            bankList = data['data'];
-          } else if (data['requestSuccessful'] == true &&
-              data['responseBody'] != null) {
-            bankList = data['responseBody'];
-          }
-
-          if (bankList != null) {
-            banks.clear();
-            for (var bank in bankList) {
-              banks.add({
-                'name': bank['name'] ?? '',
-                'code': bank['code'] ?? '',
-                'ussdTemplate': bank['ussdTemplate'],
-                'baseUssdCode': bank['baseUssdCode'],
-              });
-            }
-            dev.log('Banks loaded from API: ${banks.length}',
-                name: 'UssdTopup');
-
-            // cache for next time
-            final encoded = jsonEncode(banks.toList());
-            box.write('cached_banks', encoded);
-            box.write('cached_banks_ts', DateTime.now().toIso8601String());
-          }
-        },
-      );
-    } catch (e) {
-      dev.log('Error fetching banks', name: 'UssdTopup', error: e);
-      Get.snackbar(
-        'Error',
-        'An error occurred while loading banks',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
-    } finally {
-      isLoadingBanks.value = false;
-    }
+    await BankService.to.fetchBanks();
   }
 
   void selectBank(String bankName, String bankCode, String? ussdTemplate,

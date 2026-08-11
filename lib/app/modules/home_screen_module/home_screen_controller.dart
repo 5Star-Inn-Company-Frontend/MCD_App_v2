@@ -8,13 +8,11 @@ import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/controllers/service_status_controller.dart';
 import 'package:mcd/core/mixins/service_availability_mixin.dart';
-import 'package:mcd/app/modules/login_screen_module/login_screen_controller.dart';
 import 'package:mcd/core/services/notification_permission_service.dart';
+import 'package:mcd/core/services/dashboard_service.dart';
 import 'package:mcd/core/services/deep_link_service.dart';
 
-import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
-import '../../../core/services/storage_service.dart';
 // import 'package:mcd/core/services/ads_service.dart';
 
 /**
@@ -29,19 +27,10 @@ class HomeScreenController extends GetxController
 
   final actionButtonz = <ButtonModel>[].obs;
 
-  final dashboardDataRx = Rxn<DashboardModel>();
-  DashboardModel? get dashboardData => dashboardDataRx.value;
-  set dashboardData(DashboardModel? value) => dashboardDataRx.value = value;
-
-  final isLoading = false.obs;
-
-  final _errorMessage = ''.obs;
-  set errorMessage(value) => _errorMessage.value = value;
-  get errorMessage => _errorMessage.value;
-
-  final gmBalanceRx = '0'.obs;
-  String get gmBalance => gmBalanceRx.value;
-  set gmBalance(String value) => gmBalanceRx.value = value;
+  DashboardModel? get dashboardData => DashboardService.to.dashboardData.value;
+  bool get isLoading => DashboardService.to.isLoadingDashboard.value;
+  String get errorMessage => DashboardService.to.errorMessage.value;
+  String get gmBalance => DashboardService.to.gmBalance.value;
 
   final isBalanceVisible = true.obs;
 
@@ -78,16 +67,6 @@ class HomeScreenController extends GetxController
 
   Future<void> _bootstrapAfterLogin() async {
     try {
-      final cachedData = box.read('cached_dashboard');
-      if (cachedData != null) {
-        try {
-          dashboardData = DashboardModel.fromJson(cachedData);
-          dev.log("Dashboard loaded from local cache");
-        } catch (e) {
-          dev.log("Error loading dashboard from cache: $e");
-        }
-      }
-
       await Future.wait([
         fetchDashboard(force: true),
         fetchGMBalance(),
@@ -156,11 +135,14 @@ class HomeScreenController extends GetxController
           icon: AppAsset.gift,
           text: "Reward Centre",
           link: Routes.REWARD_CENTRE_MODULE),
-      // ButtonModel(icon: AppAsset.service, text: "Mega Bulk Service", link: ""),
       ButtonModel(
           icon: 'assets/icons/bank-card-two.svg',
           text: "Virtual Card",
           link: Routes.VIRTUAL_CARD_DETAILS),
+      ButtonModel(
+          icon: AppAsset.service,
+          text: "Store Front",
+          link: Routes.STORE_FRONT),
     ];
 
     final filtered = allButtons.where((b) => isEnabled(b.text)).toList();
@@ -203,65 +185,16 @@ class HomeScreenController extends GetxController
   void onClose() {}
 
   Future<void> fetchDashboard({bool force = false}) async {
-    dev.log(
-        "fetchDashboard called, force: $force, current data: ${dashboardData != null ? 'exists' : 'null'}");
-
-    // Always fetch if data is null
-    if (dashboardData != null && !force) {
-      dev.log("Dashboard already loaded, skipping fetch");
-      return;
+    await DashboardService.to.fetchDashboard(force: force);
+    
+    // show news dialog if logging in
+    if (box.read('show_news_dialog') == true &&
+        dashboardData?.news != null &&
+        dashboardData!.news.isNotEmpty) {
+      await box.write('show_news_dialog', false);
+      _showNewsDialog(dashboardData!.news);
+      dev.log("news ${dashboardData?.news}");
     }
-
-    isLoading.value = true;
-    errorMessage = "";
-    dev.log("Starting dashboard fetch...");
-
-    final result =
-        await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
-
-    result.fold(
-      (failure) {
-        errorMessage = failure.message;
-        dev.log("Dashboard fetch failed: ${failure.message}");
-        Get.snackbar("Error", failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor);
-      },
-      (data) async {
-        // dev.log("Dashboard fetch success: ${data.toString()}");
-        dashboardData = DashboardModel.fromJson(data);
-        box.write('cached_dashboard', data);
-        await StorageService.to.setDashboardData(data);
-        dev.log(
-            "Dashboard model created and cached - User: ${dashboardData?.user.userName}, Balance: ${dashboardData?.balance.wallet}");
-
-        // save username e.g excade001
-        await box.write(
-            'biometric_username_real', dashboardData?.user.userName ?? 'MCD');
-        dev.log(
-            "Biometric username updated in storage: ${box.read('biometric_username_real')}");
-
-        await box.write('user_email', dashboardData?.user.email ?? '');
-        dev.log("User email updated in storage: ${box.read('user_email')}");
-
-        // show news dialog if logging in
-        if (box.read('show_news_dialog') == true &&
-            dashboardData?.news != null &&
-            dashboardData!.news.isNotEmpty) {
-          await box.write('show_news_dialog', false);
-          _showNewsDialog(dashboardData!.news);
-          dev.log("news ${dashboardData?.news}");
-        }
-
-        if (force) {
-          // Get.snackbar("Updated", "Dashboard refreshed", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
-          dev.log("Dashboard refreshed successfully");
-          dev.log(dashboardData?.user.fullName??"");
-        }
-      },
-    );
-
-    isLoading.value = false;
   }
 
   void _showNewsDialog(String news) {
@@ -389,32 +322,7 @@ class HomeScreenController extends GetxController
   }
 
   Future<void> fetchGMBalance() async {
-    final transactionUrl = box.read('transaction_service_url');
-    if (transactionUrl == null) {
-      dev.log('Transaction URL not found',
-          name: 'HomeScreen', error: 'URL missing');
-      return;
-    }
-
-    final result =
-        await apiService.getrequest('${transactionUrl}gmtransactions');
-
-    result.fold(
-      (failure) {
-        dev.log('GM balance fetch failed: ${failure.message}',
-            name: 'HomeScreen');
-      },
-      (data) {
-        // dev.log('GM balance response: $data', name: 'HomeScreen');
-
-        if (data['wallet'] != null) {
-          gmBalance = data['wallet'].toString();
-          dev.log('GM balance updated to: ₦$gmBalance', name: 'HomeScreen');
-        } else {
-          dev.log('Wallet balance not found in response', name: 'HomeScreen');
-        }
-      },
-    );
+    await DashboardService.to.fetchGMBalance();
   }
 
   // reads service data from ServiceStatusController — no own API call

@@ -6,6 +6,8 @@ class BankModel {
   final bool active;
   final String country;
   final String currency;
+  final String? ussdTemplate;
+  final String? baseUssdCode;
 
   BankModel({
     required this.id,
@@ -15,6 +17,8 @@ class BankModel {
     required this.active,
     required this.country,
     required this.currency,
+    this.ussdTemplate,
+    this.baseUssdCode,
   });
 
   factory BankModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +30,8 @@ class BankModel {
       active: json['active'] ?? false,
       country: json['country'] ?? '',
       currency: json['currency'] ?? '',
+      ussdTemplate: json['ussdTemplate'],
+      baseUssdCode: json['baseUssdCode'],
     );
   }
 
@@ -38,6 +44,8 @@ class BankModel {
       'active': active,
       'country': country,
       'currency': currency,
+      'ussdTemplate': ussdTemplate,
+      'baseUssdCode': baseUssdCode,
     };
   }
 }

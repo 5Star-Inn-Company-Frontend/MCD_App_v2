@@ -486,7 +486,7 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
               const Gap(16),
 
               Obx(() {
-                if (controller.isLoadingBanks.value) {
+                if (controller.isLoadingBanks) {
                   return const Expanded(
                     child: Center(
                       child: CircularProgressIndicator(),
@@ -528,8 +528,8 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                       final bank = filteredBanks[index];
                       return InkWell(
                         onTap: () {
-                          controller.selectedBank.value = bank['name']!;
-                          controller.selectedBankCode.value = bank['code']!;
+                          controller.selectedBank.value = bank.name;
+                          controller.selectedBankCode.value = bank.code;
                           controller.accountNameController
                               .clear(); // Clear validated name on bank change
                           Navigator.pop(context);
@@ -545,7 +545,7 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
                             ),
                           ),
                           child: TextSemiBold(
-                            bank['name']!,
+                            bank.name,
                             fontSize: 15,
                             color: Colors.black87,
                           ),

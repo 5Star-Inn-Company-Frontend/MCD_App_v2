@@ -56,7 +56,7 @@ class CountrySelectionPage extends GetView<CountrySelectionController> {
           Expanded(
             child: Obx(() {
               // Loading state
-              if (controller.isLoading.value) {
+              if (controller.isLoading) {
                 return const Center(
                   child: CircularProgressIndicator(
                     color: AppColors.primaryColor,
@@ -65,7 +65,7 @@ class CountrySelectionPage extends GetView<CountrySelectionController> {
               }
 
               // Error state
-              if (controller.errorMessage.value != null) {
+              if (controller.errorMessage != null) {
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.all(20),
@@ -79,7 +79,7 @@ class CountrySelectionPage extends GetView<CountrySelectionController> {
                         ),
                         const Gap(16),
                         TextSemiBold(
-                          controller.errorMessage.value!,
+                          controller.errorMessage,
                           fontSize: 16,
                           color: AppColors.primaryGrey,
                           textAlign: TextAlign.center,
