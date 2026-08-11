@@ -476,7 +476,7 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
             // Banks List
             Expanded(
               child: Obx(() {
-                if (controller.isLoadingBanks.value) {
+                if (controller.isLoadingBanks) {
                   return const Center(
                     child: CircularProgressIndicator(
                       color: AppColors.primaryColor,
@@ -518,19 +518,19 @@ class UssdTopupModulePage extends GetView<UssdTopupModuleController> {
                     final bank = banks[index];
                     return ListTile(
                       onTap: () => controller.selectBank(
-                        bank['name'] as String,
-                        bank['code'] as String,
-                        bank['ussdTemplate'] as String?,
-                        bank['baseUssdCode'] as String?,
+                        bank.name,
+                        bank.code,
+                        bank.ussdTemplate,
+                        bank.baseUssdCode,
                       ),
                       title: TextSemiBold(
-                        bank['name'] as String,
+                        bank.name,
                         fontSize: 14,
                         color: Colors.black,
                       ),
-                      subtitle: bank['ussdTemplate'] != null
+                      subtitle: bank.ussdTemplate != null
                           ? Text(
-                              'USSD: ${bank['baseUssdCode'] ?? bank['ussdTemplate']}',
+                              'USSD: ${bank.baseUssdCode ?? bank.ussdTemplate}',
                               style: TextStyle(
                                 fontSize: 11,
                                 color: AppColors.primaryGrey2.withOpacity(0.7),

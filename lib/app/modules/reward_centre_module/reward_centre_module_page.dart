@@ -16,7 +16,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
       ),
       body: Obx(() {
         return Skeletonizer(
-          enabled: controller.isLoading.value,
+          enabled: controller.isLoading,
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
             child: GridView(
@@ -26,7 +26,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                 mainAxisSpacing: 8.0,
               ),
               children: [
-                if (controller.isLoading.value && controller.service.isEmpty)
+                if (controller.isLoading && controller.service.isEmpty)
                   ...List.generate(
                     6,
                     (index) => _boxCard(

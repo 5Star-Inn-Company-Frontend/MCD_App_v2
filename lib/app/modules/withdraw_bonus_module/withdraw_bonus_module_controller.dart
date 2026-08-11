@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/core/models/bank_model.dart';
+import 'package:mcd/core/services/bank_service.dart';
 import 'package:mcd/core/constants/app_strings.dart';
 import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
@@ -26,20 +28,19 @@ class WithdrawBonusModuleController extends GetxController {
   final megaBonusBalance = 0.0.obs;
   final commissionBalance = 0.0.obs;
   final isWithdrawing = false.obs;
-  final banks = <Map<String, String>>[].obs;
-  final isLoadingBanks = false.obs;
+  List<BankModel> get banks => BankService.to.banks;
+  bool get isLoadingBanks => BankService.to.isLoadingBanks.value;
   final isValidatingAccount = false.obs;
   final _bankSearchQuery = ''.obs;
   String get bankSearchQuery => _bankSearchQuery.value;
   set bankSearchQuery(String value) => _bankSearchQuery.value = value;
 
-  List<Map<String, String>> get filteredBanks {
-    if (bankSearchQuery.isEmpty) {
-      return banks;
-    }
-    return banks
-        .where((bank) =>
-            bank['name']!.toLowerCase().contains(bankSearchQuery.toLowerCase()))
+  List<BankModel> get filteredBanks {
+    if (bankSearchQuery.isEmpty) return BankService.to.banks;
+    return BankService.to.banks
+        .where((bank) => bank.name
+            .toLowerCase()
+            .contains(bankSearchQuery.toLowerCase()))
         .toList();
   }
 
@@ -132,49 +133,7 @@ class WithdrawBonusModuleController extends GetxController {
   }
 
   Future<void> fetchBanks() async {
-    try {
-      isLoadingBanks.value = true;
-      dev.log('Fetching banks list', name: 'WithdrawBonus');
-
-      final transactionUrl = box.read('transaction_service_url');
-      if (transactionUrl == null) {
-        dev.log('Transaction URL not found',
-            name: 'WithdrawBonus', error: 'URL missing');
-        return;
-      }
-
-      final result = await apiService.getrequest('${transactionUrl}banklist');
-
-      result.fold(
-        (failure) {
-          dev.log('Failed to fetch banks',
-              name: 'WithdrawBonus', error: failure.message);
-          Get.snackbar(
-            'Error',
-            'Failed to load banks: ${failure.message}',
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-          );
-        },
-        (data) {
-          if (data['success'] == 1 && data['data'] != null) {
-            banks.clear();
-            for (var bank in data['data']) {
-              banks.add({
-                'name': bank['name'] ?? '',
-                'code': bank['code'] ?? '',
-              });
-            }
-            dev.log('Banks loaded: ${banks.length} banks',
-                name: 'WithdrawBonus');
-          }
-        },
-      );
-    } catch (e) {
-      dev.log('Error fetching banks', name: 'WithdrawBonus', error: e);
-    } finally {
-      isLoadingBanks.value = false;
-    }
+    await BankService.to.fetchBanks();
   }
 
   Future<void> validateAccountNumber() async {

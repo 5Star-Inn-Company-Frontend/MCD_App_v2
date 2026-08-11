@@ -15,13 +15,16 @@ import 'package:local_auth/local_auth.dart';
 import 'package:mcd/app/modules/login_screen_module/models/user_signup_data.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/widgets/loading_dialog.dart';
+import 'package:mcd/core/controllers/payment_config_controller.dart';
 import 'package:mcd/core/services/ads_service.dart';
+import 'package:mcd/core/services/bank_service.dart';
+import 'package:mcd/core/services/country_service.dart';
+import 'package:mcd/core/services/dashboard_service.dart';
 
 import '../../../core/controllers/service_status_controller.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
 // import '../../../core/services/deep_link_service.dart';
-import '../../../core/services/storage_service.dart';
 import '../../../core/utils/validator.dart';
 import '../../routes/app_pages.dart';
 /**
@@ -327,35 +330,8 @@ class LoginScreenController extends GetxService {
   }
 
   Future<bool> fetchDashboard({bool force = false}) async {
-    dev.log("LoginController fetchDashboard called, force: $force");
-
-    isLoading = true;
-    errorMessage = null;
-    dev.log("Fetching dashboard from LoginController...");
-
-    final result =
-        await apiService.getrequest("${ApiConstants.authUrlV2}/dashboard");
-
-    bool isSuccess = false;
-    result.fold(
-      (failure) {
-        errorMessage = failure.message;
-        dev.log("LoginController dashboard fetch failed: ${failure.message}");
-        Get.snackbar("Error", failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor);
-      },
-      (data) {
-        StorageService.to.setDashboardData(data);
-        if (force) {
-          // Get.snackbar("Updated", "Dashboard refreshed", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
-        }
-        isSuccess = true;
-      },
-    );
-
-    isLoading = false;
-    return isSuccess;
+    await DashboardService.to.fetchDashboard(force: force);
+    return DashboardService.to.dashboardData.value != null;
   }
 
   /// check if device supports biometrics
@@ -519,10 +495,10 @@ class LoginScreenController extends GetxService {
     try {
       await Future.wait([
         ServiceStatusController.to.fetchServiceStatus(),
-        fetchPaymentMethods(),
+        PaymentConfigController.to.fetchPaymentMethods(),
         fetchDashboard(force: true),
         _prefetchCountries(),
-        _prefetchBanks(),
+        BankService.to.fetchBanks(),
       ]);
     } catch (e) {
       dev.log('Error in post-login data fetch: $e', name: 'Login');
@@ -543,70 +519,14 @@ class LoginScreenController extends GetxService {
 
   Future<void> _prefetchCountries() async {
     try {
-      final transactionUrl = box.read('transaction_service_url');
-      if (transactionUrl == null || transactionUrl.isEmpty) return;
-
-      // standalone fetch — write directly to storage without a controller
-      await _fetchAndCacheCountries(transactionUrl);
+      dev.log('Pre-fetching countries after login...', name: 'Login');
+      await CountryService.to.fetchCountries();
     } catch (e) {
       dev.log('Countries prefetch error: $e', name: 'Login');
     }
   }
 
-  Future<void> _fetchAndCacheCountries(String transactionUrl) async {
-    const cacheKey = 'cached_countries';
-    const cacheTsKey = 'cached_countries_ts';
-    const ttlHours = 24;
-
-    // skip if still fresh
-    final tsRaw = box.read(cacheTsKey);
-    if (tsRaw != null) {
-      final ts = DateTime.tryParse(tsRaw as String);
-      if (ts != null &&
-          DateTime.now().difference(ts).inHours < ttlHours &&
-          box.read(cacheKey) != null) {
-        dev.log('Countries cache still valid, skipping prefetch',
-            name: 'Login');
-        return;
-      }
-    }
-
-    try {
-      dev.log('Pre-fetching countries after login...', name: 'Login');
-      final result =
-          await apiService.getrequest('${transactionUrl}airtime/countries');
-
-      result.fold(
-        (failure) {
-          dev.log('Countries prefetch failed: ${failure.message}',
-              name: 'Login');
-        },
-        (data) {
-          if (data['success'] == 1 && data['data'] is List) {
-            final List<dynamic> raw = data['data'];
-            // store minimal fields needed for ISO lookup
-            final encoded = jsonEncode(raw
-                .map((e) => {
-                      'code': e['isoName'] ?? '',
-                      'name': e['name'] ?? '',
-                      'flag': e['flag'] ?? '',
-                      'currency': e['currencyCode'] ?? '',
-                      'callingCodes': e['callingCodes'] ?? [],
-                    })
-                .toList());
-            box.write(cacheKey, encoded);
-            box.write(cacheTsKey, DateTime.now().toIso8601String());
-            dev.log('Countries cached after login (${raw.length} entries)',
-                name: 'Login');
-          }
-        },
-      );
-    } catch (e) {
-      dev.log('Countries prefetch exception: $e', name: 'Login');
-    }
-  }
-
-  Future<void> _prefetchBanks() async {
+  /* Future<void> _prefetchBanks() async {
     try {
       final transactionUrl = box.read('transaction_service_url');
       if (transactionUrl == null || transactionUrl.isEmpty) return;
@@ -670,7 +590,7 @@ class LoginScreenController extends GetxService {
     } catch (e) {
       dev.log('Banks prefetch exception: $e', name: 'Login');
     }
-  }
+  } */
 
   Future<void> handleSignIn(BuildContext context) async {
     try {
@@ -689,68 +609,6 @@ class LoginScreenController extends GetxService {
     }
   }
 
-  Future<bool> fetchPaymentMethods() async {
-    // only show loader if we have no cached data
-
-    dev.log('Fetching payment methods configuration', name: 'PaymentConfig');
-
-    final transactionUrl = storage.read('transaction_service_url');
-    if (transactionUrl == null) {
-      dev.log('Transaction URL not found, will retry when available', name: 'PaymentConfig');
-      return false;
-    }
-
-    final result = await apiService.getrequest('${transactionUrl}payment-methods');
-
-    bool isSuccess = false;
-
-    result.fold(
-          (failure) {
-        dev.log('Failed to fetch payment methods', name: 'PaymentConfig', error: failure.message);
-
-      },
-          (data) {
-        if (data['success'] == 1 && data['data'] != null) {
-          dev.log('Payment methods fetched successfully', name: 'PaymentConfig');
-
-
-          // Store payment method details (keys, etc.)
-          if (data['data']['details'] != null) {
-            final details = data['data']['details'] as Map<String, dynamic>;
-            // Store Paystack public key
-            if (details['paystack_public'] != null) {
-              storage.write('paystack_public_key', details['paystack_public']);
-              dev.log('Paystack public key found', name: 'PaymentConfig');
-            }
-
-            // Store other payment gateway keys if needed
-            if (details['rave_public'] != null) {
-              storage.write('rave_public_key', details['rave_public']);
-            }
-            if (details['rave_enckey'] != null) {
-              storage.write('rave_encryption_key', details['rave_enckey']);
-            }
-            if (details['monnify_apikey'] != null) {
-              storage.write('monnify_api_key', details['monnify_apikey']);
-            }
-            if (details['monnify_contractcode'] != null) {
-              storage.write('monnify_contract_code', details['monnify_contractcode']);
-            }
-
-            dev.log('Payment gateway keys stored successfully', name: 'PaymentConfig');
-          }
-
-          // Cache the entire response
-          storage.write('cached_payment_methods', data);
-          isSuccess = true;
-        } else {
-          dev.log('Payment methods fetch failed', name: 'PaymentConfig', error: data['message']);
-        }
-      },
-    );
-
-    return isSuccess;
-  }
 
 
   /// social login (facebook/google)

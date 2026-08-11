@@ -1,11 +1,10 @@
-import 'dart:convert';
 import 'dart:developer' as dev;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_paystack_payment_plus/flutter_paystack_payment_plus.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mcd/core/services/dashboard_service.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/constants/fonts.dart';
@@ -14,7 +13,6 @@ import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/core/services/general_market_payment_service.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
-import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 
 enum PaymentType {
   airtime,
@@ -47,12 +45,12 @@ class GeneralPayoutController extends GetxController {
   final pointsBalance = '0'.obs;
   final usePoints = false.obs;
   final promoCodeController = TextEditingController();
-  final gmBalance = '0'.obs;
+  RxString get gmBalance => DashboardService.to.gmBalance;
 
   // Payment method availability
-  final paymentMethodStatus = <String, dynamic>{}.obs;
-  final paymentMethodDetails = <String, dynamic>{}.obs;
-  final isLoadingPaymentMethods = true.obs;
+  RxMap<String, String> get paymentMethodStatus => PaymentConfigController.to.paymentMethodStatus;
+  RxMap<String, String> get paymentMethodDetails => PaymentConfigController.to.paymentMethodDetails;
+  bool get isLoadingPaymentMethods => PaymentConfigController.to.isLoading.value;
 
   // Card Input State (Paystack)
   final cardFormKey = GlobalKey<FormState>();
@@ -456,33 +454,7 @@ class GeneralPayoutController extends GetxController {
   }
 
   Future<void> fetchGMBalance() async {
-    final transactionUrl = box.read('transaction_service_url');
-    if (transactionUrl == null) {
-      dev.log('Transaction URL not found',
-          name: 'GeneralPayout', error: 'URL missing');
-      return;
-    }
-
-    final result =
-        await apiService.getrequest('${transactionUrl}gmtransactions');
-
-    result.fold(
-      (failure) {
-        dev.log('GM balance fetch failed: ${failure.message}',
-            name: 'GeneralPayout');
-      },
-      (data) {
-        // dev.log('GM balance response: $data', name: 'GeneralPayout');
-        if (data['wallet'] != null) {
-          gmBalance.value = data['wallet'].toString();
-          dev.log('GM balance updated to: ₦${gmBalance.value}',
-              name: 'GeneralPayout');
-        } else {
-          dev.log('Wallet balance not found in response',
-              name: 'GeneralPayout');
-        }
-      },
-    );
+    await DashboardService.to.fetchGMBalance();
   }
 
   final storage = GetStorage();
@@ -491,122 +463,9 @@ class GeneralPayoutController extends GetxController {
   final RxString errorMessage = ''.obs;
 
   Future<void> fetchPaymentMethodAvailability() async {
-    try {
-      dev.log(
-          'Using cached payment method availability from PaymentConfigController',
-          name: 'GeneralPayout');
-
-      paymentMethodStatus.value =
-          jsonDecode(storage.read("payment_method_status"));
-      paymentMethodDetails.value =
-          jsonDecode(storage.read("payment_method_details"));
-
-      dev.log('Payment method availability: $paymentMethodStatus',
-          name: 'GeneralPayout');
-
-      // If not loaded yet, trigger refresh
-      if (paymentMethodStatus.isEmpty) {
-        dev.log('Payment methods not loaded, refreshing...',
-            name: 'GeneralPayout');
-        isLoadingPaymentMethods.value = true;
-        await fetchPaymentMethods();
-        isLoadingPaymentMethods.value = false;
-      }
-    } catch (e) {
-      dev.log('Error fetching payment method availability',
-          name: 'GeneralPayout', error: e);
-      isLoadingPaymentMethods.value = false;
-    }
+    await PaymentConfigController.to.fetchPaymentMethods();
   }
 
-  Future<bool> fetchPaymentMethods() async {
-    // only show loader if we have no cached data
-    errorMessage.value = '';
-    dev.log('Fetching payment methods configuration', name: 'PaymentConfig');
-
-    final transactionUrl = storage.read('transaction_service_url');
-    if (transactionUrl == null) {
-      dev.log('Transaction URL not found, will retry when available',
-          name: 'PaymentConfig');
-
-      isLoadingPaymentMethods.value = false;
-      return false;
-    }
-
-    final result =
-        await apiService.getrequest('${transactionUrl}payment-methods');
-
-    bool isSuccess = false;
-
-    result.fold(
-      (failure) {
-        dev.log('Failed to fetch payment methods',
-            name: 'PaymentConfig', error: failure.message);
-        errorMessage.value = failure.message;
-      },
-      (data) {
-        if (data['success'] == 1 && data['data'] != null) {
-          dev.log('Payment methods fetched successfully',
-              name: 'PaymentConfig');
-
-          // Store payment method status
-          if (data['data']['status'] != null) {
-            final status = data['data']['status'] as Map<String, dynamic>;
-            paymentMethodStatus.value =
-                status.map((key, value) => MapEntry(key, value.toString()));
-            storage.write(
-                'payment_method_status', jsonEncode(paymentMethodStatus.value));
-            dev.log('Payment method status: $paymentMethodStatus',
-                name: 'PaymentConfig');
-          }
-
-          // Store payment method details (keys, etc.)
-          if (data['data']['details'] != null) {
-            final details = data['data']['details'] as Map<String, dynamic>;
-            paymentMethodDetails.value =
-                details.map((key, value) => MapEntry(key, value.toString()));
-            storage.write('payment_method_details',
-                jsonEncode(paymentMethodDetails.value));
-            // Store Paystack public key
-            if (details['paystack_public'] != null) {
-              storage.write('paystack_public_key', details['paystack_public']);
-              dev.log('Paystack public key found', name: 'PaymentConfig');
-            }
-
-            // Store other payment gateway keys if needed
-            if (details['rave_public'] != null) {
-              storage.write('rave_public_key', details['rave_public']);
-            }
-            if (details['rave_enckey'] != null) {
-              storage.write('rave_encryption_key', details['rave_enckey']);
-            }
-            if (details['monnify_apikey'] != null) {
-              storage.write('monnify_api_key', details['monnify_apikey']);
-            }
-            if (details['monnify_contractcode'] != null) {
-              storage.write(
-                  'monnify_contract_code', details['monnify_contractcode']);
-            }
-
-            dev.log('Payment gateway keys stored successfully',
-                name: 'PaymentConfig');
-          }
-
-          // Cache the entire response
-          storage.write('cached_payment_methods', data);
-          isSuccess = true;
-        } else {
-          dev.log('Payment methods fetch failed',
-              name: 'PaymentConfig', error: data['message']);
-          errorMessage.value =
-              data['message'] ?? 'Failed to fetch payment methods';
-        }
-      },
-    );
-
-    isLoadingPaymentMethods.value = false;
-    return isSuccess;
-  }
 
   bool isPaymentMethodAvailable(String method) {
     // Map internal key 'general_market' to API key 'pay_gm' for availability check

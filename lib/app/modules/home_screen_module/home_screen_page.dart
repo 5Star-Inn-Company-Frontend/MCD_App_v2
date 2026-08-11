@@ -62,7 +62,7 @@ class HomeScreenPage extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: Obx(() => Skeletonizer(
-                        enabled: controller.isLoading.value,
+                        enabled: controller.isLoading,
                         child: ListView(
                           children: [
                             const Gap(10),
@@ -305,12 +305,12 @@ class HomeScreenPage extends StatelessWidget {
                                   crossAxisSpacing: 16,
                                   mainAxisSpacing: 10,
                                 ),
-                                itemCount: controller.isLoading.value &&
+                                itemCount: controller.isLoading &&
                                         controller.actionButtonz.isEmpty
                                     ? 8
                                     : controller.actionButtonz.length,
                                 itemBuilder: (BuildContext ctx, index) {
-                                  if (controller.isLoading.value &&
+                                  if (controller.isLoading &&
                                       controller.actionButtonz.isEmpty) {
                                     return Container(
                                       decoration: BoxDecoration(
@@ -431,7 +431,7 @@ class HomeScreenPage extends StatelessWidget {
                             const Gap(10),
                             controller.imageSliders.isNotEmpty
                                 ? _buildImageSlider(controller)
-                                : controller.isLoading.value &&
+                                : controller.isLoading &&
                                         controller.imageSliders.isEmpty
                                     ? Container(
                                         height: 200,

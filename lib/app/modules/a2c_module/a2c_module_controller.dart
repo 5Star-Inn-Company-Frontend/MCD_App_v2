@@ -1,7 +1,8 @@
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mcd/app/modules/a2c_module/models/bank_model.dart';
+import 'package:mcd/core/models/bank_model.dart';
+import 'package:mcd/core/services/bank_service.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
@@ -36,8 +37,7 @@ class A2CModuleController extends GetxController {
   final _selectedBank = Rxn<BankModel>();
   Rxn<BankModel> get selectedBank => _selectedBank;
 
-  final _banks = <BankModel>[].obs;
-  List<BankModel> get banks => _banks;
+  List<BankModel> get banks => BankService.to.banks;
 
   final _bankSearchQuery = ''.obs;
   String get bankSearchQuery => _bankSearchQuery.value;
@@ -45,16 +45,15 @@ class A2CModuleController extends GetxController {
 
   List<BankModel> get filteredBanks {
     if (bankSearchQuery.isEmpty) {
-      return _banks;
+      return BankService.to.banks;
     }
-    return _banks
+    return BankService.to.banks
         .where((bank) =>
             bank.name.toLowerCase().contains(bankSearchQuery.toLowerCase()))
         .toList();
   }
 
-  final _isLoadingBanks = false.obs;
-  bool get isLoadingBanks => _isLoadingBanks.value;
+  bool get isLoadingBanks => BankService.to.isLoadingBanks.value;
 
   final _isVerifyingAccount = false.obs;
   bool get isVerifyingAccount => _isVerifyingAccount.value;
@@ -93,55 +92,7 @@ class A2CModuleController extends GetxController {
 
   // Fetch bank list
   Future<void> fetchBanks() async {
-    if (_banks.isNotEmpty) {
-      dev.log('Banks already loaded', name: 'A2CModule');
-      return;
-    }
-
-    try {
-      _isLoadingBanks.value = true;
-      dev.log('Fetching banks...', name: 'A2CModule');
-
-      final transactionUrl = box.read('transaction_service_url') ?? '';
-      final url = '${transactionUrl}banklist';
-      dev.log('Request URL: $url', name: 'A2CModule');
-
-      final response = await apiService.getrequest(url);
-
-      response.fold(
-        (failure) {
-          dev.log('Failed to fetch banks',
-              name: 'A2CModule', error: failure.message);
-          Get.snackbar(
-            'Error',
-            failure.message,
-            backgroundColor: AppColors.errorBgColor,
-            colorText: AppColors.textSnackbarColor,
-            duration: const Duration(seconds: 2),
-          );
-        },
-        (data) {
-          dev.log('Banks fetched successfully', name: 'A2CModule');
-          if (data['success'] == 1 && data['data'] != null) {
-            final List<dynamic> bankList = data['data'];
-            _banks.value =
-                bankList.map((item) => BankModel.fromJson(item)).toList();
-            dev.log('Loaded ${_banks.length} banks', name: 'A2CModule');
-          }
-        },
-      );
-    } catch (e) {
-      dev.log('Error fetching banks', name: 'A2CModule', error: e);
-      Get.snackbar(
-        'Error',
-        'Failed to load banks: $e',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-        duration: const Duration(seconds: 2),
-      );
-    } finally {
-      _isLoadingBanks.value = false;
-    }
+    await BankService.to.fetchBanks();
   }
 
   // Verify bank account
