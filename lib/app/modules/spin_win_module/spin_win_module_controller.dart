@@ -106,7 +106,7 @@ class SpinWinModuleController extends GetxController {
     _loadLocalChances();
     _startCountdownTimer();
     fetchSpinData();
-    adsService.showInterstitialAd();
+    // adsService.showInterstitialAd();
   }
 
   @override
