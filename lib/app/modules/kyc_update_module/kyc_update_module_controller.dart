@@ -2,7 +2,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/api_constants.dart';
 import 'package:sprint_check/sprint_check.dart';
-import 'package:sprint_check/sprint_check_method_channel.dart';
 import 'dart:developer' as dev;
 
 import '../home_screen_module/model/dashboard_model.dart';

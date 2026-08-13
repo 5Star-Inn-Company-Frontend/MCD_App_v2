@@ -38,36 +38,50 @@ class AdsService {
     testIsShowingAds = false;
   }
 
-  static final String bannerAdUnitId = Platform.isAndroid
-      ? 'ca-app-pub-6117361441866120/3287545689'
+  // --- Ad Unit IDs ---
+
+  // Banner Ads
+  static final String bannerHigh = Platform.isAndroid
+      ? 'ca-app-pub-6117361441866120/2869480303'
+      : 'ca-app-pub-6117361441866120/8620500430';
+
+  static final String bannerLow = Platform.isAndroid
+      ? 'ca-app-pub-6117361441866120/2869480303'
       : 'ca-app-pub-6117361441866120/1488443500';
 
-  static final String rewardVideoUnitId = Platform.isAndroid
+  // Interstitial Ads
+  static String interstitialHigh = Platform.isAndroid
+      ? 'ca-app-pub-6117361441866120/8563923098'
+      : 'ca-app-pub-6117361441866120/8759030065';
+
+  // Rewarded Ads
+  static final String rewardedHigh = Platform.isAndroid
       ? 'ca-app-pub-6117361441866120/4412338366'
       : 'ca-app-pub-6117361441866120/2609953488';
 
-  static String interstitialUnitId = Platform.isAndroid
-      ? 'ca-app-pub-6117361441866120/8563923098'
-      : 'ca-app-pub-6117361441866120/8759030065';
-
-  static String nativeAdUnitId = Platform.isAndroid
-      ? 'ca-app-pub-6117361441866120/7557970286'
-      : 'ca-app-pub-6117361441866120/5123378631';
-
-  static String rewardInterstitialUnitId = Platform.isAndroid
+  static String rewardedInterstitialHigh = Platform.isAndroid
       ? 'ca-app-pub-6117361441866120/4577116553'
       : 'ca-app-pub-6117361441866120/6040874481';
 
-  // spin and win uses interstitial ad unit
-  static String spinandwinUnitId = Platform.isAndroid
-      ? 'ca-app-pub-6117361441866120/8563923098'
-      : 'ca-app-pub-6117361441866120/8759030065';
+  // Free Money (Rewarded)
+  static String freeMoneyHigh = Platform.isAndroid
+      ? 'ca-app-pub-6117361441866120/7295608188'
+      : 'ca-app-pub-6117361441866120/4202540985';
 
-  // free money uses the reward ad unit (previously misassigned to spin and win)
-  static String freeMoneyUnitId = Platform.isAndroid
+  static String freeMoneyLow = Platform.isAndroid
       ? 'ca-app-pub-6117361441866120/5165063317'
       : 'ca-app-pub-6117361441866120/9202838992';
 
+  static String freeMoneyInterstitial = Platform.isAndroid
+      ? 'ca-app-pub-6117361441866120/2544949196'
+      : 'ca-app-pub-6117361441866120/2980063466';
+
+  // Native Ads
+  static String nativeHigh = Platform.isAndroid
+      ? 'ca-app-pub-6117361441866120/7557970286'
+      : 'ca-app-pub-6117361441866120/5123378631';
+
+  // Unity Config
   final gameid = Platform.isAndroid ? "3717787" : '3717786';
   final bannerAdPlacementId =
       Platform.isAndroid ? ['newandroidbanner'] : ['iOS_Banner'];
@@ -82,19 +96,44 @@ class AdsService {
       dev.log('Ads already initialized');
       return;
     }
-    Googlemodel googlemodel = Googlemodel()
-      ..bannerAdUnitId = [bannerAdUnitId]
-      // ..nativeadUnitId = _nativeadUnitId
-      ..rewardedInterstitialAdUnitId = [rewardInterstitialUnitId]
-      ..rewardedAdUnitId = [rewardVideoUnitId]
-      ..spinAndWin = [freeMoneyUnitId]
-      ..freemoney = [freeMoneyUnitId]
-      ..interstitialAdUnitId = [interstitialUnitId];
+
+    Googlemodel googlemodel = Googlemodel();
+
+    // 1. Configure Banner Waterfall
+
+    googlemodel.addBannerPlacement('banner',
+        high: [bannerHigh], low: [bannerLow]);
+
+    // 2. Configure Interstitial Waterfall
+    googlemodel.addInterstitialPlacement('interstitial', high: [interstitialHigh]);
+
+    // 3. Configure Standard Rewarded Waterfall
+    googlemodel.addRewardedPlacement('rewarded', high: [rewardedHigh]);
+
+    // 4. Configure Rewarded Interstitial
+    googlemodel.addRewardedInterstitialPlacement('rewardedInterstitial',
+        high: [rewardedInterstitialHigh]);
+
+    // 5. Configure Free Money Placement (3-tier waterfall support in SDK)
+    googlemodel.addRewardedPlacement('freemoney',
+        high: [freeMoneyHigh], low: [freeMoneyLow]);
+
+    googlemodel.addInterstitialPlacement('freemoneyInterstitial',
+        high: [freeMoneyInterstitial]);
+
+    // 6. Configure Spin and Win (uses Free Money units)
+    googlemodel.addRewardedPlacement('spinAndWin',
+        high: [freeMoneyHigh], low: [freeMoneyLow]);
+
+    // 7. Configure Native Ads
+    googlemodel.addNativePlacement('native', high: [nativeHigh]);
+
     Unitymodel unitymodel = Unitymodel()
       ..gameId = gameid
       ..interstitialVideoAdPlacementId = interstitialVideoAdPlacementId
       ..rewardedVideoAdPlacementId = rewardedVideoAdPlacementId
       ..bannerAdPlacementId = bannerAdPlacementId;
+
     try {
       await _advertPlugin.initialize(
         testmode: testMode,
@@ -107,29 +146,29 @@ class AdsService {
     }
   }
 
-  void showBannerAd() {
+  void showBannerAd({String type = 'banner'}) {
     if (!_isInitialized) {
       dev.log('Error: Ads not initialized');
       return;
     }
 
     try {
-      _advertPlugin.adsProv.showBannerAd();
-      dev.log('Banner ad shown');
+      _advertPlugin.adsProv.showBannerAd(type: type);
+      dev.log('Banner ad shown: $type');
     } catch (e) {
       dev.log('Error showing banner ad: $e');
     }
   }
 
-  Widget showBannerAdWidget() {
+  Widget showBannerAdWidget({String type = 'banner'}) {
     if (!_isInitialized) {
       dev.log('Error: Ads not initialized');
       return const SizedBox.shrink();
     }
 
     try {
-      dev.log('Banner ad shown');
-      return _advertPlugin.adsProv.showBannerAd();
+      dev.log('Banner ad shown: $type');
+      return _advertPlugin.adsProv.showBannerAd(type: type);
     } catch (e) {
       dev.log('Error showing banner ad: $e');
     }
@@ -137,21 +176,22 @@ class AdsService {
     return const SizedBox.shrink();
   }
 
-  void showInterstitialAd() {
+  void showInterstitialAd({String type = 'interstitial'}) {
     if (!_isInitialized) {
       dev.log('Error: Ads not initialized');
       return;
     }
 
     try {
-      _advertPlugin.adsProv.showInterstitialAd();
-      dev.log('Interstitial ad shown');
+      _advertPlugin.adsProv.showInterstitialAd(type: type);
+      dev.log('Interstitial ad shown: $type');
     } catch (e) {
       dev.log('Error showing interstitial ad: $e');
     }
   }
 
   Future<bool> showRewardedAd({
+    String type = 'rewarded',
     VoidCallback? onRewarded,
     Map<String, String>? customData,
     Function? onAdClicked,
@@ -165,9 +205,10 @@ class AdsService {
     try {
       final completer = Completer<void>();
       final defaultCustomData =
-          customData ?? {"username": "", "platform": "", "type": ""};
+          customData ?? {"username": "", "platform": "", "type": type};
 
       final response = await _advertPlugin.adsProv.showRewardedAd(
+        type: type,
         onRewarded: () {
           if (!completer.isCompleted) {
             completer.complete();
@@ -181,14 +222,14 @@ class AdsService {
 
       if (response.status) {
         await completer.future;
-        dev.log('Rewarded ad completed successfully');
+        dev.log('Rewarded ad ($type) completed successfully');
         return true;
       } else {
-        dev.log('Error: Rewarded ad failed to show');
+        dev.log('Error: Rewarded ad ($type) failed to show');
         return false;
       }
     } catch (e) {
-      dev.log('Error showing rewarded ad: $e');
+      dev.log('Error showing rewarded ad ($type): $e');
       return false;
     }
   }
@@ -201,20 +242,13 @@ class AdsService {
     Function? onAdImpression,
     required int total,
   }) async {
-    if (!_isInitialized) {
-      dev.log('Error: Ads not initialized');
-      return;
-    }
-    final defaultCustomData =
-        customData ?? {"username": "", "platform": "", "type": ""};
-
-    _advertPlugin.adsProv.startAdSequence(
+    showMultipleRewardedAds(
       context,
-      total: total,
+      maxAds: total,
       adType: 'spinAndWin',
       reason: "Spin and Win",
-      customData: defaultCustomData,
-      onComplete: onRewarded ?? () {},
+      customData: customData,
+      onAdCompleted: onRewarded,
       onAdClicked: onAdClicked,
       onAdImpression: onAdImpression,
     );
@@ -226,45 +260,19 @@ class AdsService {
     Function? onAdClicked,
     Function? onAdImpression,
   }) async {
-    if (!_isInitialized) {
-      dev.log('Error: Ads not initialized');
-      return false;
-    }
-
-    try {
-      final completer = Completer<void>();
-      final defaultCustomData =
-          customData ?? {"username": "", "platform": "", "type": ""};
-
-      final response = await _advertPlugin.adsProv.showfreemoney(
-        onRewarded: () {
-          if (!completer.isCompleted) {
-            completer.complete();
-            onRewarded?.call();
-          }
-        },
-        customData: defaultCustomData,
-        onAdClicked: onAdClicked,
-        onAdImpression: onAdImpression,
-      );
-
-      if (response.status) {
-        await completer.future;
-        dev.log('Freemoney ad completed successfully');
-        return true;
-      } else {
-        dev.log('Error: Freemoney ad failed to show');
-        return false;
-      }
-    } catch (e) {
-      dev.log('Error showing freemoney ad: $e');
-      return false;
-    }
+    return showRewardedAd(
+      type: 'freemoney',
+      onRewarded: onRewarded,
+      customData: customData,
+      onAdClicked: onAdClicked,
+      onAdImpression: onAdImpression,
+    );
   }
 
   void showMultipleRewardedAds(
     BuildContext context, {
     required int maxAds,
+    String adType = 'rewarded',
     Map<String, String>? customData,
     VoidCallback? onAdCompleted,
     Function(String)? onAdFailed,
@@ -302,7 +310,7 @@ class AdsService {
     try {
       _isSequenceActive = true;
       final defaultCustomData =
-          customData ?? {"username": "", "platform": "", "type": ""};
+          customData ?? {"username": "", "platform": "", "type": adType};
 
       bool sequenceCompleted = false;
       bool wasShowing = false;
@@ -319,7 +327,7 @@ class AdsService {
         _advertPlugin.adsProv.startAdSequence(
           context,
           total: maxAds,
-          adType: 'mergeRewarded',
+          adType: adType,
           reason: reason,
           customData: defaultCustomData,
           onComplete: () {

@@ -72,6 +72,7 @@ class RewardCentreModuleController extends GetxController {
 
     final success = await adsService.showfreemoney(
       onRewarded: () {
+        adsService.showInterstitialAd(type: "freemoneyInterstitial");
         dev.log('User earned reward', name: 'RewardCentre');
         Get.snackbar(
           'Reward Earned!',
