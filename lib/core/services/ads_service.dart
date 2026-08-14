@@ -234,6 +234,48 @@ class AdsService {
     }
   }
 
+  Future<bool> showRewardedInterstitialAd({
+    VoidCallback? onRewarded,
+    Map<String, String>? customData,
+    Function? onAdClicked,
+    Function? onAdImpression,
+  }) async {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return false;
+    }
+
+    try {
+      final completer = Completer<void>();
+      final defaultCustomData =
+          customData ?? {"username": "", "platform": "", "type": "rewardedInterstitial"};
+
+      final response = await _advertPlugin.adsProv.showRewardedInterstitialAd(
+        onRewarded: () {
+          if (!completer.isCompleted) {
+            completer.complete();
+            onRewarded?.call();
+          }
+        },
+        customData: defaultCustomData,
+        onAdClicked: onAdClicked,
+        onAdImpression: onAdImpression,
+      );
+
+      if (response.status) {
+        await completer.future;
+        dev.log('Rewarded Interstitial ad completed successfully');
+        return true;
+      } else {
+        dev.log('Error: Rewarded Interstitial ad failed to show');
+        return false;
+      }
+    } catch (e) {
+      dev.log('Error showing rewarded interstitial ad: $e');
+      return false;
+    }
+  }
+
   void showspinAndWinAd(
     BuildContext context, {
     VoidCallback? onRewarded,
