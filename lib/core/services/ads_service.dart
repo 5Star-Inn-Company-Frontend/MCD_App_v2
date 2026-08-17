@@ -175,6 +175,36 @@ class AdsService {
 
     return const SizedBox.shrink();
   }
+  Widget showHighBannerAd({String type = 'banner'}) {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return const SizedBox.shrink();
+    }
+
+    try {
+      dev.log('Banner ad shown: $type');
+      return _advertPlugin.adsProv.showHighBannerAd(type: type);
+    } catch (e) {
+      dev.log('Error showing banner ad: $e');
+    }
+
+    return const SizedBox.shrink();
+  }
+  Widget showLowBannerAd({String type = 'banner'}) {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return const SizedBox.shrink();
+    }
+
+    try {
+      dev.log('Banner ad shown: $type');
+      return _advertPlugin.adsProv.showLowBannerAd(type: type);
+    } catch (e) {
+      dev.log('Error showing banner ad: $e');
+    }
+
+    return const SizedBox.shrink();
+  }
 
   void showInterstitialAd({String type = 'interstitial'}) {
     if (!_isInitialized) {
@@ -184,6 +214,34 @@ class AdsService {
 
     try {
       _advertPlugin.adsProv.showInterstitialAd(type: type);
+      dev.log('Interstitial ad shown: $type');
+    } catch (e) {
+      dev.log('Error showing interstitial ad: $e');
+    }
+  }
+
+  void showHighInterstitialAd({String type = 'interstitial'}) {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return;
+    }
+
+    try {
+      _advertPlugin.adsProv.showHighInterstitialAd(type: type);
+      dev.log('Interstitial ad shown: $type');
+    } catch (e) {
+      dev.log('Error showing interstitial ad: $e');
+    }
+  }
+
+  void showLowInterstitialAd({String type = 'interstitial'}) {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return;
+    }
+
+    try {
+      _advertPlugin.adsProv.showLowInterstitialAd(type: type);
       dev.log('Interstitial ad shown: $type');
     } catch (e) {
       dev.log('Error showing interstitial ad: $e');
@@ -234,6 +292,94 @@ class AdsService {
     }
   }
 
+  Future<bool> showHighRewardedAd({
+    String type = 'rewarded',
+    VoidCallback? onRewarded,
+    Map<String, String>? customData,
+    Function? onAdClicked,
+    Function? onAdImpression,
+  }) async {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return false;
+    }
+
+    try {
+      final completer = Completer<void>();
+      final defaultCustomData =
+          customData ?? {"username": "", "platform": "", "type": type};
+
+      final response = await _advertPlugin.adsProv.showHighRewardedAd(
+        type: type,
+        onRewarded: () {
+          if (!completer.isCompleted) {
+            completer.complete();
+            onRewarded?.call();
+          }
+        },
+        customData: defaultCustomData,
+        onAdClicked: onAdClicked,
+        onAdImpression: onAdImpression,
+      );
+
+      if (response.status) {
+        await completer.future;
+        dev.log('Rewarded ad ($type) completed successfully');
+        return true;
+      } else {
+        dev.log('Error: Rewarded ad ($type) failed to show');
+        return false;
+      }
+    } catch (e) {
+      dev.log('Error showing rewarded ad ($type): $e');
+      return false;
+    }
+  }
+
+  Future<bool> showLowRewardedAd({
+    String type = 'rewarded',
+    VoidCallback? onRewarded,
+    Map<String, String>? customData,
+    Function? onAdClicked,
+    Function? onAdImpression,
+  }) async {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return false;
+    }
+
+    try {
+      final completer = Completer<void>();
+      final defaultCustomData =
+          customData ?? {"username": "", "platform": "", "type": type};
+
+      final response = await _advertPlugin.adsProv.showLowRewardedAd(
+        type: type,
+        onRewarded: () {
+          if (!completer.isCompleted) {
+            completer.complete();
+            onRewarded?.call();
+          }
+        },
+        customData: defaultCustomData,
+        onAdClicked: onAdClicked,
+        onAdImpression: onAdImpression,
+      );
+
+      if (response.status) {
+        await completer.future;
+        dev.log('Rewarded ad ($type) completed successfully');
+        return true;
+      } else {
+        dev.log('Error: Rewarded ad ($type) failed to show');
+        return false;
+      }
+    } catch (e) {
+      dev.log('Error showing rewarded ad ($type): $e');
+      return false;
+    }
+  }
+
   Future<bool> showRewardedInterstitialAd({
     VoidCallback? onRewarded,
     Map<String, String>? customData,
@@ -251,6 +397,90 @@ class AdsService {
           customData ?? {"username": "", "platform": "", "type": "rewardedInterstitial"};
 
       final response = await _advertPlugin.adsProv.showRewardedInterstitialAd(
+        onRewarded: () {
+          if (!completer.isCompleted) {
+            completer.complete();
+            onRewarded?.call();
+          }
+        },
+        customData: defaultCustomData,
+        onAdClicked: onAdClicked,
+        onAdImpression: onAdImpression,
+      );
+
+      if (response.status) {
+        await completer.future;
+        dev.log('Rewarded Interstitial ad completed successfully');
+        return true;
+      } else {
+        dev.log('Error: Rewarded Interstitial ad failed to show');
+        return false;
+      }
+    } catch (e) {
+      dev.log('Error showing rewarded interstitial ad: $e');
+      return false;
+    }
+  }
+
+  Future<bool> showHighRewardedInterstitialAd({
+    VoidCallback? onRewarded,
+    Map<String, String>? customData,
+    Function? onAdClicked,
+    Function? onAdImpression,
+  }) async {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return false;
+    }
+
+    try {
+      final completer = Completer<void>();
+      final defaultCustomData =
+          customData ?? {"username": "", "platform": "", "type": "rewardedInterstitial"};
+
+      final response = await _advertPlugin.adsProv.showHighRewardedInterstitialAd(
+        onRewarded: () {
+          if (!completer.isCompleted) {
+            completer.complete();
+            onRewarded?.call();
+          }
+        },
+        customData: defaultCustomData,
+        onAdClicked: onAdClicked,
+        onAdImpression: onAdImpression,
+      );
+
+      if (response.status) {
+        await completer.future;
+        dev.log('Rewarded Interstitial ad completed successfully');
+        return true;
+      } else {
+        dev.log('Error: Rewarded Interstitial ad failed to show');
+        return false;
+      }
+    } catch (e) {
+      dev.log('Error showing rewarded interstitial ad: $e');
+      return false;
+    }
+  }
+
+  Future<bool> showLowRewardedInterstitialAd({
+    VoidCallback? onRewarded,
+    Map<String, String>? customData,
+    Function? onAdClicked,
+    Function? onAdImpression,
+  }) async {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return false;
+    }
+
+    try {
+      final completer = Completer<void>();
+      final defaultCustomData =
+          customData ?? {"username": "", "platform": "", "type": "rewardedInterstitial"};
+
+      final response = await _advertPlugin.adsProv.showLowRewardedInterstitialAd(
         onRewarded: () {
           if (!completer.isCompleted) {
             completer.complete();
