@@ -1,7 +1,9 @@
+import 'dart:developer' as dev;
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+// import 'package:cached_network_image/cached_network_image.dart';
 import '../giveaway_module_controller.dart';
 import '../models/giveaway_model.dart';
 
@@ -67,6 +69,11 @@ class GiveawayDetailSheet extends StatelessWidget {
           }
 
           final detail = snapshot.data!;
+          
+          // the raw giveaway data from the server for debugging
+          dev.log('GIVEAWAY SERVER LOG: ${detail.giveaway.toJson()}');
+          dev.log('GIVEAWAY COMPLETED STATUS: ${detail.completed}');
+          
           final currentUsername =
               controller.box.read('biometric_username_real') ?? '';
           final isOwnGiveaway = detail.giveaway.userName.trim().toLowerCase() ==
@@ -77,10 +84,10 @@ class GiveawayDetailSheet extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Profile Image
-                if (detail.giver.photo.isNotEmpty)
+                if (detail.giveaway.image.isNotEmpty)
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: CachedNetworkImageProvider(detail.giver.photo),
+                    backgroundImage: NetworkImage(detail.giveaway.image),
                     backgroundColor: const Color(0xffF3FFF7),
                   )
                 else

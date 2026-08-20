@@ -333,7 +333,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                             ),
                           ),
                   ),
-                  if (isOwnGiveaway && giveawayId != null)
+                  if (giveawayId != null)
                     Positioned(
                       top: 4,
                       right: 4,
