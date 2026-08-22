@@ -167,7 +167,7 @@ class AdsService {
     }
 
     try {
-      dev.log('Banner ad shown: $type');
+      dev.log('Requesting banner ad: $type');
       return _advertPlugin.adsProv.showBannerAd(type: type);
     } catch (e) {
       dev.log('Error showing banner ad: $e');
@@ -175,6 +175,33 @@ class AdsService {
 
     return const SizedBox.shrink();
   }
+
+  Widget showNativeAdWidget(BuildContext context, {String type = 'native'}) {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return const SizedBox.shrink();
+    }
+
+    try {
+      dev.log('Requesting native ad: $type');
+      return _advertPlugin.adsProv.showNativeAd(context, type: type);
+    } catch (e) {
+      dev.log('Error showing native ad: $e');
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget showHighNativeAd(BuildContext context, {String type = 'native'}) {
+    // Note: The AdManager currently handles waterfall internally via showNativeAd.
+    // This is provided for consistency with other ad types.
+    return showNativeAdWidget(context, type: type);
+  }
+
+  Widget showLowNativeAd(BuildContext context, {String type = 'native'}) {
+    return showNativeAdWidget(context, type: type);
+  }
+
   Widget showHighBannerAd({String type = 'banner'}) {
     if (!_isInitialized) {
       dev.log('Error: Ads not initialized');
@@ -182,14 +209,15 @@ class AdsService {
     }
 
     try {
-      dev.log('Banner ad shown: $type');
+      dev.log('Requesting HIGH banner ad: $type');
       return _advertPlugin.adsProv.showHighBannerAd(type: type);
     } catch (e) {
-      dev.log('Error showing banner ad: $e');
+      dev.log('Error showing high banner ad: $e');
     }
 
     return const SizedBox.shrink();
   }
+
   Widget showLowBannerAd({String type = 'banner'}) {
     if (!_isInitialized) {
       dev.log('Error: Ads not initialized');
@@ -197,10 +225,10 @@ class AdsService {
     }
 
     try {
-      dev.log('Banner ad shown: $type');
+      dev.log('Requesting LOW banner ad: $type');
       return _advertPlugin.adsProv.showLowBannerAd(type: type);
     } catch (e) {
-      dev.log('Error showing banner ad: $e');
+      dev.log('Error showing low banner ad: $e');
     }
 
     return const SizedBox.shrink();
