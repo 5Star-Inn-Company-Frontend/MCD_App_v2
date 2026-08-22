@@ -1043,26 +1043,26 @@ packages:
     dependency: transitive
     description:
       name: google_mlkit_commons
-      sha256: c7fc384bdb66c3b83e24e3a41818e61d7a378d900f65f5e775344fbca95a0917
+      sha256: "621e94de22fd0f1e902e593b892746d80ab7542b39c2552aa091d904eb82fc6f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.0"
+    version: "0.13.0"
   google_mlkit_face_detection:
     dependency: transitive
     description:
       name: google_mlkit_face_detection
-      sha256: "719735518c0a961072d1757a097af8fec458426accad0a58eae0763942a3f14c"
+      sha256: dd4a6c61e45390217cdc7522e7766b77e9d075cdface0503716ec6722e33d4f4
       url: "https://pub.dev"
     source: hosted
-    version: "0.14.0"
+    version: "0.15.1"
   google_mlkit_text_recognition:
     dependency: transitive
     description:
       name: google_mlkit_text_recognition
-      sha256: "8324fdc2628ebeb63568ad06437b984b716d938d87e4ce63ab24dfd3eeebf08a"
+      sha256: e13685af5093c8be009a3555909b72a80e10cfe8f97752bcbdf99fa0ccbda810
       url: "https://pub.dev"
     source: hosted
-    version: "0.16.0"
+    version: "0.17.1"
   google_mobile_ads:
     dependency: transitive
     description:
@@ -1944,18 +1944,18 @@ packages:
     dependency: "direct main"
     description:
       name: sprint_check
-      sha256: "01f19bedfcb1686df2d9dd8fd2c9268c21caf60dba7475dbb9627c03ebb3cf7f"
+      sha256: "8fad1559ba51779669b0e371977a6431a921f0ee27e2633c948ade7800fb32e5"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.9"
+    version: "0.2.0"
   sprintliveness:
     dependency: transitive
     description:
       name: sprintliveness
-      sha256: "3f414fc65864a60c6e5548ad6adb6e319c722150091df56edfc226bd0f91e92c"
+      sha256: "816370b9a6c002fe591c371a23b01df555e82d40b413c6c3b10b09d3750382f0"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.3"
+    version: "0.1.4"
   sqflite:
     dependency: transitive
     description:
@@ -2032,18 +2032,18 @@ packages:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: e7f8efe88922e19b83cd5f008f552442b304f40ff84e5037425e9042e1f1a1bd
+      sha256: "28dadd040c4893fc5f9c475bd963b99d7dc0f6b8e6c0b559cbad060dd9168d06"
       url: "https://pub.dev"
     source: hosted
-    version: "34.2.3"
+    version: "34.2.4"
   syncfusion_flutter_signaturepad:
     dependency: "direct main"
     description:
       name: syncfusion_flutter_signaturepad
-      sha256: "2cd14ceaa4489c6ad9c929eefed680c8308f7975a96434643b91a77ad0b95576"
+      sha256: "019748381f433224b7903c66a75a7563c819f2ee4f277a871941a9714612833c"
       url: "https://pub.dev"
     source: hosted
-    version: "34.2.3"
+    version: "34.2.4"
   synchronized:
     dependency: transitive
     description:
