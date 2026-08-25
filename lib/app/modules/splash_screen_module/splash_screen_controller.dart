@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'dart:developer' as dev;
 
+import '../../../core/services/ads_service.dart';
 import '../../routes/app_pages.dart';
 // import '../../../core/services/deep_link_service.dart';
 
@@ -20,6 +21,9 @@ class SplashScreenController extends GetxController {
   }
 
   Future<void> checkAuth() async {
+    // Show App Open Ad
+    AdsService().showAppOpenAd();
+
     await Future.delayed(const Duration(seconds: 2));
 
     final token = box.read('token');

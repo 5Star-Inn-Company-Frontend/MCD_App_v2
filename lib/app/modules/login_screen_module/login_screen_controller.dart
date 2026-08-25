@@ -262,11 +262,11 @@ class LoginScreenController extends GetxService {
               colorText: AppColors.textSnackbarColor);
         },
         (data) async {
-          //--- trigger Password Save
-          TextInput.finishAutofillContext();
           dev.log("Login response received: ${data.toString()}");
           final success = data['success'];
           if (success == 1 && data['token'] != null) {
+            //--- trigger Password Save only on success
+            TextInput.finishAutofillContext();
             final token = data['token'];
             final transactionUrl = data['transaction_service'];
             final utilityUrl = data['ultility_service'];

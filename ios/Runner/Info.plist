@@ -56,7 +56,7 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-1598206053668309~7710581439</string>
+	<string>ca-app-pub-6117361441866120~7211527566</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSApplicationQueriesSchemes</key>
@@ -501,6 +501,26 @@
 			<key>SKAdNetworkIdentifier</key>
 			<string>238da6jt44.skadnetwork</string>
 		</dict>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>n38lu8286q.skadnetwork</string>
+		</dict>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>ludvb6z3bs.skadnetwork</string>
+		</dict>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>su67r6k2v3.skadnetwork</string>
+		</dict>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>bvpn9ufa9b.skadnetwork</string>
+		</dict>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>424m52w4tv.skadnetwork</string>
+		</dict>
 	</array>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
@@ -536,8 +556,14 @@
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
 	<key>FirebaseAppDelegateProxyEnabled</key>
-	<true/>
+	<false/>
 	<key>FirebaseScreenReportingEnabled</key>
+	<true/>
+	<key>OneSignal_app_groups_key</key>
+	<string>group.a5starcompany.com.megacheapdata.onesignal</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This identifier will be used to deliver personalized ads to you.</string>
+	<key>EligibleForAdAttributionKitOverlappingConversions</key>
 	<true/>
 </dict>
 </plist>
