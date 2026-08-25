@@ -81,6 +81,11 @@ class AdsService {
       ? 'ca-app-pub-6117361441866120/7557970286'
       : 'ca-app-pub-6117361441866120/5123378631';
 
+  // Appopen Ads
+  static String appopenlow = Platform.isAndroid
+      ? 'ca-app-pub-6117361441866120/5533379303'
+      : 'ca-app-pub-6117361441866120/7894829083';
+
   // Unity Config
   final gameid = Platform.isAndroid ? "3717787" : '3717786';
   final bannerAdPlacementId =
@@ -127,6 +132,9 @@ class AdsService {
 
     // 7. Configure Native Ads
     googlemodel.addNativePlacement('native', high: [nativeHigh]);
+
+    // 8. Configure AppOpen Ads
+    googlemodel.addAppOpenPlacement('appOpen', high: [appopenlow]);
 
     Unitymodel unitymodel = Unitymodel()
       ..gameId = gameid
@@ -754,6 +762,25 @@ class AdsService {
 
   bool isCurrentlyShowingAds() {
     return testMode ? testIsShowingAds : _advertPlugin.adsProv.isShowingAds.value;
+  }
+
+  /// Enable or disable App Open ads on app resume
+  void setAppOpenOnResume(bool enable) {
+    _advertPlugin.adsProv.enableAppOpenOnResume = enable;
+  }
+
+  void showAppOpenAd({String type = 'appOpen', Function? onAdDismissed}) {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return;
+    }
+
+    try {
+      _advertPlugin.adsProv.showAppOpenAd(type: type, onAdDismissed: onAdDismissed);
+      dev.log('App Open ad shown: $type');
+    } catch (e) {
+      dev.log('Error showing app open ad: $e');
+    }
   }
 
   void forceResetAdState() {
