@@ -50,35 +50,32 @@ class StoreFrontPage extends GetView<StoreFrontController> {
             children: [
               const StoreInfoCard(),
               const SizedBox(height: 24),
-              const SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    StatItemCard(
-                      title: "Today's Sales",
-                      value: 'N12,450',
-                      icon: Icons.trending_up,
-                      iconColor: AppColors.primaryColor,
-                      iconBackgroundColor: AppColors.lightGreen,
-                    ),
-                    SizedBox(width: 12),
-                    StatItemCard(
-                      title: 'Customers',
-                      value: '47',
-                      icon: Icons.group_outlined,
-                      iconColor: AppColors.lightBlue,
-                      iconBackgroundColor: AppColors.skyBlue,
-                    ),
-                    SizedBox(width: 12),
-                    StatItemCard(
-                      title: 'Commission',
-                      value: 'N3,820',
-                      icon: Icons.account_balance_wallet_outlined,
-                      iconColor: AppColors.primaryColor,
-                      iconBackgroundColor: AppColors.lightGreen,
-                    ),
-                  ],
-                ),
+              Row(
+                spacing: 10,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  StatItemCard(
+                    title: "Today's Sales",
+                    value: 'N12,450',
+                    icon: Icons.trending_up,
+                    iconColor: AppColors.primaryColor,
+                    iconBackgroundColor: AppColors.lightGreen,
+                  ),
+                  StatItemCard(
+                    title: 'Customers',
+                    value: '47',
+                    icon: Icons.group_outlined,
+                    iconColor: AppColors.lightBlue,
+                    iconBackgroundColor: AppColors.skyBlue,
+                  ),
+                  StatItemCard(
+                    title: 'Commission',
+                    value: 'N3,820',
+                    icon: Icons.account_balance_wallet_outlined,
+                    iconColor: AppColors.primaryColor,
+                    iconBackgroundColor: AppColors.lightGreen,
+                  ),
+                ],
               ),
               const SizedBox(height: 32),
               const Text(
@@ -123,11 +120,14 @@ class StoreFrontPage extends GetView<StoreFrontController> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'https://wa.me/2348012345678?\ntext=STORE%20ABC123',
+                              'https://wa.me/2348012345678?text=STORE%20ABC123',
                               style: TextStyle(
-                                color: AppColors.textPrimaryColor.withOpacity(0.7),
+                                color:
+                                    AppColors.textPrimaryColor.withOpacity(0.7),
                                 fontSize: 12,
                               ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
                             ),
                           ),
                         ],
@@ -153,7 +153,8 @@ class StoreFrontPage extends GetView<StoreFrontController> {
                             ),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12),
-                              side: const BorderSide(color: AppColors.filledBorderIColor),
+                              side: const BorderSide(
+                                  color: AppColors.filledBorderIColor),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -197,12 +198,17 @@ class StoreFrontPage extends GetView<StoreFrontController> {
                           height: 1.5,
                         ),
                         children: [
-                          TextSpan(text: 'When a customer taps your link, WhatsApp opens with '),
+                          TextSpan(
+                              text:
+                                  'When a customer taps your link, WhatsApp opens with '),
                           TextSpan(
                             text: 'STORE\nABC123',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimaryColor),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textPrimaryColor),
                           ),
-                          TextSpan(text: ' prefilled. Our bot then serves them '),
+                          TextSpan(
+                              text: ' prefilled. Our bot then serves them '),
                           TextSpan(
                             text: 'under your store\nwith your prices.',
                             style: TextStyle(fontStyle: FontStyle.italic),
@@ -252,7 +258,8 @@ class StoreFrontPage extends GetView<StoreFrontController> {
                       earnValue: '1.13%',
                       onTap: controller.showSelectProviderDialog,
                     ),
-                    const Divider(height: 1, color: AppColors.filledBorderIColor),
+                    const Divider(
+                        height: 1, color: AppColors.filledBorderIColor),
                     PricingCommissionItem(
                       icon: Icons.wifi,
                       iconColor: AppColors.lightBlue,
@@ -262,7 +269,8 @@ class StoreFrontPage extends GetView<StoreFrontController> {
                       earnValue: 'Avg N63',
                       onTap: controller.showDataProviderDialog,
                     ),
-                    const Divider(height: 1, color: AppColors.filledBorderIColor),
+                    const Divider(
+                        height: 1, color: AppColors.filledBorderIColor),
                     PricingCommissionItem(
                       icon: Icons.tv,
                       iconColor: AppColors.purpleColor,
@@ -272,17 +280,20 @@ class StoreFrontPage extends GetView<StoreFrontController> {
                       earnValue: 'Avg N206',
                       onTap: controller.showTvProviderDialog,
                     ),
-                    const Divider(height: 1, color: AppColors.filledBorderIColor),
+                    const Divider(
+                        height: 1, color: AppColors.filledBorderIColor),
                     PricingCommissionItem(
                       icon: Icons.bolt,
                       iconColor: AppColors.primaryOrange,
-                      iconBackgroundColor: AppColors.primaryOrange.withOpacity(0.1),
+                      iconBackgroundColor:
+                          AppColors.primaryOrange.withOpacity(0.1),
                       title: 'Electricity',
                       subtitle: '8 providers - Avg 1.0% off',
                       earnValue: '0.5%',
                       onTap: () {},
                     ),
-                    const Divider(height: 1, color: AppColors.filledBorderIColor),
+                    const Divider(
+                        height: 1, color: AppColors.filledBorderIColor),
                     PricingCommissionItem(
                       icon: Icons.emoji_events_outlined,
                       iconColor: Colors.red,
@@ -292,17 +303,20 @@ class StoreFrontPage extends GetView<StoreFrontController> {
                       earnValue: '0.5%',
                       onTap: () {},
                     ),
-                    const Divider(height: 1, color: AppColors.filledBorderIColor),
+                    const Divider(
+                        height: 1, color: AppColors.filledBorderIColor),
                     PricingCommissionItem(
                       icon: Icons.language,
                       iconColor: AppColors.primaryBlue,
-                      iconBackgroundColor: AppColors.primaryBlue.withOpacity(0.1),
+                      iconBackgroundColor:
+                          AppColors.primaryBlue.withOpacity(0.1),
                       title: "Int'l Airtime",
                       subtitle: '6 providers - Avg 2.5% off',
                       earnValue: '1.5%',
                       onTap: () {},
                     ),
-                    const Divider(height: 1, color: AppColors.filledBorderIColor),
+                    const Divider(
+                        height: 1, color: AppColors.filledBorderIColor),
                     PricingCommissionItem(
                       icon: Icons.public,
                       iconColor: Colors.teal,
@@ -351,7 +365,8 @@ class StoreFrontPage extends GetView<StoreFrontController> {
                         onChanged: controller.togglePayWithCard,
                       ),
                     ),
-                    const Divider(height: 1, color: AppColors.filledBorderIColor),
+                    const Divider(
+                        height: 1, color: AppColors.filledBorderIColor),
                     Obx(
                       () => PaymentMethodItem(
                         icon: Icons.account_balance_wallet_outlined,
@@ -361,7 +376,8 @@ class StoreFrontPage extends GetView<StoreFrontController> {
                         onChanged: controller.toggleVirtualAccount,
                       ),
                     ),
-                    const Divider(height: 1, color: AppColors.filledBorderIColor),
+                    const Divider(
+                        height: 1, color: AppColors.filledBorderIColor),
                     Obx(
                       () => PaymentMethodItem(
                         icon: Icons.phone_android,
