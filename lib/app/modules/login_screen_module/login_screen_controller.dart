@@ -24,7 +24,7 @@ import 'package:mcd/core/services/dashboard_service.dart';
 import '../../../core/controllers/service_status_controller.dart';
 import '../../../core/network/api_constants.dart';
 import '../../../core/network/dio_api_service.dart';
-// import '../../../core/services/deep_link_service.dart';
+import '../../../core/services/deep_link_service.dart';
 import '../../../core/utils/validator.dart';
 import '../../routes/app_pages.dart';
 /**
@@ -509,12 +509,12 @@ class LoginScreenController extends GetxService {
 
     Get.offAllNamed(Routes.HOME_SCREEN);
 
-    // try {
-    //   final deepLinkService = Get.find<DeepLinkService>();
-    //   deepLinkService.consumePendingDeepLink();
-    // } catch (e) {
-    //   dev.log('Error consuming pending deep link: $e', name: 'Login');
-    // }
+    try {
+      final deepLinkService = DeepLinkService.to;
+      deepLinkService.consumePendingDeepLink();
+    } catch (e) {
+      dev.log('Error consuming pending deep link: $e', name: 'Login');
+    }
   }
 
   Future<void> _prefetchCountries() async {

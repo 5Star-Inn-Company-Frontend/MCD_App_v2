@@ -286,7 +286,7 @@ class NumberVerificationModulePage
                 ),
               ),
               const Gap(30),
-              controller.adsService.showBannerAdWidget(type: 'high'),
+              controller.adsService.showHighBannerAdWidget(),
               const Gap(10),
               controller.adsService.showBannerAdWidget(),
               const Gap(10),

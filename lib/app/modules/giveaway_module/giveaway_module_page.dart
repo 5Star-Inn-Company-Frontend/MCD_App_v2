@@ -89,7 +89,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
                           ),
                         ),
                         const Gap(5),
-                        controller.adsService.showBannerAdWidget(type: 'high'),
+                        controller.adsService.showHighBannerAdWidget(),
                         AnimatedCrossFade(
                           duration: const Duration(milliseconds: 500),
                           crossFadeState: controller.isNotificationEnabled

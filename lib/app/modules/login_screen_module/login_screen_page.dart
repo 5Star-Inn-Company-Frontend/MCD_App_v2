@@ -388,7 +388,7 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                               : const SizedBox.shrink()),
 
                           const Gap(30),
-                          controller.adsService.showBannerAdWidget(type: 'high'),
+                          controller.adsService.showHighBannerAdWidget(),
                         ],
                       ),
                     ),
