@@ -11,7 +11,7 @@ class DeepLinkService extends GetxService {
   StreamSubscription<Uri>? _linkSubscription;
   final _box = GetStorage();
 
-  static const String deepLinkDomain = 'mcd.5starcompany.com.ng';
+  static const String deepLinkDomain = 'megacheapdata.5starcompany.com.ng';
   static const String claimPath = '/giveaway/claim';
   static const String _pendingIdKey = 'pending_deeplink_giveaway_id';
   static const String _pendingRouteKey = 'pending_deeplink_route';
