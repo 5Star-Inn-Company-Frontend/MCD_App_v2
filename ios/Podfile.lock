@@ -1,6 +1,4 @@
 PODS:
-  - device_info_plus (0.0.1):
-    - Flutter
   - Flutter (1.0.0)
   - OneSignalXCFramework (5.5.5):
     - OneSignalXCFramework/OneSignalComplete (= 5.5.5)
@@ -53,7 +51,6 @@ PODS:
     - OneSignalXCFramework/OneSignalOutcomes
 
 DEPENDENCIES:
-  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
   - OneSignalXCFramework (= 5.5.5)
 
@@ -62,16 +59,13 @@ SPEC REPOS:
     - OneSignalXCFramework
 
 EXTERNAL SOURCES:
-  device_info_plus:
-    :path: ".symlinks/plugins/device_info_plus/ios"
   Flutter:
     :path: Flutter
 
 SPEC CHECKSUMS:
-  device_info_plus: 97af1d7e84681a90d0693e63169a5d50e0839a0d
   Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
   OneSignalXCFramework: 48e5b7c5b51d4e67bab3405229f963efde1a3894
 
-PODFILE CHECKSUM: ce0f1df9aa9f54604d33df12f9c7b878e0fb9544
+PODFILE CHECKSUM: 7e55fe4657a1b961ae5d1eae566ce438245b1792
 
 COCOAPODS: 1.16.2
