@@ -559,8 +559,6 @@
 	<false/>
 	<key>FirebaseScreenReportingEnabled</key>
 	<true/>
-	<key>OneSignal_app_groups_key</key>
-	<string>group.a5starcompany.com.megacheapdata.onesignal</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>This identifier will be used to deliver personalized ads to you.</string>
 	<key>EligibleForAdAttributionKitOverlappingConversions</key>

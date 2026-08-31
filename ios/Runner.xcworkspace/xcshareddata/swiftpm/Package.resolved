@@ -1,4 +1,5 @@
 {
+  "originHash" : "696de0a1c6e2a6240e64a8aaf33ee3103cdf10a586847ed3a9eacd5f9611fdbe",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -32,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/facebook/facebook-ios-sdk",
       "state" : {
-        "revision" : "3818dd2ccb6547c6d320ff68a1bd599789c3a44f",
-        "version" : "18.1.0"
+        "revision" : "80d0ee82f6370d1bace1431a80cb80575f98ee90",
+        "version" : "18.1.1"
       }
     },
     {
@@ -158,8 +159,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/googleads/swift-package-manager-google-mobile-ads",
       "state" : {
-        "revision" : "3b18c931f304a7688308409f182ff28d14f908e2",
-        "version" : "13.8.0"
+        "revision" : "54efe6d39a7b41b84c1041f21c704a7e6a493d7a",
+        "version" : "13.9.0"
       }
     },
     {
@@ -199,5 +200,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
