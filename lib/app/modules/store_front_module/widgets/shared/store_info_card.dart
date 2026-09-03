@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/app/modules/store_front_module/widgets/edit_store_profile_dialog.dart';
 
 class StoreInfoCard extends StatelessWidget {
   const StoreInfoCard({super.key});
@@ -30,11 +32,7 @@ class StoreInfoCard extends StatelessWidget {
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
-                  Icons.storefront,
-                  color: Colors.white,
-                  size: 28,
-                ),
+                child: Image.asset('assets/icons/storefront/store.png', width: 28, height: 28),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -68,16 +66,18 @@ class StoreInfoCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.edit_outlined,
-                  color: Colors.white,
-                  size: 18,
+              InkWell(
+                onTap: () {
+                  Get.dialog(const EditStoreProfileDialog());
+                },
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Image.asset('assets/icons/storefront/edit.png', width: 18, height: 18,)
                 ),
               ),
             ],
