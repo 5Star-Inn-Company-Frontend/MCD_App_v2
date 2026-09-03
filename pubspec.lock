@@ -1160,10 +1160,10 @@ packages:
     dependency: transitive
     description:
       name: google_mobile_ads
-      sha256: "8094e1ace8b0da33fe79027ca6959763c96a28855025cb7c8ec60838e1d56ed8"
+      sha256: "6029f6c48bc9b6b47767ddbb4847683048a2f006d418c871bd93c5eb6a8e5c3c"
       url: "https://pub.dev"
     source: hosted
-    version: "9.1.0"
+    version: "9.0.0"
   google_sign_in:
     dependency: "direct main"
     description:
@@ -2037,18 +2037,18 @@ packages:
     dependency: "direct main"
     description:
       name: sprint_check
-      sha256: fd71f7811d1290a70e9eee1b3f6c311fc6e23a25d977fd32f745b685ae4517a7
+      sha256: "8fad1559ba51779669b0e371977a6431a921f0ee27e2633c948ade7800fb32e5"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.2"
+    version: "0.2.0"
   sprintliveness:
     dependency: transitive
     description:
       name: sprintliveness
-      sha256: "6c5bccf57d23e8a0f0eb570059c914c5537288f1573c7726425c5f16f65aef92"
+      sha256: "816370b9a6c002fe591c371a23b01df555e82d40b413c6c3b10b09d3750382f0"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.6"
+    version: "0.1.4"
   sqflite:
     dependency: transitive
     description:
@@ -2169,14 +2169,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
-  unity_ads_plugin:
-    dependency: transitive
-    description:
-      name: unity_ads_plugin
-      sha256: "4f9443575cdc018f4de4011081fcc5bdceb7ae760e27a560746595190625e30a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.4.0"
   universal_io:
     dependency: transitive
     description:

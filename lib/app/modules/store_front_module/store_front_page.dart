@@ -134,60 +134,72 @@ class StoreFrontPage extends GetView<StoreFrontController> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(
-                              Icons.copy,
-                              color: AppColors.textPrimaryColor,
-                              size: 18,
-                            ),
-                            label: const Text(
-                              'Copy',
-                              style: TextStyle(
-                                color: AppColors.textPrimaryColor,
-                                fontWeight: FontWeight.bold,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3FAF6),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {},
+                              borderRadius: const BorderRadius.horizontal(
+                                left: Radius.circular(30),
+                                right: Radius.circular(30),
                               ),
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              side: const BorderSide(
-                                  color: AppColors.filledBorderIColor),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 14),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.copy,
+                                      color: Colors.black87,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Copy',
+                                      style: TextStyle(
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {},
-                            icon: const Icon(
-                              Icons.share_outlined,
-                              color: Colors.white,
-                              size: 18,
-                            ),
-                            label: const Text(
-                              'Share',
-                              style: TextStyle(
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () {},
+                              icon: const Icon(
+                                Icons.share_outlined,
                                 color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                                size: 20,
                               ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryColor,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                              label: const Text(
+                                'Share',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
                               ),
-                              elevation: 0,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryColor,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                elevation: 0,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 16),
                     RichText(
@@ -331,7 +343,9 @@ class StoreFrontPage extends GetView<StoreFrontController> {
               ),
               const SizedBox(height: 12),
               const Text(
-                'Guardrail: Your discount cannot exceed our base. Markups capped to\nprevent predatory pricing.',
+                'Guardrail: Your discount cannot exceed our base. Markups capped to prevent predatory pricing.',
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
                 style: TextStyle(
                   color: AppColors.textPrimaryColor2,
                   fontSize: 10,

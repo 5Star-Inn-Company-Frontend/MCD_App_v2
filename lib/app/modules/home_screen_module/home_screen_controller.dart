@@ -11,6 +11,7 @@ import 'package:mcd/core/mixins/service_availability_mixin.dart';
 import 'package:mcd/core/services/notification_permission_service.dart';
 import 'package:mcd/core/services/dashboard_service.dart';
 import 'package:mcd/core/services/deep_link_service.dart';
+import 'package:mcd/core/services/dialog_manager_service.dart';
 
 import '../../../core/network/dio_api_service.dart';
 // import 'package:mcd/core/services/ads_service.dart';
@@ -73,6 +74,19 @@ class HomeScreenController extends GetxController
       ]);
 
       _loadServiceData();
+      
+      // TODO: Replace this placeholder with the actual marketing dialog condition
+      DialogManagerService.to.addDialog(
+        DialogRequest(
+          priority: DialogPriority.marketing,
+          showDialog: () async {
+            if (Get.context != null) {
+              await _showMarketingPlaceholderDialog();
+            }
+          },
+        ),
+      );
+      
     } finally {
       try {
         Get.find<LoginScreenController>().dismissLoadingDialog();
@@ -80,6 +94,17 @@ class HomeScreenController extends GetxController
         dev.log('Unable to dismiss login loader: $e', name: 'HomeScreen');
       }
     }
+  }
+
+  Future<void> _showMarketingPlaceholderDialog() async {
+    await Get.defaultDialog(
+      title: 'Special Offer!',
+      middleText: 'This is a placeholder for the new marketing dialog.',
+      textConfirm: 'Got it',
+      buttonColor: AppColors.primaryColor,
+      confirmTextColor: Colors.white,
+      onConfirm: () => Get.back(),
+    );
   }
 
   void updateActionButtons(Map<String, dynamic> services) {
@@ -192,15 +217,26 @@ class HomeScreenController extends GetxController
         dashboardData?.news != null &&
         dashboardData!.news.isNotEmpty) {
       await box.write('show_news_dialog', false);
-      _showNewsDialog(dashboardData!.news);
+      
+      DialogManagerService.to.addDialog(
+        DialogRequest(
+          priority: DialogPriority.news,
+          showDialog: () async {
+            if (Get.context != null) {
+              await _showNewsDialog(dashboardData!.news);
+            }
+          },
+        ),
+      );
+      
       dev.log("news ${dashboardData?.news}");
     }
   }
 
-  void _showNewsDialog(String news) {
+  Future<void> _showNewsDialog(String news) async {
     if (Get.context == null) return;
 
-    Get.dialog(Center(
+    await Get.dialog(Center(
       child: Material(
         color: Colors.transparent,
         child: Container(
@@ -463,7 +499,14 @@ class HomeScreenController extends GetxController
         dev.log('Network verification failed: ${failure.message}',
             name: 'HomeScreen');
         // Show dialog without network info
-        _showClipboardPhoneDialog(phoneNumber, 'Unknown', {});
+        DialogManagerService.to.addDialog(
+          DialogRequest(
+            priority: DialogPriority.clipboard,
+            showDialog: () async {
+              await _showClipboardPhoneDialog(phoneNumber, 'Unknown', {});
+            },
+          ),
+        );
       },
       (data) {
         if (data['success'] == 1) {
@@ -471,7 +514,14 @@ class HomeScreenController extends GetxController
               data['data']?['operatorName'] ?? 'Unknown Network';
           final networkData = data['data'] ?? {};
           dev.log('Network verified: $networkName', name: 'HomeScreen');
-          _showClipboardPhoneDialog(phoneNumber, networkName, networkData);
+          DialogManagerService.to.addDialog(
+            DialogRequest(
+              priority: DialogPriority.clipboard,
+              showDialog: () async {
+                await _showClipboardPhoneDialog(phoneNumber, networkName, networkData);
+              },
+            ),
+          );
         } else {
           // Show dialog without network info
           // _showClipboardPhoneDialog(phoneNumber, 'Unknown', {});
@@ -481,9 +531,9 @@ class HomeScreenController extends GetxController
   }
 
   /// Show dialog when phone number is detected in clipboard
-  void _showClipboardPhoneDialog(String phoneNumber, String networkName,
-      Map<String, dynamic> networkData) {
-    Get.defaultDialog(
+  Future<void> _showClipboardPhoneDialog(String phoneNumber, String networkName,
+      Map<String, dynamic> networkData) async {
+    await Get.defaultDialog(
       backgroundColor: Colors.white,
       title: '',
       barrierDismissible: true,

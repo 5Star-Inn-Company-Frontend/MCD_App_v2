@@ -11,6 +11,7 @@ import connectivity_plus
 import device_info_plus
 import facebook_auth_desktop
 import file_picker_darwin
+import file_picker
 import file_selector_macos
 import firebase_auth
 import firebase_core
@@ -18,8 +19,8 @@ import firebase_messaging
 import flutter_inappwebview_macos
 import flutter_secure_storage_darwin
 import gal
-import geocoding_darwin
 import geolocator_apple
+import geocoding_darwin
 import google_sign_in_ios
 import local_auth_darwin
 import package_info_plus
@@ -45,8 +46,8 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   InAppWebViewFlutterPlugin.register(with: registry.registrar(forPlugin: "InAppWebViewFlutterPlugin"))
   FlutterSecureStorageDarwinPlugin.register(with: registry.registrar(forPlugin: "FlutterSecureStorageDarwinPlugin"))
   GalPlugin.register(with: registry.registrar(forPlugin: "GalPlugin"))
-  GeocodingDarwinPlugin.register(with: registry.registrar(forPlugin: "GeocodingDarwinPlugin"))
   GeolocatorPlugin.register(with: registry.registrar(forPlugin: "GeolocatorPlugin"))
+  GeocodingDarwinPlugin.register(with: registry.registrar(forPlugin: "GeocodingDarwinPlugin"))
   FLTGoogleSignInPlugin.register(with: registry.registrar(forPlugin: "FLTGoogleSignInPlugin"))
   LocalAuthPlugin.register(with: registry.registrar(forPlugin: "LocalAuthPlugin"))
   FPPPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FPPPackageInfoPlusPlugin"))
