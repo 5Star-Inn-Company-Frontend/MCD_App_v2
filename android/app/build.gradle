@@ -14,7 +14,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "a5starcompany.com.megacheapdata"
-    compileSdk = 37
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -24,6 +24,10 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+    }
+
+    aaptOptions {
+        noCompress "tflite", "pb", "binarypb", "emd", "tfl", "obj", "dat", "list", "bincfg", "conv_model", "lstm_model"
     }
 
     defaultConfig {
