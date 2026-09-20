@@ -68,32 +68,29 @@ class HomeScreenController extends GetxController
 
   Future<void> _bootstrapAfterLogin() async {
     try {
-      await Future.wait([
-        fetchDashboard(force: true),
-        fetchGMBalance(),
-      ]);
-
-      _loadServiceData();
-      
-      // TODO: Replace this placeholder with the actual marketing dialog condition
-      DialogManagerService.to.addDialog(
-        DialogRequest(
-          priority: DialogPriority.marketing,
-          showDialog: () async {
-            if (Get.context != null) {
-              await _showMarketingPlaceholderDialog();
-            }
-          },
-        ),
-      );
-      
-    } finally {
-      try {
-        Get.find<LoginScreenController>().dismissLoadingDialog();
-      } catch (e) {
-        dev.log('Unable to dismiss login loader: $e', name: 'HomeScreen');
-      }
+      Get.find<LoginScreenController>().dismissLoadingDialog();
+    } catch (e) {
+      dev.log('Unable to dismiss login loader: $e', name: 'HomeScreen');
     }
+
+    await Future.wait([
+      fetchDashboard(force: true),
+      fetchGMBalance(),
+    ]);
+
+    _loadServiceData();
+    
+    // TODO: Replace this placeholder with the actual marketing dialog condition
+    DialogManagerService.to.addDialog(
+      DialogRequest(
+        priority: DialogPriority.marketing,
+        showDialog: () async {
+          if (Get.context != null) {
+            await _showMarketingPlaceholderDialog();
+          }
+        },
+      ),
+    );
   }
 
   Future<void> _showMarketingPlaceholderDialog() async {
