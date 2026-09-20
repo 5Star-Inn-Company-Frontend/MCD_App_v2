@@ -4,6 +4,7 @@ import 'package:app_links/app_links.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/routes/app_pages.dart';
+import 'package:mcd/app/modules/giveaway_module/giveaway_module_controller.dart';
 
 class DeepLinkService extends GetxService {
   static late DeepLinkService to;
@@ -11,7 +12,7 @@ class DeepLinkService extends GetxService {
   StreamSubscription<Uri>? _linkSubscription;
   final _box = GetStorage();
 
-  static const String deepLinkDomain = 'mcd.5starcompany.com.ng';
+  static const String deepLinkDomain = 'megacheapdata.5starcompany.com.ng';
   static const String claimPath = '/giveaway/claim';
   static const String _pendingIdKey = 'pending_deeplink_giveaway_id';
   static const String _pendingRouteKey = 'pending_deeplink_route';
@@ -136,7 +137,12 @@ class DeepLinkService extends GetxService {
       dev.log('navigating to giveaway module: $id', name: 'DeepLink');
       final args = {'id': id, 'giveaway_id': id};
       if (currentRoute == Routes.GIVEAWAY_MODULE) {
-        Get.offNamed(Routes.GIVEAWAY_MODULE, arguments: args);
+        try {
+          final controller = Get.find<GiveawayModuleController>();
+          controller.handleDirectDeepLink(id);
+        } catch (e) {
+          Get.offNamed(Routes.GIVEAWAY_MODULE, arguments: args);
+        }
       } else {
         Get.toNamed(Routes.GIVEAWAY_MODULE, arguments: args);
       }
@@ -169,10 +175,22 @@ class DeepLinkService extends GetxService {
 
     final String currentRoute = Get.currentRoute;
     if (currentRoute == targetRoute) {
-      Get.offNamed(targetRoute, arguments: {
-        'id': pendingId,
-        'giveaway_id': pendingId,
-      });
+      if (targetRoute == Routes.GIVEAWAY_MODULE) {
+        try {
+          final controller = Get.find<GiveawayModuleController>();
+          controller.handleDirectDeepLink(pendingId);
+        } catch (e) {
+          Get.offNamed(targetRoute, arguments: {
+            'id': pendingId,
+            'giveaway_id': pendingId,
+          });
+        }
+      } else {
+        Get.offNamed(targetRoute, arguments: {
+          'id': pendingId,
+          'giveaway_id': pendingId,
+        });
+      }
     } else {
       Get.toNamed(targetRoute, arguments: {
         'id': pendingId,

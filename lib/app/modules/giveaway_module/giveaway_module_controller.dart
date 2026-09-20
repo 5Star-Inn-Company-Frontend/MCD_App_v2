@@ -129,6 +129,11 @@ class GiveawayModuleController extends GetxController {
     _handleDeepLinkArguments();
   }
 
+  void handleDirectDeepLink(int id) {
+    dev.log('Handling direct deep link: $id', name: 'GiveawayModule');
+    openGiveawayById(id);
+  }
+
   @override
   void onReady() {
     super.onReady();
@@ -145,6 +150,22 @@ class GiveawayModuleController extends GetxController {
     dev.log('giveaway module received args: $args', name: 'GiveawayModule');
   }
 
+  void openGiveawayById(int id) {
+    if (id == 0) return;
+
+    // If a sheet is already open, close it first to avoid overlays
+    if (Get.isBottomSheetOpen ?? false) {
+      Get.back();
+    }
+
+    dev.log('Opening detail sheet for ID: $id', name: 'GiveawayModule');
+    Get.bottomSheet(
+      GiveawayDetailSheet(giveawayId: id, controller: this),
+      isScrollControlled: true,
+      ignoreSafeArea: false,
+    );
+  }
+
   void _openDeepLinkSheetIfNeeded() {
     final args = Get.arguments as Map<String, dynamic>?;
     if (args == null || args['id'] == null) return;
@@ -152,17 +173,8 @@ class GiveawayModuleController extends GetxController {
     final giveawayId = args['id'] is int
         ? args['id']
         : int.tryParse(args['id'].toString()) ?? 0;
-    if (giveawayId == 0) return;
-
-    dev.log('opening detail sheet for deep link: $giveawayId',
-        name: 'GiveawayModule');
-
-    // import is in controller already via widgets/giveaway_detail_sheet.dart
-    Get.bottomSheet(
-      GiveawayDetailSheet(giveawayId: giveawayId, controller: this),
-      isScrollControlled: true,
-      ignoreSafeArea: false,
-    );
+    
+    openGiveawayById(giveawayId);
   }
 
   @override

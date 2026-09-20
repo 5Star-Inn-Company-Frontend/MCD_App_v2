@@ -58,7 +58,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="mcd.5starcompany.com.ng" android:pathPrefix="/giveaway/claim" />
+                <data android:scheme="https" android:host="megacheapdata.5starcompany.com.ng" android:pathPrefix="/giveaway/claim" />
             </intent-filter>
         </activity>
 

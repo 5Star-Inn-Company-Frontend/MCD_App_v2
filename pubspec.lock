@@ -1066,13 +1066,13 @@ packages:
     source: hosted
     version: "0.16.0"
   google_mobile_ads:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: google_mobile_ads
-      sha256: "6029f6c48bc9b6b47767ddbb4847683048a2f006d418c871bd93c5eb6a8e5c3c"
+      sha256: "50549f6c945d7a445d53c04f34d025b1a1723fbd02719de9e67de432e2597f40"
       url: "https://pub.dev"
     source: hosted
-    version: "9.0.0"
+    version: "8.0.0"
   google_sign_in:
     dependency: "direct main"
     description:
@@ -2078,6 +2078,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  unity_ads_plugin:
+    dependency: transitive
+    description:
+      name: unity_ads_plugin
+      sha256: "850192b0a696efdc03e7edd907770fa3bb722fa0c3649f5ed1d6e500577e10a8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
   universal_io:
     dependency: transitive
     description:

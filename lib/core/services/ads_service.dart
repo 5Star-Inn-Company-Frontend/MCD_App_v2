@@ -154,19 +154,6 @@ class AdsService {
     }
   }
 
-  void showBannerAd({String type = 'banner'}) {
-    if (!_isInitialized) {
-      dev.log('Error: Ads not initialized');
-      return;
-    }
-
-    try {
-      _advertPlugin.adsProv.showBannerAd(type: type);
-      dev.log('Banner ad shown: $type');
-    } catch (e) {
-      dev.log('Error showing banner ad: $e');
-    }
-  }
 
   Widget showBannerAdWidget({String type = 'banner'}) {
     if (!_isInitialized) {
@@ -177,6 +164,37 @@ class AdsService {
     try {
       dev.log('Requesting banner ad: $type');
       return _advertPlugin.adsProv.showBannerAd(type: type);
+    } catch (e) {
+      dev.log('Error showing banner ad: $e');
+    }
+
+    return const SizedBox.shrink();
+  }
+  Widget showLowBannerAdWidget({String type = 'banner'}) {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return const SizedBox.shrink();
+    }
+
+    try {
+      dev.log('Requesting banner ad: $type');
+      return _advertPlugin.adsProv.showLowBannerAd(type: type);
+    } catch (e) {
+      dev.log('Error showing banner ad: $e');
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget showHighBannerAdWidget({String type = 'banner'}) {
+    if (!_isInitialized) {
+      dev.log('Error: Ads not initialized');
+      return const SizedBox.shrink();
+    }
+
+    try {
+      dev.log('Requesting banner ad: $type');
+      return _advertPlugin.adsProv.showHighBannerAd(type: type);
     } catch (e) {
       dev.log('Error showing banner ad: $e');
     }
