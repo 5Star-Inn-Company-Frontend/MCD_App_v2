@@ -2078,14 +2078,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
-  unity_ads_plugin:
-    dependency: transitive
-    description:
-      name: unity_ads_plugin
-      sha256: "850192b0a696efdc03e7edd907770fa3bb722fa0c3649f5ed1d6e500577e10a8"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.0"
   universal_io:
     dependency: transitive
     description:

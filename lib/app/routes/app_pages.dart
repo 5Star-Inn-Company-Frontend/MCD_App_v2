@@ -171,6 +171,8 @@ import 'package:mcd/app/modules/account_info_module/account_info_module_bindings
 import 'package:mcd/app/modules/account_info_module/account_info_module_page.dart';
 import 'package:mcd/app/modules/more_module/more_module_bindings.dart';
 import 'package:mcd/app/modules/more_module/more_module_page.dart';
+import 'package:mcd/app/modules/all_service_module/all_service_module_bindings.dart';
+import 'package:mcd/app/modules/all_service_module/all_service_module_page.dart';
 import 'package:mcd/app/modules/reset_password_module/change_reset_pwd_screen.dart';
 import 'package:mcd/app/modules/reset_password_module/verify_reset_pwd_otp_screeen.dart';
 import 'package:mcd/app/modules/settings_module/settings_module_bindings.dart';
@@ -306,8 +308,13 @@ abstract class AppPages {
     ),
     GetPage(
       name: Routes.MORE_MODULE,
-      page: () => MoreModulePage(),
+      page: () => const MoreModulePage(),
       binding: MoreModuleBindings(),
+    ),
+    GetPage(
+      name: Routes.ALL_SERVICE_MODULE,
+      page: () => const AllServiceModulePage(),
+      binding: AllServiceModuleBindings(),
     ),
     GetPage(
       name: Routes.AIRTIME_MODULE,

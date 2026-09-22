@@ -12,6 +12,7 @@ import 'package:mcd/core/services/notification_permission_service.dart';
 import 'package:mcd/core/services/dashboard_service.dart';
 import 'package:mcd/core/services/deep_link_service.dart';
 import 'package:mcd/core/services/dialog_manager_service.dart';
+import 'package:mcd/core/services/usage_tracker_service.dart';
 
 import '../../../core/network/dio_api_service.dart';
 // import 'package:mcd/core/services/ads_service.dart';
@@ -81,28 +82,28 @@ class HomeScreenController extends GetxController
     _loadServiceData();
     
     // TODO: Replace this placeholder with the actual marketing dialog condition
-    DialogManagerService.to.addDialog(
-      DialogRequest(
-        priority: DialogPriority.marketing,
-        showDialog: () async {
-          if (Get.context != null) {
-            await _showMarketingPlaceholderDialog();
-          }
-        },
-      ),
-    );
+    // DialogManagerService.to.addDialog(
+    //   DialogRequest(
+    //     priority: DialogPriority.marketing,
+    //     showDialog: () async {
+    //       if (Get.context != null) {
+    //         await _showMarketingPlaceholderDialog();
+    //       }
+    //     },
+    //   ),
+    // );
   }
 
-  Future<void> _showMarketingPlaceholderDialog() async {
-    await Get.defaultDialog(
-      title: 'Special Offer!',
-      middleText: 'This is a placeholder for the new marketing dialog.',
-      textConfirm: 'Got it',
-      buttonColor: AppColors.primaryColor,
-      confirmTextColor: Colors.white,
-      onConfirm: () => Get.back(),
-    );
-  }
+  // Future<void> _showMarketingPlaceholderDialog() async {
+  //   await Get.defaultDialog(
+  //     title: 'Special Offer!',
+  //     middleText: 'This is a placeholder for the new marketing dialog.',
+  //     textConfirm: 'Got it',
+  //     buttonColor: AppColors.primaryColor,
+  //     confirmTextColor: Colors.white,
+  //     onConfirm: () => Get.back(),
+  //   );
+  // }
 
   void updateActionButtons(Map<String, dynamic> services) {
     // maps button service key -> services map key
@@ -168,9 +169,23 @@ class HomeScreenController extends GetxController
     ];
 
     final filtered = allButtons.where((b) => isEnabled(b.text)).toList();
-    dev.log('Service buttons: ${filtered.map((b) => b.text).join(', ')}',
+    
+    final tracker = UsageTrackerService.to;
+    filtered.sort((a, b) {
+      final usageA = tracker.getUsage(a.text);
+      final usageB = tracker.getUsage(b.text);
+      return usageB.compareTo(usageA);
+    });
+
+    final top4 = filtered.take(4).toList();
+    top4.add(ButtonModel(
+        icon: 'assets/icons/home/more.svg',
+        text: "More",
+        link: Routes.MORE_MODULE));
+
+    dev.log('Service buttons: ${top4.map((b) => b.text).join(', ')}',
         name: 'HomeScreen');
-    actionButtonz.assignAll(filtered);
+    actionButtonz.assignAll(top4);
   }
 
   @override
@@ -413,6 +428,8 @@ class HomeScreenController extends GetxController
 
   /// Handle service button tap with availability check
   Future<bool> handleServiceNavigation(ButtonModel button) async {
+    UsageTrackerService.to.incrementUsage(button.text);
+    
     final serviceKey = getServiceKey(button.text, button.link);
 
     // If no service key mapping, allow navigation (e.g., Mega Bulk Service)
