@@ -3,14 +3,17 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:marquee/marquee.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
+import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import '../../../core/import/imports.dart';
 import '../../utils/bottom_navigation.dart';
 import '../../widgets/app_bar.dart';
+import 'package:mcd/core/services/leaderboard_service.dart';
+import 'package:mcd/app/modules/leaderboard_module/models/leaderboard_model.dart';
+import 'package:flutter_animate/flutter_animate.dart' hide ShimmerEffect;
 
 /**
  * GetX Template Generator - fb.com/htngu.99
@@ -41,9 +44,7 @@ class HomeScreenPage extends StatelessWidget {
                             Get.toNamed(Routes.QRCODE_MODULE);
                           },
                           child: SvgPicture.asset(
-                            'assets/icons/bx_scan.svg',
-                            colorFilter: const ColorFilter.mode(
-                                Colors.black, BlendMode.srcIn),
+                            'assets/icons/home/qr-code.svg',
                           ))),
                   const Gap(10),
                   TouchableOpacity(
@@ -51,7 +52,7 @@ class HomeScreenPage extends StatelessWidget {
                           onTap: () {
                             Get.toNamed(Routes.NOTIFICATION_MODULE);
                           },
-                          child: SvgPicture.asset(AppAsset.notificationIicon))),
+                          child: SvgPicture.asset('assets/icons/home/alarm-icon.svg'))),
                   const Gap(12)
                 ],
               ),
@@ -63,86 +64,16 @@ class HomeScreenPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: Obx(() => Skeletonizer(
                         enabled: controller.isLoading,
+                        effect: ShimmerEffect(
+                          baseColor: AppColors.primaryColor.withOpacity(0.1),
+                          highlightColor: AppColors.primaryColor.withOpacity(0.05),
+                        ),
                         child: ListView(
                           children: [
-                            const Gap(10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Get.toNamed(Routes.MORE_MODULE,
-                                        arguments: {'initialTab': 1});
-                                  },
-                                  child: Container(
-                                    width: screenWidth(context) * 0.4,
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8, horizontal: 5),
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: AppColors.primaryGrey2),
-                                        borderRadius: BorderRadius.circular(6)),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        TextSemiBold(
-                                          controller
-                                                      .dashboardData
-                                                      ?.user
-                                                      .referralPlan
-                                                      .isNotEmpty ==
-                                                  true
-                                              ? controller.dashboardData!.user
-                                                  .referralPlan
-                                                  .toUpperCase()
-                                              : "FREE",
-                                          fontSize: 14,
-                                          color: AppColors.background
-                                              .withOpacity(0.7),
-                                        ),
-                                        const Icon(
-                                            Icons.arrow_forward_ios_outlined)
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
                             const Gap(20),
                             _buildWalletCard(controller, context),
-                            const Gap(15),
-                            SizedBox(
-                              height: screenHeight(context) * 0.03,
-                              child: Marquee(
-                                text: controller.dashboardData?.cleanNews ??
-                                    'Welcome to Mega Cheap Data',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 14,
-                                    fontFamily: AppFonts.manRope),
-                                scrollAxis: Axis.horizontal,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                blankSpace: 50.0,
-                                velocity: 50.0,
-                                pauseAfterRound: const Duration(seconds: 1),
-                                startPadding: 10.0,
-                                accelerationDuration:
-                                    const Duration(seconds: 1),
-                                accelerationCurve: Curves.linear,
-                                decelerationDuration:
-                                    const Duration(milliseconds: 500),
-                                decelerationCurve: Curves.easeOut,
-                              ),
-                            ),
-                            const Divider(
-                              color: AppColors.boxColor,
-                            ),
-                            const Gap(10),
+                            const Gap(20),
                             _buildQuickActionsRow(controller, context),
-                            const Divider(
-                              color: AppColors.boxColor,
-                            ),
                             const Gap(20),
                             _buildStaticCarousel(context),
                             const Gap(20),
@@ -642,13 +573,27 @@ class HomeScreenPage extends StatelessWidget {
       ],
     );
   }
+  String _getTimeAgo(DateTime time) {
+    final diff = DateTime.now().difference(time);
+    if (diff.inSeconds < 60) {
+      return "${diff.inSeconds} sec${diff.inSeconds == 1 ? '' : 's'} ago";
+    } else if (diff.inMinutes < 60) {
+      return "${diff.inMinutes} min${diff.inMinutes == 1 ? '' : 's'} ago";
+    } else if (diff.inHours < 24) {
+      return "${diff.inHours} hr${diff.inHours == 1 ? '' : 's'} ago";
+    } else {
+      return "${diff.inDays} day${diff.inDays == 1 ? '' : 's'} ago";
+    }
+  }
 
-  Widget _buildWalletCard(HomeScreenController controller, BuildContext context) {
+  Widget _buildWalletCard(
+      HomeScreenController controller, BuildContext context) {
     final accs = controller.dashboardData?.virtualAccounts;
     String accountText = "Loading...";
     if (accs != null) {
       if (accs.hasPrimary) {
-        accountText = "${accs.primaryAccountNumber} | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}";
+        accountText =
+            "${accs.primaryAccountNumber} | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}";
       } else {
         accountText = "No Virtual Account";
       }
@@ -656,110 +601,264 @@ class HomeScreenPage extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: AppColors.primaryColor,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  accountText,
-                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500, fontFamily: AppFonts.manRope),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                   if (accs?.hasPrimary ?? false) {
-                     Clipboard.setData(ClipboardData(text: accs!.primaryAccountNumber));
-                     Get.snackbar('Copied', 'Account number copied to clipboard', backgroundColor: AppColors.primaryColor, colorText: Colors.white);
-                   }
-                },
-                child: const Icon(Icons.copy, color: Colors.white, size: 16),
-              )
-            ],
-          ),
-          const Gap(20),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                controller.isBalanceVisible.value ? '₦ ' : '',
-                style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w700, fontFamily: AppFonts.manRope),
-              ),
-              Text(
-                controller.isBalanceVisible.value 
-                  ? AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.wallet ?? '0') ?? 0)
-                  : '****',
-                style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w700, fontFamily: AppFonts.manRope),
-              ),
-              const Gap(10),
-              GestureDetector(
-                onTap: () => controller.toggleBalanceVisibility(),
-                child: Icon(
-                  controller.isBalanceVisible.value ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-            ],
-          ),
-          const Gap(5),
-          const Text(
-            "Last Updated 2 Sec ago",
-            style: TextStyle(color: Colors.white70, fontSize: 10, fontFamily: AppFonts.manRope),
-          ),
-          const Gap(20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _walletActionButton(icon: Icons.add, text: 'Add money', onTap: () {
-                Get.toNamed(Routes.ADD_MONEY_MODULE, arguments: {'dashboardData': controller.dashboardData});
-              }),
-              _walletActionButton(svgIcon: 'assets/icons/home/history.svg', text: 'History', onTap: () {
-                Get.offAllNamed(Routes.HISTORY_SCREEN);
-              }),
-              _walletActionButton(svgIcon: 'assets/icons/home/wallet.svg', text: 'Wallets', onTap: () {
-                _showWalletsBottomSheet(context, controller);
-              }),
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _walletActionButton({IconData? icon, String? svgIcon, required String text, required VoidCallback onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
           children: [
-            if (icon != null) Icon(icon, color: Colors.white, size: 16),
-            if (svgIcon != null) SvgPicture.asset(svgIcon, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn), height: 16),
-            const Gap(6),
-            Text(text, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500, fontFamily: AppFonts.manRope)),
+            Positioned(
+              top: -20,
+              right: 60,
+              bottom: -50,
+              child: Transform.rotate(
+                angle: 0.4,
+                child: Container(
+                  width: 35,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.white.withOpacity(0.12), Colors.white.withOpacity(0.02)],
+                      stops: const [0.0, 0.7],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: -20,
+              right: 120,
+              bottom: -50,
+              child: Transform.rotate(
+                angle: 0.4,
+                child: Container(
+                  width: 35,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.white.withOpacity(0.12), Colors.white.withOpacity(0.02)],
+                      stops: const [0.0, 0.7],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      if (accs?.hasPrimary ?? false) {
+                        Clipboard.setData(
+                            ClipboardData(text: accs!.primaryAccountNumber));
+                        Get.snackbar('Copied', 'Account number copied to clipboard',
+                            backgroundColor: AppColors.primaryColor,
+                            colorText: Colors.white);
+                      }
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            accountText,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: AppFonts.manRope),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                          ),
+                        ),
+                        const Gap(8),
+                        Skeleton.ignore(
+                          child: SvgPicture.asset(
+                            'assets/icons/home/copy-icon.svg',
+                            width: 16,
+                            height: 16,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  const Gap(20),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        controller.isBalanceVisible.value ? '₦ ' : '',
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: AppFonts.manRope),
+                      ),
+                      controller.isBalanceVisible.value
+                          ? Text(
+                              AmountUtil.formatFigure(double.tryParse(
+                                      controller.dashboardData?.balance.wallet ??
+                                          '0') ??
+                                  0),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: AppFonts.manRope),
+                            )
+                          : const Text(
+                              '****',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: AppFonts.manRope),
+                            ),
+                      const Gap(10),
+                      GestureDetector(
+                        onTap: () => controller.toggleBalanceVisibility(),
+                        child: Icon(
+                          controller.isBalanceVisible.value
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Gap(5),
+                  Skeleton.ignore(
+                    child: StreamBuilder(
+                      stream: Stream.periodic(const Duration(seconds: 1)),
+                      builder: (context, snapshot) {
+                        return Obx(() {
+                          final time = controller.lastUpdated.value;
+                          return Text(
+                            "Last Updated: ${_getTimeAgo(time)}",
+                            style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 10,
+                                fontFamily: AppFonts.manRope),
+                          );
+                        });
+                      },
+                    ),
+                  ),
+                  const Gap(20),
+                  Row(
+                    children: [
+                      _walletActionButton(
+                          icon: Icons.add,
+                          text: 'Add money',
+                          onTap: () {
+                            Get.toNamed(Routes.ADD_MONEY_MODULE,
+                                arguments: {'dashboardData': controller.dashboardData});
+                          }),
+                      const Gap(12),
+                      _walletActionButton(
+                          svgIcon: 'assets/icons/home/history.svg',
+                          text: 'History',
+                          onTap: () {
+                            Get.offAllNamed(Routes.HISTORY_SCREEN);
+                          }),
+                      const Spacer(),
+                      _walletActionButton(
+                          svgIcon: 'assets/icons/home/wallet.svg',
+                          text: 'Wallets',
+                          onTap: () {
+                            _showWalletsBottomSheet(context, controller);
+                          }),
+                    ],
+                  )
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildQuickActionsRow(HomeScreenController controller, BuildContext context) {
+  Widget _walletActionButton(
+      {IconData? icon,
+      String? svgIcon,
+      required String text,
+      required VoidCallback onTap}) {
+    return Skeleton.ignore(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF6EC38C),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            children: [
+              if (icon != null) Icon(icon, color: Colors.white, size: 16),
+              if (svgIcon != null)
+                SvgPicture.asset(svgIcon,
+                    colorFilter:
+                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                    height: 16),
+              const Gap(6),
+              Text(text,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: AppFonts.manRope)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickActionsRow(
+      HomeScreenController controller, BuildContext context) {
     if (controller.isLoading && controller.actionButtonz.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: List.generate(
+              5,
+              (index) => Container(
+                    width: 66,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const Gap(8),
+                        const Text("...", style: TextStyle(fontSize: 12)),
+                      ],
+                    ),
+                  )),
+        ),
+      );
     }
 
     return Padding(
@@ -767,76 +866,74 @@ class HomeScreenPage extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: controller.actionButtonz.map((button) {
+        children: controller.actionButtonz.asMap().entries.map((entry) {
+          final index = entry.key;
+          final button = entry.value;
           final serviceKey = controller.getServiceKey(button.text, button.link);
-          final isAvailable = serviceKey.isEmpty || controller.isServiceAvailable(serviceKey);
+          final isAvailable =
+              serviceKey.isEmpty || controller.isServiceAvailable(serviceKey);
 
-          return Opacity(
-            opacity: isAvailable ? 1.0 : 0.5,
-            child: GestureDetector(
-              onTap: () async {
-                final isAvailable = await controller.handleServiceNavigation(button);
-                if (!isAvailable) return;
+          return _BouncingQuickActionButton(
+            button: button,
+            isAvailable: isAvailable,
+            onTap: () async {
+              final isAvailable =
+                  await controller.handleServiceNavigation(button);
+              if (!isAvailable) return;
 
-                if (!context.mounted) return;
+              if (!context.mounted) return;
 
-                if (button.link == Routes.RESULT_CHECKER_MODULE) {
-                  _showResultCheckerOptions(context, controller);
-                } else if (button.link == "epin") {
-                  _showEpinOptionsBottomSheet(context, controller);
-                } else if (button.link == Routes.AIRTIME_MODULE) {
-                  _showAirtimeSelectionBottomSheet(context, controller);
-                } else if (button.link == Routes.DATA_MODULE) {
-                  _showDataSelectionBottomSheet(context, controller);
-                } else if (button.link.isNotEmpty) {
-                  Get.toNamed(button.link);
-                }
-              },
-              child: SizedBox(
-                width: 60,
-                child: Column(
-                  children: [
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: const Color(0xffF3FFF7),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Center(
-                        child: SvgPicture.asset(
-                          button.icon,
-                          width: 24,
-                          height: 24,
-                          colorFilter: const ColorFilter.mode(AppColors.primaryColor2, BlendMode.srcIn),
-                        ),
-                      ),
-                    ),
-                    const Gap(8),
-                    Text(
-                      button.text,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.primaryColor2,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: AppFonts.manRope,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
+              if (button.link == Routes.RESULT_CHECKER_MODULE) {
+                _showResultCheckerOptions(context, controller);
+              } else if (button.link == "epin") {
+                _showEpinOptionsBottomSheet(context, controller);
+              } else if (button.link == Routes.AIRTIME_MODULE) {
+                _showAirtimeSelectionBottomSheet(context, controller);
+              } else if (button.link == Routes.DATA_MODULE) {
+                _showDataSelectionBottomSheet(context, controller);
+              } else if (button.link.isNotEmpty) {
+                Get.toNamed(button.link);
+              }
+            },
+          )
+              .animate(delay: (index * 100).ms)
+              .slideY(begin: 0.2, curve: Curves.easeOutQuad)
+              .fadeIn();
         }).toList(),
       ),
     );
   }
 
-  void _showWalletsBottomSheet(BuildContext context, HomeScreenController controller) {
+  Widget _walletItemWithIcon(String title, String amount, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: AppColors.primaryColor,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: Colors.white, size: 20),
+          ),
+          const Gap(15),
+          Text(title,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, fontFamily: AppFonts.manRope, color: AppColors.background)),
+          const Gap(8),
+          Text(amount,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, fontFamily: AppFonts.manRope, color: Colors.grey)),
+        ],
+      ),
+    );
+  }
+
+  void _showWalletsBottomSheet(
+      BuildContext context, HomeScreenController controller) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       backgroundColor: Colors.white,
       builder: (context) {
         return Container(
@@ -845,12 +942,44 @@ class HomeScreenPage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextSemiBold("Other Wallets", fontSize: 16),
-              const Gap(20),
-              _walletItem("Commission", "₦ ${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.commission ?? '0.00') ?? 0)}"),
-              _walletItem("Points", AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.points ?? '0') ?? 0)),
-              _walletItem("Bonus", "₦ ${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.bonus ?? '0.00') ?? 0)}"),
-              _walletItem("General Market", "₦ ${AmountUtil.formatFigure(double.tryParse(controller.gmBalance ?? '0.00') ?? 0)}"),
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              const Gap(15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 24),
+                  const Text("Account", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, fontFamily: AppFonts.manRope, color: AppColors.background)),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(Icons.close, size: 20, color: Colors.grey),
+                  ),
+                ],
+              ),
+              const Gap(30),
+              _walletItemWithIcon("Commission",
+                  "(₦${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.commission ?? '0.00') ?? 0)})",
+                  Icons.account_balance_wallet_outlined),
+              _walletItemWithIcon(
+                  "Point",
+                  "(${AmountUtil.formatFigure(double.tryParse(
+                          controller.dashboardData?.balance.points ?? '0') ??
+                      0)})",
+                  Icons.adjust),
+              _walletItemWithIcon("Bonus",
+                  "(₦${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.bonus ?? '0.00') ?? 0)})",
+                  Icons.stars_outlined),
+              _walletItemWithIcon("General Market",
+                  "(₦${AmountUtil.formatFigure(double.tryParse(controller.gmBalance) ?? 0)})",
+                  Icons.storefront_outlined),
               const Gap(20),
             ],
           ),
@@ -860,173 +989,530 @@ class HomeScreenPage extends StatelessWidget {
   }
 
   Widget _buildStaticCarousel(BuildContext context) {
-    final items = [
-      {
-        'title': 'Daily Bonus',
-        'subtitle': 'Claim free cash daily',
-        'image': 'assets/images/home_carousel/green-gift.png',
-        'icon': 'assets/icons/home/daily-bonus-icon.svg',
-        'action': () {
-          Get.toNamed('/free_money');
-        }
-      },
-      {
-        'title': 'Mega Sale',
-        'subtitle': 'Get up to 50% off',
-        'image': 'assets/images/home_carousel/mega-sale.png',
-        'icon': 'assets/icons/home/mega-sale-icon.svg',
-        'action': () {
-           
-        }
-      },
-      {
-        'title': 'Refer & Earn',
-        'subtitle': 'Earn when you refer',
-        'image': 'assets/images/home_carousel/refer.png',
-        'icon': 'assets/icons/home/refer-icon.svg',
-        'action': () {
-          Get.toNamed(Routes.REFERRAL_LIST_MODULE);
-        }
-      }
-    ];
+    return const HomePromoCarousel();
+  }
+}
 
-    return SizedBox(
-      height: 130,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-           final item = items[index];
-           return GestureDetector(
-             onTap: item['action'] as VoidCallback,
-             child: Container(
-               width: 280,
-               margin: const EdgeInsets.only(right: 12),
-               decoration: BoxDecoration(
-                 borderRadius: BorderRadius.circular(16),
-                 image: DecorationImage(
-                   image: AssetImage(item['image'] as String),
-                   fit: BoxFit.cover,
-                 ),
-               ),
-               child: Stack(
-                 children: [
-                   Positioned(
-                     left: 16,
-                     top: 0,
-                     bottom: 0,
-                     child: Center(
-                       child: Container(
-                         width: 45,
-                         height: 45,
-                         decoration: const BoxDecoration(
-                           color: AppColors.primaryColor,
-                           shape: BoxShape.circle,
-                         ),
-                         child: Center(
-                           child: SvgPicture.asset(
-                             item['icon'] as String,
-                             colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                             width: 20,
-                           ),
-                         ),
-                       ),
-                     ),
-                   ),
-                 ],
-               ),
-             )
-           );
-        }
-      )
-    );
+class PromoCardModel {
+  final String iconAsset;
+  final String title;
+  final String subtitle1;
+  final String subtitle2;
+  final Color subtitle1Color;
+  final String buttonText;
+  final String imageAsset;
+  final String route;
+
+  PromoCardModel({
+    required this.iconAsset,
+    required this.title,
+    required this.subtitle1,
+    required this.subtitle2,
+    required this.subtitle1Color,
+    required this.buttonText,
+    required this.imageAsset,
+    required this.route,
+  });
+}
+
+
+class HomePromoCarousel extends StatefulWidget {
+  const HomePromoCarousel({super.key});
+
+  @override
+  State<HomePromoCarousel> createState() => _HomePromoCarouselState();
+}
+
+class _HomePromoCarouselState extends State<HomePromoCarousel> {
+  late PageController _pageController;
+  Timer? _timer;
+  int _currentPage = 0;
+  static const _kStartPage = 1000;
+
+  final List<PromoCardModel> items = [
+    PromoCardModel(
+      iconAsset: 'assets/icons/home/daily-bonus-icon.svg',
+      title: 'Daily Bonus',
+      subtitle1: 'Claim ₦750 today',
+      subtitle2: 'Your daily reward is waiting.',
+      subtitle1Color: AppColors.primaryColor,
+      buttonText: 'Claim Now',
+      imageAsset: 'assets/images/home_carousel/green-gift.png',
+      route: '/free_money',
+    ),
+    PromoCardModel(
+      iconAsset: 'assets/icons/home/mega-sale-icon.svg',
+      title: 'Mega Sale',
+      subtitle1: 'Save more on every purchase',
+      subtitle2: '',
+      subtitle1Color: Colors.grey.shade600,
+      buttonText: 'Shop Now',
+      imageAsset: 'assets/images/home_carousel/mega-sale.png',
+      route: Routes.STORE_FRONT,
+    ),
+    PromoCardModel(
+      iconAsset: 'assets/icons/home/refer-icon.svg',
+      title: 'Refer & Earn',
+      subtitle1: 'Earn ₦1,000',
+      subtitle2: 'for every friend',
+      subtitle1Color: AppColors.primaryColor,
+      buttonText: 'Invite Now',
+      imageAsset: 'assets/images/home_carousel/refer.png',
+      route: Routes.REFERRAL_LIST_MODULE,
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _currentPage = _kStartPage;
+    _pageController = PageController(initialPage: _currentPage);
+    _startAutoSlide();
   }
 
-  Widget _buildTopEarners(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Top Earners!",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: AppFonts.manRope,
-                  color: AppColors.background,
+  void _startAutoSlide() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (!mounted) return;
+      _currentPage++;
+      if (_pageController.hasClients) {
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.fastOutSlowIn,
+        );
+      }
+    });
+  }
+
+  void _stopAutoSlide() {
+    _timer?.cancel();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 160,
+          child: GestureDetector(
+            onPanDown: (_) => _stopAutoSlide(),
+            onPanCancel: () => _startAutoSlide(),
+            onPanEnd: (_) => _startAutoSlide(),
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                final actualIndex = index % items.length;
+                return _PromoCarouselItem(item: items[actualIndex]);
+              },
+            ),
+          ),
+        ),
+        const Gap(12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            items.length,
+            (index) {
+              final isActive = (_currentPage % items.length) == index;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                width: 8,
+                height: 8,
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isActive ? AppColors.primaryColor : Colors.grey[300],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PromoCarouselItem extends StatelessWidget {
+  final PromoCardModel item;
+
+  const _PromoCarouselItem({required this.item, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            offset: const Offset(0, 4),
+            blurRadius: 10,
+          )
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          children: [
+            // The light green circular blob on the right
+            Positioned(
+              right: -50,
+              top: -60,
+              bottom: -60,
+              width: 220,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFFE9F8EE),
+                  shape: BoxShape.circle,
                 ),
               ),
-              GestureDetector(
-                onTap: () => Get.toNamed(Routes.LEADERBOARD_MODULE),
-                child: const Text(
-                  "See all",
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: AppFonts.manRope,
-                    color: AppColors.primaryColor,
+            ),
+            // The content
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 10, top: 16, bottom: 16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Circular Icon on the far left
+                  Container(
+                    width: 48,
+                    height: 48,
+                    padding: const EdgeInsets.all(12),
+                    decoration: const BoxDecoration(
+                      color: AppColors.primaryColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: SvgPicture.asset(
+                      item.iconAsset,
+                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                    ),
                   ),
+                  const Gap(12),
+                  // Text and Button Column
+                  Expanded(
+                    flex: 6,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          item.title,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: AppFonts.manRope,
+                            color: Color(0xFF333333),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const Gap(2),
+                        Text(
+                          item.subtitle1,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: AppFonts.manRope,
+                            color: item.subtitle1Color,
+                          ),
+                        ),
+                        if (item.subtitle2.isNotEmpty) ...[
+                          const Gap(2),
+                          Text(
+                            item.subtitle2,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontFamily: AppFonts.manRope,
+                              color: Color(0xFF888888),
+                            ),
+                          ),
+                        ],
+                        const Gap(10),
+                        GestureDetector(
+                          onTap: () {
+                             if (item.route.isNotEmpty) {
+                               Get.toNamed(item.route);
+                             }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryColor,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  item.buttonText,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: AppFonts.manRope,
+                                  ),
+                                ),
+                                const Gap(4),
+                                const Icon(Icons.arrow_forward, color: Colors.white, size: 14),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Image on the far right
+                  Expanded(
+                    flex: 4,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Image.asset(
+                        item.imageAsset,
+                        fit: BoxFit.contain,
+                        height: 200,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+// Note: Removed the extra closing bracket because we close the class above
+}
+
+class _BouncingQuickActionButton extends StatefulWidget {
+  final ButtonModel button;
+  final bool isAvailable;
+  final VoidCallback onTap;
+
+  const _BouncingQuickActionButton({
+    required this.button,
+    required this.isAvailable,
+    required this.onTap,
+  });
+
+  @override
+  State<_BouncingQuickActionButton> createState() =>
+      _BouncingQuickActionButtonState();
+}
+
+class _BouncingQuickActionButtonState
+    extends State<_BouncingQuickActionButton> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: widget.isAvailable ? 1.0 : 0.5,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) {
+          setState(() => _isPressed = false);
+          widget.onTap();
+        },
+        onTapCancel: () => setState(() => _isPressed = false),
+        child: Container(
+          width: 66,
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
+          decoration: BoxDecoration(
+            color: widget.button.text.toLowerCase() == 'more' ? AppColors.primaryColor : Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: widget.button.text.toLowerCase() == 'more' ? null : [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              )
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SvgPicture.asset(
+                widget.button.icon,
+                width: 24,
+                height: 24,
+                colorFilter: ColorFilter.mode(
+                    widget.button.text.toLowerCase() == 'more' ? Colors.white : AppColors.primaryColor, BlendMode.srcIn),
+              ),
+              const Gap(8),
+              Text(
+                widget.button.text,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: widget.button.text.toLowerCase() == 'more' ? Colors.white : AppColors.background,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: AppFonts.manRope,
                 ),
               ),
             ],
           ),
-          const Gap(15),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              _buildTopEarnerAvatar('assets/images/leaderboard/second.png', 2, 70),
-              _buildTopEarnerAvatar('assets/images/leaderboard/first.png', 1, 90),
-              _buildTopEarnerAvatar('assets/images/leaderboard/third.png', 3, 70),
-            ],
-          )
-        ],
+        ).animate(target: _isPressed ? 1 : 0).scale(
+              begin: const Offset(1, 1),
+              end: const Offset(0.9, 0.9),
+              duration: 100.ms,
+              curve: Curves.easeOut,
+            ),
       ),
     );
   }
+}
 
-  Widget _buildTopEarnerAvatar(String imagePath, int rank, double size) {
-    return Column(
+Widget _buildTopEarners(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Leaderboard",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                fontFamily: AppFonts.manRope,
+                color: AppColors.background,
+              ),
+            ),
+            GestureDetector(
+              onTap: () => Get.toNamed(Routes.LEADERBOARD_MODULE),
+              child: const Text(
+                "See all",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: AppFonts.manRope,
+                  color: AppColors.primaryColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const Gap(15),
+        Obx(() {
+          final topThree = LeaderboardService.to.topThree;
+          if (topThree.isEmpty) {
+            return const Center(child: Text("No top earners yet.", style: TextStyle(fontFamily: AppFonts.manRope)));
+          }
+          return Column(
+            children: topThree.asMap().entries.map((entry) {
+              int index = entry.key;
+              LeaderboardUser user = entry.value;
+              String imagePath = index == 0 ? 'assets/images/leaderboard/lead1.png' : 
+                                 index == 1 ? 'assets/images/leaderboard/lead2.png' : 
+                                 'assets/images/leaderboard/lead3.png';
+              return _buildLeaderboardListItem(user, imagePath, index);
+            }).toList(),
+          );
+        }),
+      ],
+    ),
+  );
+}
+
+Widget _buildLeaderboardListItem(LeaderboardUser user, String imagePath, int index) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(24),
+      border: Border.all(color: Colors.grey.shade200, width: 1.0),
+    ),
+    child: Row(
       children: [
         Container(
-          width: size,
-          height: size,
+          width: 45,
+          height: 45,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: rank == 1 ? AppColors.primaryColor : Colors.grey.shade300, width: 3),
             image: DecorationImage(
               image: AssetImage(imagePath),
               fit: BoxFit.cover,
             ),
           ),
         ),
+        const Gap(12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                user.userName,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: AppFonts.manRope,
+                  color: AppColors.background,
+                ),
+              ),
+              // const Gap(2),
+              // Text(
+              //   "₦${AmountUtil.formatFigure((user.pointsValue).toDouble())} volume",
+              //   style: TextStyle(
+              //     fontSize: 13,
+              //     fontWeight: FontWeight.w500,
+              //     fontFamily: AppFonts.manRope,
+              //     color: Colors.grey.shade600,
+              //   ),
+              // ),
+            ],
+          ),
+        ),
+        Text(
+          "${AmountUtil.formatFigure(user.pointsValue.toDouble())} pts",
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            fontFamily: AppFonts.manRope,
+            color: AppColors.primaryColor,
+          ),
+        ),
       ],
-    );
-  }
+    ),
+  ).animate(delay: (index * 100).ms).slideY(begin: 0.2, curve: Curves.easeOutQuad).fadeIn();
+}
 
-  Widget _walletItem(String title, String amount) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: const TextStyle(fontSize: 14, fontFamily: AppFonts.manRope)),
-          TextSemiBold(amount, fontSize: 14, color: AppColors.primaryColor),
-        ],
-      ),
-    );
-  }
+// Widget _walletItem(String title, String amount) {
+//   return Padding(
+//     padding: const EdgeInsets.only(bottom: 16),
+//     child: Row(
+//       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//       children: [
+//         Text(title,
+//             style: const TextStyle(fontSize: 14, fontFamily: AppFonts.manRope)),
+//         TextSemiBold(amount, fontSize: 14, color: AppColors.primaryColor),
+//       ],
+//     ),
+//   );
+// }
 
-  Widget _buildImageSlider(HomeScreenController controller) {
-    return _ImageSliderWidget(
-      images: controller.imageSliders,
-    );
-  }
+Widget _buildImageSlider(HomeScreenController controller) {
+  return _ImageSliderWidget(
+    images: controller.imageSliders,
+  );
 }
 
 class _ImageSliderWidget extends StatefulWidget {

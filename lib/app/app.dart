@@ -40,7 +40,7 @@ class _McdAppState extends State<McdApp> {
         initialRoute: Routes.SPLASH_SCREEN,
         getPages: AppPages.pages,
         theme: lightTheme,
-        defaultTransition: Transition.cupertino,
+        defaultTransition: Transition.rightToLeftWithFade,
         transitionDuration: const Duration(milliseconds: 300),
         builder: (context, child) {
           return PlatformUpdateHandler(

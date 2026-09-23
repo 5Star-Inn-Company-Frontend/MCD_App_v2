@@ -35,6 +35,7 @@ class HomeScreenController extends GetxController
   String get gmBalance => DashboardService.to.gmBalance.value;
 
   final isBalanceVisible = true.obs;
+  final lastUpdated = Rx<DateTime>(DateTime.now());
 
   void toggleBalanceVisibility() {
     isBalanceVisible.value = !isBalanceVisible.value;
@@ -181,7 +182,7 @@ class HomeScreenController extends GetxController
     top4.add(ButtonModel(
         icon: 'assets/icons/home/more.svg',
         text: "More",
-        link: Routes.MORE_MODULE));
+        link: Routes.ALL_SERVICE_MODULE));
 
     dev.log('Service buttons: ${top4.map((b) => b.text).join(', ')}',
         name: 'HomeScreen');
@@ -361,6 +362,7 @@ class HomeScreenController extends GetxController
   }
 
   Future<void> refreshDashboard() async {
+    lastUpdated.value = DateTime.now();
     await Future.wait([
       fetchDashboard(force: true),
       fetchGMBalance(),

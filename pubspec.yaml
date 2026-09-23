@@ -109,6 +109,10 @@ flutter:
     - assets/images/receipts_bg/
     - assets/icons/receipts/
     - assets/icons/storefront/
+    - assets/icons/home/
+    - assets/images/home_carousel/
+    - assets/images/leaderboard/
+
 
   fonts:
     - family: Manrope

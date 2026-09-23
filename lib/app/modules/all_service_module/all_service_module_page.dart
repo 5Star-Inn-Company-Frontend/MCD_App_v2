@@ -1,5 +1,7 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import './all_service_module_controller.dart';
 
 class AllServiceModulePage extends GetView<AllServiceModuleController> {
@@ -8,36 +10,120 @@ class AllServiceModulePage extends GetView<AllServiceModuleController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimaryColor),
-          onPressed: () => Get.back(),
-        ),
-        title: TextBold(
-          'All Service',
-          fontSize: 20,
-          color: AppColors.textPrimaryColor,
-          fontWeight: FontWeight.w700,
-        ),
-        elevation: 0.0,
-        centerTitle: false,
-        backgroundColor: AppColors.white,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: controller.categorizedServices.entries.map((entry) {
-              final categoryName = entry.key;
-              final buttons = entry.value;
-              if (buttons.isEmpty) return const SizedBox.shrink();
+      backgroundColor: const Color(0xffF9F9F9),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Custom Header
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: AppColors.textPrimaryColor),
+                      onPressed: () {
+                        if (controller.isSearchVisible.value) {
+                          controller.searchQuery.value = '';
+                          controller.toggleSearch();
+                        } else {
+                          Get.back();
+                        }
+                      },
+                    ),
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Obx(() => Stack(
+                                alignment: Alignment.centerRight,
+                                children: [
+                                  AnimatedOpacity(
+                                    opacity: controller.isSearchVisible.value ? 0.0 : 1.0,
+                                    duration: const Duration(milliseconds: 200),
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: TextBold(
+                                        'All Service',
+                                        fontSize: 22,
+                                        color: AppColors.textPrimaryColor,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                  AnimatedContainer(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                    width: controller.isSearchVisible.value ? constraints.maxWidth : 0,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: controller.isSearchVisible.value ? AppColors.boxColor : Colors.transparent),
+                                    ),
+                                    child: ClipRect(
+                                      child: controller.isSearchVisible.value 
+                                          ? TextField(
+                                              autofocus: true,
+                                              onChanged: (val) => controller.searchQuery.value = val,
+                                              style: TextStyle(fontSize: 16, color: AppColors.textPrimaryColor),
+                                              decoration: InputDecoration(
+                                                hintText: 'Search...',
+                                                hintStyle: TextStyle(color: AppColors.primaryGrey2, fontSize: 16),
+                                                border: InputBorder.none,
+                                                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                              ),
+                                            )
+                                          : const SizedBox.shrink(),
+                                    ),
+                                  ),
+                                ],
+                              ));
+                        },
+                      ),
+                    ),
+                    Obx(() => IconButton(
+                          icon: Icon(
+                            controller.isSearchVisible.value ? Icons.close : Icons.search,
+                            color: AppColors.primaryGrey2,
+                            size: 26,
+                          ),
+                          onPressed: () {
+                            if (controller.isSearchVisible.value) {
+                              controller.searchQuery.value = '';
+                            }
+                            controller.toggleSearch();
+                          },
+                        )),
+                  ],
+                ),
+                const Gap(20),
+                Obx(() {
+                final filtered = controller.filteredServices;
+                
+                if (filtered.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.only(top: 50.0),
+                    child: Center(
+                      child: Text(
+                        "No services found.",
+                        style: TextStyle(color: AppColors.primaryGrey2, fontSize: 14),
+                      ),
+                    ),
+                  );
+                }
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Gap(10),
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: filtered.entries.map((entry) {
+                    final categoryName = entry.key;
+                    final buttons = entry.value;
+                    if (buttons.isEmpty) return const SizedBox.shrink();
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Gap(10),
                   TextSemiBold(
                     categoryName,
                     fontSize: 14,
@@ -82,37 +168,53 @@ class AllServiceModulePage extends GetView<AllServiceModuleController> {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                              color: const Color(0xffF3FFF7),
-                              borderRadius: BorderRadius.circular(15)),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SvgPicture.asset(
-                                button.icon,
-                                colorFilter: const ColorFilter.mode(
-                                    AppColors.primaryColor2, BlendMode.srcIn),
-                              ),
-                              const Gap(5),
-                              TextSemiBold(
+                              button.icon.endsWith('.png')
+                                  ? Image.asset(
+                                      button.icon,
+                                      width: 24,
+                                      height: 24,
+                                      color: AppColors.primaryColor,
+                                    )
+                                  : SvgPicture.asset(
+                                      button.icon,
+                                      width: 24,
+                                      height: 24,
+                                      colorFilter: const ColorFilter.mode(
+                                          AppColors.primaryColor, BlendMode.srcIn),
+                                    ),
+                              const Gap(8),
+                              Text(
                                 button.text,
                                 textAlign: TextAlign.center,
-                                color: AppColors.primaryColor2,
-                                fontSize: 10,
+                                style: const TextStyle(
+                                  color: AppColors.background,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: AppFonts.manRope,
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      );
+                      ).animate(delay: (index * 50).ms).scale(curve: Curves.easeOutQuad, duration: 400.ms).fadeIn(duration: 400.ms);
                     },
                   ),
                   const Gap(20),
                 ],
               );
             }).toList(),
-          ),
+            );
+            }),
+          ],
         ),
       ),
-    );
+    )));
   }
 
   void _showResultCheckerOptions(BuildContext context, HomeScreenController controller) {
