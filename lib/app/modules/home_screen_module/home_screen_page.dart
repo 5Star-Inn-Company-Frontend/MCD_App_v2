@@ -75,7 +75,9 @@ class HomeScreenPage extends StatelessWidget {
                             const Gap(20),
                             _buildQuickActionsRow(controller, context),
                             const Gap(20),
-                            _buildStaticCarousel(context),
+                            Skeleton.ignore(
+                              child: _buildStaticCarousel(context),
+                            ),
                             const Gap(20),
                             _buildTopEarners(context),
                             const Gap(20),
@@ -1173,13 +1175,13 @@ class _PromoCarouselItem extends StatelessWidget {
           children: [
             // the light green design blob on the right
             Positioned(
-              right: -15,
-              top: -15,
+              right: -30,
+              top: -10,
               child: Transform.rotate(
                 angle: 46.97 * (3.1415926535897932 / 180),
                 child: Container(
-                  width: 150,
-                  height: 180,
+                  width: 170,
+                  height: 230,
                   decoration: BoxDecoration(
                     color: const Color.fromRGBO(218, 248, 223, 0.82),
                     borderRadius: BorderRadius.circular(115),
