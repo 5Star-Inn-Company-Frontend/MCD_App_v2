@@ -1,4 +1,3 @@
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:flutter_animate/flutter_animate.dart';

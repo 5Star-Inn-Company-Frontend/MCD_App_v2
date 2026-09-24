@@ -65,8 +65,8 @@ class HomeScreenPage extends StatelessWidget {
                   child: Obx(() => Skeletonizer(
                         enabled: controller.isLoading,
                         effect: ShimmerEffect(
-                          baseColor: AppColors.primaryColor.withOpacity(0.1),
-                          highlightColor: AppColors.primaryColor.withOpacity(0.05),
+                          baseColor: Colors.grey.shade300,
+                          highlightColor: Colors.grey.shade100,
                         ),
                         child: ListView(
                           children: [
@@ -599,9 +599,10 @@ class HomeScreenPage extends StatelessWidget {
       }
     }
 
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 10),
+    return Skeleton.leaf(
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: AppColors.primaryColor,
         borderRadius: BorderRadius.circular(16),
@@ -785,7 +786,7 @@ class HomeScreenPage extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _walletActionButton(
@@ -834,9 +835,10 @@ class HomeScreenPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: List.generate(
               5,
-              (index) => Container(
-                    width: 66,
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
+              (index) => Skeleton.leaf(
+                    child: Container(
+                      width: 66,
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
@@ -856,7 +858,7 @@ class HomeScreenPage extends StatelessWidget {
                         const Text("...", style: TextStyle(fontSize: 12)),
                       ],
                     ),
-                  )),
+                  ))),
         ),
       );
     }
@@ -989,7 +991,7 @@ class HomeScreenPage extends StatelessWidget {
   }
 
   Widget _buildStaticCarousel(BuildContext context) {
-    return const HomePromoCarousel();
+    return const Skeleton.leaf(child: HomePromoCarousel());
   }
 }
 
@@ -1169,26 +1171,28 @@ class _PromoCarouselItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-            // The light green circular blob on the right
+            // the light green design blob on the right
             Positioned(
-              right: -50,
-              top: -60,
-              bottom: -60,
-              width: 220,
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE9F8EE),
-                  shape: BoxShape.circle,
+              right: -15,
+              top: -15,
+              child: Transform.rotate(
+                angle: 46.97 * (3.1415926535897932 / 180),
+                child: Container(
+                  width: 150,
+                  height: 180,
+                  decoration: BoxDecoration(
+                    color: const Color.fromRGBO(218, 248, 223, 0.82),
+                    borderRadius: BorderRadius.circular(115),
+                  ),
                 ),
               ),
             ),
-            // The content
             Padding(
               padding: const EdgeInsets.only(left: 16, right: 10, top: 16, bottom: 16),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Circular Icon on the far left
+                  // circular icon on the far left
                   Container(
                     width: 48,
                     height: 48,
@@ -1296,7 +1300,6 @@ class _PromoCarouselItem extends StatelessWidget {
       ),
     );
   }
-// Note: Removed the extra closing bracket because we close the class above
 }
 
 class _BouncingQuickActionButton extends StatefulWidget {
@@ -1510,21 +1513,21 @@ Widget _buildLeaderboardListItem(LeaderboardUser user, String imagePath, int ind
 // }
 
 Widget _buildImageSlider(HomeScreenController controller) {
-  return _ImageSliderWidget(
+  return ImageSliderWidget(
     images: controller.imageSliders,
   );
 }
 
-class _ImageSliderWidget extends StatefulWidget {
+class ImageSliderWidget extends StatefulWidget {
   final List<String> images;
 
-  const _ImageSliderWidget({required this.images});
+  const ImageSliderWidget({super.key, required this.images});
 
   @override
-  State<_ImageSliderWidget> createState() => _ImageSliderWidgetState();
+  State<ImageSliderWidget> createState() => ImageSliderWidgetState();
 }
 
-class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
+class ImageSliderWidgetState extends State<ImageSliderWidget> {
   late PageController _pageController;
   Timer? _timer;
   int _currentPage = 0;
@@ -1539,7 +1542,7 @@ class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
   }
 
   @override
-  void didUpdateWidget(_ImageSliderWidget oldWidget) {
+  void didUpdateWidget(ImageSliderWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.images != oldWidget.images) {
       _startAutoSlide();
@@ -1594,7 +1597,7 @@ class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
               },
               itemBuilder: (context, index) {
                 final actualIndex = index % widget.images.length;
-                return _ImageItem(url: widget.images[actualIndex]);
+                return ImageItem(url: widget.images[actualIndex]);
               },
             ),
           ),
@@ -1626,16 +1629,16 @@ class _ImageSliderWidgetState extends State<_ImageSliderWidget> {
   }
 }
 
-class _ImageItem extends StatefulWidget {
+class ImageItem extends StatefulWidget {
   final String url;
 
-  const _ImageItem({required this.url});
+  const ImageItem({super.key, required this.url});
 
   @override
-  State<_ImageItem> createState() => _ImageItemState();
+  State<ImageItem> createState() => ImageItemState();
 }
 
-class _ImageItemState extends State<_ImageItem> {
+class ImageItemState extends State<ImageItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
