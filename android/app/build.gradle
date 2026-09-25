@@ -25,6 +25,10 @@ android {
         jvmTarget = "17"
     }
 
+    aaptOptions {
+        noCompress "tflite", "pb", "binarypb", "emd", "tfl", "obj", "dat", "list", "bincfg", "conv_model", "lstm_model"
+    }
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "a5starcompany.com.megacheapdata"

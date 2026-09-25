@@ -69,6 +69,7 @@ import 'package:mcd/app/modules/result_checker_module/result_checker_module_bind
 import 'package:mcd/app/modules/result_checker_module/result_checker_module_page.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_bindings.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_page.dart';
+import 'package:mcd/app/modules/transaction_detail_module/transaction_summary_page.dart';
 import 'package:mcd/app/modules/recurring_transactions_module/recurring_transactions_module_binding.dart';
 import 'package:mcd/app/modules/recurring_transactions_module/recurring_transactions_module_page.dart';
 import 'package:mcd/app/modules/plans_module/plans_module_bindings.dart';
@@ -171,6 +172,8 @@ import 'package:mcd/app/modules/account_info_module/account_info_module_bindings
 import 'package:mcd/app/modules/account_info_module/account_info_module_page.dart';
 import 'package:mcd/app/modules/more_module/more_module_bindings.dart';
 import 'package:mcd/app/modules/more_module/more_module_page.dart';
+import 'package:mcd/app/modules/all_service_module/all_service_module_bindings.dart';
+import 'package:mcd/app/modules/all_service_module/all_service_module_page.dart';
 import 'package:mcd/app/modules/reset_password_module/change_reset_pwd_screen.dart';
 import 'package:mcd/app/modules/reset_password_module/verify_reset_pwd_otp_screeen.dart';
 import 'package:mcd/app/modules/settings_module/settings_module_bindings.dart';
@@ -306,8 +309,13 @@ abstract class AppPages {
     ),
     GetPage(
       name: Routes.MORE_MODULE,
-      page: () => MoreModulePage(),
+      page: () => const MoreModulePage(),
       binding: MoreModuleBindings(),
+    ),
+    GetPage(
+      name: Routes.ALL_SERVICE_MODULE,
+      page: () => const AllServiceModulePage(),
+      binding: AllServiceModuleBindings(),
     ),
     GetPage(
       name: Routes.AIRTIME_MODULE,
@@ -321,6 +329,11 @@ abstract class AppPages {
     ),
     GetPage(
       name: Routes.TRANSACTION_DETAIL_MODULE,
+      page: () => const TransactionSummaryPage(),
+      binding: TransactionDetailModuleBindings(),
+    ),
+    GetPage(
+      name: Routes.TRANSACTION_DETAIL_FULL,
       page: () => TransactionDetailModulePage(),
       binding: TransactionDetailModuleBindings(),
     ),

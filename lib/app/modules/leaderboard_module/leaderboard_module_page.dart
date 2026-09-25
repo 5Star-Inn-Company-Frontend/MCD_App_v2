@@ -28,18 +28,28 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
           ),
         ],
       ),
-      body: Obx(() {
-        return Skeletonizer(
-          enabled: controller.isLoading,
-          child: controller.leaderboardData == null && !controller.isLoading
-              ? const Center(
-                  child: Text('No leaderboard data available',
-                      style: TextStyle(
-                          fontSize: 14, fontFamily: AppFonts.manRope)),
-                )
-              : RefreshIndicator(
-                  onRefresh: controller.refreshLeaderboard,
-                  child: SingleChildScrollView(
+      body: RefreshIndicator(
+        color: AppColors.primaryColor,
+        backgroundColor: AppColors.white,
+        onRefresh: controller.refreshLeaderboard,
+        child: Obx(() {
+          return Skeletonizer(
+            enabled: controller.isLoading,
+            child: controller.leaderboardData == null && !controller.isLoading
+                ? ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.7,
+                        child: const Center(
+                          child: Text('No leaderboard data available',
+                              style: TextStyle(
+                                  fontSize: 14, fontFamily: AppFonts.manRope)),
+                        ),
+                      ),
+                    ],
+                  )
+                : SingleChildScrollView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -55,9 +65,9 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
                       ),
                     ),
                   ),
-                ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 

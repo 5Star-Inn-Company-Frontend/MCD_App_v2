@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
@@ -12,6 +13,8 @@ import 'package:mcd/core/services/notification_permission_service.dart';
 import 'package:mcd/core/services/dashboard_service.dart';
 import 'package:mcd/core/services/deep_link_service.dart';
 import 'package:mcd/core/services/dialog_manager_service.dart';
+import 'package:mcd/core/services/usage_tracker_service.dart';
+import 'package:mcd/core/services/leaderboard_service.dart';
 
 import '../../../core/network/dio_api_service.dart';
 // import 'package:mcd/core/services/ads_service.dart';
@@ -34,6 +37,7 @@ class HomeScreenController extends GetxController
   String get gmBalance => DashboardService.to.gmBalance.value;
 
   final isBalanceVisible = true.obs;
+  final lastUpdated = Rx<DateTime>(DateTime.now());
 
   void toggleBalanceVisibility() {
     isBalanceVisible.value = !isBalanceVisible.value;
@@ -68,42 +72,105 @@ class HomeScreenController extends GetxController
 
   Future<void> _bootstrapAfterLogin() async {
     try {
-      await Future.wait([
-        fetchDashboard(force: true),
-        fetchGMBalance(),
-      ]);
+      Get.find<LoginScreenController>().dismissLoadingDialog();
+    } catch (e) {
+      dev.log('Unable to dismiss login loader: $e', name: 'HomeScreen');
+    }
 
-      _loadServiceData();
-      
-      // TODO: Replace this placeholder with the actual marketing dialog condition
-      DialogManagerService.to.addDialog(
-        DialogRequest(
-          priority: DialogPriority.marketing,
-          showDialog: () async {
-            if (Get.context != null) {
-              await _showMarketingPlaceholderDialog();
-            }
-          },
-        ),
-      );
-      
-    } finally {
-      try {
-        Get.find<LoginScreenController>().dismissLoadingDialog();
-      } catch (e) {
-        dev.log('Unable to dismiss login loader: $e', name: 'HomeScreen');
+    await Future.wait([
+      fetchDashboard(force: true),
+      fetchGMBalance(),
+      LeaderboardService.to.fetchLeaderboard(),
+    ]);
+
+    _loadServiceData();
+
+    // show TGIF marketing dialog only on Fridays once per day
+    if (DateTime.now().weekday == DateTime.friday) {
+      final todayStr = '${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}';
+      final lastShown = box.read('last_tgif_date');
+      if (lastShown != todayStr) {
+        DialogManagerService.to.addDialog(
+          DialogRequest(
+            priority: DialogPriority.marketing,
+            showDialog: () async {
+              if (Get.context != null) {
+                await _showMarketingPlaceholderDialog();
+                box.write('last_tgif_date', todayStr);
+              }
+            },
+          ),
+        );
       }
     }
   }
 
   Future<void> _showMarketingPlaceholderDialog() async {
-    await Get.defaultDialog(
-      title: 'Special Offer!',
-      middleText: 'This is a placeholder for the new marketing dialog.',
-      textConfirm: 'Got it',
-      buttonColor: AppColors.primaryColor,
-      confirmTextColor: Colors.white,
-      onConfirm: () => Get.back(),
+    await Get.dialog(
+      Dialog(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Image.asset(
+                    'assets/images/tgif.png',
+                    width: double.infinity,
+                    fit: BoxFit.fitWidth,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Happy Friday',
+                  style: GoogleFonts.bricolageGrotesque(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Move and spend money at you own terms and style, frictionless and smooth',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 3,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.bricolageGrotesque(
+                    color: Colors.white,
+                    fontSize: 14,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+            Positioned(
+              top: -40,
+              right: -10,
+              child: GestureDetector(
+                onTap: () => Get.back(),
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black.withOpacity(0.5),
+                    border: Border.all(color: Colors.white, width: 1.5),
+                  ),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -171,9 +238,23 @@ class HomeScreenController extends GetxController
     ];
 
     final filtered = allButtons.where((b) => isEnabled(b.text)).toList();
-    dev.log('Service buttons: ${filtered.map((b) => b.text).join(', ')}',
+
+    final tracker = UsageTrackerService.to;
+    filtered.sort((a, b) {
+      final usageA = tracker.getUsage(a.text);
+      final usageB = tracker.getUsage(b.text);
+      return usageB.compareTo(usageA);
+    });
+
+    final top4 = filtered.take(4).toList();
+    top4.add(ButtonModel(
+        icon: 'assets/icons/home/more.svg',
+        text: "More",
+        link: Routes.ALL_SERVICE_MODULE));
+
+    dev.log('Service buttons: ${top4.map((b) => b.text).join(', ')}',
         name: 'HomeScreen');
-    actionButtonz.assignAll(filtered);
+    actionButtonz.assignAll(top4);
   }
 
   @override
@@ -211,13 +292,13 @@ class HomeScreenController extends GetxController
 
   Future<void> fetchDashboard({bool force = false}) async {
     await DashboardService.to.fetchDashboard(force: force);
-    
+
     // show news dialog if logging in
     if (box.read('show_news_dialog') == true &&
         dashboardData?.news != null &&
         dashboardData!.news.isNotEmpty) {
       await box.write('show_news_dialog', false);
-      
+
       DialogManagerService.to.addDialog(
         DialogRequest(
           priority: DialogPriority.news,
@@ -228,7 +309,7 @@ class HomeScreenController extends GetxController
           },
         ),
       );
-      
+
       dev.log("news ${dashboardData?.news}");
     }
   }
@@ -349,10 +430,12 @@ class HomeScreenController extends GetxController
   }
 
   Future<void> refreshDashboard() async {
+    lastUpdated.value = DateTime.now();
     await Future.wait([
       fetchDashboard(force: true),
       fetchGMBalance(),
       ServiceStatusController.to.fetchServiceStatus(),
+      LeaderboardService.to.fetchLeaderboard(force: true),
     ]);
     // service data updates reactively via the ever() listener
   }
@@ -416,6 +499,8 @@ class HomeScreenController extends GetxController
 
   /// Handle service button tap with availability check
   Future<bool> handleServiceNavigation(ButtonModel button) async {
+    UsageTrackerService.to.incrementUsage(button.text);
+
     final serviceKey = getServiceKey(button.text, button.link);
 
     // If no service key mapping, allow navigation (e.g., Mega Bulk Service)
@@ -518,7 +603,8 @@ class HomeScreenController extends GetxController
             DialogRequest(
               priority: DialogPriority.clipboard,
               showDialog: () async {
-                await _showClipboardPhoneDialog(phoneNumber, networkName, networkData);
+                await _showClipboardPhoneDialog(
+                    phoneNumber, networkName, networkData);
               },
             ),
           );

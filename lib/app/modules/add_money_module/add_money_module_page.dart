@@ -51,10 +51,10 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
                     // KYC prompt for users without accounts
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: AppColors.primaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: AppColors.primaryColor.withOpacity(0.3),
                         ),
@@ -186,13 +186,17 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
                   // Other Funding Options
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 10),
+                        vertical: 16, horizontal: 16),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border.all(
-                        color: const Color(0xffF0F0F0),
-                        width: 1,
-                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          offset: const Offset(0, 4),
+                          blurRadius: 10,
+                        )
+                      ],
                     ),
                     child: Column(
                       children: [
@@ -252,66 +256,111 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
       decoration: BoxDecoration(
         color: const Color(0xffF3FFF7),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: AppColors.primaryColor.withOpacity(0.3),
-        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            offset: const Offset(0, 4),
+            blurRadius: 10,
+          )
+        ],
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextSemiBold(
-                accountName,
-                fontSize: 15,
-              ),
-              InkWell(
-                onTap: onShare,
-                child: Row(
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextSemiBold("Share"),
-                    const Gap(2),
-                    SvgPicture.asset(AppAsset.share)
+                    Text(
+                      "BANK NAME",
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade500,
+                        letterSpacing: 1.2,
+                        fontFamily: AppFonts.manRope,
+                      ),
+                    ),
+                    const Gap(4),
+                    TextSemiBold(
+                      bankName,
+                      fontSize: 16,
+                    ),
                   ],
                 ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  InkWell(
+                    onTap: onCopy,
+                    borderRadius: BorderRadius.circular(20),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.copy,
+                        size: 20,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                  ),
+                  const Gap(8),
+                  InkWell(
+                    onTap: onShare,
+                    borderRadius: BorderRadius.circular(20),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SvgPicture.asset(
+                        AppAsset.share,
+                        width: 20,
+                        height: 20,
+                      ),
+                    ),
+                  ),
+                ],
               )
             ],
           ),
-          const Gap(30),
-          TextSemiBold(bankName),
-          const Gap(30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: TextSemiBold(
-                  accountNumber,
-                  fontSize: 20,
-                ),
-              ),
-              InkWell(
-                onTap: onCopy,
-                child: Row(
-                  children: [
-                    TextSemiBold(
-                      "Copy",
-                      color: AppColors.primaryColor,
-                    ),
-                    const Gap(5),
-                    const Icon(
-                      Icons.copy,
-                      color: AppColors.primaryColor,
-                    )
-                  ],
-                ),
-              )
-            ],
+          const Gap(24),
+          Text(
+            "ACCOUNT NUMBER",
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade500,
+              letterSpacing: 1.2,
+              fontFamily: AppFonts.manRope,
+            ),
+          ),
+          const Gap(4),
+          TextBold(
+            accountNumber,
+            fontSize: 28,
+            color: AppColors.primaryColor,
+          ),
+          const Gap(24),
+          Text(
+            "ACCOUNT NAME",
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade500,
+              letterSpacing: 1.2,
+              fontFamily: AppFonts.manRope,
+            ),
+          ),
+          const Gap(4),
+          TextSemiBold(
+            accountName,
+            fontSize: 15,
           ),
         ],
       ),
