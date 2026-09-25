@@ -2,6 +2,7 @@ import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import './all_service_module_controller.dart';
+import 'package:mcd/app/widgets/custom_bottom_sheet.dart';
 
 class AllServiceModulePage extends GetView<AllServiceModuleController> {
   const AllServiceModulePage({super.key});
@@ -134,8 +135,9 @@ class AllServiceModulePage extends GetView<AllServiceModuleController> {
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 4,
-                      crossAxisSpacing: 16,
+                      crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
+                      childAspectRatio: 0.85,
                     ),
                     itemCount: buttons.length,
                     itemBuilder: (ctx, index) {
@@ -188,14 +190,22 @@ class AllServiceModulePage extends GetView<AllServiceModuleController> {
                                           AppColors.primaryColor, BlendMode.srcIn),
                                     ),
                               const Gap(8),
-                              Text(
-                                button.text,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: AppColors.background,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: AppFonts.manRope,
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                    child: Text(
+                                      button.text,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: AppColors.background,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: AppFonts.manRope,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
@@ -217,7 +227,7 @@ class AllServiceModulePage extends GetView<AllServiceModuleController> {
   }
 
   void _showResultCheckerOptions(BuildContext context, HomeScreenController controller) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       backgroundColor: Colors.white,
@@ -249,7 +259,7 @@ class AllServiceModulePage extends GetView<AllServiceModuleController> {
   }
 
   void _showEpinOptionsBottomSheet(BuildContext context, HomeScreenController controller) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       backgroundColor: Colors.white,
@@ -274,7 +284,7 @@ class AllServiceModulePage extends GetView<AllServiceModuleController> {
   }
 
   void _showAirtimeSelectionBottomSheet(BuildContext context, HomeScreenController controller) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       backgroundColor: Colors.white,
@@ -306,7 +316,7 @@ class AllServiceModulePage extends GetView<AllServiceModuleController> {
   }
 
   void _showDataSelectionBottomSheet(BuildContext context, HomeScreenController controller) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       backgroundColor: Colors.white,

@@ -10,6 +10,7 @@ import 'package:mcd/app/widgets/touchableOpacity.dart';
 import 'package:mcd/core/constants/textField.dart';
 import 'package:mcd/core/utils/ui_helpers.dart';
 import './result_checker_module_controller.dart';
+import 'package:mcd/app/widgets/custom_bottom_sheet.dart';
 
 class ResultCheckerModulePage extends GetView<ResultCheckerModuleController> {
   const ResultCheckerModulePage({super.key});
@@ -125,7 +126,7 @@ class ResultCheckerModulePage extends GetView<ResultCheckerModuleController> {
   }
 
   void _showExamPicker(BuildContext context) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
         backgroundColor: Colors.white,

@@ -8,6 +8,7 @@ import 'package:mcd/app/widgets/busy_button.dart';
 import 'package:mcd/core/constants/textField.dart';
 import 'package:mcd/core/utils/ui_helpers.dart';
 import './jamb_payment_module_controller.dart';
+import 'package:mcd/app/widgets/custom_bottom_sheet.dart';
 
 class JambPaymentModulePage extends GetView<JambPaymentModuleController> {
   const JambPaymentModulePage({Key? key}) : super(key: key);
@@ -174,7 +175,7 @@ class JambPaymentModulePage extends GetView<JambPaymentModuleController> {
   }
 
   void _showPaymentMethodBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

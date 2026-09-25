@@ -6,6 +6,7 @@ import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
+import 'package:mcd/app/widgets/custom_bottom_sheet.dart';
 
 class DataPinController extends GetxController {
   final apiService = DioApiService();
@@ -181,7 +182,7 @@ class DataPinController extends GetxController {
       return;
     }
 
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -346,7 +347,7 @@ class DataPinController extends GetxController {
   }
 
   void showCardsBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
