@@ -5,6 +5,7 @@ import 'package:mcd/core/import/imports.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import './giveaway_module_controller.dart';
+import 'package:mcd/app/widgets/custom_bottom_sheet.dart';
 
 class GiveawayModulePage extends GetView<GiveawayModuleController> {
   const GiveawayModulePage({super.key});
@@ -412,7 +413,7 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
   }
 
   // void _showCreateGiveawayDialog(BuildContext context) {
-  //   showModalBottomSheet(
+  //   showCustomBottomSheet(
   //     context: context,
   //     isScrollControlled: true,
   //     backgroundColor: AppColors.white,

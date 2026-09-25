@@ -10,6 +10,7 @@ import 'package:mcd/app/modules/airtime_pin_module/airtime_pin_module_controller
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/core/constants/fonts.dart';
+import 'package:mcd/app/widgets/custom_bottom_sheet.dart';
 
 class AirtimePinModulePage extends GetView<AirtimePinModuleController> {
   const AirtimePinModulePage({super.key});
@@ -362,7 +363,7 @@ class AirtimePinModulePage extends GetView<AirtimePinModuleController> {
   }
 
   void _showDesignBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

@@ -2,6 +2,7 @@ import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/app/widgets/skeleton_loader.dart';
 import './agent_request_module_controller.dart';
 import './my_tasks_page.dart';
+import 'package:mcd/app/widgets/custom_bottom_sheet.dart';
 
 class AgentRequestModulePage extends GetView<AgentRequestModuleController> {
   const AgentRequestModulePage({super.key});
@@ -170,7 +171,7 @@ class AgentRequestModulePage extends GetView<AgentRequestModuleController> {
   }
 
   void _showBenefitsBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(

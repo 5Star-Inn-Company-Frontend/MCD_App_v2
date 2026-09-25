@@ -41,8 +41,10 @@ class MoreModulePage extends GetView<MoreModuleController> {
                 child: TabBar(
                     controller: controller.tabController,
                     isScrollable: true,
+                    physics: const BouncingScrollPhysics(),
                     tabAlignment: TabAlignment.start,
                     indicatorPadding: EdgeInsets.zero,
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 10.0),
                     labelColor: AppColors.primaryGreen,
                     dividerHeight: 0,
                     indicatorColor: Colors.transparent,

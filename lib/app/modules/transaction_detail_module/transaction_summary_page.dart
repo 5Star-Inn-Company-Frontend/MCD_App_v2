@@ -37,11 +37,14 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
         ],
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+        child: RepaintBoundary(
+          key: controller.summaryReceiptKey,
+          child: Container(
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
               const Gap(20),
               Container(
                 width: 60,
@@ -183,7 +186,7 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
           ),
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildDetailRow(String title, String value) {

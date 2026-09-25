@@ -11,6 +11,7 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/core/constants/fonts.dart';
 import 'package:mcd/core/constants/textField.dart';
+import 'package:mcd/app/widgets/custom_bottom_sheet.dart';
 
 class DataPinFullPage extends GetView<DataPinController> {
   const DataPinFullPage({super.key});
@@ -210,7 +211,7 @@ class DataPinFullPage extends GetView<DataPinController> {
   }
 
   void _showDesignBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

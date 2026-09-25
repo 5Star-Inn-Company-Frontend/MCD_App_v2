@@ -14,6 +14,7 @@ import '../../widgets/app_bar.dart';
 import 'package:mcd/core/services/leaderboard_service.dart';
 import 'package:mcd/app/modules/leaderboard_module/models/leaderboard_model.dart';
 import 'package:flutter_animate/flutter_animate.dart' hide ShimmerEffect;
+import 'package:mcd/app/widgets/custom_bottom_sheet.dart';
 
 /**
  * GetX Template Generator - fb.com/htngu.99
@@ -141,7 +142,7 @@ class HomeScreenPage extends StatelessWidget {
 
   void _showResultCheckerOptions(
       BuildContext context, HomeScreenController controller) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -229,7 +230,7 @@ class HomeScreenPage extends StatelessWidget {
 
   void _showEpinOptionsBottomSheet(
       BuildContext context, HomeScreenController controller) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -348,7 +349,7 @@ class HomeScreenPage extends StatelessWidget {
 
   void _showAirtimeSelectionBottomSheet(
       BuildContext context, HomeScreenController controller) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -454,7 +455,7 @@ class HomeScreenPage extends StatelessWidget {
 
   void _showDataSelectionBottomSheet(
       BuildContext context, HomeScreenController controller) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -759,27 +760,33 @@ class HomeScreenPage extends StatelessWidget {
                   const Gap(20),
                   Row(
                     children: [
-                      _walletActionButton(
-                          icon: Icons.add,
-                          text: 'Add money',
-                          onTap: () {
-                            Get.toNamed(Routes.ADD_MONEY_MODULE,
-                                arguments: {'dashboardData': controller.dashboardData});
-                          }),
-                      const Gap(12),
-                      _walletActionButton(
-                          svgIcon: 'assets/icons/home/history.svg',
-                          text: 'History',
-                          onTap: () {
-                            Get.offAllNamed(Routes.HISTORY_SCREEN);
-                          }),
-                      const Spacer(),
-                      _walletActionButton(
-                          svgIcon: 'assets/icons/home/wallet.svg',
-                          text: 'Wallets',
-                          onTap: () {
-                            _showWalletsBottomSheet(context, controller);
-                          }),
+                      Expanded(
+                        child: _walletActionButton(
+                            icon: Icons.add,
+                            text: 'Add money',
+                            onTap: () {
+                              Get.toNamed(Routes.ADD_MONEY_MODULE,
+                                  arguments: {'dashboardData': controller.dashboardData});
+                            }),
+                      ),
+                      const Gap(8),
+                      Expanded(
+                        child: _walletActionButton(
+                            svgIcon: 'assets/icons/home/history.svg',
+                            text: 'History',
+                            onTap: () {
+                              Get.offAllNamed(Routes.HISTORY_SCREEN);
+                            }),
+                      ),
+                      const Gap(8),
+                      Expanded(
+                        child: _walletActionButton(
+                            svgIcon: 'assets/icons/home/wallet.svg',
+                            text: 'Wallets',
+                            onTap: () {
+                              _showWalletsBottomSheet(context, controller);
+                            }),
+                      ),
                     ],
                   )
                 ],
@@ -800,12 +807,13 @@ class HomeScreenPage extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           decoration: BoxDecoration(
             color: const Color(0xFF6EC38C),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null) Icon(icon, color: Colors.white, size: 16),
               if (svgIcon != null)
@@ -814,12 +822,17 @@ class HomeScreenPage extends StatelessWidget {
                         const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                     height: 16),
               const Gap(6),
-              Text(text,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: AppFonts.manRope)),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(text,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: AppFonts.manRope)),
+                ),
+              ),
             ],
           ),
         ),
@@ -832,78 +845,90 @@ class HomeScreenPage extends StatelessWidget {
     if (controller.isLoading && controller.actionButtonz.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: List.generate(
-              5,
-              (index) => Skeleton.leaf(
-                    child: Container(
-                      width: 66,
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const Gap(8),
-                        const Text("...", style: TextStyle(fontSize: 12)),
-                      ],
-                    ),
-                  ))),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: List.generate(
+                5,
+                (index) => Padding(
+                      padding: const EdgeInsets.only(right: 15.0),
+                      child: Skeleton.leaf(
+                            child: Container(
+                              width: 66,
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const Gap(8),
+                                const Text("...", style: TextStyle(fontSize: 12)),
+                              ],
+                            ),
+                          )),
+                    )),
+          ),
         ),
       );
     }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: controller.actionButtonz.asMap().entries.map((entry) {
-          final index = entry.key;
-          final button = entry.value;
-          final serviceKey = controller.getServiceKey(button.text, button.link);
-          final isAvailable =
-              serviceKey.isEmpty || controller.isServiceAvailable(serviceKey);
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: controller.actionButtonz.asMap().entries.map((entry) {
+            final index = entry.key;
+            final button = entry.value;
+            final serviceKey = controller.getServiceKey(button.text, button.link);
+            final isAvailable =
+                serviceKey.isEmpty || controller.isServiceAvailable(serviceKey);
 
-          return _BouncingQuickActionButton(
-            button: button,
-            isAvailable: isAvailable,
-            onTap: () async {
-              final isAvailable =
-                  await controller.handleServiceNavigation(button);
-              if (!isAvailable) return;
+            return Padding(
+              padding: const EdgeInsets.only(right: 15.0),
+              child: _BouncingQuickActionButton(
+                button: button,
+                isAvailable: isAvailable,
+                onTap: () async {
+                  final isAvailable =
+                      await controller.handleServiceNavigation(button);
+                  if (!isAvailable) return;
 
-              if (!context.mounted) return;
+                  if (!context.mounted) return;
 
-              if (button.link == Routes.RESULT_CHECKER_MODULE) {
-                _showResultCheckerOptions(context, controller);
-              } else if (button.link == "epin") {
-                _showEpinOptionsBottomSheet(context, controller);
-              } else if (button.link == Routes.AIRTIME_MODULE) {
-                _showAirtimeSelectionBottomSheet(context, controller);
-              } else if (button.link == Routes.DATA_MODULE) {
-                _showDataSelectionBottomSheet(context, controller);
-              } else if (button.link.isNotEmpty) {
-                Get.toNamed(button.link);
-              }
-            },
-          )
-              .animate(delay: (index * 100).ms)
-              .slideY(begin: 0.2, curve: Curves.easeOutQuad)
-              .fadeIn();
-        }).toList(),
+                  if (button.link == Routes.RESULT_CHECKER_MODULE) {
+                    _showResultCheckerOptions(context, controller);
+                  } else if (button.link == "epin") {
+                    _showEpinOptionsBottomSheet(context, controller);
+                  } else if (button.link == Routes.AIRTIME_MODULE) {
+                    _showAirtimeSelectionBottomSheet(context, controller);
+                  } else if (button.link == Routes.DATA_MODULE) {
+                    _showDataSelectionBottomSheet(context, controller);
+                  } else if (button.link.isNotEmpty) {
+                    Get.toNamed(button.link);
+                  }
+                },
+              )
+                  .animate(delay: (index * 100).ms)
+                  .slideY(begin: 0.2, curve: Curves.easeOutQuad)
+                  .fadeIn(),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -934,7 +959,7 @@ class HomeScreenPage extends StatelessWidget {
 
   void _showWalletsBottomSheet(
       BuildContext context, HomeScreenController controller) {
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
@@ -1180,8 +1205,8 @@ class _PromoCarouselItem extends StatelessWidget {
               child: Transform.rotate(
                 angle: 46.97 * (3.1415926535897932 / 180),
                 child: Container(
-                  width: 170,
-                  height: 230,
+                  width: 140,
+                  height: 180,
                   decoration: BoxDecoration(
                     color: const Color.fromRGBO(218, 248, 223, 0.82),
                     borderRadius: BorderRadius.circular(115),
@@ -1211,7 +1236,6 @@ class _PromoCarouselItem extends StatelessWidget {
                   const Gap(12),
                   // Text and Button Column
                   Expanded(
-                    flex: 6,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -1239,12 +1263,17 @@ class _PromoCarouselItem extends StatelessWidget {
                         ),
                         if (item.subtitle2.isNotEmpty) ...[
                           const Gap(2),
-                          Text(
-                            item.subtitle2,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontFamily: AppFonts.manRope,
-                              color: Color(0xFF888888),
+                          Flexible(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                item.subtitle2,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontFamily: AppFonts.manRope,
+                                  color: Color(0xFF888888),
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -1283,16 +1312,11 @@ class _PromoCarouselItem extends StatelessWidget {
                     ),
                   ),
                   // Image on the far right
-                  Expanded(
-                    flex: 4,
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Image.asset(
-                        item.imageAsset,
-                        fit: BoxFit.contain,
-                        height: 200,
-                      ),
-                    ),
+                  Image.asset(
+                    item.imageAsset,
+                    fit: BoxFit.contain,
+                    width: 90,
+                    height: 90,
                   ),
                 ],
               ),

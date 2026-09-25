@@ -1175,12 +1175,17 @@ class _ReceiptStyleSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: _templates.map((t) {
-              return _ReceiptOptionCard(
-                template: t.$1,
-                iconPath: t.$2,
-                label: t.$3,
-                bgColor: t.$4,
-                controller: controller,
+              return Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: _ReceiptOptionCard(
+                    template: t.$1,
+                    iconPath: t.$2,
+                    label: t.$3,
+                    bgColor: t.$4,
+                    controller: controller,
+                  ),
+                ),
               );
             }).toList(),
           ),
@@ -1235,9 +1240,8 @@ class _ReceiptOptionCard extends StatelessWidget {
             transition: Transition.cupertino,
           );
         },
-        child: SizedBox(
-          width: 90,
-          height: 90,
+        child: AspectRatio(
+          aspectRatio: 1,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
