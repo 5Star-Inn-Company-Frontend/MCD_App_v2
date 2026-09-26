@@ -23,7 +23,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.4.0</string>
+	<string>1.4.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -53,6 +53,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+    	<false/>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>GADApplicationIdentifier</key>
@@ -82,6 +84,12 @@
 	<string>Why is my app authenticating using face id?</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to save receipt images</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need access to your location to provide location-based services and verify service availability.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>We need access to your location to provide location-based services and verify service availability.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need access to your location to provide location-based services and verify service availability.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -521,6 +529,16 @@
 			<key>SKAdNetworkIdentifier</key>
 			<string>424m52w4tv.skadnetwork</string>
 		</dict>
+		 <!-- Google AdMob SKAdNetwork ID -->
+          <dict>
+            <key>SKAdNetworkIdentifier</key>
+            <string>cstr641x2t.skadnetwork</string>
+          </dict>
+          <!-- Unity Ads SKAdNetwork ID -->
+          <dict>
+            <key>SKAdNetworkIdentifier</key>
+            <string>4dzt52r2t5.skadnetwork</string>
+          </dict>
 	</array>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>

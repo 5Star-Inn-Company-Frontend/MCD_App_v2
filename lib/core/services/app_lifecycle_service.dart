@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -6,10 +7,12 @@ import 'package:mcd/app/modules/login_screen_module/login_screen_controller.dart
 import 'dart:developer' as dev;
 
 import '../utils/confirmlogout.dart';
+import 'device_info_service.dart';
 
 /// service to handle auto-logout when app is minimized for too long
 class AppLifecycleService extends GetxService with WidgetsBindingObserver {
   static const int sessionTimeoutMinutes = 10;
+  final deviceInfoService = DeviceInfoService();
 
   final _box = GetStorage();
   DateTime? _pausedAt;
@@ -62,7 +65,11 @@ class AppLifecycleService extends GetxService with WidgetsBindingObserver {
 
     if (diff.inMinutes >= sessionTimeoutMinutes) {
       dev.log('Session timeout exceeded, logging out...', name: 'Lifecycle');
-      _handleSessionTimeout();
+      print(!kDebugMode);
+      print(!deviceInfoService.deviceString.contains("7E1F0E85-BE1A-4C2C-8442-51B55F9964DD"));
+      // if(!kDebugMode || !deviceInfoService.deviceString.contains("7E1F0E85-BE1A-4C2C-8442-51B55F9964DD")) {
+      //   _handleSessionTimeout();
+      // }
     }
 
     _pausedAt = null;

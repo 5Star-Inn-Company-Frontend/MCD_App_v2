@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/core/services/ads_service.dart';
 import 'package:mcd/core/controllers/service_status_controller.dart';
+
+import '../../../core/services/device_info_service.dart';
 
 class RewardCentreModuleController extends GetxController {
   final adsService = AdsService();
@@ -16,6 +19,7 @@ class RewardCentreModuleController extends GetxController {
 
   final box = GetStorage();
   final apiService = DioApiService();
+  final deviceInfoService = DeviceInfoService();
 
   @override
   void onInit() {
@@ -73,6 +77,7 @@ class RewardCentreModuleController extends GetxController {
     final success = await adsService.showfreemoney(
       onRewarded: () {
         adsService.showInterstitialAd(type: "freemoneyInterstitial");
+        freemoney();
         dev.log('User earned reward', name: 'RewardCentre');
         Get.snackbar(
           'Reward Earned!',
@@ -88,7 +93,7 @@ class RewardCentreModuleController extends GetxController {
         "platform": "mobile",
         "type": "reward_centre"
       },
-    );
+    ) ;
 
     if (!success) {
       dev.log('Failed to show rewarded ad', name: 'RewardCentre');

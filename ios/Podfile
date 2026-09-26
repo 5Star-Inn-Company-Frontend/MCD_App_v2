@@ -32,6 +32,11 @@ flutter_ios_podfile_setup
 
 target 'Runner' do
   use_frameworks!
+# 1. Core Google Mobile Ads SDK
+  pod 'Google-Mobile-Ads-SDK'
+
+  # 2. Unity Ads Adapter
+  pod 'GoogleMobileAdsMediationUnity'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do

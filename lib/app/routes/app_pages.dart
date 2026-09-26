@@ -160,6 +160,9 @@ import 'package:mcd/app/modules/epin_module/data_pin/data_pin_full_page.dart';
 import 'package:mcd/app/modules/epin_module/epin_transaction_detail_binding.dart';
 import 'package:mcd/app/modules/epin_module/epin_transaction_detail_page.dart';
 
+import 'package:mcd/app/modules/banner_list_module/banner_list_module_bindings.dart';
+import 'package:mcd/app/modules/banner_list_module/banner_list_module_page.dart';
+
 import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
 import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
 import '../../app/modules/shop_screen_module/shop_screen_page.dart';
@@ -636,5 +639,9 @@ abstract class AppPages {
         name: Routes.STORE_FRONT,
         page: () => const StoreFrontPage(),
         binding: StoreFrontBinding()),
+    GetPage(
+        name: Routes.BANNER_LIST_MODULE,
+        page: () => const BannerListModulePage(),
+        binding: BannerListModuleBindings()),
   ];
 }

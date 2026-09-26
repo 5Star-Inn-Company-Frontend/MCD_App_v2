@@ -36,7 +36,7 @@ class DeviceInfoService {
       } else if (Platform.isIOS) {
         final iosInfo = await _deviceInfo.iosInfo;
         _cachedDeviceString =
-            '${iosInfo.systemVersion} | ${iosInfo.model} | Apple | ${iosInfo.name} | ${iosInfo.isPhysicalDevice}';
+            '${iosInfo.systemVersion} | ${iosInfo.model} | Apple | ${iosInfo.name} | ${iosInfo.isPhysicalDevice} | ${iosInfo.identifierForVendor}';
       } else {
         _cachedDeviceString = 'Unknown Device';
       }

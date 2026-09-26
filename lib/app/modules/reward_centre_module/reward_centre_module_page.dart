@@ -119,6 +119,17 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                                 "Game Centre",
                                 'Play games and earn rewards')),
                       ),
+                      InkWell(
+                        onTap: () {
+                          Get.toNamed(Routes.BANNER_LIST_MODULE);
+                        },
+                        child: AspectRatio(
+                            aspectRatio: 3 / 2,
+                            child: _boxCard(
+                                'assets/images/reward_centre/promo-code.png',
+                                "Banner Ads",
+                                'View high and low advertisement banners')),
+                      ),
                     ],
                   ]),
                 ),

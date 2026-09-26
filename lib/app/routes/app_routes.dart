@@ -124,4 +124,5 @@ abstract class Routes {
   static const MOMO_MODULE = '/momo_module';
   static const STORE_FRONT = '/store_front';
   static const NOTIFICATION_DETAIL = '/notification_detail';
+  static const BANNER_LIST_MODULE = '/banner_list_module';
 }
