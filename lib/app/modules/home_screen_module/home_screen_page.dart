@@ -59,7 +59,7 @@ class HomeScreenPage extends StatelessWidget {
               ),
               body: RefreshIndicator(
                 color: AppColors.primaryColor,
-                backgroundColor: AppColors.white,
+                backgroundColor: const Color(0xFFF9F9F9),
                 onRefresh: controller.refreshDashboard,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 0),
@@ -607,7 +607,7 @@ class HomeScreenPage extends StatelessWidget {
         width: double.infinity,
         margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: AppColors.primaryColor,
+        color: Color.fromARGB(197, 38, 158, 96),
         borderRadius: BorderRadius.circular(16),
       ),
       child: ClipRRect(
@@ -653,7 +653,7 @@ class HomeScreenPage extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -672,16 +672,39 @@ class HomeScreenPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Flexible(
-                          child: Text(
-                            accountText,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: AppFonts.manRope),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                          ),
+                          child: (accs?.hasPrimary ?? false)
+                              ? RichText(
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: AppFonts.manRope),
+                                    children: [
+                                      TextSpan(
+                                        text: accs!.primaryAccountNumber,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            " | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}",
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Text(
+                                  accountText,
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: AppFonts.manRope),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                ),
                         ),
                         const Gap(8),
                         Skeleton.ignore(
@@ -694,7 +717,7 @@ class HomeScreenPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const Gap(20),
+                  const Gap(12),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -739,7 +762,7 @@ class HomeScreenPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const Gap(5),
+                  const Gap(4),
                   Skeleton.ignore(
                     child: StreamBuilder(
                       stream: Stream.periodic(const Duration(seconds: 1)),
@@ -757,7 +780,7 @@ class HomeScreenPage extends StatelessWidget {
                       },
                     ),
                   ),
-                  const Gap(20),
+                  const Gap(12),
                   Row(
                     children: [
                       Expanded(
