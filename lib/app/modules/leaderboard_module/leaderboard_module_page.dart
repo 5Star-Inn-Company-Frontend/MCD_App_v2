@@ -57,6 +57,10 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
                         children: [
                           // Top 3 Users Podium
                           _buildTopThreePodium(),
+                          const Gap(16),
+
+                          // Caution/Tip Banner
+                          _buildLeaderboardTip(),
                           const Gap(24),
 
                           // Remaining Users List
@@ -316,7 +320,53 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
 
   // mask username: mask only the last 3 characters
   String _maskUsername(String username) {
-    if (username.length <= 3) return '${username}***';
+    if (username.length <= 3) return '$username***';
     return '${username.substring(0, username.length - 3)}***';
+  }
+
+  Widget _buildLeaderboardTip() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8E1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFFFE082)),
+      ),
+      child: const Row(
+        children: [
+          Icon(
+            Icons.info_outline_rounded,
+            color: Color(0xFFF57F17),
+            size: 20,
+          ),
+          Gap(10),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: "How to increase points: ",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Color(0xFF5D4037),
+                      fontFamily: AppFonts.manRope,
+                    ),
+                  ),
+                  TextSpan(
+                    text: "Earn points by making transactions (airtime, data, bills, TV) and referring friends to the app!",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF5D4037),
+                      fontFamily: AppFonts.manRope,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

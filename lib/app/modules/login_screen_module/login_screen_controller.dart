@@ -4,7 +4,7 @@ import 'dart:developer' as dev;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -775,85 +775,85 @@ class LoginScreenController extends GetxService {
     }
   }
 
-  Future<void> handleFacebookLogin(BuildContext context) async {
-    try {
-      dev.log("Starting Facebook Login...");
-      final LoginResult fbResult = await FacebookAuth.instance.login(
-        permissions: ['email', 'public_profile'],
-      );
-
-      if (fbResult.status == LoginStatus.success) {
-        dev.log(
-            "Facebook Login Success. AccessToken: ${fbResult.accessToken!.tokenString}");
-        showLoadingDialog(context: context);
-        isLoading = true;
-
-        final userData = await FacebookAuth.instance.getUserData();
-        dev.log("Facebook User Data: $userData");
-
-        final email = userData['email'] ?? '';
-        final name = userData['name'] ?? '';
-        final avatar = userData['picture']?['data']?['url'] ?? '';
-        final accessToken = fbResult.accessToken!.tokenString;
-
-        dev.log("Facebook Auth successful, signing in to Firebase...");
-
-        // Sign in to Firebase with the Facebook credential to keep auth in sync
-        final credential = FacebookAuthProvider.credential(accessToken);
-        final firebaseUser =
-            await FirebaseAuth.instance.signInWithCredential(credential);
-        final firebaseIdToken = await firebaseUser.user?.getIdToken();
-        const source = 'facebook';
-
-        if (firebaseUser.user != null) {
-          dev.log(
-              "Firebase Sign In successful. User Email: ${firebaseUser.user!.email}, UID: ${firebaseUser.user!.uid}");
-          dev.log(
-              "Firebase ID Token: ${firebaseIdToken != null ? 'Present' : 'Missing'}");
-        }
-
-        Get.back(); // close loader from showLoadingDialog
-
-        await socialLogin(
-          context,
-          email,
-          name,
-          avatar,
-          accessToken,
-          source,
-          firebaseIdToken: firebaseIdToken,
-        );
-        dev.log('Facebook login flow completed');
-      } else if (fbResult.status == LoginStatus.cancelled) {
-        dev.log("Facebook login cancelled by user");
-        Get.snackbar(
-          "Login Cancelled",
-          "Facebook login was cancelled",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-      } else {
-        dev.log(
-            "Facebook login failed with status: ${fbResult.status}, Message: ${fbResult.message}");
-        Get.snackbar(
-          "Error",
-          "Facebook login failed: ${fbResult.message}",
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-      }
-    } catch (e) {
-      if (Get.isDialogOpen == true) Get.back();
-      isLoading = false;
-      dev.log("Facebook Login Error: $e");
-      Get.snackbar(
-        "Error",
-        "Facebook login error: $e",
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-      );
-    }
-  }
+  // Future<void> handleFacebookLogin(BuildContext context) async {
+  //   try {
+  //     dev.log("Starting Facebook Login...");
+  //     final LoginResult fbResult = await FacebookAuth.instance.login(
+  //       permissions: ['email', 'public_profile'],
+  //     );
+  //
+  //     if (fbResult.status == LoginStatus.success) {
+  //       dev.log(
+  //           "Facebook Login Success. AccessToken: ${fbResult.accessToken!.tokenString}");
+  //       showLoadingDialog(context: context);
+  //       isLoading = true;
+  //
+  //       final userData = await FacebookAuth.instance.getUserData();
+  //       dev.log("Facebook User Data: $userData");
+  //
+  //       final email = userData['email'] ?? '';
+  //       final name = userData['name'] ?? '';
+  //       final avatar = userData['picture']?['data']?['url'] ?? '';
+  //       final accessToken = fbResult.accessToken!.tokenString;
+  //
+  //       dev.log("Facebook Auth successful, signing in to Firebase...");
+  //
+  //       // Sign in to Firebase with the Facebook credential to keep auth in sync
+  //       final credential = FacebookAuthProvider.credential(accessToken);
+  //       final firebaseUser =
+  //           await FirebaseAuth.instance.signInWithCredential(credential);
+  //       final firebaseIdToken = await firebaseUser.user?.getIdToken();
+  //       const source = 'facebook';
+  //
+  //       if (firebaseUser.user != null) {
+  //         dev.log(
+  //             "Firebase Sign In successful. User Email: ${firebaseUser.user!.email}, UID: ${firebaseUser.user!.uid}");
+  //         dev.log(
+  //             "Firebase ID Token: ${firebaseIdToken != null ? 'Present' : 'Missing'}");
+  //       }
+  //
+  //       Get.back(); // close loader from showLoadingDialog
+  //
+  //       await socialLogin(
+  //         context,
+  //         email,
+  //         name,
+  //         avatar,
+  //         accessToken,
+  //         source,
+  //         firebaseIdToken: firebaseIdToken,
+  //       );
+  //       dev.log('Facebook login flow completed');
+  //     } else if (fbResult.status == LoginStatus.cancelled) {
+  //       dev.log("Facebook login cancelled by user");
+  //       Get.snackbar(
+  //         "Login Cancelled",
+  //         "Facebook login was cancelled",
+  //         backgroundColor: AppColors.errorBgColor,
+  //         colorText: AppColors.textSnackbarColor,
+  //       );
+  //     } else {
+  //       dev.log(
+  //           "Facebook login failed with status: ${fbResult.status}, Message: ${fbResult.message}");
+  //       Get.snackbar(
+  //         "Error",
+  //         "Facebook login failed: ${fbResult.message}",
+  //         backgroundColor: AppColors.errorBgColor,
+  //         colorText: AppColors.textSnackbarColor,
+  //       );
+  //     }
+  //   } catch (e) {
+  //     if (Get.isDialogOpen == true) Get.back();
+  //     isLoading = false;
+  //     dev.log("Facebook Login Error: $e");
+  //     Get.snackbar(
+  //       "Error",
+  //       "Facebook login error: $e",
+  //       backgroundColor: AppColors.errorBgColor,
+  //       colorText: AppColors.textSnackbarColor,
+  //     );
+  //   }
+  // }
 
 }
 

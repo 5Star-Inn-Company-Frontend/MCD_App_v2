@@ -62,7 +62,7 @@ class HomeScreenPage extends StatelessWidget {
                 backgroundColor: const Color(0xFFF9F9F9),
                 onRefresh: controller.refreshDashboard,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Obx(() => Skeletonizer(
                         enabled: controller.isLoading,
                         effect: ShimmerEffect(
@@ -84,19 +84,7 @@ class HomeScreenPage extends StatelessWidget {
                             const Gap(20),
                             controller.imageSliders.isNotEmpty
                                 ? _buildImageSlider(controller)
-                                : controller.isLoading &&
-                                        controller.imageSliders.isEmpty
-                                    ? Container(
-                                        height: 200,
-                                        margin: const EdgeInsets.symmetric(
-                                            horizontal: 8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[300],
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                      )
-                                    : const SizedBox.shrink(),
+                                : const SizedBox.shrink(),
                             const Gap(30),
                           ],
                         ),
@@ -605,7 +593,7 @@ class HomeScreenPage extends StatelessWidget {
     return Skeleton.leaf(
       child: Container(
         width: double.infinity,
-        margin: const EdgeInsets.symmetric(horizontal: 10),
+        // margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: Color.fromARGB(197, 38, 158, 96),
         borderRadius: BorderRadius.circular(16),
@@ -908,7 +896,7 @@ class HomeScreenPage extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 0.0),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -922,7 +910,7 @@ class HomeScreenPage extends StatelessWidget {
                 serviceKey.isEmpty || controller.isServiceAvailable(serviceKey);
 
             return Padding(
-              padding: const EdgeInsets.only(right: 15.0),
+              padding: const EdgeInsets.only(right: 10.0),
               child: _BouncingQuickActionButton(
                 button: button,
                 isAvailable: isAvailable,
@@ -1205,7 +1193,7 @@ class _PromoCarouselItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      // margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -1432,7 +1420,7 @@ class _BouncingQuickActionButtonState
 
 Widget _buildTopEarners(BuildContext context) {
   return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16),
+    padding: const EdgeInsets.symmetric(horizontal: 0),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1462,89 +1450,91 @@ Widget _buildTopEarners(BuildContext context) {
             ),
           ],
         ),
-        const Gap(15),
+        const Gap(10),
         Obx(() {
           final topThree = LeaderboardService.to.topThree;
           if (topThree.isEmpty) {
-            return const Center(child: Text("No top earners yet.", style: TextStyle(fontFamily: AppFonts.manRope)));
+            return const Center(
+              child: Text(
+                "No top earners yet.",
+                style: TextStyle(fontFamily: AppFonts.manRope),
+              ),
+            );
           }
           return Column(
-            children: topThree.asMap().entries.map((entry) {
-              int index = entry.key;
-              LeaderboardUser user = entry.value;
-              String imagePath = index == 0 ? 'assets/images/leaderboard/lead1.png' : 
-                                 index == 1 ? 'assets/images/leaderboard/lead2.png' : 
-                                 'assets/images/leaderboard/lead3.png';
-              return _buildLeaderboardListItem(user, imagePath, index);
-            }).toList(),
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade200, width: 1.0),
+                ),
+                child: Column(
+                  children: topThree.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    LeaderboardUser user = entry.value;
+                    String imagePath = index == 0
+                        ? 'assets/images/leaderboard/lead1.png'
+                        : index == 1
+                            ? 'assets/images/leaderboard/lead2.png'
+                            : 'assets/images/leaderboard/lead3.png';
+                    bool isLast = index == topThree.length - 1;
+
+                    return Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                imagePath,
+                                width: 32,
+                                height: 32,
+                              ),
+                              const Gap(10),
+                              Expanded(
+                                child: Text(
+                                  user.userName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: AppFonts.manRope,
+                                    color: AppColors.background,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                "${AmountUtil.formatFigure(user.pointsValue.toDouble())} pts",
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: AppFonts.manRope,
+                                  color: AppColors.primaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (!isLast)
+                          Divider(
+                            height: 1,
+                            thickness: 0.8,
+                            color: Colors.grey.shade100,
+                          ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
           );
         }),
       ],
     ),
   );
-}
-
-Widget _buildLeaderboardListItem(LeaderboardUser user, String imagePath, int index) {
-  return Container(
-    margin: const EdgeInsets.only(bottom: 12),
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(24),
-      border: Border.all(color: Colors.grey.shade200, width: 1.0),
-    ),
-    child: Row(
-      children: [
-        Container(
-          width: 45,
-          height: 45,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            image: DecorationImage(
-              image: AssetImage(imagePath),
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-        const Gap(12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                user.userName,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: AppFonts.manRope,
-                  color: AppColors.background,
-                ),
-              ),
-              // const Gap(2),
-              // Text(
-              //   "₦${AmountUtil.formatFigure((user.pointsValue).toDouble())} volume",
-              //   style: TextStyle(
-              //     fontSize: 13,
-              //     fontWeight: FontWeight.w500,
-              //     fontFamily: AppFonts.manRope,
-              //     color: Colors.grey.shade600,
-              //   ),
-              // ),
-            ],
-          ),
-        ),
-        Text(
-          "${AmountUtil.formatFigure(user.pointsValue.toDouble())} pts",
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            fontFamily: AppFonts.manRope,
-            color: AppColors.primaryColor,
-          ),
-        ),
-      ],
-    ),
-  ).animate(delay: (index * 100).ms).slideY(begin: 0.2, curve: Curves.easeOutQuad).fadeIn();
 }
 
 // Widget _walletItem(String title, String amount) {
@@ -1691,7 +1681,7 @@ class ImageItemState extends State<ImageItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
+      // margin: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         boxShadow: [

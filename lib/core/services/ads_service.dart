@@ -164,7 +164,7 @@ class AdsService {
     try {
       await _advertPlugin.initialize(
         testmode: testMode,
-        adsmodel: Adsmodel(googlemodel: googlemodel, unitymodel: unitymodel),
+        adsmodel: Adsmodel(googlemodel: googlemodel, ),
       );
       _isInitialized = true;
       dev.log('Ads initialized successfully');
