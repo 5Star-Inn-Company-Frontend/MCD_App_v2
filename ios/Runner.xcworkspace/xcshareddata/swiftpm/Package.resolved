@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/app-check.git",
       "state" : {
-        "revision" : "3e33dd27dd4c69bd81c7c81fe61d8ccf58846902",
-        "version" : "11.3.1"
+        "revision" : "97f7d74dd0e8f3d0fe5fc75cc8957aa73bdc948a",
+        "version" : "11.3.2"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/facebook/facebook-ios-sdk",
       "state" : {
-        "revision" : "3818dd2ccb6547c6d320ff68a1bd599789c3a44f",
-        "version" : "18.1.0"
+        "revision" : "80d0ee82f6370d1bace1431a80cb80575f98ee90",
+        "version" : "18.1.1"
       }
     },
     {
@@ -158,8 +158,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/googleads/swift-package-manager-google-mobile-ads",
       "state" : {
-        "revision" : "54efe6d39a7b41b84c1041f21c704a7e6a493d7a",
-        "version" : "13.9.0"
+        "revision" : "12b7af0f844723a86fd3c0089b02f64b1e495605",
+        "version" : "13.10.0"
       }
     },
     {
@@ -181,21 +181,12 @@
       }
     },
     {
-      "identity" : "unity-ad-quality-swift-package",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ironsource-mobile/Unity-Ad-Quality-Swift-Package",
-      "state" : {
-        "revision" : "7b67cefa586b09e95df54413b48e907c6649e4ca",
-        "version" : "9.9.0"
-      }
-    },
-    {
       "identity" : "unity-ads-swift-package",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Unity-Technologies/Unity-Ads-Swift-Package",
       "state" : {
-        "revision" : "589ebfb7a28cc9171856ced7a9429d9770ec31a5",
-        "version" : "4.20.0"
+        "revision" : "2d489ee19ef73cdb51410ad09f0f13cb4f9cb388",
+        "version" : "4.20.1"
       }
     }
   ],

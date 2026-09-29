@@ -145,7 +145,9 @@ class createaccountController extends GetxController {
           if (success == 1 || success == true) {
             dev.log("Signup successful - Redirecting to login", name: 'Signup');
             Get.snackbar("Success", "Registration complete, please login", backgroundColor: AppColors.successBgColor, colorText: AppColors.textSnackbarColor);
-            Get.offAllNamed(Routes.LOGIN_SCREEN);
+            if (Get.currentRoute != Routes.LOGIN_SCREEN) {
+              Get.offAllNamed(Routes.LOGIN_SCREEN);
+            }
           } else {
             dev.log("Signup failed: ${authResult["message"]}", name: 'Signup');
             Get.snackbar("Error", authResult["message"] ?? "Signup failed", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);

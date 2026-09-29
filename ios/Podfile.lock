@@ -16,6 +16,8 @@ PODS:
   - flutter_inappwebview_ios/Core (0.0.1):
     - Flutter
     - OrderedSet (~> 6.0.3)
+  - Google-Mobile-Ads-SDK (13.10.0):
+    - GoogleUserMessagingPlatform (>= 1.1)
   - google_mlkit_commons (0.13.0):
     - Flutter
     - MLKitVision (~> 10.0.0)
@@ -38,11 +40,15 @@ PODS:
   - GoogleMLKit/TextRecognition (9.0.0):
     - GoogleMLKit/MLKitCore
     - MLKitTextRecognition (~> 7.0.0)
+  - GoogleMobileAdsMediationUnity (4.20.1.0):
+    - Google-Mobile-Ads-SDK (~> 13.3)
+    - UnityAds (= 4.20.1)
   - GoogleToolboxForMac/Defines (4.2.1)
   - GoogleToolboxForMac/Logger (4.2.1):
     - GoogleToolboxForMac/Defines (= 4.2.1)
   - "GoogleToolboxForMac/NSData+zlib (4.2.1)":
     - GoogleToolboxForMac/Defines (= 4.2.1)
+  - GoogleUserMessagingPlatform (3.1.0)
   - GoogleUtilities/Environment (8.1.3):
     - GoogleUtilities/Privacy
   - GoogleUtilities/Logger (8.1.3):
@@ -85,15 +91,20 @@ PODS:
   - OrderedSet (6.0.3)
   - PromisesObjC (2.4.1)
   - RegulaCommon (9.7.2626)
+  - UnityAds (4.20.1):
+    - UnityCoherenceLib (= 0.1.0)
+  - UnityCoherenceLib (0.1.0)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_face_api (from `.symlinks/plugins/flutter_face_api/ios`)
   - flutter_face_core_basic (from `.symlinks/plugins/flutter_face_core_basic/ios`)
   - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
+  - Google-Mobile-Ads-SDK
   - google_mlkit_commons (from `.symlinks/plugins/google_mlkit_commons/ios`)
   - google_mlkit_face_detection (from `.symlinks/plugins/google_mlkit_face_detection/ios`)
   - google_mlkit_text_recognition (from `.symlinks/plugins/google_mlkit_text_recognition/ios`)
+  - GoogleMobileAdsMediationUnity
 
 SPEC REPOS:
   https://github.com/regulaforensics/podspecs.git:
@@ -101,9 +112,12 @@ SPEC REPOS:
     - FaceSDK
     - RegulaCommon
   trunk:
+    - Google-Mobile-Ads-SDK
     - GoogleDataTransport
     - GoogleMLKit
+    - GoogleMobileAdsMediationUnity
     - GoogleToolboxForMac
+    - GoogleUserMessagingPlatform
     - GoogleUtilities
     - GTMSessionFetcher
     - MLImage
@@ -115,6 +129,8 @@ SPEC REPOS:
     - nanopb
     - OrderedSet
     - PromisesObjC
+    - UnityAds
+    - UnityCoherenceLib
 
 EXTERNAL SOURCES:
   Flutter:
@@ -139,12 +155,15 @@ SPEC CHECKSUMS:
   flutter_face_api: 3537a044ce3a7ceb9c6ba13464a26c2429d0204a
   flutter_face_core_basic: b9286ee3970892f35393b16aed97a54905dc9951
   flutter_inappwebview_ios: 6f63631e2c62a7c350263b13fa5427aedefe81d4
+  Google-Mobile-Ads-SDK: 8e764c4990ef82c2727fd32e0c4143817b443603
   google_mlkit_commons: 092da2f8e0a4a77d9a0475fd6eec56958e2b505d
   google_mlkit_face_detection: 6414bbd2ab4b682ea87794c9f9581dda9033680c
   google_mlkit_text_recognition: 960eec5194182c898881a83d2d70afcd4abbb88d
   GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
   GoogleMLKit: b1eee21a41c57704fe72483b15c85cb2c0cd7444
+  GoogleMobileAdsMediationUnity: cf8c4104b642d1829ce5ad7fd70184b9599bfc50
   GoogleToolboxForMac: d1a2cbf009c453f4d6ded37c105e2f67a32206d8
+  GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   GoogleUtilities: 4e0c2ad9fa0d0d18b5c4df8bf57b461cba35b0bb
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   MLImage: 0de5c6c2bf9e93b80ef752e2797f0836f03b58c0
@@ -157,7 +176,9 @@ SPEC CHECKSUMS:
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
   RegulaCommon: 7784c48d3476f12caed58b4dc0ffb82e3fedba1c
+  UnityAds: 70ddc29f85c2e26967afca937e5379118f435747
+  UnityCoherenceLib: d9be08c5b9c2880cb220c7ecd643f97ebda422b7
 
-PODFILE CHECKSUM: 1ab7c28f96cf3195878913321602659c6ed279fe
+PODFILE CHECKSUM: 917c131564eb8377ae69fcd5e92beb38fbe310ba
 
 COCOAPODS: 1.16.2

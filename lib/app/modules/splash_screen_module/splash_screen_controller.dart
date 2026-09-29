@@ -34,7 +34,9 @@ class SplashScreenController extends GetxController {
       Get.offAllNamed(Routes.HOME_SCREEN);
     } else {
       dev.log('navigating to LOGIN_SCREEN', name: 'Splash');
-      Get.offAllNamed(Routes.LOGIN_SCREEN);
+      if (Get.currentRoute != Routes.LOGIN_SCREEN) {
+        Get.offAllNamed(Routes.LOGIN_SCREEN);
+      }
     }
 
 

@@ -62,7 +62,7 @@ class HomeScreenPage extends StatelessWidget {
                 backgroundColor: AppColors.white,
                 onRefresh: controller.refreshDashboard,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  padding: const EdgeInsets.symmetric(horizontal: 0),
                   child: Obx(() => Skeletonizer(
                         enabled: controller.isLoading,
                         effect: ShimmerEffect(
@@ -71,7 +71,7 @@ class HomeScreenPage extends StatelessWidget {
                         ),
                         child: ListView(
                           children: [
-                            const Gap(20),
+                            const Gap(8),
                             _buildWalletCard(controller, context),
                             const Gap(20),
                             _buildQuickActionsRow(controller, context),
@@ -1067,7 +1067,7 @@ class _HomePromoCarouselState extends State<HomePromoCarousel> {
       subtitle1Color: AppColors.primaryColor,
       buttonText: 'Claim Now',
       imageAsset: 'assets/images/home_carousel/green-gift.png',
-      route: '/free_money',
+      route: Routes.FREE_MONEY_MODULE,
     ),
     PromoCardModel(
       iconAsset: 'assets/icons/home/mega-sale-icon.svg',
@@ -1130,7 +1130,7 @@ class _HomePromoCarouselState extends State<HomePromoCarousel> {
     return Column(
       children: [
         SizedBox(
-          height: 160,
+          height: 118,
           child: GestureDetector(
             onPanDown: (_) => _stopAutoSlide(),
             onPanCancel: () => _startAutoSlide(),

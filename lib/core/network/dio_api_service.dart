@@ -421,7 +421,9 @@ class DioApiService {
         t.cancel();
         Get.back(); // close dialog
         _isShowingSessionExpiredDialog = false;
-        Get.offAllNamed(Routes.LOGIN_SCREEN);
+        if (Get.currentRoute != Routes.LOGIN_SCREEN) {
+          Get.offAllNamed(Routes.LOGIN_SCREEN);
+        }
       }
     });
 
@@ -474,7 +476,9 @@ class DioApiService {
                 timer?.cancel();
                 Get.back();
                 _isShowingSessionExpiredDialog = false;
-                Get.offAllNamed(Routes.LOGIN_SCREEN);
+                if (Get.currentRoute != Routes.LOGIN_SCREEN) {
+                  Get.offAllNamed(Routes.LOGIN_SCREEN);
+                }
               },
               child:TextSemiBold('Login Now'),
             ),

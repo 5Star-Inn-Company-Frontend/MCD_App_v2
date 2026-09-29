@@ -1,5 +1,7 @@
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:get_storage/get_storage.dart';
+import 'package:get/get.dart';
+import 'package:mcd/core/services/remote_config_service.dart';
 import 'dart:developer' as dev;
 
 class AiAssistantService {
@@ -26,9 +28,14 @@ class AiAssistantService {
       return;
     }
 
+    String url = serverUrl;
+    if (Get.isRegistered<RemoteConfigService>()) {
+      url = RemoteConfigService.to.getString('ai_assistant_server_url', defaultValue: serverUrl);
+    }
+
     try {
       socket = IO.io(
-        serverUrl,
+        url,
         IO.OptionBuilder()
             .setTransports(['websocket'])
             .setExtraHeaders({'Authorization': 'Bearer $token'})

@@ -1,120 +1,74 @@
-import 'dart:convert';
 import 'dart:developer' as dev;
-
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/core/services/ads_service.dart';
-import 'package:mcd/core/controllers/service_status_controller.dart';
 
-import '../../../core/services/device_info_service.dart';
-import '../../../core/services/remote_config_service.dart';
-
-class RewardCentreModuleController extends GetxController {
+class PromoCodeController extends GetxController {
   final adsService = AdsService();
-  final isPromoLoading = false.obs;
-  bool get isLoading => ServiceStatusController.to.isLoading.value;
-  Map<String, dynamic> get service => ServiceStatusController.to.getRawServices();
-
-  final box = GetStorage();
   final apiService = DioApiService();
-  final deviceInfoService = DeviceInfoService();
+  final box = GetStorage();
+
+  final RxBool isLoading = false.obs;
+  final RxString savedPromoCode = ''.obs;
+  final RxString savedPromoMessage = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
-    fetchservicestatus();
-    // adsService.showInterstitialAd();
+    loadSavedPromoCode();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
+  /// Load cached promo code from local storage
+  void loadSavedPromoCode() {
+    final code = box.read('saved_promo_code')?.toString() ?? '';
+    final message = box.read('saved_promo_message')?.toString() ?? '';
+    savedPromoCode.value = code;
+    savedPromoMessage.value = message;
+    dev.log('Loaded saved promo code: $code', name: 'PromoCode');
   }
 
-  Future<void> fetchservicestatus() async {
-    await ServiceStatusController.to.fetchServiceStatus();
+  /// Copy saved promo code to clipboard
+  void copyPromoCode() {
+    if (savedPromoCode.value.isNotEmpty) {
+      Clipboard.setData(ClipboardData(text: savedPromoCode.value));
+      Get.snackbar(
+        'Copied!',
+        'Promo code copied to clipboard',
+        backgroundColor: AppColors.successBgColor,
+        colorText: AppColors.textSnackbarColor,
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 2),
+      );
+    }
   }
 
-  Future<void> showRewardedAd() async {
-    dev.log('Showing rewarded ad', name: 'RewardCentre');
-
-    final success = await adsService.showRewardedAd(
-      onRewarded: () {
-        dev.log('User earned reward', name: 'RewardCentre');
-        Get.snackbar(
-          'Reward Earned!',
-          'You have been rewarded!',
-          backgroundColor: AppColors.successBgColor,
-          colorText: AppColors.textSnackbarColor,
-          snackPosition: SnackPosition.TOP,
-          duration: const Duration(seconds: 3),
-        );
-      },
-      customData: {
-        "username": box.read('username') ?? "",
-        "platform": "mobile",
-        "type": "reward_centre"
-      },
+  /// Clear saved promo code from cache
+  void clearSavedCode() {
+    box.remove('saved_promo_code');
+    box.remove('saved_promo_message');
+    savedPromoCode.value = '';
+    savedPromoMessage.value = '';
+    Get.snackbar(
+      'Cleared',
+      'Saved promo code removed',
+      backgroundColor: AppColors.primaryColor,
+      colorText: AppColors.white,
+      snackPosition: SnackPosition.TOP,
+      duration: const Duration(seconds: 2),
     );
-
-    if (!success) {
-      dev.log('Failed to show rewarded ad', name: 'RewardCentre');
-      Get.snackbar(
-        'Ad Not Available',
-        'No ad available at the moment. Please try again later.',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-        snackPosition: SnackPosition.TOP,
-      );
-    }
   }
 
-  Future<void> freemoney() async {
-    dev.log('Showing rewarded ad', name: 'RewardCentre');
-
-    final success = await adsService.showfreemoney(
-      onRewarded: () {
-        adsService.showInterstitialAd(type: "freemoneyInterstitial");
-        if(RemoteConfigService.to.isServiceEnabled('ads_showrepeat')) {
-          freemoney();
-        }
-        dev.log('User earned reward', name: 'RewardCentre');
-        Get.snackbar(
-          'Reward Earned!',
-          'You have been rewarded!',
-          backgroundColor: AppColors.successBgColor,
-          colorText: AppColors.textSnackbarColor,
-          snackPosition: SnackPosition.TOP,
-          duration: const Duration(seconds: 3),
-        );
-      },
-      customData: {
-        "username": box.read('biometric_username_real') ?? "",
-        "platform": "mobile",
-        "type": "reward_centre"
-      },
-    ) ;
-
-    if (!success) {
-      dev.log('Failed to show rewarded ad', name: 'RewardCentre');
-      Get.snackbar(
-        'Ad Not Available',
-        'No ad available at the moment. Please try again later.',
-        backgroundColor: AppColors.errorBgColor,
-        colorText: AppColors.textSnackbarColor,
-        snackPosition: SnackPosition.TOP,
-      );
-    }
-  }
-
+  /// Launch rewarded video ad to attempt winning a promo code
   Future<void> tryWinPromoCode() async {
-    dev.log('Showing ad for promo code', name: 'RewardCentre');
+    if (isLoading.value) return;
+
+    dev.log('Showing ad for promo code', name: 'PromoCode');
 
     final success = await adsService.showRewardedAd(
       onRewarded: () async {
-        dev.log('User watched ad for promo code', name: 'RewardCentre');
+        dev.log('User watched ad for promo code', name: 'PromoCode');
         await _fetchPromoCode();
       },
       customData: {
@@ -125,7 +79,7 @@ class RewardCentreModuleController extends GetxController {
     );
 
     if (!success) {
-      dev.log('Failed to show ad for promo code', name: 'RewardCentre');
+      dev.log('Failed to show ad for promo code', name: 'PromoCode');
       Get.snackbar(
         'Ad Not Available',
         'No ad available at the moment. Please try again later.',
@@ -136,9 +90,10 @@ class RewardCentreModuleController extends GetxController {
     }
   }
 
+  /// Fetch promo code from API after ad completion
   Future<void> _fetchPromoCode() async {
     try {
-      isPromoLoading.value = true;
+      isLoading.value = true;
       final utilityUrl = box.read('utility_service_url');
 
       if (utilityUrl == null || utilityUrl.isEmpty) {
@@ -149,11 +104,10 @@ class RewardCentreModuleController extends GetxController {
           colorText: AppColors.textSnackbarColor,
           snackPosition: SnackPosition.TOP,
         );
-        isPromoLoading.value = false;
+        isLoading.value = false;
         return;
       }
 
-      // Show loading dialog
       Get.dialog(
         const Center(
           child: CircularProgressIndicator(
@@ -164,53 +118,47 @@ class RewardCentreModuleController extends GetxController {
       );
 
       final url = '${utilityUrl}promocode';
-      dev.log('Fetching promo code from: $url', name: 'RewardCentre');
+      dev.log('Fetching promo code from: $url', name: 'PromoCode');
 
       final result = await apiService.getrequest(url);
 
-      // Close loading dialog
-      Get.back();
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
 
       result.fold(
         (failure) {
-          dev.log('Failed to fetch promo code: ${failure.message}',
-              name: 'RewardCentre');
-          isPromoLoading.value = false;
-
-          // Show dialog to try again
+          dev.log('Failed to fetch promo code: ${failure.message}', name: 'PromoCode');
+          isLoading.value = false;
           _showTryAgainDialog();
         },
         (data) {
-          dev.log('Promo code response: ${data.toString()}',
-              name: 'RewardCentre');
-          isPromoLoading.value = false;
+          dev.log('Promo code response: $data', name: 'PromoCode');
+          isLoading.value = false;
 
-          // Check if user won promo code
           final success = data['success'];
-          final promoCode = data['data']; // Changed from 'promo_code' to 'data'
+          final promoCode = data['data'];
           final message = data['message'] ?? '';
 
           if (success == 1 &&
               promoCode != null &&
               promoCode.toString().isNotEmpty) {
-            // User won promo code - save to cache
             box.write('saved_promo_code', promoCode.toString());
             box.write('saved_promo_message', message);
-            dev.log('Promo code saved to cache: $promoCode',
-                name: 'RewardCentre');
+            savedPromoCode.value = promoCode.toString();
+            savedPromoMessage.value = message;
+            dev.log('Promo code saved: $promoCode', name: 'PromoCode');
 
             _showPromoCodeSuccessDialog(promoCode.toString(), message);
           } else {
-            // User didn't win, show try again dialog
             _showTryAgainDialog(message: message);
           }
         },
       );
     } catch (e) {
-      dev.log('Exception fetching promo code: $e', name: 'RewardCentre');
-      isPromoLoading.value = false;
+      dev.log('Exception fetching promo code: $e', name: 'PromoCode');
+      isLoading.value = false;
 
-      // Close loading dialog if it's still open (in case of error before result.fold)
       if (Get.isDialogOpen ?? false) {
         Get.back();
       }
@@ -238,7 +186,6 @@ class RewardCentreModuleController extends GetxController {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Success icon
               Container(
                 width: 80,
                 height: 80,
@@ -246,17 +193,16 @@ class RewardCentreModuleController extends GetxController {
                   color: AppColors.primaryColor.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.card_giftcard,
                   size: 40,
                   color: AppColors.primaryColor,
                 ),
               ),
               const SizedBox(height: 20),
-              // Title
               Text(
                 'Congratulations!',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primaryColor,
@@ -265,7 +211,6 @@ class RewardCentreModuleController extends GetxController {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
-              // Message
               if (message.isNotEmpty)
                 Text(
                   message,
@@ -277,7 +222,6 @@ class RewardCentreModuleController extends GetxController {
                   textAlign: TextAlign.center,
                 ),
               const SizedBox(height: 20),
-              // Promo code display with copy button
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -286,7 +230,6 @@ class RewardCentreModuleController extends GetxController {
                   border: Border.all(
                     color: AppColors.primaryColor,
                     width: 2,
-                    style: BorderStyle.solid,
                   ),
                 ),
                 child: Column(
@@ -294,7 +237,7 @@ class RewardCentreModuleController extends GetxController {
                     const Text(
                       'Your Promo Code',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: Colors.grey,
                         fontFamily: AppFonts.manRope,
                       ),
@@ -302,13 +245,12 @@ class RewardCentreModuleController extends GetxController {
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Flexible(
                           child: Text(
                             promoCode,
-                            style: TextStyle(
-                              fontSize: 18,
+                            style: const TextStyle(
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: AppColors.primaryColor,
                               letterSpacing: 1,
@@ -319,19 +261,8 @@ class RewardCentreModuleController extends GetxController {
                         ),
                         const SizedBox(width: 8),
                         IconButton(
-                          onPressed: () {
-                            Clipboard.setData(ClipboardData(text: promoCode));
-                            Get.snackbar(
-                              'Copied!',
-                              'Promo code copied to clipboard',
-                              backgroundColor: AppColors.successBgColor,
-                              colorText: AppColors.textSnackbarColor,
-                              duration: const Duration(seconds: 2),
-                              snackPosition: SnackPosition.TOP,
-                            );
-                          },
-                          icon: const Icon(Icons.copy,
-                              color: AppColors.primaryColor),
+                          onPressed: copyPromoCode,
+                          icon: const Icon(Icons.copy, color: AppColors.primaryColor),
                           tooltip: 'Copy code',
                         ),
                       ],
@@ -340,7 +271,6 @@ class RewardCentreModuleController extends GetxController {
                 ),
               ),
               const SizedBox(height: 24),
-              // Close button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -383,7 +313,6 @@ class RewardCentreModuleController extends GetxController {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Icon
               Container(
                 width: 80,
                 height: 80,
@@ -398,7 +327,6 @@ class RewardCentreModuleController extends GetxController {
                 ),
               ),
               const SizedBox(height: 20),
-              // Title
               const Text(
                 'Better Luck Next Time!',
                 style: TextStyle(
@@ -409,7 +337,6 @@ class RewardCentreModuleController extends GetxController {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
-              // Message
               Text(
                 message ??
                     'You didn\'t win this time. Watch more advertisements to increase your chances of winning a promo code!',
@@ -421,7 +348,6 @@ class RewardCentreModuleController extends GetxController {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
-              // Buttons
               Row(
                 children: [
                   Expanded(
@@ -429,12 +355,12 @@ class RewardCentreModuleController extends GetxController {
                       onPressed: () => Get.back(),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: BorderSide(color: AppColors.primaryColor),
+                        side: const BorderSide(color: AppColors.primaryColor),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Cancel',
                         style: TextStyle(
                           fontSize: 16,

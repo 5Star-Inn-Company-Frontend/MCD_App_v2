@@ -317,7 +317,9 @@ class ResetPasswordController extends GetxController {
             dev.log("Password changed successfully");
 
             // Navigate to login immediately to avoid Obx errors
-            Get.offAllNamed(Routes.LOGIN_SCREEN);
+            if (Get.currentRoute != Routes.LOGIN_SCREEN) {
+              Get.offAllNamed(Routes.LOGIN_SCREEN);
+            }
 
             // Show success message after navigation
             Future.delayed(const Duration(milliseconds: 300), () {

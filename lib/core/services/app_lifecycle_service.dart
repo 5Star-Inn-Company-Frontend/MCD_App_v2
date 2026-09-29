@@ -65,11 +65,9 @@ class AppLifecycleService extends GetxService with WidgetsBindingObserver {
 
     if (diff.inMinutes >= sessionTimeoutMinutes) {
       dev.log('Session timeout exceeded, logging out...', name: 'Lifecycle');
-      print(!kDebugMode);
-      print(!deviceInfoService.deviceString.contains("7E1F0E85-BE1A-4C2C-8442-51B55F9964DD"));
-      // if(!kDebugMode || !deviceInfoService.deviceString.contains("7E1F0E85-BE1A-4C2C-8442-51B55F9964DD")) {
-      //   _handleSessionTimeout();
-      // }
+      if(!kDebugMode || !deviceInfoService.deviceString.contains("7E1F0E85-BE1A-4C2C-8442-51B55F9964DD")) {
+        _handleSessionTimeout();
+      }
     }
 
     _pausedAt = null;
@@ -96,7 +94,9 @@ class AppLifecycleService extends GetxService with WidgetsBindingObserver {
     }
 
     // navigate to login screen
-    Get.offAllNamed(Routes.LOGIN_SCREEN);
+    if (Get.currentRoute != Routes.LOGIN_SCREEN) {
+      Get.offAllNamed(Routes.LOGIN_SCREEN);
+    }
 
     Get.snackbar(
       'Session Expired',

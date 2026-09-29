@@ -40,7 +40,7 @@ void main() {
         }
       };
 
-      final services = Services.fromJson(json);
+      final services = Services.fromJson(json['services'] as Map<String, dynamic>);
 
       expect(services.isServiceAvailable('airtime'), true);
       expect(services.isServiceAvailable('data'), false);
@@ -110,7 +110,7 @@ void main() {
         }
       };
 
-      final services = Services.fromJson(json);
+      final services = Services.fromJson(json['services'] as Map<String, dynamic>);
 
       // Test aliases
       expect(services.isServiceAvailable('paytv'), true);

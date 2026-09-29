@@ -110,7 +110,9 @@ class NewDeviceVerifyController extends GetxController {
                 backgroundColor: AppColors.successBgColor,
                 colorText: AppColors.textSnackbarColor,
               );
-              Get.offAllNamed(Routes.LOGIN_SCREEN);
+              if (Get.currentRoute != Routes.LOGIN_SCREEN) {
+                Get.offAllNamed(Routes.LOGIN_SCREEN);
+              }
             }
           } else {
             Get.snackbar(

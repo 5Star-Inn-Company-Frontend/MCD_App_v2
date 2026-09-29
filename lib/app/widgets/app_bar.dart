@@ -9,12 +9,14 @@ class PaylonyAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.elevation,
     this.actions = const [],
     this.centerTitle = false,
+    this.toolbarHeight,
   });
 
   final String title;
   final List<Widget> actions;
   final double? elevation;
   final bool centerTitle;
+  final double? toolbarHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +35,12 @@ class PaylonyAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: actions,
       elevation: elevation ?? 0.0,
       centerTitle: centerTitle,
+      toolbarHeight: toolbarHeight,
       // foregroundColor: AppColors.white,
     )
     ;
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(60);
+  Size get preferredSize => const Size.fromHeight(30);
 }

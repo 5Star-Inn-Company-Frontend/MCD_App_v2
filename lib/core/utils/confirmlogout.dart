@@ -67,7 +67,9 @@ class Confirmlogout {
     // If user confirmed, proceed with logout
     if (confirmed == true) {
       await logout();
-      Get.offAllNamed(Routes.LOGIN_SCREEN);
+      if (Get.currentRoute != Routes.LOGIN_SCREEN) {
+        Get.offAllNamed(Routes.LOGIN_SCREEN);
+      }
     }
   }
 }
