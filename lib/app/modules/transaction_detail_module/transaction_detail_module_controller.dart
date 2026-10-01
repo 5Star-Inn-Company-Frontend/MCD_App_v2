@@ -26,6 +26,7 @@ class TransactionDetailModuleController extends GetxController {
 
   // Global key for capturing receipt screenshot
   final receiptKey = GlobalKey();
+  final summaryReceiptKey = GlobalKey();
 
   // Transaction object from API
   Transaction? transaction;
@@ -976,8 +977,12 @@ class TransactionDetailModuleController extends GetxController {
       // Add a small delay for UI to hide internal balances
       await Future.delayed(const Duration(milliseconds: 100));
 
-      final boundary = receiptKey.currentContext?.findRenderObject()
+      RenderRepaintBoundary? boundary = receiptKey.currentContext?.findRenderObject()
           as RenderRepaintBoundary?;
+      
+      boundary ??= summaryReceiptKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
+
       if (boundary == null) {
         throw Exception('Unable to capture receipt');
       }
@@ -1101,8 +1106,12 @@ class TransactionDetailModuleController extends GetxController {
         }
       }
 
-      final boundary = receiptKey.currentContext?.findRenderObject()
+      RenderRepaintBoundary? boundary = receiptKey.currentContext?.findRenderObject()
           as RenderRepaintBoundary?;
+          
+      boundary ??= summaryReceiptKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
+
       if (boundary == null) {
         throw Exception('Unable to capture receipt');
       }

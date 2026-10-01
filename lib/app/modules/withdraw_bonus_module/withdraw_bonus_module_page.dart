@@ -8,6 +8,7 @@ import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_bar-two.dart';
 import 'package:mcd/app/widgets/busy_button.dart';
 import './withdraw_bonus_module_controller.dart';
+import 'package:mcd/app/widgets/custom_bottom_sheet.dart';
 
 class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
   const WithdrawBonusModulePage({super.key});
@@ -411,7 +412,7 @@ class WithdrawBonusModulePage extends GetView<WithdrawBonusModuleController> {
     controller.bankSearchQuery = '';
     controller.bankSearchController.clear();
 
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(

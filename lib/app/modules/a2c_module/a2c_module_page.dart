@@ -1,5 +1,6 @@
 import 'package:mcd/core/import/imports.dart';
 import './a2c_module_controller.dart';
+import 'package:mcd/app/widgets/custom_bottom_sheet.dart';
 
 class A2CModulePage extends GetView<A2CModuleController> {
   const A2CModulePage({super.key});
@@ -573,7 +574,7 @@ class A2CModulePage extends GetView<A2CModuleController> {
     controller.bankSearchQuery = '';
     controller.bankSearchController.clear();
 
-    showModalBottomSheet(
+    showCustomBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),

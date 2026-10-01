@@ -27,6 +27,8 @@ class PaylonyAppBar extends StatelessWidget implements PreferredSizeWidget {
         fontSize: 20,
         color: AppColors.textPrimaryColor,
         fontWeight: FontWeight.w700,
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
       ),
       actions: actions,
       elevation: elevation ?? 0.0,
