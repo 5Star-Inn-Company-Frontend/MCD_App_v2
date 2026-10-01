@@ -34,10 +34,12 @@ class HomeScreenPage extends StatelessWidget {
           },
           child: Obx(() {
             return Scaffold(
+              backgroundColor: Color(0xffF9F9F9),
               appBar: PaylonyAppBar(
                 title:
-                    "Hello ${controller.dashboardData?.user.userName ?? 'User'} 👋🏼",
+                "Hello ${controller.dashboardData?.user.userName ?? 'User'} 👋🏼",
                 elevation: 0,
+                backgroundColor: Color(0xffF9F9F9),
                 actions: [
                   TouchableOpacity(
                       child: InkWell(
@@ -62,45 +64,45 @@ class HomeScreenPage extends StatelessWidget {
                 backgroundColor: const Color(0xFFF9F9F9),
                 onRefresh: controller.refreshDashboard,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: Obx(() => Skeletonizer(
-                        enabled: controller.isLoading,
-                        effect: ShimmerEffect(
-                          baseColor: Colors.grey.shade300,
-                          highlightColor: Colors.grey.shade100,
+                    enabled: controller.isLoading,
+                    effect: ShimmerEffect(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                    ),
+                    child: ListView(
+                      children: [
+                        const Gap(2),
+                        _buildWalletCard(controller, context),
+                        const Gap(20),
+                        _buildQuickActionsRow(controller, context),
+                        const Gap(20),
+                        Skeleton.ignore(
+                          child: _buildStaticCarousel(context),
                         ),
-                        child: ListView(
-                          children: [
-                            const Gap(20),
-                            _buildWalletCard(controller, context),
-                            const Gap(20),
-                            _buildQuickActionsRow(controller, context),
-                            const Gap(20),
-                            Skeleton.ignore(
-                              child: _buildStaticCarousel(context),
-                            ),
-                            const Gap(20),
-                            _buildTopEarners(context),
-                            const Gap(20),
-                            controller.imageSliders.isNotEmpty
-                                ? _buildImageSlider(controller)
-                                : controller.isLoading &&
-                                        controller.imageSliders.isEmpty
-                                    ? Container(
-                                        height: 200,
-                                        margin: const EdgeInsets.symmetric(
-                                            horizontal: 8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey[300],
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                      )
-                                    : const SizedBox.shrink(),
-                            const Gap(30),
-                          ],
-                        ),
-                      )),
+                        const Gap(20),
+                        _buildTopEarners(context),
+                        const Gap(20),
+                        controller.imageSliders.isNotEmpty
+                            ? _buildImageSlider(controller)
+                            : controller.isLoading &&
+                            controller.imageSliders.isEmpty
+                            ? Container(
+                          height: 200,
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius:
+                            BorderRadius.circular(12),
+                          ),
+                        )
+                            : const SizedBox.shrink(),
+                        const Gap(30),
+                      ],
+                    ),
+                  )),
                 ),
               ),
               bottomNavigationBar: const BottomNavigation(
@@ -596,243 +598,240 @@ class HomeScreenPage extends StatelessWidget {
     if (accs != null) {
       if (accs.hasPrimary) {
         accountText =
-            "${accs.primaryAccountNumber} | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}";
+        "${accs.primaryAccountNumber} | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}";
       } else {
         accountText = "No Virtual Account";
       }
     }
 
     return Skeleton.leaf(
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: Color.fromARGB(197, 38, 158, 96),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Stack(
-          children: [
-            Positioned(
-              top: -20,
-              right: 60,
-              bottom: -50,
-              child: Transform.rotate(
-                angle: 0.4,
-                child: Container(
-                  width: 35,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.white.withOpacity(0.12), Colors.white.withOpacity(0.02)],
-                      stops: const [0.0, 0.7],
+        child: Container(
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: Color(0xff269E5F),
+            borderRadius: BorderRadius.circular(26.5),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Stack(
+              children: [
+                Positioned(
+                  top: -20,
+                  right: 60,
+                  bottom: -50,
+                  child: Transform.rotate(
+                    angle: 0.4,
+                    child: Container(
+                      width: 35,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.white.withOpacity(0.12), Colors.white.withOpacity(0.02)],
+                          stops: const [0.0, 0.7],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-            Positioned(
-              top: -20,
-              right: 120,
-              bottom: -50,
-              child: Transform.rotate(
-                angle: 0.4,
-                child: Container(
-                  width: 35,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.white.withOpacity(0.12), Colors.white.withOpacity(0.02)],
-                      stops: const [0.0, 0.7],
+                Positioned(
+                  top: -20,
+                  right: 120,
+                  bottom: -50,
+                  child: Transform.rotate(
+                    angle: 0.4,
+                    child: Container(
+                      width: 35,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.white.withOpacity(0.12), Colors.white.withOpacity(0.02)],
+                          stops: const [0.0, 0.7],
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (accs?.hasPrimary ?? false) {
-                        Clipboard.setData(
-                            ClipboardData(text: accs!.primaryAccountNumber));
-                        Get.snackbar('Copied', 'Account number copied to clipboard',
-                            backgroundColor: AppColors.primaryColor,
-                            colorText: Colors.white);
-                      }
-                    },
-                    behavior: HitTestBehavior.opaque,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Flexible(
-                          child: (accs?.hasPrimary ?? false)
-                              ? RichText(
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                  text: TextSpan(
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        fontFamily: AppFonts.manRope),
-                                    children: [
-                                      TextSpan(
-                                        text: accs!.primaryAccountNumber,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      TextSpan(
-                                        text:
-                                            " | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}",
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : Text(
-                                  accountText,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          if (accs?.hasPrimary ?? false) {
+                            Clipboard.setData(
+                                ClipboardData(text: accs!.primaryAccountNumber));
+                            Get.snackbar('Copied', 'Account number copied to clipboard',
+                                backgroundColor: AppColors.primaryColor,
+                                colorText: Colors.white);
+                          }
+                        },
+                        behavior: HitTestBehavior.opaque,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Flexible(
+                              child: (accs?.hasPrimary ?? false)
+                                  ? RichText(
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                                text: TextSpan(
                                   style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       fontFamily: AppFonts.manRope),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
+                                  children: [
+                                    TextSpan(
+                                      text: accs!.primaryAccountNumber,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(
+                                      text:
+                                      " | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}",
+                                    ),
+                                  ],
                                 ),
-                        ),
-                        const Gap(8),
-                        Skeleton.ignore(
-                          child: SvgPicture.asset(
-                            'assets/icons/home/copy-icon.svg',
-                            width: 16,
-                            height: 16,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  const Gap(12),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        controller.isBalanceVisible.value ? '₦ ' : '',
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            fontFamily: AppFonts.manRope),
-                      ),
-                      controller.isBalanceVisible.value
-                          ? Text(
-                              AmountUtil.formatFigure(double.tryParse(
-                                      controller.dashboardData?.balance.wallet ??
-                                          '0') ??
-                                  0),
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: AppFonts.manRope),
-                            )
-                          : const Text(
-                              '****',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: AppFonts.manRope),
+                              )
+                                  : Text(
+                                accountText,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: AppFonts.manRope),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                              ),
                             ),
-                      const Gap(10),
-                      GestureDetector(
-                        onTap: () => controller.toggleBalanceVisibility(),
-                        child: Icon(
-                          controller.isBalanceVisible.value
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          color: Colors.white,
-                          size: 20,
+                            const Gap(8),
+                            Skeleton.ignore(
+                              child: SvgPicture.asset(
+                                'assets/icons/home/copy-icon.svg',
+                                width: 16,
+                                height: 16,
+                              ),
+                            )
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                  const Gap(4),
-                  Skeleton.ignore(
-                    child: StreamBuilder(
-                      stream: Stream.periodic(const Duration(seconds: 1)),
-                      builder: (context, snapshot) {
-                        return Obx(() {
-                          final time = controller.lastUpdated.value;
-                          return Text(
-                            "Last Updated: ${_getTimeAgo(time)}",
+                      const Gap(12),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            controller.isBalanceVisible.value ? '₦ ' : '',
                             style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 10,
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700,
                                 fontFamily: AppFonts.manRope),
-                          );
-                        });
-                      },
-                    ),
-                  ),
-                  const Gap(12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _walletActionButton(
-                            icon: Icons.add,
-                            text: 'Add money',
-                            onTap: () {
-                              Get.toNamed(Routes.ADD_MONEY_MODULE,
-                                  arguments: {'dashboardData': controller.dashboardData});
-                            }),
+                          ),
+                          controller.isBalanceVisible.value
+                              ? Text(
+                            AmountUtil.formatFigure(double.tryParse(
+                                controller.dashboardData?.balance.wallet ??
+                                    '0') ??
+                                0),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: AppFonts.manRope),
+                          )
+                              : const Text(
+                            '****',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: AppFonts.manRope),
+                          ),
+                          const Gap(10),
+                          GestureDetector(
+                            onTap: () => controller.toggleBalanceVisibility(),
+                            child: Icon(
+                              controller.isBalanceVisible.value
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ],
                       ),
-                      const Gap(8),
-                      Expanded(
-                        child: _walletActionButton(
-                            svgIcon: 'assets/icons/home/history.svg',
-                            text: 'History',
-                            onTap: () {
-                              Get.offAllNamed(Routes.HISTORY_SCREEN);
-                            }),
+                      const Gap(4),
+                      Skeleton.ignore(
+                        child: StreamBuilder(
+                          stream: Stream.periodic(const Duration(seconds: 1)),
+                          builder: (context, snapshot) {
+                            return Obx(() {
+                              final time = controller.lastUpdated.value;
+                              return Text(
+                                "Last Updated: ${_getTimeAgo(time)}",
+                                style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 10,
+                                    fontFamily: AppFonts.manRope),
+                              );
+                            });
+                          },
+                        ),
                       ),
-                      const Gap(8),
-                      Expanded(
-                        child: _walletActionButton(
-                            svgIcon: 'assets/icons/home/wallet.svg',
-                            text: 'Wallets',
-                            onTap: () {
-                              _showWalletsBottomSheet(context, controller);
-                            }),
-                      ),
+                      const Gap(12),
+                      Row(
+                        children: [
+                          _walletActionButton(
+                              icon: Icons.add,
+                              text: 'Add money',
+                              onTap: () {
+                                Get.toNamed(Routes.ADD_MONEY_MODULE,
+                                    arguments: {'dashboardData': controller.dashboardData});
+                              }),
+                          const Gap(8),
+                          _walletActionButton(
+                              svgIcon: 'assets/icons/home/history.svg',
+                              text: 'History',
+                              onTap: () {
+                                Get.offAllNamed(Routes.HISTORY_SCREEN);
+                              }),
+                          Spacer(),
+                          const Gap(8),
+                          _walletActionButton(
+                              svgIcon: 'assets/icons/home/wallet.svg',
+                              text: 'Wallets',
+                              onTap: () {
+                                _showWalletsBottomSheet(context, controller);
+                              }),
+                        ],
+                      )
                     ],
-                  )
-                ],
-              ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    ));
+          ),
+        ));
   }
 
   Widget _walletActionButton(
       {IconData? icon,
-      String? svgIcon,
-      required String text,
-      required VoidCallback onTap}) {
+        String? svgIcon,
+        required String text,
+        required VoidCallback onTap}) {
     return Skeleton.ignore(
       child: GestureDetector(
         onTap: onTap,
         child: Container(
+          width: 95,
+          height: 29,
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFF6EC38C),
+            color: const Color(0x20FFFFFF),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
@@ -842,7 +841,7 @@ class HomeScreenPage extends StatelessWidget {
               if (svgIcon != null)
                 SvgPicture.asset(svgIcon,
                     colorFilter:
-                        const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                    const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                     height: 16),
               const Gap(6),
               Flexible(
@@ -851,8 +850,8 @@ class HomeScreenPage extends StatelessWidget {
                   child: Text(text,
                       style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
                           fontFamily: AppFonts.manRope)),
                 ),
               ),
@@ -867,7 +866,7 @@ class HomeScreenPage extends StatelessWidget {
       HomeScreenController controller, BuildContext context) {
     if (controller.isLoading && controller.actionButtonz.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 6.0),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -875,40 +874,40 @@ class HomeScreenPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: List.generate(
                 5,
-                (index) => Padding(
-                      padding: const EdgeInsets.only(right: 15.0),
-                      child: Skeleton.leaf(
-                            child: Container(
-                              width: 66,
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(15),
+                    (index) => Padding(
+                  padding: const EdgeInsets.only(right: 15.0),
+                  child: Skeleton.leaf(
+                      child: Container(
+                        width: 66,
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                shape: BoxShape.circle,
+                              ),
                             ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 24,
-                                  height: 24,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade200,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                const Gap(8),
-                                const Text("...", style: TextStyle(fontSize: 12)),
-                              ],
-                            ),
-                          )),
-                    )),
+                            const Gap(8),
+                            const Text("...", style: TextStyle(fontSize: 12)),
+                          ],
+                        ),
+                      )),
+                )),
           ),
         ),
       );
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 1.0),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -928,7 +927,7 @@ class HomeScreenPage extends StatelessWidget {
                 isAvailable: isAvailable,
                 onTap: () async {
                   final isAvailable =
-                      await controller.handleServiceNavigation(button);
+                  await controller.handleServiceNavigation(button);
                   if (!isAvailable) return;
 
                   if (!context.mounted) return;
@@ -1009,7 +1008,7 @@ class HomeScreenPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const SizedBox(width: 24),
-                  const Text("Account", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, fontFamily: AppFonts.manRope, color: AppColors.background)),
+                  const Text("Wallets", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, fontFamily: AppFonts.manRope, color: AppColors.background)),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: const Icon(Icons.close, size: 20, color: Colors.grey),
@@ -1023,7 +1022,7 @@ class HomeScreenPage extends StatelessWidget {
               _walletItemWithIcon(
                   "Point",
                   "(${AmountUtil.formatFigure(double.tryParse(
-                          controller.dashboardData?.balance.points ?? '0') ??
+                      controller.dashboardData?.balance.points ?? '0') ??
                       0)})",
                   Icons.adjust),
               _walletItemWithIcon("Bonus",
@@ -1177,7 +1176,7 @@ class _HomePromoCarouselState extends State<HomePromoCarousel> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             items.length,
-            (index) {
+                (index) {
               final isActive = (_currentPage % items.length) == index;
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
@@ -1303,9 +1302,9 @@ class _PromoCarouselItem extends StatelessWidget {
                         const Gap(10),
                         GestureDetector(
                           onTap: () {
-                             if (item.route.isNotEmpty) {
-                               Get.toNamed(item.route);
-                             }
+                            if (item.route.isNotEmpty) {
+                              Get.toNamed(item.route);
+                            }
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -1406,7 +1405,7 @@ class _BouncingQuickActionButtonState
                 colorFilter: ColorFilter.mode(
                     widget.button.text.toLowerCase() == 'more' ? Colors.white : AppColors.primaryColor, BlendMode.srcIn),
               ),
-              const Gap(8),
+              const Gap(5),
               Text(
                 widget.button.text,
                 textAlign: TextAlign.center,
@@ -1420,11 +1419,11 @@ class _BouncingQuickActionButtonState
             ],
           ),
         ).animate(target: _isPressed ? 1 : 0).scale(
-              begin: const Offset(1, 1),
-              end: const Offset(0.9, 0.9),
-              duration: 100.ms,
-              curve: Curves.easeOut,
-            ),
+          begin: const Offset(1, 1),
+          end: const Offset(0.9, 0.9),
+          duration: 100.ms,
+          curve: Curves.easeOut,
+        ),
       ),
     );
   }
@@ -1472,9 +1471,9 @@ Widget _buildTopEarners(BuildContext context) {
             children: topThree.asMap().entries.map((entry) {
               int index = entry.key;
               LeaderboardUser user = entry.value;
-              String imagePath = index == 0 ? 'assets/images/leaderboard/lead1.png' : 
-                                 index == 1 ? 'assets/images/leaderboard/lead2.png' : 
-                                 'assets/images/leaderboard/lead3.png';
+              String imagePath = index == 0 ? 'assets/images/leaderboard/lead1.png' :
+              index == 1 ? 'assets/images/leaderboard/lead2.png' :
+              'assets/images/leaderboard/lead3.png';
               return _buildLeaderboardListItem(user, imagePath, index);
             }).toList(),
           );
@@ -1657,7 +1656,7 @@ class ImageSliderWidgetState extends State<ImageSliderWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             widget.images.length,
-            (index) {
+                (index) {
               final isActive = (_currentPage % widget.images.length) == index;
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 300),

@@ -9,19 +9,20 @@ class PaylonyAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.elevation,
     this.actions = const [],
     this.centerTitle = false,
+    this.backgroundColor = Colors.white,
   });
 
   final String title;
   final List<Widget> actions;
   final double? elevation;
   final bool centerTitle;
+  final Color backgroundColor;
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      // backgroundColor: AppColors.white,
-      // backgroundColor: Colors.transparent,
+      backgroundColor: backgroundColor,
       title: TextBold(
         title,
         fontSize: 20,
