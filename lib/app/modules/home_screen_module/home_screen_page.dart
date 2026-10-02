@@ -1225,7 +1225,7 @@ class _PromoCarouselItem extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 16, right: 10, top: 16, bottom: 16),
+              padding: const EdgeInsets.only(left: 16, right: 10, top: 10, bottom: 10),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -1253,7 +1253,7 @@ class _PromoCarouselItem extends StatelessWidget {
                         Text(
                           item.title,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 15,
                             fontWeight: FontWeight.w600,
                             fontFamily: AppFonts.manRope,
                             color: Color(0xFF333333),
@@ -1265,7 +1265,7 @@ class _PromoCarouselItem extends StatelessWidget {
                         Text(
                           item.subtitle1,
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 10,
                             fontWeight: FontWeight.w700,
                             fontFamily: AppFonts.manRope,
                             color: item.subtitle1Color,
@@ -1279,7 +1279,7 @@ class _PromoCarouselItem extends StatelessWidget {
                               child: Text(
                                 item.subtitle2,
                                 style: const TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 8,
                                   fontFamily: AppFonts.manRope,
                                   color: Color(0xFF888888),
                                 ),
@@ -1287,7 +1287,7 @@ class _PromoCarouselItem extends StatelessWidget {
                             ),
                           ),
                         ],
-                        const Gap(10),
+                        const Gap(5),
                         GestureDetector(
                           onTap: () {
                             if (item.route.isNotEmpty) {
@@ -1399,7 +1399,7 @@ class _BouncingQuickActionButtonState
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: widget.button.text.toLowerCase() == 'more' ? Colors.white : AppColors.background,
-                  fontSize: 12,
+                  fontSize: 10,
                   fontWeight: FontWeight.w600,
                   fontFamily: AppFonts.manRope,
                 ),

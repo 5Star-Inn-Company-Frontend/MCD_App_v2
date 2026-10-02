@@ -122,7 +122,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                                 "Game Centre",
                                 'Play games and earn rewards')),
                       ),
-                      if(RemoteConfigService.to.isServiceEnabled('ads_bannerlist'))
+                      if(controller.isBannerListEnabled)
                       InkWell(
                         onTap: () {
                           Get.toNamed(Routes.BANNER_LIST_MODULE);

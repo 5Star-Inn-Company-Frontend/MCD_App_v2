@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
 import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 class RemoteConfigService extends GetxService {
@@ -9,6 +8,7 @@ class RemoteConfigService extends GetxService {
 
   final FirebaseRemoteConfig _remoteConfig = FirebaseRemoteConfig.instance;
   final RxBool isInitialized = false.obs;
+  final RxInt configUpdateTick = 0.obs;
 
   // Default values for all application services and feature toggles
   static final Map<String, dynamic> _defaultConfig = {
@@ -60,6 +60,7 @@ class RemoteConfigService extends GetxService {
     'ads_enabled': true,
     'ads_bannerlist': false,
     'ads_showrepeat': false,
+    'ads_showrepeat_users': 'all',
     'ads_test_mode': false,
     'unity_game_id_android': '3717787',
     'unity_game_id_ios': '3717786',
@@ -80,14 +81,14 @@ class RemoteConfigService extends GetxService {
       await _remoteConfig.setConfigSettings(
         RemoteConfigSettings(
           fetchTimeout: const Duration(seconds: 10),
-          minimumFetchInterval:
-              kDebugMode ? Duration.zero : const Duration(hours: 1),
+          minimumFetchInterval: Duration.zero,
         ),
       );
 
       await _remoteConfig.setDefaults(_defaultConfig);
 
       bool updated = await _remoteConfig.fetchAndActivate();
+      configUpdateTick.value++;
       dev.log(
         'Remote Config initialized. Fetch and activate success: $updated',
         name: 'RemoteConfig',
@@ -117,6 +118,7 @@ class RemoteConfigService extends GetxService {
           name: 'RemoteConfig',
         );
         await _remoteConfig.activate();
+        configUpdateTick.value++;
       }, onError: (error) {
         dev.log('Error listening to Remote Config updates: $error',
             name: 'RemoteConfig');
@@ -136,6 +138,40 @@ class RemoteConfigService extends GetxService {
       if (def is bool) fallback = def;
     }
     return getBool(normalizedKey, defaultValue: fallback);
+  }
+
+  /// Check if repeat ads are enabled for a specific username/user
+  bool isShowRepeatEnabledForUser(String username) {
+    if (!isServiceEnabled('ads_showrepeat')) return false;
+
+    final allowedUsers = getString('ads_showrepeat_users', defaultValue: 'all');
+    if (allowedUsers == 'all' || allowedUsers.trim().isEmpty) {
+      return true;
+    }
+
+    final userList = allowedUsers
+        .split(',')
+        .map((u) => u.trim().toLowerCase())
+        .toList();
+
+    return userList.contains(username.trim().toLowerCase());
+  }
+
+   /// Check if banner list ads are enabled for a specific username/user
+  bool isBannerListEnabledForUser(String username) {
+    if (!isServiceEnabled('ads_bannerlist')) return false;
+
+    final allowedUsers = getString('ads_showrepeat_users', defaultValue: 'all');
+    if (allowedUsers == 'all' || allowedUsers.trim().isEmpty) {
+      return true;
+    }
+
+    final userList = allowedUsers
+        .split(',')
+        .map((u) => u.trim().toLowerCase())
+        .toList();
+
+    return userList.contains(username.trim().toLowerCase());
   }
 
   /// Check if a specific payment method is enabled via Remote Config
@@ -170,6 +206,7 @@ class RemoteConfigService extends GetxService {
 
   /// Get boolean parameter value
   bool getBool(String key, {bool defaultValue = false}) {
+    configUpdateTick.value; // Register GetX reactive dependency
     try {
       if (_remoteConfig.getAll().containsKey(key)) {
         return _remoteConfig.getBool(key);
@@ -188,6 +225,7 @@ class RemoteConfigService extends GetxService {
 
   /// Get string parameter value
   String getString(String key, {String defaultValue = ''}) {
+    configUpdateTick.value; // Register GetX reactive dependency
     try {
       if (!_remoteConfig.getAll().containsKey(key)) {
         return defaultValue;
@@ -202,6 +240,7 @@ class RemoteConfigService extends GetxService {
 
   /// Get integer parameter value
   int getInt(String key, {int defaultValue = 0}) {
+    configUpdateTick.value; // Register GetX reactive dependency
     try {
       if (!_remoteConfig.getAll().containsKey(key)) {
         return defaultValue;
@@ -215,6 +254,7 @@ class RemoteConfigService extends GetxService {
 
   /// Get double parameter value
   double getDouble(String key, {double defaultValue = 0.0}) {
+    configUpdateTick.value; // Register GetX reactive dependency
     try {
       if (!_remoteConfig.getAll().containsKey(key)) {
         return defaultValue;
@@ -239,10 +279,20 @@ class RemoteConfigService extends GetxService {
     return null;
   }
 
-  /// Explicitly force refresh Remote Config
+  /// Explicitly force refresh Remote Config from Firebase servers
   Future<bool> forceRefresh() async {
     try {
-      return await _remoteConfig.fetchAndActivate();
+      dev.log('Force refreshing Remote Config from Firebase...', name: 'RemoteConfig');
+      await _remoteConfig.setConfigSettings(
+        RemoteConfigSettings(
+          fetchTimeout: const Duration(seconds: 10),
+          minimumFetchInterval: Duration.zero,
+        ),
+      );
+      bool updated = await _remoteConfig.fetchAndActivate();
+      configUpdateTick.value++;
+      dev.log('Remote Config force refresh success: $updated (Tick: ${configUpdateTick.value})', name: 'RemoteConfig');
+      return updated;
     } catch (e) {
       dev.log('Force refresh failed: $e', name: 'RemoteConfig');
       return false;

@@ -12,8 +12,13 @@ class FreeMoneyModulePage extends GetView<FreeMoneyModuleController> {
         title: "Free Money",
         centerTitle: false,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+      body: RefreshIndicator(
+        color: AppColors.primaryColor,
+        backgroundColor: AppColors.white,
+        onRefresh: controller.refreshRemoteConfig,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -153,48 +158,69 @@ class FreeMoneyModulePage extends GetView<FreeMoneyModuleController> {
             ),
             const Gap(24),
 
-            // Primary Watch Action Button
+            // Action Button (Reactively listens to RemoteConfig and loading state)
             Obx(() {
               final isLoading = controller.isWatchingAd.value;
-              return SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: isLoading ? null : controller.watchAdAndEarn,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    disabledBackgroundColor: AppColors.primaryColor.withOpacity(0.6),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+              final isShowRepeatEnabled = controller.isShowRepeatEnabled;
+
+              final String buttonTitle = isShowRepeatEnabled
+                  ? 'Watch Multiple Advert to Earn'
+                  : 'Watch Advert to Earn';
+
+              final VoidCallback? onButtonTap = isLoading
+                  ? null
+                  : () {
+                      if (isShowRepeatEnabled) {
+                        controller.watchMultipleRewardedAds(context);
+                      } else {
+                        controller.watchSingleAd();
+                      }
+                    };
+
+              return Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 54,
+                    child: ElevatedButton(
+                      onPressed: onButtonTap,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        disabledBackgroundColor:
+                            AppColors.primaryColor.withOpacity(0.6),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: isLoading
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: AppColors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.ondemand_video_rounded,
+                                    color: AppColors.white, size: 22),
+                                const Gap(8),
+                                TextBold(
+                                  buttonTitle,
+                                  fontSize: 16,
+                                  color: AppColors.white,
+                                ),
+                              ],
+                            ),
                     ),
                   ),
-                  child: isLoading
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(
-                            color: AppColors.white,
-                            strokeWidth: 2.5,
-                          ),
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.ondemand_video_rounded,
-                                color: AppColors.white, size: 22),
-                            const Gap(8),
-                            TextBold(
-                              'Watch Advert to Earn',
-                              fontSize: 16,
-                              color: AppColors.white,
-                            ),
-                          ],
-                        ),
-                ),
+                  const Gap(24),
+                ],
               );
             }),
-            const Gap(24),
 
             // Embedded Native Ad Section
             Center(
@@ -212,8 +238,9 @@ class FreeMoneyModulePage extends GetView<FreeMoneyModuleController> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildStepRow({
     required String stepNumber,

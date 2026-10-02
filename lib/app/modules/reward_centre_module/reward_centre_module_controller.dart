@@ -28,6 +28,15 @@ class RewardCentreModuleController extends GetxController {
     // adsService.showInterstitialAd();
   }
 
+  /// Get current user's username
+  String get currentUsername =>
+      box.read('biometric_username_real') ?? box.read('username') ?? '';
+
+  /// Check if repeat/multiple ads is enabled for the current user
+  bool get isBannerListEnabled {
+    if (!Get.isRegistered<RemoteConfigService>()) return false;
+    return RemoteConfigService.to.isBannerListEnabledForUser(currentUsername);
+  }
   @override
   void onClose() {
     super.onClose();
