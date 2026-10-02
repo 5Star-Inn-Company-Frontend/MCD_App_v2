@@ -10,6 +10,7 @@ class PaylonyAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions = const [],
     this.centerTitle = false,
     this.toolbarHeight,
+    this.backgroundColor = Colors.white,
   });
 
   final String title;
@@ -17,13 +18,13 @@ class PaylonyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double? elevation;
   final bool centerTitle;
   final double? toolbarHeight;
+  final Color backgroundColor;
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      // backgroundColor: AppColors.white,
-      // backgroundColor: Colors.transparent,
+      backgroundColor: backgroundColor,
       title: TextBold(
         title,
         fontSize: 20,

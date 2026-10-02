@@ -22,6 +22,7 @@ class SplashScreenController extends GetxController {
 
   Future<void> checkAuth() async {
     // Show App Open Ad
+    AdsService().setAppOpenOnResume(false);
     AdsService().showAppOpenAd();
 
     await Future.delayed(const Duration(seconds: 2));
