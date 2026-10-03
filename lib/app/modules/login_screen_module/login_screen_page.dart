@@ -11,7 +11,6 @@ class LoginScreenPage extends GetView<LoginScreenController> {
 
   @override
   Widget build(BuildContext context) {
-    controller.formKey = GlobalKey<FormState>();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.white,
