@@ -77,13 +77,13 @@ class HomeScreenPage extends StatelessWidget {
                         _buildWalletCard(controller, context),
                         const Gap(20),
                         _buildQuickActionsRow(controller, context),
-                        const Gap(20),
+                        const Gap(12),
                         Skeleton.ignore(
                           child: _buildStaticCarousel(context),
                         ),
-                        const Gap(20),
+                        const Gap(12),
                         _buildTopEarners(context),
-                        const Gap(20),
+                        const Gap(12),
                         controller.imageSliders.isNotEmpty
                             ? _buildImageSlider(controller)
                             : controller.isLoading &&
@@ -1152,7 +1152,7 @@ class _HomePromoCarouselState extends State<HomePromoCarousel> {
     return Column(
       children: [
         SizedBox(
-          height: 160,
+          height: 120,
           child: GestureDetector(
             onPanDown: (_) => _stopAutoSlide(),
             onPanCancel: () => _startAutoSlide(),
@@ -1204,7 +1204,7 @@ class _PromoCarouselItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -1237,7 +1237,7 @@ class _PromoCarouselItem extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 16, right: 10, top: 16, bottom: 16),
+              padding: const EdgeInsets.only(left: 16, right: 10, top: 12, bottom: 12),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -1299,7 +1299,7 @@ class _PromoCarouselItem extends StatelessWidget {
                             ),
                           ),
                         ],
-                        const Gap(10),
+                        const Gap(7),
                         GestureDetector(
                           onTap: () {
                             if (item.route.isNotEmpty) {
@@ -1337,8 +1337,8 @@ class _PromoCarouselItem extends StatelessWidget {
                   Image.asset(
                     item.imageAsset,
                     fit: BoxFit.contain,
-                    width: 90,
-                    height: 90,
+                    width: 97,
+                    height: 97,
                   ),
                 ],
               ),
@@ -1536,7 +1536,7 @@ Widget _buildLeaderboardListItem(LeaderboardUser user, String imagePath, int ind
           "${AmountUtil.formatFigure(user.pointsValue.toDouble())} pts",
           style: const TextStyle(
             fontSize: 15,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             fontFamily: AppFonts.manRope,
             color: AppColors.primaryColor,
           ),
