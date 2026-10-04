@@ -3,6 +3,7 @@ import 'dart:developer' as dev;
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
+import 'package:mcd/core/services/remote_config_service.dart';
 
 class PaymentConfigController extends GetxService {
   static late PaymentConfigController to;
@@ -132,12 +133,23 @@ class PaymentConfigController extends GetxService {
     }
   }
 
-  // Check if a payment method is available
+  // Check if a payment method is available (server status takes precedence, falls back to Remote Config)
   bool isPaymentMethodAvailable(String method) {
     // Mapping the internal key 'general_market' to API key 'pay_gm' for availability check
     final statusKey = method == 'general_market' ? 'pay_gm' : method;
-    final status = paymentMethodStatus[statusKey];
-    return status == '1';
+    if (paymentMethodStatus.containsKey(statusKey)) {
+      final status = paymentMethodStatus[statusKey];
+      if (status == '1') {
+        if (Get.isRegistered<RemoteConfigService>()) {
+          return RemoteConfigService.to.isPaymentMethodEnabled(method);
+        }
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    return true; // Default fallback
   }
 
   // Get Paystack public key
@@ -163,7 +175,6 @@ class PaymentConfigController extends GetxService {
   }
 
   // Refresh payment methods
-  @override
   Future<void> refresh() async {
     await fetchPaymentMethods();
   }

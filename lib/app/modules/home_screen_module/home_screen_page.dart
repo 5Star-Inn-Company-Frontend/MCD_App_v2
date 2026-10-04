@@ -66,43 +66,31 @@ class HomeScreenPage extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: Obx(() => Skeletonizer(
-                    enabled: controller.isLoading,
-                    effect: ShimmerEffect(
-                      baseColor: Colors.grey.shade300,
-                      highlightColor: Colors.grey.shade100,
-                    ),
-                    child: ListView(
-                      children: [
-                        const Gap(2),
-                        _buildWalletCard(controller, context),
-                        const Gap(20),
-                        _buildQuickActionsRow(controller, context),
-                        const Gap(12),
-                        Skeleton.ignore(
-                          child: _buildStaticCarousel(context),
+                        enabled: controller.isLoading,
+                        effect: ShimmerEffect(
+                          baseColor: Colors.grey.shade300,
+                          highlightColor: Colors.grey.shade100,
                         ),
-                        const Gap(12),
-                        _buildTopEarners(context),
-                        const Gap(12),
-                        controller.imageSliders.isNotEmpty
-                            ? _buildImageSlider(controller)
-                            : controller.isLoading &&
-                            controller.imageSliders.isEmpty
-                            ? Container(
-                          height: 200,
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius:
-                            BorderRadius.circular(12),
-                          ),
-                        )
-                            : const SizedBox.shrink(),
-                        const Gap(30),
-                      ],
-                    ),
-                  )),
+                        child: ListView(
+                          children: [
+                            const Gap(2),
+                            _buildWalletCard(controller, context),
+                            const Gap(20),
+                            _buildQuickActionsRow(controller, context),
+                            const Gap(12),
+                            Skeleton.ignore(
+                              child: _buildStaticCarousel(context),
+                            ),
+                            const Gap(12),
+                            _buildTopEarners(context),
+                            const Gap(12),
+                            controller.imageSliders.isNotEmpty
+                                ? _buildImageSlider(controller)
+                                : const SizedBox.shrink(),
+                            const Gap(30),
+                          ],
+                        ),
+                      )),
                 ),
               ),
               bottomNavigationBar: const BottomNavigation(
@@ -605,217 +593,217 @@ class HomeScreenPage extends StatelessWidget {
     }
 
     return Skeleton.leaf(
-        child: Container(
-          width: double.infinity,
-          margin: const EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            color: Color(0xff269E5F),
-            borderRadius: BorderRadius.circular(26.5),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: -20,
-                  right: 60,
-                  bottom: -50,
-                  child: Transform.rotate(
-                    angle: 0.4,
-                    child: Container(
-                      width: 35,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.white.withOpacity(0.12), Colors.white.withOpacity(0.02)],
-                          stops: const [0.0, 0.7],
-                        ),
-                      ),
+      child: Container(
+        width: double.infinity,
+        // margin: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: Color(0xff269E5F),
+        borderRadius: BorderRadius.circular(26.5),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          children: [
+            Positioned(
+              top: -20,
+              right: 60,
+              bottom: -50,
+              child: Transform.rotate(
+                angle: 0.4,
+                child: Container(
+                  width: 35,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.white.withOpacity(0.12), Colors.white.withOpacity(0.02)],
+                      stops: const [0.0, 0.7],
                     ),
                   ),
                 ),
-                Positioned(
-                  top: -20,
-                  right: 120,
-                  bottom: -50,
-                  child: Transform.rotate(
-                    angle: 0.4,
-                    child: Container(
-                      width: 35,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.white.withOpacity(0.12), Colors.white.withOpacity(0.02)],
-                          stops: const [0.0, 0.7],
-                        ),
-                      ),
+              ),
+            ),
+            Positioned(
+              top: -20,
+              right: 120,
+              bottom: -50,
+              child: Transform.rotate(
+                angle: 0.4,
+                child: Container(
+                  width: 35,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.white.withOpacity(0.12), Colors.white.withOpacity(0.02)],
+                      stops: const [0.0, 0.7],
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          if (accs?.hasPrimary ?? false) {
-                            Clipboard.setData(
-                                ClipboardData(text: accs!.primaryAccountNumber));
-                            Get.snackbar('Copied', 'Account number copied to clipboard',
-                                backgroundColor: AppColors.primaryColor,
-                                colorText: Colors.white);
-                          }
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Flexible(
-                              child: (accs?.hasPrimary ?? false)
-                                  ? RichText(
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
-                                text: TextSpan(
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      if (accs?.hasPrimary ?? false) {
+                        Clipboard.setData(
+                            ClipboardData(text: accs!.primaryAccountNumber));
+                        Get.snackbar('Copied', 'Account number copied to clipboard',
+                            backgroundColor: AppColors.primaryColor,
+                            colorText: Colors.white);
+                      }
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          child: (accs?.hasPrimary ?? false)
+                              ? RichText(
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: AppFonts.manRope),
+                                    children: [
+                                      TextSpan(
+                                        text: accs!.primaryAccountNumber,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            " | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}",
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Text(
+                                  accountText,
                                   style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       fontFamily: AppFonts.manRope),
-                                  children: [
-                                    TextSpan(
-                                      text: accs!.primaryAccountNumber,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    TextSpan(
-                                      text:
-                                      " | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}",
-                                    ),
-                                  ],
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
                                 ),
-                              )
-                                  : Text(
-                                accountText,
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: AppFonts.manRope),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 2,
-                              ),
-                            ),
-                            const Gap(8),
-                            Skeleton.ignore(
-                              child: SvgPicture.asset(
-                                'assets/icons/home/copy-icon.svg',
-                                width: 16,
-                                height: 16,
-                              ),
+                        ),
+                        const Gap(8),
+                        Skeleton.ignore(
+                          child: SvgPicture.asset(
+                            'assets/icons/home/copy-icon.svg',
+                            width: 16,
+                            height: 16,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  const Gap(12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        controller.isBalanceVisible.value ? '₦ ' : '',
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: AppFonts.manRope),
+                      ),
+                      controller.isBalanceVisible.value
+                          ? Text(
+                              AmountUtil.formatFigure(double.tryParse(
+                                      controller.dashboardData?.balance.wallet ??
+                                          '0') ??
+                                  0),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: AppFonts.manRope),
                             )
-                          ],
-                        ),
-                      ),
-                      const Gap(12),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            controller.isBalanceVisible.value ? '₦ ' : '',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700,
-                                fontFamily: AppFonts.manRope),
-                          ),
-                          controller.isBalanceVisible.value
-                              ? Text(
-                            AmountUtil.formatFigure(double.tryParse(
-                                controller.dashboardData?.balance.wallet ??
-                                    '0') ??
-                                0),
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 28,
-                                fontWeight: FontWeight.w700,
-                                fontFamily: AppFonts.manRope),
-                          )
-                              : const Text(
-                            '****',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 28,
-                                fontWeight: FontWeight.w700,
-                                fontFamily: AppFonts.manRope),
-                          ),
-                          const Gap(10),
-                          GestureDetector(
-                            onTap: () => controller.toggleBalanceVisibility(),
-                            child: Icon(
-                              controller.isBalanceVisible.value
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                              color: Colors.white,
-                              size: 20,
+                          : const Text(
+                              '****',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w700,
+                                  fontFamily: AppFonts.manRope),
                             ),
-                          ),
-                        ],
-                      ),
-                      const Gap(4),
-                      Skeleton.ignore(
-                        child: StreamBuilder(
-                          stream: Stream.periodic(const Duration(seconds: 1)),
-                          builder: (context, snapshot) {
-                            return Obx(() {
-                              final time = controller.lastUpdated.value;
-                              return Text(
-                                "Last Updated: ${_getTimeAgo(time)}",
-                                style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 10,
-                                    fontFamily: AppFonts.manRope),
-                              );
-                            });
-                          },
+                      const Gap(10),
+                      GestureDetector(
+                        onTap: () => controller.toggleBalanceVisibility(),
+                        child: Icon(
+                          controller.isBalanceVisible.value
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          color: Colors.white,
+                          size: 20,
                         ),
                       ),
-                      const Gap(12),
-                      Row(
-                        children: [
-                          _walletActionButton(
-                              icon: Icons.add,
-                              text: 'Add money',
-                              onTap: () {
-                                Get.toNamed(Routes.ADD_MONEY_MODULE,
-                                    arguments: {'dashboardData': controller.dashboardData});
-                              }),
-                          const Gap(8),
-                          _walletActionButton(
-                              svgIcon: 'assets/icons/home/history.svg',
-                              text: 'History',
-                              onTap: () {
-                                Get.offAllNamed(Routes.HISTORY_SCREEN);
-                              }),
-                          Spacer(),
-                          const Gap(8),
-                          _walletActionButton(
-                              svgIcon: 'assets/icons/home/wallet.svg',
-                              text: 'Wallets',
-                              onTap: () {
-                                _showWalletsBottomSheet(context, controller);
-                              }),
-                        ],
-                      )
                     ],
                   ),
-                ),
-              ],
+                  const Gap(4),
+                  Skeleton.ignore(
+                    child: StreamBuilder(
+                      stream: Stream.periodic(const Duration(seconds: 1)),
+                      builder: (context, snapshot) {
+                        return Obx(() {
+                          final time = controller.lastUpdated.value;
+                          return Text(
+                            "Last Updated: ${_getTimeAgo(time)}",
+                            style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 10,
+                                fontFamily: AppFonts.manRope),
+                          );
+                        });
+                      },
+                    ),
+                  ),
+                  const Gap(12),
+                  Row(
+                    children: [
+                      _walletActionButton(
+                          icon: Icons.add,
+                          text: 'Add money',
+                          onTap: () {
+                            Get.toNamed(Routes.ADD_MONEY_MODULE,
+                                arguments: {'dashboardData': controller.dashboardData});
+                          }),
+                      const Gap(8),
+                      _walletActionButton(
+                          svgIcon: 'assets/icons/home/history.svg',
+                          text: 'History',
+                          onTap: () {
+                            Get.offAllNamed(Routes.HISTORY_SCREEN);
+                          }),
+                      Spacer(),
+                      const Gap(8),
+                      _walletActionButton(
+                          svgIcon: 'assets/icons/home/wallet.svg',
+                          text: 'Wallets',
+                          onTap: () {
+                            _showWalletsBottomSheet(context, controller);
+                          }),
+                    ],
+                  )
+                ],
+              ),
             ),
-          ),
-        ));
+          ],
+        ),
+      ),
+    ));
   }
 
   Widget _walletActionButton(
@@ -907,7 +895,7 @@ class HomeScreenPage extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 1.0),
+      padding: const EdgeInsets.symmetric(horizontal: 0.0),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -921,7 +909,7 @@ class HomeScreenPage extends StatelessWidget {
                 serviceKey.isEmpty || controller.isServiceAvailable(serviceKey);
 
             return Padding(
-              padding: const EdgeInsets.only(right: 15.0),
+              padding: const EdgeInsets.only(right: 10.0),
               child: _BouncingQuickActionButton(
                 button: button,
                 isAvailable: isAvailable,
@@ -1089,7 +1077,7 @@ class _HomePromoCarouselState extends State<HomePromoCarousel> {
       subtitle1Color: AppColors.primaryColor,
       buttonText: 'Claim Now',
       imageAsset: 'assets/images/home_carousel/green-gift.png',
-      route: '/free_money',
+      route: Routes.FREE_MONEY_MODULE,
     ),
     PromoCardModel(
       iconAsset: 'assets/icons/home/mega-sale-icon.svg',
@@ -1204,7 +1192,7 @@ class _PromoCarouselItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12),
+      // margin: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -1237,7 +1225,7 @@ class _PromoCarouselItem extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 16, right: 10, top: 12, bottom: 12),
+              padding: const EdgeInsets.only(left: 16, right: 10, top: 16, bottom: 16),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -1265,7 +1253,7 @@ class _PromoCarouselItem extends StatelessWidget {
                         Text(
                           item.title,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 15,
                             fontWeight: FontWeight.w600,
                             fontFamily: AppFonts.manRope,
                             color: Color(0xFF333333),
@@ -1277,7 +1265,7 @@ class _PromoCarouselItem extends StatelessWidget {
                         Text(
                           item.subtitle1,
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 10,
                             fontWeight: FontWeight.w700,
                             fontFamily: AppFonts.manRope,
                             color: item.subtitle1Color,
@@ -1291,7 +1279,7 @@ class _PromoCarouselItem extends StatelessWidget {
                               child: Text(
                                 item.subtitle2,
                                 style: const TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 8,
                                   fontFamily: AppFonts.manRope,
                                   color: Color(0xFF888888),
                                 ),
@@ -1299,7 +1287,7 @@ class _PromoCarouselItem extends StatelessWidget {
                             ),
                           ),
                         ],
-                        const Gap(7),
+                        const Gap(10),
                         GestureDetector(
                           onTap: () {
                             if (item.route.isNotEmpty) {
@@ -1411,7 +1399,7 @@ class _BouncingQuickActionButtonState
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: widget.button.text.toLowerCase() == 'more' ? Colors.white : AppColors.background,
-                  fontSize: 12,
+                  fontSize: 10,
                   fontWeight: FontWeight.w600,
                   fontFamily: AppFonts.manRope,
                 ),
@@ -1431,7 +1419,7 @@ class _BouncingQuickActionButtonState
 
 Widget _buildTopEarners(BuildContext context) {
   return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16),
+    padding: const EdgeInsets.symmetric(horizontal: 0),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1461,11 +1449,16 @@ Widget _buildTopEarners(BuildContext context) {
             ),
           ],
         ),
-        const Gap(15),
+        const Gap(10),
         Obx(() {
           final topThree = LeaderboardService.to.topThree;
           if (topThree.isEmpty) {
-            return const Center(child: Text("No top earners yet.", style: TextStyle(fontFamily: AppFonts.manRope)));
+            return const Center(
+              child: Text(
+                "No top earners yet.",
+                style: TextStyle(fontFamily: AppFonts.manRope),
+              ),
+            );
           }
           return Column(
             children: topThree.asMap().entries.map((entry) {
@@ -1482,6 +1475,7 @@ Widget _buildTopEarners(BuildContext context) {
     ),
   );
 }
+
 
 Widget _buildLeaderboardListItem(LeaderboardUser user, String imagePath, int index) {
   return Container(
@@ -1690,7 +1684,7 @@ class ImageItemState extends State<ImageItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
+      // margin: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         boxShadow: [

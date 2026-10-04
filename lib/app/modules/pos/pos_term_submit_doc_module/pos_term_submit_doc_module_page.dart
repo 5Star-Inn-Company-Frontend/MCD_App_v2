@@ -140,13 +140,13 @@ class PosTermSubmitDocModulePage extends GetView<PosTermSubmitDocModuleControlle
   }
 
   Future<void> _selectFile() async {
-    FilePickerResult? result = await FilePicker.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf', 'doc', 'docx'],
     );
 
-    if (result != null) {
-      controller.selectFile(result.files.single.name);
+    if (result.isNotEmpty) {
+      controller.selectFile(result.single.name);
     }
   }
 

@@ -56,6 +56,10 @@ abstract class Routes {
   static const JAMB_VERIFY_ACCOUNT_MODULE = '/jamb_verify_account_module';
   static const JAMB_PAYMENT_MODULE = '/jamb_payment_module';
   static const REWARD_CENTRE_MODULE = '/reward_centre_module';
+  static const FREE_MONEY_MODULE = '/free_money_module';
+  static const FREE_MONEY = '/free_money';
+  static const PROMO_CODE_MODULE = '/promo_code_module';
+  static const PROMO_CODE = '/promo_code';
   static const GIVEAWAY_MODULE = '/giveaway_module';
   static const CREATE_GIVEAWAY = '/create_giveaway';
   static const GIVEAWAY_DETAIL = '/giveaway_detail';
@@ -124,4 +128,5 @@ abstract class Routes {
   static const MOMO_MODULE = '/momo_module';
   static const STORE_FRONT = '/store_front';
   static const NOTIFICATION_DETAIL = '/notification_detail';
+  static const BANNER_LIST_MODULE = '/banner_list_module';
 }

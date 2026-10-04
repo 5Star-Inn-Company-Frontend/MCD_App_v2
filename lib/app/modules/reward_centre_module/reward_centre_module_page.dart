@@ -2,6 +2,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
+import '../../../core/services/remote_config_service.dart';
 import './reward_centre_module_controller.dart';
 
 class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
@@ -9,6 +10,8 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
 
   @override
   Widget build(BuildContext context) {
+    print("RemoteConfigService.to.isServiceEnabled('ads_bannerlist')");
+    print(RemoteConfigService.to.isServiceEnabled('ads_bannerlist'));
     return Scaffold(
       appBar: const PaylonyAppBarTwo(
         title: "Reward Centre",
@@ -53,7 +56,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                       if (controller.service['freemoney'] == '1')
                         InkWell(
                           onTap: () {
-                            controller.freemoney();
+                            Get.toNamed(Routes.FREE_MONEY_MODULE);
                           },
                           child: AspectRatio(
                               aspectRatio: 3 / 2,
@@ -64,7 +67,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                         ),
                       InkWell(
                         onTap: () {
-                          controller.tryWinPromoCode();
+                          Get.toNamed(Routes.PROMO_CODE_MODULE);
                         },
                         child: AspectRatio(
                             aspectRatio: 3 / 2,
@@ -118,6 +121,18 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                                 'assets/images/reward_centre/game-centre.png',
                                 "Game Centre",
                                 'Play games and earn rewards')),
+                      ),
+                      if(controller.isBannerListEnabled)
+                      InkWell(
+                        onTap: () {
+                          Get.toNamed(Routes.BANNER_LIST_MODULE);
+                        },
+                        child: AspectRatio(
+                            aspectRatio: 3 / 2,
+                            child: _boxCard(
+                                'assets/images/reward_centre/promo-code.png',
+                                "Banner Ads",
+                                'View high and low advertisement banners')),
                       ),
                     ],
                   ]),

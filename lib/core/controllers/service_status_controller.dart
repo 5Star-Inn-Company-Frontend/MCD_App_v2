@@ -1,8 +1,10 @@
 import 'dart:developer' as dev;
+import 'dart:io';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/models/service_status_model.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
+import 'package:mcd/core/services/remote_config_service.dart';
 
 class ServiceStatusController extends GetxService {
   static late ServiceStatusController to;
@@ -98,19 +100,28 @@ class ServiceStatusController extends GetxService {
     }
   }
 
-  // Check if a specific service is available (silent check, no logging unless unavailable)
+  // Check if a specific service is available (server status takes precedence, falls back to Remote Config)
   bool isServiceAvailable(String serviceKey) {
-    if (serviceStatus.value == null) {
-      return true; // Allow access if status not yet fetched
+    if (serviceStatus.value != null) {
+      final isAvailable =
+          serviceStatus.value!.services.isServiceAvailable(serviceKey);
+      if (!isAvailable) {
+        dev.log('Service "$serviceKey" is UNAVAILABLE (via Server)', name: 'ServiceStatus');
+      }
+      if (isAvailable) {
+        // Server data is null, fall back to Remote Config if registered
+        if (Get.isRegistered<RemoteConfigService>()) {
+          final isRcEnabled = RemoteConfigService.to.isServiceEnabled(serviceKey);
+          if (!isRcEnabled) {
+            dev.log('Service "$serviceKey" is UNAVAILABLE (via Remote Config fallback)', name: 'ServiceStatus');
+          }
+          return isRcEnabled;
+        }
+      }
+      return isAvailable;
     }
-    final isAvailable =
-        serviceStatus.value!.services.isServiceAvailable(serviceKey);
 
-    if (!isAvailable) {
-      dev.log('Service "$serviceKey" is UNAVAILABLE', name: 'ServiceStatus');
-    }
-
-    return isAvailable;
+    return true; // Default to available if neither server nor Remote Config is ready
   }
 
   // get service availability with user feedback
@@ -232,23 +243,62 @@ class ServiceStatusController extends GetxService {
   }
 
   String? getSupportEmail() {
-    return serviceStatus.value?.others?.supportEmail;
+    final serverEmail = serviceStatus.value?.others?.supportEmail;
+    if (serverEmail != null && serverEmail.isNotEmpty) {
+      return serverEmail;
+    }
+    if (Get.isRegistered<RemoteConfigService>()) {
+      return RemoteConfigService.to.getString('support_email');
+    }
+    return null;
   }
 
   String? getAgentPhoneNumber() {
-    return serviceStatus.value?.others?.mcdAgentPhoneno;
+    final serverPhone = serviceStatus.value?.others?.mcdAgentPhoneno;
+    if (serverPhone != null && serverPhone.isNotEmpty) {
+      return serverPhone;
+    }
+    if (Get.isRegistered<RemoteConfigService>()) {
+      return RemoteConfigService.to.getString('agent_phone_number');
+    }
+    return null;
   }
 
   String? getUnityGameId() {
-    return serviceStatus.value?.adverts?.unityGameid;
+    final serverGameId = serviceStatus.value?.adverts?.unityGameid;
+    if (serverGameId != null && serverGameId.isNotEmpty) {
+      return serverGameId;
+    }
+    if (Get.isRegistered<RemoteConfigService>()) {
+      return Platform.isAndroid
+          ? RemoteConfigService.to.getString('unity_game_id_android')
+          : RemoteConfigService.to.getString('unity_game_id_ios');
+    }
+    return null;
   }
 
   bool isUnityTestMode() {
-    return serviceStatus.value?.adverts?.unityTestmode.toLowerCase() == 'true';
+    if (serviceStatus.value?.adverts?.unityTestmode != null) {
+      if (serviceStatus.value!.adverts!.unityTestmode.toLowerCase() == 'true') {
+        if (Get.isRegistered<RemoteConfigService>()) {
+          return RemoteConfigService.to.getBool('ads_test_mode');
+        }
+      }
+      return true;
+    }
+    return false;
   }
 
   bool isLeaderboardActive() {
-    return serviceStatus.value?.others?.leaderboard == '1';
+    if (serviceStatus.value?.others?.leaderboard != null) {
+      if (serviceStatus.value!.others!.leaderboard == '1') {
+        if (Get.isRegistered<RemoteConfigService>()) {
+          return RemoteConfigService.to.getBool('leaderboard_enabled');
+        }
+      }
+      return true;
+    }
+    return true;
   }
 
   // raw services map for action button filtering

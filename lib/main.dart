@@ -20,6 +20,7 @@ import 'package:mcd/core/services/device_info_service.dart';
 import 'package:mcd/core/services/deep_link_service.dart';
 import 'package:mcd/core/services/dialog_manager_service.dart';
 import 'package:mcd/core/services/leaderboard_service.dart';
+import 'package:mcd/core/services/remote_config_service.dart';
 import 'package:mcd/firebase_options.dart';
 
 // Background message handler
@@ -46,6 +47,9 @@ Future<void> main() async {
 
     // Set up background message handler
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    // Initialize Firebase Remote Config Service
+    await Get.putAsync(() => RemoteConfigService().init());
   }
   await GetStorage.init();
   await Get.putAsync(() => StorageService().init());

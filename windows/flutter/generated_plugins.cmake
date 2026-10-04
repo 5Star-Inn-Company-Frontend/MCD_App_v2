@@ -9,6 +9,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_windows
   firebase_auth
   firebase_core
+  firebase_remote_config
   flutter_inappwebview_windows
   flutter_secure_storage_windows
   gal

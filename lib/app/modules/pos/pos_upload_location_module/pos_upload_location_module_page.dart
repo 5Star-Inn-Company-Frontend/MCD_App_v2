@@ -162,12 +162,12 @@ class PosUploadLocationModulePage extends GetView<PosUploadLocationModuleControl
   }
 
   Future<void> _selectFile() async {
-    FilePickerResult? result = await FilePicker.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.image,
     );
 
-    if (result != null) {
-      controller.selectFile(result.files.single.name);
+    if (result.isNotEmpty) {
+      controller.selectFile(result.single.name);
     }
   }
 }

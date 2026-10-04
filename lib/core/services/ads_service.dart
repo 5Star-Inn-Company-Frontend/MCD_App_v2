@@ -4,8 +4,8 @@ import 'dart:io';
 
 import 'package:advert/advert.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:mcd/core/services/remote_config_service.dart';
 import 'connectivity_service.dart';
 
 class AdsService {
@@ -41,13 +41,13 @@ class AdsService {
   // --- Ad Unit IDs ---
 
   // Banner Ads
-  static final String bannerHigh = Platform.isAndroid
-      ? 'ca-app-pub-6117361441866120/2869480303'
-      : 'ca-app-pub-6117361441866120/8620500430';
+  static final List<String> bannerHigh = Platform.isAndroid
+      ? ['ca-app-pub-6117361441866120/2869480303','ca-app-pub-6117361441866120/1364826947']
+      : ['ca-app-pub-6117361441866120/8620500430','ca-app-pub-6117361441866120/3444195379'];
 
-  static final String bannerLow = Platform.isAndroid
-      ? 'ca-app-pub-6117361441866120/2869480303'
-      : 'ca-app-pub-6117361441866120/1488443500';
+  static final List<String> bannerLow = Platform.isAndroid
+      ? ['ca-app-pub-6117361441866120/2869480303','ca-app-pub-6117361441866120/7738663604']
+      : ['ca-app-pub-6117361441866120/1488443500','ca-app-pub-6117361441866120/7191868699'];
 
   // Interstitial Ads
   static String interstitialHigh = Platform.isAndroid
@@ -72,9 +72,19 @@ class AdsService {
       ? 'ca-app-pub-6117361441866120/5165063317'
       : 'ca-app-pub-6117361441866120/9202838992';
 
+  static String freeMoneyLow2 = Platform.isAndroid
+      ? 'ca-app-pub-6117361441866120/4934435891'
+      : 'ca-app-pub-6117361441866120/5585172589';
+
   static String freeMoneyInterstitial = Platform.isAndroid
       ? 'ca-app-pub-6117361441866120/2544949196'
       : 'ca-app-pub-6117361441866120/2980063466';
+
+  // spin and win uses interstitial ad unit
+  static String spinandwin = Platform.isAndroid
+      ? 'ca-app-pub-6117361441866120/8563923098'
+      : 'ca-app-pub-6117361441866120/8759030065';
+
 
   // Native Ads
   static String nativeHigh = Platform.isAndroid
@@ -102,12 +112,21 @@ class AdsService {
       return;
     }
 
+    if (Get.isRegistered<RemoteConfigService>()) {
+      final adsEnabled = RemoteConfigService.to.getBool('ads_enabled', defaultValue: true);
+      if (!adsEnabled) {
+        dev.log('Ads are disabled via Remote Config', name: 'AdsService');
+        return;
+      }
+      testMode = testMode || RemoteConfigService.to.getBool('ads_test_mode', defaultValue: false);
+    }
+
     Googlemodel googlemodel = Googlemodel();
 
     // 1. Configure Banner Waterfall
 
     googlemodel.addBannerPlacement('banner',
-        high: [bannerHigh], low: [bannerLow]);
+        high: bannerHigh, low: bannerLow);
 
     // 2. Configure Interstitial Waterfall
     googlemodel.addInterstitialPlacement('interstitial', high: [interstitialHigh]);
@@ -121,14 +140,14 @@ class AdsService {
 
     // 5. Configure Free Money Placement (3-tier waterfall support in SDK)
     googlemodel.addRewardedPlacement('freemoney',
-        high: [freeMoneyHigh], low: [freeMoneyLow]);
+        high: [freeMoneyHigh], low: [freeMoneyLow, freeMoneyLow2]);
 
     googlemodel.addInterstitialPlacement('freemoneyInterstitial',
         high: [freeMoneyInterstitial]);
 
     // 6. Configure Spin and Win (uses Free Money units)
     googlemodel.addRewardedPlacement('spinAndWin',
-        high: [freeMoneyHigh], low: [freeMoneyLow]);
+        high: [spinandwin]);
 
     // 7. Configure Native Ads
     googlemodel.addNativePlacement('native', high: [nativeHigh]);
@@ -145,7 +164,7 @@ class AdsService {
     try {
       await _advertPlugin.initialize(
         testmode: testMode,
-        adsmodel: Adsmodel(googlemodel: googlemodel, unitymodel: unitymodel),
+        adsmodel: Adsmodel(googlemodel: googlemodel, ),
       );
       _isInitialized = true;
       dev.log('Ads initialized successfully');

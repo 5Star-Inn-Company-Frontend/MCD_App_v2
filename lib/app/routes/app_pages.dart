@@ -31,6 +31,10 @@ import 'package:mcd/app/modules/jamb_payment_module/jamb_payment_module_bindings
 import 'package:mcd/app/modules/jamb_payment_module/jamb_payment_module_page.dart';
 import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_bindings.dart';
 import 'package:mcd/app/modules/reward_centre_module/reward_centre_module_page.dart';
+import 'package:mcd/app/modules/free_money_module/free_money_module_bindings.dart';
+import 'package:mcd/app/modules/free_money_module/free_money_module_page.dart';
+import 'package:mcd/app/modules/promo_code_module/promo_code_bindings.dart';
+import 'package:mcd/app/modules/promo_code_module/promo_code_page.dart';
 import 'package:mcd/app/modules/giveaway_module/giveaway_module_bindings.dart';
 import 'package:mcd/app/modules/giveaway_module/giveaway_module_page.dart';
 import 'package:mcd/app/modules/giveaway_module/giveaway_detail/giveaway_detail_bindings.dart';
@@ -159,6 +163,9 @@ import 'package:mcd/app/modules/epin_module/data_pin/data_pin_page.dart';
 import 'package:mcd/app/modules/epin_module/data_pin/data_pin_full_page.dart';
 import 'package:mcd/app/modules/epin_module/epin_transaction_detail_binding.dart';
 import 'package:mcd/app/modules/epin_module/epin_transaction_detail_page.dart';
+
+import 'package:mcd/app/modules/banner_list_module/banner_list_module_bindings.dart';
+import 'package:mcd/app/modules/banner_list_module/banner_list_module_page.dart';
 
 import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
 import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
@@ -400,6 +407,22 @@ abstract class AppPages {
         page: () => const RewardCentreModulePage(),
         binding: RewardCentreModuleBindings()),
     GetPage(
+        name: Routes.FREE_MONEY_MODULE,
+        page: () => const FreeMoneyModulePage(),
+        binding: FreeMoneyModuleBindings()),
+    GetPage(
+        name: Routes.FREE_MONEY,
+        page: () => const FreeMoneyModulePage(),
+        binding: FreeMoneyModuleBindings()),
+    GetPage(
+        name: Routes.PROMO_CODE_MODULE,
+        page: () => const PromoCodePage(),
+        binding: PromoCodeBindings()),
+    GetPage(
+        name: Routes.PROMO_CODE,
+        page: () => const PromoCodePage(),
+        binding: PromoCodeBindings()),
+    GetPage(
         name: Routes.GIVEAWAY_MODULE,
         page: () => const GiveawayModulePage(),
         binding: GiveawayModuleBindings()),
@@ -636,5 +659,9 @@ abstract class AppPages {
         name: Routes.STORE_FRONT,
         page: () => const StoreFrontPage(),
         binding: StoreFrontBinding()),
+    GetPage(
+        name: Routes.BANNER_LIST_MODULE,
+        page: () => const BannerListModulePage(),
+        binding: BannerListModuleBindings()),
   ];
 }
