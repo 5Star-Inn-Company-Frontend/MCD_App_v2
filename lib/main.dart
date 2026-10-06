@@ -12,6 +12,7 @@ import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/services/bank_service.dart';
 import 'package:mcd/core/services/country_service.dart';
 import 'package:mcd/core/services/dashboard_service.dart';
+import 'package:mcd/core/services/offers_service.dart';
 import 'package:mcd/core/services/usage_tracker_service.dart';
 import 'package:mcd/core/services/ads_service.dart';
 import 'package:mcd/core/services/app_lifecycle_service.dart';
@@ -64,6 +65,7 @@ Future<void> main() async {
   Get.put(BankService());
   Get.put(CountryService());
   Get.put(DashboardService());
+  Get.put(OffersService());
   Get.put(UsageTrackerService());
   Get.put(LeaderboardService());
 

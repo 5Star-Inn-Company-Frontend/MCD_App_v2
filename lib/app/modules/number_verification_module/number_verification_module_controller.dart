@@ -327,7 +327,17 @@ class NumberVerificationModuleController extends GetxController {
     try {
       final raw = box.read('cached_countries');
       if (raw == null) return {};
-      final List<dynamic> decoded = jsonDecode(raw as String);
+
+      List<dynamic> decoded;
+      if (raw is String) {
+        final parsed = jsonDecode(raw);
+        decoded = parsed is Map ? (parsed['data'] ?? []) : parsed;
+      } else if (raw is Map) {
+        decoded = raw['data'] ?? [];
+      } else {
+        decoded = raw as List<dynamic>;
+      }
+
       return decoded
           .map((e) => (e['code'] ?? '').toString().toUpperCase())
           .where((code) => code.isNotEmpty && code != 'NG')
@@ -345,7 +355,17 @@ class NumberVerificationModuleController extends GetxController {
     try {
       final raw = box.read('cached_countries');
       if (raw == null) return null;
-      final List<dynamic> decoded = jsonDecode(raw as String);
+
+      List<dynamic> decoded;
+      if (raw is String) {
+        final parsed = jsonDecode(raw);
+        decoded = parsed is Map ? (parsed['data'] ?? []) : parsed;
+      } else if (raw is Map) {
+        decoded = raw['data'] ?? [];
+      } else {
+        decoded = raw as List<dynamic>;
+      }
+
       final normalized = network.toUpperCase();
       for (final entry in decoded) {
         final countryName = (entry['name'] ?? '').toString().toUpperCase();

@@ -48,18 +48,26 @@ class CountryService extends GetxService {
     final cachedData = _box.read(_cacheKey);
     if (cachedData != null) {
       try {
-        final List<dynamic> rawList = cachedData is String 
-            ? jsonDecode(cachedData) 
-            : cachedData;
-            
+        List<dynamic> rawList;
+        if (cachedData is String) {
+          final decoded = jsonDecode(cachedData);
+          rawList = decoded is Map ? (decoded['data'] ?? []) : decoded;
+        } else if (cachedData is Map) {
+          rawList = cachedData['data'] ?? [];
+        } else {
+          rawList = cachedData as List<dynamic>;
+        }
+
         // Use CountryModel.fromJson on each element
         countries.value = rawList
             .map((e) => CountryModel.fromJson(e as Map<String, dynamic>))
             .toList();
-            
-        dev.log('Loaded ${countries.length} countries from cache', name: 'CountryService');
+
+        dev.log('Loaded ${countries.length} countries from cache',
+            name: 'CountryService');
       } catch (e) {
-        dev.log('Error loading countries from cache: $e', name: 'CountryService');
+        dev.log('Error loading countries from cache: $e',
+            name: 'CountryService');
       }
     }
   }
@@ -79,7 +87,8 @@ class CountryService extends GetxService {
       errorMessage.value = '';
 
       if (!forceRefresh && _isCacheValid() && countries.isNotEmpty) {
-        dev.log('Countries cache valid, skipping network fetch', name: 'CountryService');
+        dev.log('Countries cache valid, skipping network fetch',
+            name: 'CountryService');
         isLoading.value = false;
         return;
       }
@@ -96,7 +105,8 @@ class CountryService extends GetxService {
 
       result.fold(
         (failure) {
-          dev.log('Failed to fetch countries: ${failure.message}', name: 'CountryService');
+          dev.log('Failed to fetch countries: ${failure.message}',
+              name: 'CountryService');
           if (countries.isEmpty) {
             errorMessage.value = failure.message;
           }
@@ -105,11 +115,13 @@ class CountryService extends GetxService {
           if (data['success'] == 1) {
             final response = CountriesResponse.fromJson(data);
             countries.value = response.countries;
-            _writeCache(data); // Cache the raw response data
-            dev.log('Fetched ${countries.length} countries from network', name: 'CountryService');
+            _writeCache(data['data']); // Cache the list of countries
+            dev.log('Fetched ${countries.length} countries from network',
+                name: 'CountryService');
           } else {
             if (countries.isEmpty) {
-              errorMessage.value = data['message'] ?? 'Failed to fetch countries';
+              errorMessage.value =
+                  data['message'] ?? 'Failed to fetch countries';
             }
           }
         },

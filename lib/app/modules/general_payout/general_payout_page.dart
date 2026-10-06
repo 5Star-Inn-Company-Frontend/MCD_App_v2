@@ -1,3 +1,4 @@
+import 'package:mcd/core/services/offers_service.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -34,7 +35,9 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                 // Cable-specific bouquet card (only when valid bouquet info or user selected a package)
                 if (controller.paymentType == PaymentType.cable) ...[
                   Obx(() {
-                    if (!controller.shouldShowBouquetCard) return const SizedBox.shrink();
+                    if (!controller.shouldShowBouquetCard) {
+                      return const SizedBox.shrink();
+                    }
                     return Padding(
                       padding: const EdgeInsets.only(top: 20),
                       child: _buildBouquetCard(),
@@ -58,15 +61,18 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                     } else if (controller.isRenewalMode.value) {
                       return Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 15),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 15),
                         decoration: BoxDecoration(
                           color: const Color(0xFF5ABB7B).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFF5ABB7B).withOpacity(0.3)),
+                          border: Border.all(
+                              color: const Color(0xFF5ABB7B).withOpacity(0.3)),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.check_circle, color: Color(0xFF5ABB7B), size: 20),
+                            const Icon(Icons.check_circle,
+                                color: Color(0xFF5ABB7B), size: 20),
                             const Gap(8),
                             const Expanded(
                               child: Text(
@@ -106,10 +112,12 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                 Obx(() {
                   // Eagerly read observables so Obx always registers subscriptions
                   final isRenewal = controller.isRenewalMode.value;
-                  final showPkgSelection = controller.showPackageSelection.value;
+                  final showPkgSelection =
+                      controller.showPackageSelection.value;
                   final isCable = controller.paymentType == PaymentType.cable;
 
-                  final showPaymentOptions = !isCable || isRenewal || showPkgSelection;
+                  final showPaymentOptions =
+                      !isCable || isRenewal || showPkgSelection;
                   if (!showPaymentOptions) return const SizedBox.shrink();
                   return Column(
                     children: [
@@ -345,7 +353,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
   Widget _buildPackageSelection() {
     return Obx(() {
       // Read selectedCablePackage at top level so Obx rebuilds the entire grid on selection change
-      final selectedName = controller.selectedCablePackage.value?['name']?.toString();
+      final selectedName =
+          controller.selectedCablePackage.value?['name']?.toString();
 
       if (controller.isLoadingPackages.value) {
         return const Center(
@@ -378,8 +387,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
         itemCount: controller.cablePackages.length,
         itemBuilder: (context, index) {
           final package = controller.cablePackages[index];
-          final isSelected =
-              selectedName == package['name']?.toString();
+          final isSelected = selectedName == package['name']?.toString();
 
           return TouchableOpacity(
             onTap: () => controller.onCablePackageSelected(package),
@@ -406,9 +414,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                       style: TextStyle(
                         fontFamily: AppFonts.manRope,
                         fontSize: 12,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 3,
@@ -428,119 +435,184 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
     final box = GetStorage();
     final savedPromoCode = box.read('saved_promo_code');
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xffE0E0E0)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextSemiBold('Promo Code', fontSize: 14),
-          const Gap(9),
-          Row(
+    return Obx(() => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xffE0E0E0)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: TextField(
-                  controller: controller.promoCodeController,
-                  style: TextStyle(
-                    fontFamily: AppFonts.manRope,
-                    fontSize: 14,
-                    color: AppColors.background,
-                  ),
-                  decoration: InputDecoration(
-                    border: UnderlineInputBorder(),
-                    hintText: 'Enter promo code',
-                    hintStyle: TextStyle(
-                      fontFamily: AppFonts.manRope,
-                      fontSize: 14,
-                      color: AppColors.primaryGrey2,
-                    ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: AppColors.primaryGrey2,
-                        width: 1,
+              TextSemiBold('Promo / Offer Code', fontSize: 14),
+              const Gap(9),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: controller.promoCodeController,
+                      style: TextStyle(
+                        fontFamily: AppFonts.manRope,
+                        fontSize: 14,
+                        color: AppColors.background,
+                      ),
+                      decoration: InputDecoration(
+                        border: UnderlineInputBorder(),
+                        hintText: 'Enter promo or offer code',
+                        hintStyle: TextStyle(
+                          fontFamily: AppFonts.manRope,
+                          fontSize: 14,
+                          color: AppColors.primaryGrey2,
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: AppColors.primaryGrey2,
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: const BorderSide(
+                            color: AppColors.primaryColor,
+                            width: 1,
+                          ),
+                        ),
                       ),
                     ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: const BorderSide(
-                        color: AppColors.primaryColor,
-                        width: 1,
-                      ),
-                    ),
                   ),
-                ),
+                  if (controller.promoCodeController.text.isNotEmpty)
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 20),
+                      onPressed: controller.clearPromoCode,
+                    ),
+                  const Gap(10),
+                  ElevatedButton(
+                    onPressed: OffersService.to.isPreviewing.value
+                        ? null
+                        : () {
+                            controller.applyOfferCode();
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6)),
+                    ),
+                    child: OffersService.to.isPreviewing.value
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2),
+                          )
+                        : const Text(
+                            'Apply',
+                            style: TextStyle(
+                                fontFamily: AppFonts.manRope,
+                                fontWeight: FontWeight.bold),
+                          ),
+                  ),
+                ],
               ),
-              if (controller.promoCodeController.text.isNotEmpty)
-                IconButton(
-                  icon: const Icon(Icons.close, size: 20),
-                  onPressed: controller.clearPromoCode,
+
+              if (OffersService.to.offerPreviewData.value != null) ...[
+                const Gap(12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.green.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle,
+                          color: Colors.green, size: 20),
+                      const Gap(8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Offer Applied!',
+                              style: TextStyle(
+                                fontFamily: AppFonts.manRope,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green[800],
+                              ),
+                            ),
+                            if (OffersService
+                                    .to.offerPreviewData.value!['message'] !=
+                                null)
+                              Text(
+                                OffersService
+                                    .to.offerPreviewData.value!['message']
+                                    .toString(),
+                                style: TextStyle(
+                                  fontFamily: AppFonts.manRope,
+                                  fontSize: 12,
+                                  color: Colors.green[700],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+              ],
+
+              // saved promo code suggestion
+              if (savedPromoCode != null &&
+                  savedPromoCode.toString().isNotEmpty) ...[
+                const Gap(12),
+                GestureDetector(
+                  onTap: () {
+                    controller.promoCodeController.text =
+                        savedPromoCode.toString();
+                    // clear saved promo after applied - MOVED to controller success
+                    box.remove('saved_promo_code');
+                    box.remove('saved_promo_message');
+                    controller.applyOfferCode(); // Call apply right away
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                          color: AppColors.primaryColor.withOpacity(0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.local_offer_outlined,
+                          size: 16,
+                          color: AppColors.primaryColor,
+                        ),
+                        const Gap(8),
+                        Expanded(
+                          child: Text(
+                            'Use saved code: ${_maskPromoCode(savedPromoCode.toString())}',
+                            style: TextStyle(
+                              fontFamily: AppFonts.manRope,
+                              fontSize: 12,
+                              color: AppColors.primaryColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
-          // saved promo code suggestion
-          if (savedPromoCode != null &&
-              savedPromoCode.toString().isNotEmpty) ...[
-            const Gap(12),
-            GestureDetector(
-              onTap: () {
-                controller.promoCodeController.text = savedPromoCode.toString();
-                controller.promoCodeController.text = savedPromoCode.toString();
-                // clear saved promo after applied - MOVED to controller success
-                box.remove('saved_promo_code');
-                box.remove('saved_promo_message');
-                Get.snackbar(
-                  'Applied!',
-                  'Promo code applied',
-                  backgroundColor: AppColors.successBgColor,
-                  colorText: AppColors.textSnackbarColor,
-                  duration: const Duration(seconds: 2),
-                );
-              },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
-                      color: AppColors.primaryColor.withOpacity(0.3)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.card_giftcard,
-                        size: 16, color: AppColors.primaryColor),
-                    const Gap(8),
-                    Text(
-                      'Use saved code: ${_maskPromoCode(savedPromoCode.toString())}',
-                      style: TextStyle(
-                        fontFamily: AppFonts.manRope,
-                        fontSize: 12,
-                        color: AppColors.primaryColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const Gap(8),
-                    Text(
-                      'Apply',
-                      style: TextStyle(
-                        fontFamily: AppFonts.manRope,
-                        fontSize: 12,
-                        color: AppColors.primaryColor,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
+        ));
   }
 
   String _maskPromoCode(String code) {
@@ -688,10 +760,12 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                                 ],
                               ),
                               Padding(
-                                padding: const EdgeInsets.only(left: 18, top: 4),
+                                padding:
+                                    const EdgeInsets.only(left: 18, top: 4),
                                 child: InkWell(
                                   onTap: () {
-                                    GeneralMarketPaymentService.showTermsDialog(Get.context!);
+                                    GeneralMarketPaymentService.showTermsDialog(
+                                        Get.context!);
                                   },
                                   child: const Text(
                                     'View Terms & Conditions',

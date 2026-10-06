@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
+import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -1028,35 +1029,17 @@ class HomeScreenPage extends StatelessWidget {
   }
 
   Widget _buildStaticCarousel(BuildContext context) {
-    return const Skeleton.leaf(child: HomePromoCarousel());
+    final controller = Get.find<HomeScreenController>();
+    final promotions = controller.dashboardData?.appPromotions ?? [];
+    if (promotions.isEmpty) return const SizedBox.shrink();
+    return Skeleton.leaf(child: HomePromoCarousel(items: promotions));
   }
 }
 
-class PromoCardModel {
-  final String iconAsset;
-  final String title;
-  final String subtitle1;
-  final String subtitle2;
-  final Color subtitle1Color;
-  final String buttonText;
-  final String imageAsset;
-  final String route;
-
-  PromoCardModel({
-    required this.iconAsset,
-    required this.title,
-    required this.subtitle1,
-    required this.subtitle2,
-    required this.subtitle1Color,
-    required this.buttonText,
-    required this.imageAsset,
-    required this.route,
-  });
-}
-
-
 class HomePromoCarousel extends StatefulWidget {
-  const HomePromoCarousel({super.key});
+  final List<AppPromotionModel> items;
+
+  const HomePromoCarousel({super.key, required this.items});
 
   @override
   State<HomePromoCarousel> createState() => _HomePromoCarouselState();
@@ -1068,39 +1051,6 @@ class _HomePromoCarouselState extends State<HomePromoCarousel> {
   int _currentPage = 0;
   static const _kStartPage = 1000;
 
-  final List<PromoCardModel> items = [
-    PromoCardModel(
-      iconAsset: 'assets/icons/home/daily-bonus-icon.svg',
-      title: 'Daily Bonus',
-      subtitle1: 'Claim ₦750 today',
-      subtitle2: 'Your daily reward is waiting.',
-      subtitle1Color: AppColors.primaryColor,
-      buttonText: 'Claim Now',
-      imageAsset: 'assets/images/home_carousel/green-gift.png',
-      route: Routes.FREE_MONEY_MODULE,
-    ),
-    PromoCardModel(
-      iconAsset: 'assets/icons/home/mega-sale-icon.svg',
-      title: 'Mega Sale',
-      subtitle1: 'Save more on every purchase',
-      subtitle2: '',
-      subtitle1Color: Colors.grey.shade600,
-      buttonText: 'Shop Now',
-      imageAsset: 'assets/images/home_carousel/mega-sale.png',
-      route: Routes.STORE_FRONT,
-    ),
-    PromoCardModel(
-      iconAsset: 'assets/icons/home/refer-icon.svg',
-      title: 'Refer & Earn',
-      subtitle1: 'Earn ₦1,000',
-      subtitle2: 'for every friend',
-      subtitle1Color: AppColors.primaryColor,
-      buttonText: 'Invite Now',
-      imageAsset: 'assets/images/home_carousel/refer.png',
-      route: Routes.REFERRAL_LIST_MODULE,
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -1111,6 +1061,7 @@ class _HomePromoCarouselState extends State<HomePromoCarousel> {
 
   void _startAutoSlide() {
     _timer?.cancel();
+    if (widget.items.isEmpty) return;
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (!mounted) return;
       _currentPage++;
@@ -1153,8 +1104,8 @@ class _HomePromoCarouselState extends State<HomePromoCarousel> {
                 });
               },
               itemBuilder: (context, index) {
-                final actualIndex = index % items.length;
-                return _PromoCarouselItem(item: items[actualIndex]);
+                final actualIndex = index % widget.items.length;
+                return _PromoCarouselItem(item: widget.items[actualIndex]);
               },
             ),
           ),
@@ -1163,9 +1114,9 @@ class _HomePromoCarouselState extends State<HomePromoCarousel> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
-            items.length,
+            widget.items.length,
                 (index) {
-              final isActive = (_currentPage % items.length) == index;
+              final isActive = (_currentPage % widget.items.length) == index;
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 width: 8,
@@ -1185,9 +1136,21 @@ class _HomePromoCarouselState extends State<HomePromoCarousel> {
 }
 
 class _PromoCarouselItem extends StatelessWidget {
-  final PromoCardModel item;
+  final AppPromotionModel item;
 
-  const _PromoCarouselItem({required this.item, Key? key}) : super(key: key);
+  const _PromoCarouselItem({required this.item});
+
+  Color _parseColor(String hexColor) {
+    try {
+      hexColor = hexColor.toUpperCase().replaceAll("#", "");
+      if (hexColor.length == 6) {
+        hexColor = "FF$hexColor";
+      }
+      return Color(int.parse(hexColor, radix: 16));
+    } catch (e) {
+      return AppColors.primaryColor;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1238,9 +1201,10 @@ class _PromoCarouselItem extends StatelessWidget {
                       color: AppColors.primaryColor,
                       shape: BoxShape.circle,
                     ),
-                    child: SvgPicture.asset(
-                      item.iconAsset,
-                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                    child: CachedNetworkImage(
+                      imageUrl: item.iconAsset,
+                      color: Colors.white,
+                      errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.white, size: 24),
                     ),
                   ),
                   const Gap(12),
@@ -1268,7 +1232,7 @@ class _PromoCarouselItem extends StatelessWidget {
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                             fontFamily: AppFonts.manRope,
-                            color: item.subtitle1Color,
+                            color: _parseColor(item.subtitle1Color),
                           ),
                         ),
                         if (item.subtitle2.isNotEmpty) ...[
@@ -1322,11 +1286,12 @@ class _PromoCarouselItem extends StatelessWidget {
                     ),
                   ),
                   // Image on the far right
-                  Image.asset(
-                    item.imageAsset,
+                  CachedNetworkImage(
+                    imageUrl: item.imageAsset,
                     fit: BoxFit.contain,
                     width: 97,
                     height: 97,
+                    errorWidget: (context, url, error) => const SizedBox(width: 97, height: 97),
                   ),
                 ],
               ),

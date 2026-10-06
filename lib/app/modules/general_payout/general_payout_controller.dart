@@ -1,3 +1,4 @@
+import 'package:mcd/core/services/offers_service.dart';
 import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:flutter_paystack_payment_plus/flutter_paystack_payment_plus.dart';
@@ -45,6 +46,66 @@ class GeneralPayoutController extends GetxController {
   final pointsBalance = '0'.obs;
   final usePoints = false.obs;
   final promoCodeController = TextEditingController();
+
+  String? validatedOfferCode;
+
+  Future<void> applyOfferCode() async {
+    final code = promoCodeController.text.trim();
+    if (code.isEmpty) {
+      Get.snackbar("Error", "Please enter an offer code.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
+      return;
+    }
+    
+    String product = '';
+    String provider = '';
+    String amount = _getTransactionAmount().toString();
+    
+    switch (paymentType) {
+      case PaymentType.airtime:
+        product = 'airtime';
+        provider = paymentData['provider']?.network?.toLowerCase() ?? '';
+        break;
+      case PaymentType.data:
+        product = 'data';
+        provider = paymentData['networkProvider']?.name?.toLowerCase() ?? '';
+        break;
+      case PaymentType.electricity:
+        product = 'electricity';
+        provider = paymentData['provider']?.slug?.toLowerCase() ?? paymentData['provider']?.name?.toLowerCase() ?? '';
+        break;
+      case PaymentType.cable:
+        product = 'cable';
+        provider = paymentData['provider']?.slug?.toLowerCase() ?? paymentData['provider']?.name?.toLowerCase() ?? '';
+        break;
+      case PaymentType.betting:
+        product = 'betting';
+        provider = paymentData['provider']?.slug?.toLowerCase() ?? '';
+        break;
+      default:
+        product = 'other';
+        provider = 'other';
+    }
+
+    await OffersService.to.previewOffer(
+      product: product,
+      provider: provider,
+      amount: amount,
+      offerCode: code,
+    );
+
+    if (OffersService.to.errorMessage.value.isNotEmpty) {
+      Get.snackbar("Offer Failed", OffersService.to.errorMessage.value,
+          backgroundColor: AppColors.errorBgColor,
+          colorText: AppColors.textSnackbarColor);
+      validatedOfferCode = null;
+    } else if (OffersService.to.offerPreviewData.value != null) {
+      validatedOfferCode = code;
+      Get.snackbar("Offer Applied", "Offer code $code successfully applied!",
+          backgroundColor: AppColors.successBgColor,
+          colorText: AppColors.textSnackbarColor);
+    }
+  }
+
   RxString get gmBalance => DashboardService.to.gmBalance;
 
   // Payment method availability
@@ -1554,6 +1615,7 @@ class GeneralPayoutController extends GetxController {
       "promo": promoCodeController.text.trim().isEmpty
           ? "0"
           : promoCodeController.text.trim(),
+      if (validatedOfferCode != null) "offer_code": validatedOfferCode,
       "ref": ref,
       "operatorID": int.tryParse(provider?.server ?? '0') ?? 0,
       if (paymentData['bonus'] != null)
@@ -1597,6 +1659,7 @@ class GeneralPayoutController extends GetxController {
       "promo": promoCodeController.text.trim().isEmpty
           ? "0"
           : promoCodeController.text.trim(),
+      if (validatedOfferCode != null) "offer_code": validatedOfferCode,
       "ref": ref,
       "number": multipleAirtimeList.length.toString(),
       if (paymentData['bonus'] != null)
@@ -1655,6 +1718,7 @@ class GeneralPayoutController extends GetxController {
             "promo": promoCodeController.text.trim().isEmpty
                 ? "0"
                 : promoCodeController.text.trim(),
+      if (validatedOfferCode != null) "offer_code": validatedOfferCode,
             "ref": ref,
             "country": paymentData['countryCode'] ?? "NG"
           }
@@ -1665,6 +1729,7 @@ class GeneralPayoutController extends GetxController {
             "promo": promoCodeController.text.trim().isEmpty
                 ? "0"
                 : promoCodeController.text.trim(),
+      if (validatedOfferCode != null) "offer_code": validatedOfferCode,
             "ref": ref,
             "country": "NG"
           };
@@ -1694,6 +1759,7 @@ class GeneralPayoutController extends GetxController {
       "promo": promoCodeController.text.trim().isEmpty
           ? "0"
           : promoCodeController.text.trim(),
+      if (validatedOfferCode != null) "offer_code": validatedOfferCode,
       "ref": ref,
     };
 
@@ -1751,6 +1817,7 @@ class GeneralPayoutController extends GetxController {
       "promo": promoCodeController.text.trim().isEmpty
           ? "0"
           : promoCodeController.text.trim(),
+      if (validatedOfferCode != null) "offer_code": validatedOfferCode,
       "ref": ref,
     };
 
@@ -1774,6 +1841,7 @@ class GeneralPayoutController extends GetxController {
       'payment': getPaymentMethodKey(),
       'promo':
           promoCodeController.text.isNotEmpty ? promoCodeController.text : '0',
+      if (validatedOfferCode != null) "offer_code": validatedOfferCode,
       'ref': ref,
       'number': '09031945519'
     };
@@ -1846,6 +1914,7 @@ class GeneralPayoutController extends GetxController {
       "payment": getPaymentMethodKey(),
       "promo":
           promoCodeController.text.isEmpty ? "0" : promoCodeController.text,
+      if (validatedOfferCode != null) "offer_code": validatedOfferCode,
       "ref": ref,
       "country": "NG",
       "quantity": paymentData['quantity'] ?? '1',
@@ -1920,6 +1989,7 @@ class GeneralPayoutController extends GetxController {
       "promo": promoCodeController.text.trim().isEmpty
           ? "0"
           : promoCodeController.text.trim(),
+      if (validatedOfferCode != null) "offer_code": validatedOfferCode,
       "ref": ref,
     };
 
@@ -2002,6 +2072,7 @@ class GeneralPayoutController extends GetxController {
       "payment": getPaymentMethodKey(),
       "promo":
           promoCodeController.text.isEmpty ? "0" : promoCodeController.text,
+      if (validatedOfferCode != null) "offer_code": validatedOfferCode,
     };
 
     final amount =
@@ -2045,6 +2116,7 @@ class GeneralPayoutController extends GetxController {
       "payment": getPaymentMethodKey(),
       "promo":
           promoCodeController.text.isEmpty ? "0" : promoCodeController.text,
+      if (validatedOfferCode != null) "offer_code": validatedOfferCode,
     };
 
     final amount =

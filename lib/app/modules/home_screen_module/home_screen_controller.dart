@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
 import 'package:mcd/core/import/imports.dart';
@@ -85,27 +86,29 @@ class HomeScreenController extends GetxController
 
     _loadServiceData();
 
-    // show TGIF marketing dialog only on Fridays once per day
-    if (DateTime.now().weekday == DateTime.friday) {
+    // show app popups once per day per popup
+    if (dashboardData?.appPopups != null && dashboardData!.appPopups.isNotEmpty) {
       final todayStr = '${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}';
-      final lastShown = box.read('last_tgif_date');
-      if (lastShown != todayStr) {
-        DialogManagerService.to.addDialog(
-          DialogRequest(
-            priority: DialogPriority.marketing,
-            showDialog: () async {
-              if (Get.context != null) {
-                await _showMarketingPlaceholderDialog();
-                box.write('last_tgif_date', todayStr);
-              }
-            },
-          ),
-        );
+      for (final popup in dashboardData!.appPopups) {
+        final lastShown = box.read('popup_${popup.title}');
+        if (lastShown != todayStr) {
+          DialogManagerService.to.addDialog(
+            DialogRequest(
+              priority: DialogPriority.marketing,
+              showDialog: () async {
+                if (Get.context != null) {
+                  await _showAppPopupDialog(popup);
+                  box.write('popup_${popup.title}', todayStr);
+                }
+              },
+            ),
+          );
+        }
       }
     }
   }
 
-  Future<void> _showMarketingPlaceholderDialog() async {
+  Future<void> _showAppPopupDialog(AppPopupModel popup) async {
     await Get.dialog(
       Dialog(
         backgroundColor: Colors.transparent,
@@ -119,15 +122,23 @@ class HomeScreenController extends GetxController
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(24),
-                  child: Image.asset(
-                    'assets/images/tgif.png',
+                  child: CachedNetworkImage(
+                    imageUrl: popup.imageAsset,
                     width: double.infinity,
                     fit: BoxFit.fitWidth,
+                    placeholder: (context, url) => const SizedBox(
+                      height: 200,
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                    errorWidget: (context, url, error) => const SizedBox(
+                      height: 200,
+                      child: Center(child: Icon(Icons.error, color: Colors.white)),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Happy Friday',
+                  popup.title,
                   style: GoogleFonts.bricolageGrotesque(
                     color: Colors.white,
                     fontSize: 28,
@@ -136,7 +147,7 @@ class HomeScreenController extends GetxController
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Move and spend money at you own terms and style, frictionless and smooth',
+                  popup.subtitle1,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 3,
                   textAlign: TextAlign.center,
@@ -146,6 +157,36 @@ class HomeScreenController extends GetxController
                     height: 1.4,
                   ),
                 ),
+                if (popup.buttonText.isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Get.back();
+                        if (popup.route.isNotEmpty) {
+                          Get.toNamed(popup.route);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        popup.buttonText,
+                        style: const TextStyle(
+                          fontFamily: AppFonts.manRope,
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ]
               ],
             ),
             Positioned(

@@ -4,6 +4,8 @@ class DashboardModel {
   final VirtualAccounts virtualAccounts;
   final String news;
   final List<dynamic> specialOffers;
+  final List<AppPromotionModel> appPromotions;
+  final List<AppPopupModel> appPopups;
 
   String get cleanNews => news
       .replaceAll(r'\r\n', ' ')
@@ -19,6 +21,8 @@ class DashboardModel {
     required this.virtualAccounts,
     required this.news,
     required this.specialOffers,
+    this.appPromotions = const [],
+    this.appPopups = const [],
   });
 
   factory DashboardModel.fromJson(Map<String, dynamic> json) {
@@ -30,6 +34,16 @@ class DashboardModel {
       virtualAccounts: VirtualAccounts.fromJson(data['virtual_accounts']),
       news: data['news'] ?? "",
       specialOffers: data['special_offers'] ?? [],
+      appPromotions: data['app_promotions'] != null
+          ? (data['app_promotions'] as List)
+              .map((e) => AppPromotionModel.fromJson(e))
+              .toList()
+          : [],
+      appPopups: data['app_popups'] != null
+          ? (data['app_popups'] as List)
+              .map((e) => AppPopupModel.fromJson(e))
+              .toList()
+          : [],
     );
   }
 
@@ -41,6 +55,8 @@ class DashboardModel {
         "virtual_accounts": virtualAccounts.toJson(),
         "news": news,
         "special_offers": specialOffers,
+        "app_promotions": appPromotions.map((e) => e.toJson()).toList(),
+        "app_popups": appPopups.map((e) => e.toJson()).toList(),
       }
     };
   }
@@ -209,3 +225,92 @@ class VirtualAccounts {
     return "VirtualAccounts(primary: $primaryRaw, secondary: $secondaryRaw)";
   }
 }
+
+class AppPromotionModel {
+  final String iconAsset;
+  final String title;
+  final String subtitle1;
+  final String subtitle2;
+  final String subtitle1Color;
+  final String buttonText;
+  final String imageAsset;
+  final String route;
+
+  AppPromotionModel({
+    required this.iconAsset,
+    required this.title,
+    required this.subtitle1,
+    required this.subtitle2,
+    required this.subtitle1Color,
+    required this.buttonText,
+    required this.imageAsset,
+    required this.route,
+  });
+
+  factory AppPromotionModel.fromJson(Map<String, dynamic> json) {
+    return AppPromotionModel(
+      iconAsset: json['iconAsset'] ?? "",
+      title: json['title'] ?? "",
+      subtitle1: json['subtitle1'] ?? "",
+      subtitle2: json['subtitle2'] ?? "",
+      subtitle1Color: json['subtitle1Color'] ?? "#000000",
+      buttonText: json['buttonText'] ?? "",
+      imageAsset: json['imageAsset'] ?? "",
+      route: json['route'] ?? "",
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "iconAsset": iconAsset,
+      "title": title,
+      "subtitle1": subtitle1,
+      "subtitle2": subtitle2,
+      "subtitle1Color": subtitle1Color,
+      "buttonText": buttonText,
+      "imageAsset": imageAsset,
+      "route": route,
+    };
+  }
+}
+
+class AppPopupModel {
+  final String title;
+  final String subtitle1;
+  final String subtitle1Color;
+  final String buttonText;
+  final String imageAsset;
+  final String route;
+
+  AppPopupModel({
+    required this.title,
+    required this.subtitle1,
+    required this.subtitle1Color,
+    required this.buttonText,
+    required this.imageAsset,
+    required this.route,
+  });
+
+  factory AppPopupModel.fromJson(Map<String, dynamic> json) {
+    return AppPopupModel(
+      title: json['title'] ?? "",
+      subtitle1: json['subtitle1'] ?? "",
+      subtitle1Color: json['subtitle1Color'] ?? "#000000",
+      buttonText: json['buttonText'] ?? "",
+      imageAsset: json['imageAsset'] ?? "",
+      route: json['route'] ?? "",
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "title": title,
+      "subtitle1": subtitle1,
+      "subtitle1Color": subtitle1Color,
+      "buttonText": buttonText,
+      "imageAsset": imageAsset,
+      "route": route,
+    };
+  }
+}
+
