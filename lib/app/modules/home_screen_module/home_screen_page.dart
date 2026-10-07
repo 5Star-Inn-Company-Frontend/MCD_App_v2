@@ -65,7 +65,7 @@ class HomeScreenPage extends StatelessWidget {
                 backgroundColor: const Color(0xFFF9F9F9),
                 onRefresh: controller.refreshDashboard,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Obx(() => Skeletonizer(
                         enabled: controller.isLoading,
                         effect: ShimmerEffect(
@@ -74,7 +74,7 @@ class HomeScreenPage extends StatelessWidget {
                         ),
                         child: ListView(
                           children: [
-                            const Gap(2),
+                            const Gap(10),
                             _buildWalletCard(controller, context),
                             const Gap(20),
                             _buildQuickActionsRow(controller, context),
@@ -1168,7 +1168,7 @@ class _PromoCarouselItem extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         child: Stack(
           children: [
             // the light green design blob on the right
@@ -1188,7 +1188,7 @@ class _PromoCarouselItem extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 16, right: 10, top: 16, bottom: 16),
+              padding: const EdgeInsets.only(left: 12, right: 10, top: 10, bottom: 12),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -1196,14 +1196,8 @@ class _PromoCarouselItem extends StatelessWidget {
                   Container(
                     width: 48,
                     height: 48,
-                    padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: AppColors.primaryColor,
-                      shape: BoxShape.circle,
-                    ),
                     child: CachedNetworkImage(
                       imageUrl: item.iconAsset,
-                      color: Colors.white,
                       errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.white, size: 24),
                     ),
                   ),
@@ -1217,7 +1211,7 @@ class _PromoCarouselItem extends StatelessWidget {
                         Text(
                           item.title,
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: 16,
                             fontWeight: FontWeight.w600,
                             fontFamily: AppFonts.manRope,
                             color: Color(0xFF333333),
@@ -1229,7 +1223,7 @@ class _PromoCarouselItem extends StatelessWidget {
                         Text(
                           item.subtitle1,
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: FontWeight.w700,
                             fontFamily: AppFonts.manRope,
                             color: _parseColor(item.subtitle1Color),
@@ -1237,17 +1231,12 @@ class _PromoCarouselItem extends StatelessWidget {
                         ),
                         if (item.subtitle2.isNotEmpty) ...[
                           const Gap(2),
-                          Flexible(
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                item.subtitle2,
-                                style: const TextStyle(
-                                  fontSize: 8,
-                                  fontFamily: AppFonts.manRope,
-                                  color: Color(0xFF888888),
-                                ),
-                              ),
+                          Text(
+                            item.subtitle2,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontFamily: AppFonts.manRope,
+                              color: Color(0xFF888888),
                             ),
                           ),
                         ],
@@ -1272,7 +1261,7 @@ class _PromoCarouselItem extends StatelessWidget {
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 12,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w600,
                                     fontFamily: AppFonts.manRope,
                                   ),
                                 ),

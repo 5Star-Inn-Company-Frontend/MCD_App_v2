@@ -83,7 +83,7 @@ class AllServiceModuleController extends GetxController {
     if (isEnabled("Betting")) categorizedServices['BILLS']!.add(ButtonModel(icon: AppAsset.ball, text: "Betting", link: Routes.BETTING_MODULE));
 
     // Earn
-    if (isEnabled("Free Money")) categorizedServices['EARN']!.add(ButtonModel(icon: AppAsset.money, text: "Free Money", link: Routes.REWARD_CENTRE_MODULE));
+    if (isEnabled("Free Money")) categorizedServices['EARN']!.add(ButtonModel(icon: AppAsset.money, text: "Free Money", link: Routes.FREE_MONEY));
     if (isEnabled("Airtime to cash")) categorizedServices['EARN']!.add(ButtonModel(icon: AppAsset.money, text: "Airtime to cash", link: Routes.A2C_MODULE));
     if (isEnabled("Predict & Win")) categorizedServices['EARN']!.add(ButtonModel(icon: AppAsset.tv, text: "Predict & Win", link: Routes.PREDICT_WIN_MODULE));
     if (isEnabled("Spin & Win")) categorizedServices['EARN']!.add(ButtonModel(icon: 'assets/images/reward_centre/spinwin.png', text: "Spin & Win", link: Routes.SPIN_WIN_MODULE));

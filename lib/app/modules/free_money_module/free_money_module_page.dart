@@ -61,21 +61,26 @@ class FreeMoneyModulePage extends GetView<FreeMoneyModuleController> {
                     textAlign: TextAlign.center,
                   ),
                   const Gap(8),
-                  Obx(() => Text(
-                        'Watch short video advertisements and earn ₦${controller.freeMoneyAmount} directly into your wallet balance for every ad watched!',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontFamily: AppFonts.manRope,
-                          fontSize: 14,
-                          color: AppColors.white,
-                          height: 1.4,
-                        ),
-                      )),
+                  Text(
+                    'Watch short video advertisements and earn directly into your wallet balance for every ad watched!',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontFamily: AppFonts.manRope,
+                      fontSize: 14,
+                      color: AppColors.white,
+                      height: 1.4,
+                    ),
+                  ),
                 ],
               ),
             ),
             const Gap(24),
 
+            SizedBox(
+              width: double.infinity,
+              child: controller.adsService.showHighBannerAd(),
+            ),
+            const Gap(16),
             // How it Works Card
             Container(
               width: double.infinity,
@@ -222,6 +227,11 @@ class FreeMoneyModulePage extends GetView<FreeMoneyModuleController> {
               );
             }),
 
+            SizedBox(
+              width: double.infinity,
+              child: controller.adsService.showBannerAdWidget(),
+            ),
+            const Gap(16),
             // Embedded Native Ad Section
             Center(
               child: SizedBox(
@@ -230,11 +240,7 @@ class FreeMoneyModulePage extends GetView<FreeMoneyModuleController> {
                 child: controller.adsService.showNativeAdWidget(context),
               ),
             ),
-            const Gap(16),
-            SizedBox(
-              width: double.infinity,
-              child: controller.adsService.showBannerAdWidget(),
-            ),
+
           ],
         ),
       ),
