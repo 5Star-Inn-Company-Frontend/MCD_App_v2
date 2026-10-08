@@ -2223,7 +2223,7 @@ class GeneralPayoutController extends GetxController {
     }
 
     // extract server response data for all payment types
-    dynamic serverResponseData;
+    dynamic serverResponseData = data;
     if (data['server_response'] != null) {
       serverResponseData = data['server_response'];
       dev.log('Passing server_response to receipt', name: 'GeneralPayout');

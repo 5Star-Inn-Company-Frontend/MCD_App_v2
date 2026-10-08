@@ -13,6 +13,7 @@ import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/app/modules/history_screen_module/models/transaction_history_model.dart';
 import 'dart:developer' as dev;
+import 'package:mcd/core/services/offers_service.dart';
 import '../home_screen_module/model/dashboard_model.dart';
 import './receipt_template.dart';
 import 'package:mcd/core/utils/date_util.dart';
@@ -124,6 +125,33 @@ class TransactionDetailModuleController extends GetxController {
   String get initialAmount => transaction?.iWallet ?? 'N/A';
   String get finalAmount => transaction?.fWallet ?? 'N/A';
 
+  String get discountGained {
+    final detailed = detailedTransaction;
+    final trans = transaction;
+    
+    // Developer logs to inspect response payloads for the discount value
+    dev.log('detailedTransaction: $detailed', name: 'TransactionSummaryDiscount');
+    dev.log('transaction.serverLog: ${trans?.serverLog?.toJson()}', name: 'TransactionSummaryDiscount');
+    
+    // Try to get discount if it exists, otherwise return 0.00
+    if (detailed != null) {
+      if (detailed['discount'] != null) {
+        return detailed['discount'].toString();
+      }
+      if (detailed['server_response'] != null && detailed['server_response'] is Map) {
+        final serverResponse = detailed['server_response'];
+        if (serverResponse['discountAmount'] != null) {
+          return serverResponse['discountAmount'].toString();
+        }
+        if (serverResponse['discount'] != null) {
+          return serverResponse['discount'].toString();
+        }
+      }
+    }
+    
+    return '0.00';
+  }
+
   final _isRepeating = false.obs;
   bool get isRepeating => _isRepeating.value;
 
@@ -231,6 +259,11 @@ class TransactionDetailModuleController extends GetxController {
   void onInit() {
     super.onInit();
     final arguments = Get.arguments as Map<String, dynamic>?;
+
+    // Trigger eligible offers fetch after the build phase is complete
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      OffersService.to.fetchEligibleOffers();
+    });
 
     final cachedData = box.read('cached_dashboard');
     if (cachedData != null) {

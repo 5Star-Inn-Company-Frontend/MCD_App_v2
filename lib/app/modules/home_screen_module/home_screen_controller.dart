@@ -61,7 +61,9 @@ class HomeScreenController extends GetxController
       return;
     }
 
-    unawaited(_bootstrapAfterLogin());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_bootstrapAfterLogin());
+    });
 
     // react to future updates from ServiceStatusController
     final ssc = ServiceStatusController.to;
@@ -293,8 +295,6 @@ class HomeScreenController extends GetxController
         text: "More",
         link: Routes.ALL_SERVICE_MODULE));
 
-    dev.log('Service buttons: ${top4.map((b) => b.text).join(', ')}',
-        name: 'HomeScreen');
     actionButtonz.assignAll(top4);
   }
 

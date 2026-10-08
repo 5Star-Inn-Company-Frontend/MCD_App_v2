@@ -7,6 +7,8 @@ import 'package:mcd/core/utils/amount_formatter.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_page.dart';
 import 'package:mcd/app/modules/transaction_detail_module/transaction_detail_module_controller.dart';
+import 'package:mcd/core/services/offers_service.dart';
+import 'dart:developer' as dev;
 
 class TransactionSummaryPage extends GetView<TransactionDetailModuleController> {
   const TransactionSummaryPage({super.key});
@@ -22,7 +24,7 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
         actions: [
           TextButton(
             onPressed: () {
-              Get.offAllNamed(Routes.HOME_SCREEN);
+              Get.until((route) => route.settings.name == Routes.HOME_SCREEN || route.isFirst);
             },
             child: const Text(
               'Done',
@@ -133,7 +135,7 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
                 ],
               ),
               const Gap(30),
-              Container(
+              Obx(() => Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF7FBF7),
@@ -144,6 +146,10 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
                     _buildDetailRow('Recipient', controller.phoneNumber),
                     const Gap(15),
                     _buildDetailRow('Payment type', controller.name),
+                    if ((double.tryParse(controller.discountGained) ?? 0.0) > 0) ...[
+                      const Gap(15),
+                      _buildDetailRow('Commission Gain', '₦${AmountUtil.formatFigure(double.tryParse(controller.discountGained) ?? 0)}'),
+                    ],
                     const Gap(15),
                     const Divider(color: Color(0xFFE5E5E5)),
                     const Gap(10),
@@ -178,8 +184,127 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
                     ),
                   ],
                 ),
-              ),
+              )),
               const Gap(30),
+              Obx(() {
+                final eligibleData = OffersService.to.eligibleOffersData.value;
+                
+                if (OffersService.to.isFetchingEligibleOffers.value) {
+                  return const Column(
+                    children: [
+                      CircularProgressIndicator(color: AppColors.primaryColor),
+                      Gap(30),
+                    ],
+                  );
+                }
+                
+                if (eligibleData != null) {
+                  List offersList = [];
+                  if (eligibleData['data'] != null && eligibleData['data'] is List && eligibleData['data'].isNotEmpty) {
+                    offersList = eligibleData['data'];
+                  }
+                  
+                  return Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF7FBF7),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            const Text(
+                              'Special Offer For You',
+                              style: TextStyle(
+                                color: AppColors.textPrimaryColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                            ),
+                            const Gap(20),
+                            if (offersList.isEmpty)
+                              const Padding(
+                                padding: EdgeInsets.only(bottom: 10),
+                                child: Text(
+                                  'No special offer available',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              )
+                            else
+                              ...offersList.map((offer) {
+                                final title = offer['title'] ?? 'Special Offer';
+                                final subtitle = offer['subtitle'] ?? 'Click here for more details';
+                                
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 32,
+                                        height: 32,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF5DB374), // Lighter green square
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                      ),
+                                      const Gap(12),
+                                      Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            title.toString(),
+                                            style: const TextStyle(
+                                              color: AppColors.textPrimaryColor,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          const Gap(2),
+                                          Text(
+                                            subtitle.toString(),
+                                            style: const TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primaryColor,
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: const Text(
+                                        'Go',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                        ),
+                      ),
+                      const Gap(30),
+                    ],
+                  );
+                }
+                
+                return const SizedBox.shrink();
+              }),
               _buildMegaSaleSlider(),
               const Gap(30),
             ],

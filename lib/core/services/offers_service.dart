@@ -14,6 +14,9 @@ class OffersService extends GetxService {
   final offerPreviewData = Rxn<Map<String, dynamic>>();
   final errorMessage = ''.obs;
 
+  final isFetchingEligibleOffers = false.obs;
+  final eligibleOffersData = Rxn<Map<String, dynamic>>();
+
   @override
   void onInit() {
     super.onInit();
@@ -70,5 +73,31 @@ class OffersService extends GetxService {
   void clearPreview() {
     offerPreviewData.value = null;
     errorMessage.value = '';
+  }
+
+  Future<void> fetchEligibleOffers() async {
+    try {
+      await Future.microtask(() => isFetchingEligibleOffers.value = true);
+      final transactionUrlV2 = _storage.read('transaction_service_url');
+      if (transactionUrlV2 == null) {
+        dev.log('Transaction URL v2 not found', name: 'OffersService');
+        return;
+      }
+      final url = '${transactionUrlV2}offers/eligible';
+      final response = await _apiService.getrequest(url);
+      response.fold(
+        (failure) {
+          dev.log('Failed to fetch eligible offers: ${failure.message}', name: 'OffersService');
+        },
+        (data) {
+          eligibleOffersData.value = data;
+          dev.log('Successfully fetched eligible offers: $data', name: 'OffersService');
+        },
+      );
+    } catch (e) {
+      dev.log('Error fetching eligible offers: $e', name: 'OffersService');
+    } finally {
+      Future.microtask(() => isFetchingEligibleOffers.value = false);
+    }
   }
 }

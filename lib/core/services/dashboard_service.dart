@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:developer' as dev;
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
@@ -50,8 +48,10 @@ class DashboardService extends GetxService {
       return;
     }
 
-    isLoadingDashboard.value = true;
-    errorMessage.value = "";
+    Future.microtask(() {
+      isLoadingDashboard.value = true;
+      errorMessage.value = "";
+    });
     dev.log("Starting dashboard fetch...", name: 'DashboardService');
 
     final result =
@@ -90,7 +90,9 @@ class DashboardService extends GetxService {
       },
     );
 
-    isLoadingDashboard.value = false;
+    Future.microtask(() {
+      isLoadingDashboard.value = false;
+    });
   }
 
   Future<void> fetchGMBalance() async {
