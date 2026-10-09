@@ -14,8 +14,8 @@ class OffersService extends GetxService {
   final offerPreviewData = Rxn<Map<String, dynamic>>();
   final errorMessage = ''.obs;
 
-  final isFetchingEligibleOffers = false.obs;
-  final eligibleOffersData = Rxn<Map<String, dynamic>>();
+  final isFetchingFeaturedOffer = false.obs;
+  final featuredOfferData = Rxn<Map<String, dynamic>>();
 
   @override
   void onInit() {
@@ -75,29 +75,148 @@ class OffersService extends GetxService {
     errorMessage.value = '';
   }
 
-  Future<void> fetchEligibleOffers() async {
+  Future<void> fetchFeaturedOffer() async {
     try {
-      await Future.microtask(() => isFetchingEligibleOffers.value = true);
+      await Future.microtask(() => isFetchingFeaturedOffer.value = true);
       final transactionUrlV2 = _storage.read('transaction_service_url');
       if (transactionUrlV2 == null) {
         dev.log('Transaction URL v2 not found', name: 'OffersService');
         return;
       }
-      final url = '${transactionUrlV2}offers/eligible';
+      final url = '${transactionUrlV2}offers/featured';
       final response = await _apiService.getrequest(url);
       response.fold(
         (failure) {
-          dev.log('Failed to fetch eligible offers: ${failure.message}', name: 'OffersService');
+          dev.log('Failed to fetch featured offer: ${failure.message}', name: 'OffersService');
         },
         (data) {
-          eligibleOffersData.value = data;
-          dev.log('Successfully fetched eligible offers: $data', name: 'OffersService');
+          featuredOfferData.value = data;
+          dev.log('Successfully fetched featured offer: $data', name: 'OffersService');
         },
       );
     } catch (e) {
-      dev.log('Error fetching eligible offers: $e', name: 'OffersService');
+      dev.log('Error fetching featured offer: $e', name: 'OffersService');
     } finally {
-      Future.microtask(() => isFetchingEligibleOffers.value = false);
+      Future.microtask(() => isFetchingFeaturedOffer.value = false);
+    }
+  }
+
+  // --- OTHER OFFER ENDPOINTS ---
+
+  Future<dynamic> fetchEligibleOffers() async {
+    try {
+      final transactionUrlV2 = _storage.read('transaction_service_url');
+      if (transactionUrlV2 == null) return null;
+      
+      final url = '${transactionUrlV2}offers/eligible';
+      final response = await _apiService.getrequest(url);
+      
+      return response.fold(
+        (failure) {
+          dev.log('Failed to fetch eligible offers: ${failure.message}', name: 'OffersService');
+          return null;
+        },
+        (data) => data,
+      );
+    } catch (e) {
+      dev.log('Error fetching eligible offers: $e', name: 'OffersService');
+      return null;
+    }
+  }
+
+  Future<dynamic> fetchAllOffers() async {
+    try {
+      final transactionUrlV2 = _storage.read('transaction_service_url');
+      if (transactionUrlV2 == null) return null;
+      
+      final url = '${transactionUrlV2}offers';
+      final response = await _apiService.getrequest(url);
+      
+      return response.fold(
+        (failure) {
+          dev.log('Failed to fetch all offers: ${failure.message}', name: 'OffersService');
+          return null;
+        },
+        (data) => data,
+      );
+    } catch (e) {
+      dev.log('Error fetching all offers: $e', name: 'OffersService');
+      return null;
+    }
+  }
+
+  Future<dynamic> fetchOfferByCode(String code) async {
+    try {
+      final transactionUrlV2 = _storage.read('transaction_service_url');
+      if (transactionUrlV2 == null) return null;
+      
+      final url = '${transactionUrlV2}offers/$code';
+      final response = await _apiService.getrequest(url);
+      
+      return response.fold(
+        (failure) {
+          dev.log('Failed to fetch offer by code: ${failure.message}', name: 'OffersService');
+          return null;
+        },
+        (data) => data,
+      );
+    } catch (e) {
+      dev.log('Error fetching offer by code: $e', name: 'OffersService');
+      return null;
+    }
+  }
+
+  Future<dynamic> fetchOffersHistory() async {
+    try {
+      final transactionUrlV2 = _storage.read('transaction_service_url');
+      if (transactionUrlV2 == null) return null;
+      
+      final url = '${transactionUrlV2}user/offers/history';
+      final response = await _apiService.getrequest(url);
+      
+      return response.fold(
+        (failure) {
+          dev.log('Failed to fetch offers history: ${failure.message}', name: 'OffersService');
+          return null;
+        },
+        (data) => data,
+      );
+    } catch (e) {
+      dev.log('Error fetching offers history: $e', name: 'OffersService');
+      return null;
+    }
+  }
+
+  Future<dynamic> validateOffer({
+    required String product,
+    required String provider,
+    required String amount,
+    required String offerId, // Updated to offerId based on validation error
+  }) async {
+    try {
+      final transactionUrlV2 = _storage.read('transaction_service_url');
+      if (transactionUrlV2 == null) return null;
+      
+      final url = '${transactionUrlV2}offers/validate';
+      final payload = {
+        "product": product,
+        "provider": provider,
+        "amount": amount,
+        "offer_id": offerId,
+      };
+      
+      final response = await _apiService.postrequest(url, payload);
+      
+      return response.fold(
+        (failure) {
+          dev.log('Failed to validate offer: ${failure.message}', name: 'OffersService');
+          return null;
+        },
+        (data) => data,
+      );
+    } catch (e) {
+      dev.log('Error validating offer: $e', name: 'OffersService');
+      return null;
     }
   }
 }

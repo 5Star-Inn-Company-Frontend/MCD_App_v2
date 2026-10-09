@@ -13,6 +13,7 @@
 migrate_working_dir/
 analysis.txt
 postman_tree.txt
+offers_endpoints_report.md
 
 # IntelliJ related
 *.iml

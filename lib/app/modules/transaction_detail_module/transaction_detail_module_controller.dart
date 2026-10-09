@@ -262,7 +262,7 @@ class TransactionDetailModuleController extends GetxController {
 
     // Trigger eligible offers fetch after the build phase is complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      OffersService.to.fetchEligibleOffers();
+      OffersService.to.fetchFeaturedOffer();
     });
 
     final cachedData = box.read('cached_dashboard');

@@ -187,9 +187,9 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
               )),
               const Gap(30),
               Obx(() {
-                final eligibleData = OffersService.to.eligibleOffersData.value;
+                final featuredData = OffersService.to.featuredOfferData.value;
                 
-                if (OffersService.to.isFetchingEligibleOffers.value) {
+                if (OffersService.to.isFetchingFeaturedOffer.value) {
                   return const Column(
                     children: [
                       CircularProgressIndicator(color: AppColors.primaryColor),
@@ -198,10 +198,14 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
                   );
                 }
                 
-                if (eligibleData != null) {
+                if (featuredData != null) {
                   List offersList = [];
-                  if (eligibleData['data'] != null && eligibleData['data'] is List && eligibleData['data'].isNotEmpty) {
-                    offersList = eligibleData['data'];
+                  if (featuredData['data'] != null) {
+                    if (featuredData['data'] is Map && featuredData['data'].isNotEmpty) {
+                      offersList = [featuredData['data']];
+                    } else if (featuredData['data'] is List && featuredData['data'].isNotEmpty) {
+                      offersList = featuredData['data'];
+                    }
                   }
                   
                   return Column(
@@ -220,7 +224,7 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
                               style: TextStyle(
                                 color: AppColors.textPrimaryColor,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 13,
+                                fontSize: 15,
                               ),
                             ),
                             const Gap(20),
