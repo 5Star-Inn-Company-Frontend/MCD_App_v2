@@ -20,9 +20,11 @@ packages:
   advert:
     dependency: "direct main"
     description:
-      path: "../advert"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "11d2abade3f0bd4beb4827c11bee3bfde20f68fc"
+      url: "https://github.com/odejinmi/advert.git"
+    source: git
     version: "0.0.1"
   analyzer:
     dependency: transitive
@@ -1544,10 +1546,10 @@ packages:
     dependency: transitive
     description:
       name: matcher
-      sha256: "31bd099b47c10cd1aeb55146a2d46ce0277630ecef3f7dae54ad7873f36696cd"
+      sha256: dc0b7dc7651697ea4ff3e69ef44b0407ea32c487a39fff6a4004fa585e901861
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.20"
+    version: "0.12.19"
   material_color_utilities:
     dependency: transitive
     description:
@@ -2149,10 +2151,10 @@ packages:
     dependency: transitive
     description:
       name: test_api
-      sha256: "2a122cbe059f8b610d3a5415f42e255b6c17b1f21eee1d960f31080237fb4f11"
+      sha256: "949a932224383300f01be9221c39180316445ecb8e7547f70a41a35bf421fb9e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.12"
+    version: "0.7.11"
   typed_data:
     dependency: transitive
     description:
@@ -2161,6 +2163,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  unity_ads_plugin:
+    dependency: transitive
+    description:
+      name: unity_ads_plugin
+      sha256: "850192b0a696efdc03e7edd907770fa3bb722fa0c3649f5ed1d6e500577e10a8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
   universal_io:
     dependency: transitive
     description:

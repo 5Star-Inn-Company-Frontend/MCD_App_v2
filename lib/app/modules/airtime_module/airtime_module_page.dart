@@ -515,6 +515,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
               Flexible(
                 flex: 4,
                 child: Obx(() => TextFormField(
+                      key: controller.phoneFieldKey,
                       enabled: !controller.isNumberVerified.value,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -702,6 +703,9 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                               return TextFormField(
                                 controller: controller.amountController,
                                 validator: (value) {
+                                  if (!controller.isNumberVerified.value) {
+                                    return null;
+                                  }
                                   if (value == null || value.isEmpty) {
                                     return ("Please input amount");
                                   }

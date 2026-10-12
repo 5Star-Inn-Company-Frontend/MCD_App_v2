@@ -78,7 +78,7 @@ class FreeMoneyModuleController extends GetxController {
         "platform": "mobile",
         "type": "freemoney",
         "device": deviceName,
-        "country": userCountry.value,
+        "country": userCountry.value.isNotEmpty ? userCountry.value : "Nigeria",
         "city": userCity.value,
         "ip": userIp.value,
       };

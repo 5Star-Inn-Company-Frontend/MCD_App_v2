@@ -13,6 +13,7 @@ class AirtimeModuleController extends GetxController {
   final box = GetStorage();
 
   final formKey = GlobalKey<FormState>();
+  final phoneFieldKey = GlobalKey<FormFieldState>();
   final phoneController = TextEditingController();
   final amountController = TextEditingController();
   final selectedAmount = ''.obs;
@@ -109,6 +110,14 @@ class AirtimeModuleController extends GetxController {
           name: 'AirtimeModule');
     }
 
+    if (verifiedNumber != null &&
+        verifiedNumber.toString().isNotEmpty &&
+        verifiedNetwork != null &&
+        verifiedNetwork.toString().isNotEmpty) {
+      isNumberVerified.value = true;
+      this.verifiedNetwork.value = verifiedNetwork.toString();
+    }
+
     if (isForeign) {
       dev.log(
           'Airtime initialized in FOREIGN mode for country code: $countryCode',
@@ -136,6 +145,8 @@ class AirtimeModuleController extends GetxController {
 
         if (number != null && number.length == 11) {
           phoneController.text = number;
+          isNumberVerified.value = false;
+          verifiedNetwork.value = '';
           dev.log('Selected contact number: $number', name: 'AirtimeModule');
 
           // auto-detect network from phone prefix
@@ -488,7 +499,10 @@ class AirtimeModuleController extends GetxController {
 
   // verify number inline without navigating away
   Future<void> verifyNumberInline() async {
-    if (!(formKey.currentState?.validate() ?? false)) {
+    final isPhoneValid = phoneFieldKey.currentState?.validate() ??
+        (phoneController.text.trim().isNotEmpty &&
+            (_isForeign || phoneController.text.trim().length == 11));
+    if (!isPhoneValid) {
       return;
     }
 
