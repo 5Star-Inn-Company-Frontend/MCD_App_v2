@@ -53,12 +53,20 @@
 			</array>
 		</dict>
 	</array>
-	<key>ITSAppUsesNonExemptEncryption</key>
-    	<false/>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>EligibleForAdAttributionKitOverlappingConversions</key>
+	<true/>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
+	<key>FirebaseScreenReportingEnabled</key>
+	<true/>
+	<key>FlutterDeepLinkingEnabled</key>
+	<true/>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-6117361441866120~7211527566</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>LSApplicationQueriesSchemes</key>
@@ -78,39 +86,22 @@
 	<string>Explanation on why the camera access is needed.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>We need access to your contacts to select phone numbers for airtime and data purchases</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>We need access to your photo library to save receipt images</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Why is my app authenticating using face id?</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library to save receipt images</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>We need access to your location to provide location-based services and verify service availability.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>We need access to your location to provide location-based services and verify service availability.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>We need access to your location to provide location-based services and verify service availability.</string>
-	<key>UIApplicationSceneManifest</key>
-	<dict>
-		<key>UIApplicationSupportsMultipleScenes</key>
-		<false/>
-		<key>UISceneConfigurations</key>
-		<dict>
-			<key>UIWindowSceneSessionRoleApplication</key>
-			<array>
-				<dict>
-					<key>UISceneClassName</key>
-					<string>UIWindowScene</string>
-					<key>UISceneConfigurationName</key>
-					<string>flutter</string>
-					<key>UISceneDelegateClassName</key>
-					<string>FlutterSceneDelegate</string>
-					<key>UISceneStoryboardFile</key>
-					<string>Main</string>
-				</dict>
-			</array>
-		</dict>
-	</dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need access to your location to provide location-based services and verify service availability.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Can I use the mic please?</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need access to your photo library to save receipt images</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to save receipt images</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This identifier will be used to deliver personalized ads to you.</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>
@@ -529,17 +520,36 @@
 			<key>SKAdNetworkIdentifier</key>
 			<string>424m52w4tv.skadnetwork</string>
 		</dict>
-		 <!-- Google AdMob SKAdNetwork ID -->
-          <dict>
-            <key>SKAdNetworkIdentifier</key>
-            <string>cstr641x2t.skadnetwork</string>
-          </dict>
-          <!-- Unity Ads SKAdNetwork ID -->
-          <dict>
-            <key>SKAdNetworkIdentifier</key>
-            <string>4dzt52r2t5.skadnetwork</string>
-          </dict>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr641x2t.skadnetwork</string>
+		</dict>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>4dzt52r2t5.skadnetwork</string>
+		</dict>
 	</array>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneClassName</key>
+					<string>UIWindowScene</string>
+					<key>UISceneConfigurationName</key>
+					<string>flutter</string>
+					<key>UISceneDelegateClassName</key>
+					<string>FlutterSceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
@@ -567,19 +577,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Can I use the mic please?</string>
-	<key>FlutterDeepLinkingEnabled</key>
-	<true/>
 	<key>io.flutter.embedded_views_preview</key>
-	<true/>
-	<key>FirebaseAppDelegateProxyEnabled</key>
-	<false/>
-	<key>FirebaseScreenReportingEnabled</key>
-	<true/>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>This identifier will be used to deliver personalized ads to you.</string>
-	<key>EligibleForAdAttributionKitOverlappingConversions</key>
 	<true/>
 </dict>
 </plist>

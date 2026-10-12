@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'dart:developer' as dev;
+import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/core/controllers/service_status_controller.dart';
 import 'package:mcd/core/import/imports.dart';
@@ -12,10 +15,18 @@ class FreeMoneyModuleController extends GetxController {
   final RxBool isWatchingAd = false.obs;
   final RxInt adsWatchedCount = 0.obs;
 
+  final RxString userCountry = 'Nigeria'.obs;
+  final RxString userCity = ''.obs;
+  final RxString userIp = ''.obs;
+  final RxBool isLocationLoading = false.obs;
+
+  String get deviceName => Platform.isAndroid ? 'Android' : (Platform.isIOS ? 'iOS' : 'Mobile');
+
   @override
   void onInit() {
     super.onInit();
     refreshRemoteConfig();
+    fetchUserLocation();
   }
 
   @override
@@ -23,6 +34,54 @@ class FreeMoneyModuleController extends GetxController {
     super.onReady();
     refreshRemoteConfig();
   }
+
+  /// Fetch location info from https://myip.wtf/json
+  Future<void> fetchUserLocation() async {
+    try {
+      isLocationLoading.value = true;
+      dev.log('Fetching location from https://myip.wtf/json...', name: 'FreeMoney');
+
+      final dio = Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      ));
+      final response = await dio.get('https://myip.wtf/json');
+
+      if (response.statusCode == 200 && response.data != null) {
+        final Map<String, dynamic> data = response.data is String
+            ? jsonDecode(response.data)
+            : Map<String, dynamic>.from(response.data);
+
+        final country = data['YourFuckingCountry']?.toString() ??
+            data['country']?.toString() ??
+            'Nigeria';
+        final city = data['YourFuckingCity']?.toString() ??
+            data['city']?.toString() ??
+            '';
+        final ip = data['YourFuckingIPAddress']?.toString() ?? '';
+
+        if (country.isNotEmpty) userCountry.value = country;
+        if (city.isNotEmpty) userCity.value = city;
+        if (ip.isNotEmpty) userIp.value = ip;
+
+        dev.log('Location fetched: $country, $city (IP: $ip)', name: 'FreeMoney');
+      }
+    } catch (e) {
+      dev.log('Error fetching location: $e', name: 'FreeMoney');
+    } finally {
+      isLocationLoading.value = false;
+    }
+  }
+
+  Map<String, String> get adCustomData => {
+        "username": currentUsername,
+        "platform": "mobile",
+        "type": "freemoney",
+        "device": deviceName,
+        "country": userCountry.value,
+        "city": userCity.value,
+        "ip": userIp.value,
+      };
 
   /// Force fetch fresh Remote Config values from Firebase
   Future<void> refreshRemoteConfig() async {
@@ -104,11 +163,7 @@ class FreeMoneyModuleController extends GetxController {
           //   watchSingleAd();
           // }
         },
-        customData: {
-          "username": box.read('biometric_username_real') ?? box.read('username') ?? "",
-          "platform": "mobile",
-          "type": "freemoney"
-        },
+        customData: adCustomData,
       );
 
       if (!success) {
@@ -150,11 +205,7 @@ class FreeMoneyModuleController extends GetxController {
         maxAds: totalAds,
         adType: 'freemoney',
         reason: 'Free Money Reward',
-        customData: {
-          "username": box.read('biometric_username_real') ?? box.read('username') ?? "",
-          "platform": "mobile",
-          "type": "freemoney"
-        },
+        customData: adCustomData,
         onAdCompleted: () {
           adsWatchedCount.value += totalAds;
           dev.log('User completed $totalAds rewarded ads!', name: 'FreeMoney');

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:mcd/app/modules/free_money_module/free_money_module_controller.dart';
 import 'package:mcd/core/import/imports.dart';
 
@@ -80,6 +81,55 @@ class FreeMoneyModulePage extends GetView<FreeMoneyModuleController> {
               width: double.infinity,
               child: controller.adsService.showHighBannerAd(),
             ),
+            const Gap(16),
+
+            // Device & Location Card
+            Obx(() => Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.primaryColor.withOpacity(0.2)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Platform.isAndroid ? Icons.android : Icons.phone_iphone,
+                            color: AppColors.primaryColor,
+                            size: 20,
+                          ),
+                          const Gap(6),
+                          TextSemiBold(
+                            'Device: ${controller.deviceName}',
+                            fontSize: 13,
+                            color: AppColors.background,
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on_rounded,
+                            color: AppColors.primaryColor,
+                            size: 20,
+                          ),
+                          const Gap(4),
+                          TextSemiBold(
+                            controller.userCity.value.isNotEmpty
+                                ? 'Earning from ${controller.userCity.value}, ${controller.userCountry.value}'
+                                : 'Earning from ${controller.userCountry.value}',
+                            fontSize: 13,
+                            color: AppColors.background,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                )),
             const Gap(16),
             // How it Works Card
             Container(
