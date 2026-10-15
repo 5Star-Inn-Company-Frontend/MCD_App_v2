@@ -4,6 +4,8 @@ import 'package:mcd/app/modules/data_module/network_provider.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:mcd/app/widgets/pulsing_shimmer_card.dart';
+import 'package:mcd/app/modules/more_module/more_module_page.dart';
 
 import './data_module_controller.dart';
 
@@ -40,7 +42,9 @@ class DataModulePage extends GetView<DataModuleController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildNetworkSelector(),
-                      const Gap(30),
+                      const Gap(16),
+                      _buildUpgradeInfoCard(),
+                      const Gap(20),
                       _buildPlanContent(context),
                       const Gap(16),
                       Obx(() => BusyButton(
@@ -326,5 +330,107 @@ class DataModulePage extends GetView<DataModuleController> {
         },
       );
     });
+  }
+
+  Widget _buildUpgradeInfoCard() {
+    return PulsingShimmerCard(
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFFFBEB), Color(0xFFFEF3C7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFFCD34D)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF59E0B),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: TextBold(
+                    'LIGHTNING DELIVERY',
+                    fontSize: 10,
+                    color: AppColors.white,
+                  ),
+                ),
+                const Gap(8),
+                Expanded(
+                  child: TextBold(
+                    'Priority Speed & Hot Deals',
+                    fontSize: 13.5,
+                    color: const Color(0xFF92400E),
+                  ),
+                ),
+              ],
+            ),
+            const Gap(10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.bolt_rounded,
+                  color: Color(0xFFD97706),
+                  size: 20,
+                ),
+                const Gap(8),
+                const Expanded(
+                  child: Text(
+                    'Upgrade to any paid plan for lightning speed delivery when there is congestion.\nHot Deals only available to paid users',
+                    style: TextStyle(
+                      fontFamily: AppFonts.manRope,
+                      fontSize: 12.5,
+                      color: Color(0xFF78350F),
+                      fontWeight: FontWeight.w500,
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Gap(12),
+            SizedBox(
+              width: double.infinity,
+              height: 38,
+              child: ElevatedButton(
+                onPressed: MoreModulePage.navigateToSubscriptions,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD97706),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.flash_on_rounded,
+                        color: AppColors.white, size: 18),
+                    const Gap(6),
+                    TextBold(
+                      'Upgrade Plan',
+                      fontSize: 13,
+                      color: AppColors.white,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

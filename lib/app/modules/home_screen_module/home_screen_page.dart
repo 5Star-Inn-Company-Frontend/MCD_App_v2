@@ -17,6 +17,7 @@ import 'package:mcd/app/modules/leaderboard_module/models/leaderboard_model.dart
 import 'package:flutter_animate/flutter_animate.dart' hide ShimmerEffect;
 import 'package:mcd/app/modules/more_module/more_module_page.dart';
 import 'package:mcd/app/widgets/custom_bottom_sheet.dart';
+import 'package:mcd/app/modules/withdraw_bonus_module/withdraw_bonus_module_controller.dart';
 
 /**
  * GetX Template Generator - fb.com/htngu.99
@@ -1012,28 +1013,71 @@ class HomeScreenPage extends StatelessWidget {
     );
   }
 
-  Widget _walletItemWithIcon(String title, String amount, IconData icon) {
+  Widget _walletItemWithIcon(String title, String amount, IconData icon,
+      {VoidCallback? onTap}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: AppColors.primaryColor,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: Colors.white, size: 20),
+      padding: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: AppColors.primaryColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: Colors.white, size: 20),
+              ),
+              const Gap(15),
+              Expanded(
+                child: Row(
+                  children: [
+                    Text(title,
+                        style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: AppFonts.manRope,
+                            color: AppColors.background)),
+                    const Gap(8),
+                    Flexible(
+                      child: Text(amount,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: AppFonts.manRope,
+                              color: Colors.grey)),
+                    ),
+                  ],
+                ),
+              ),
+              if (onTap != null)
+                const Icon(Icons.chevron_right_rounded,
+                    size: 22, color: Colors.grey),
+            ],
           ),
-          const Gap(15),
-          Text(title,
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, fontFamily: AppFonts.manRope, color: AppColors.background)),
-          const Gap(8),
-          Text(amount,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, fontFamily: AppFonts.manRope, color: Colors.grey)),
-        ],
+        ),
       ),
     );
+  }
+
+  void _navigateToWithdrawBonus(BuildContext context, String walletType) {
+    Navigator.pop(context);
+    if (Get.isRegistered<WithdrawBonusModuleController>()) {
+      final withdrawController = Get.find<WithdrawBonusModuleController>();
+      withdrawController.applyWalletTypeFromArgs({'walletType': walletType});
+    }
+    Get.toNamed(Routes.WITHDRAW_BONUS_MODULE,
+        arguments: {'walletType': walletType});
+  }
+
+  void _navigateToLeaderboard(BuildContext context) {
+    Navigator.pop(context);
+    Get.toNamed(Routes.LEADERBOARD_MODULE);
   }
 
   void _showWalletsBottomSheet(
@@ -1065,29 +1109,43 @@ class HomeScreenPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const SizedBox(width: 24),
-                  const Text("Wallets", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, fontFamily: AppFonts.manRope, color: AppColors.background)),
+                  const Text("Wallets",
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: AppFonts.manRope,
+                          color: AppColors.background)),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.close, size: 20, color: Colors.grey),
+                    child:
+                        const Icon(Icons.close, size: 20, color: Colors.grey),
                   ),
                 ],
               ),
               const Gap(30),
-              _walletItemWithIcon("Commission",
-                  "(₦${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.commission ?? '0.00') ?? 0)})",
-                  Icons.account_balance_wallet_outlined),
               _walletItemWithIcon(
-                  "Point",
-                  "(${AmountUtil.formatFigure(double.tryParse(
-                      controller.dashboardData?.balance.points ?? '0') ??
-                      0)})",
-                  Icons.adjust),
-              _walletItemWithIcon("Bonus",
-                  "(₦${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.bonus ?? '0.00') ?? 0)})",
-                  Icons.stars_outlined),
-              _walletItemWithIcon("General Market",
-                  "(₦${AmountUtil.formatFigure(double.tryParse(controller.gmBalance) ?? 0)})",
-                  Icons.storefront_outlined),
+                "Commission",
+                "(₦${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.commission ?? '0.00') ?? 0)})",
+                Icons.account_balance_wallet_outlined,
+                onTap: () => _navigateToWithdrawBonus(context, 'commission'),
+              ),
+              _walletItemWithIcon(
+                "Point",
+                "(${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.points ?? '0') ?? 0)})",
+                Icons.adjust,
+                onTap: () => _navigateToLeaderboard(context),
+              ),
+              _walletItemWithIcon(
+                "Bonus",
+                "(₦${AmountUtil.formatFigure(double.tryParse(controller.dashboardData?.balance.bonus ?? '0.00') ?? 0)})",
+                Icons.stars_outlined,
+                onTap: () => _navigateToWithdrawBonus(context, 'mega_bonus'),
+              ),
+              _walletItemWithIcon(
+                "General Market",
+                "(₦${AmountUtil.formatFigure(double.tryParse(controller.gmBalance) ?? 0)})",
+                Icons.storefront_outlined,
+              ),
               const Gap(20),
             ],
           ),

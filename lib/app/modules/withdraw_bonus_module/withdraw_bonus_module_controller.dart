@@ -50,8 +50,22 @@ class WithdrawBonusModuleController extends GetxController {
   void onInit() {
     super.onInit();
     dev.log('WithdrawBonusModuleController initialized', name: 'WithdrawBonus');
+    applyWalletTypeFromArgs(Get.arguments);
     fetchBanks();
     fetchMegaBonusBalance();
+  }
+
+  void applyWalletTypeFromArgs(dynamic args) {
+    if (args is Map && args['walletType'] != null) {
+      final type = args['walletType'].toString();
+      if (type == 'commission') {
+        selectedWallet.value = 'Commission';
+        selectedWalletType.value = 'commission';
+      } else if (type == 'mega_bonus' || type == 'bonus') {
+        selectedWallet.value = 'Mega Bonus';
+        selectedWalletType.value = 'mega_bonus';
+      }
+    }
   }
 
   @override

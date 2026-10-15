@@ -256,113 +256,217 @@ class AddMoneyModulePage extends GetView<AddMoneyModuleController> {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xffF3FFF7),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            offset: const Offset(0, 4),
-            blurRadius: 10,
-          )
-        ],
+        color: const Color(0xff269E5F),
+        borderRadius: BorderRadius.circular(26.5),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "BANK NAME",
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade500,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          children: [
+            Positioned(
+              top: -20,
+              right: 60,
+              bottom: -50,
+              child: Transform.rotate(
+                angle: 0.4,
+                child: Container(
+                  width: 35,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0x1FFFFFFF), Color(0x05FFFFFF)],
+                      stops: [0.0, 0.7],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: -20,
+              right: 120,
+              bottom: -50,
+              child: Transform.rotate(
+                angle: 0.4,
+                child: Container(
+                  width: 35,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0x1FFFFFFF), Color(0x05FFFFFF)],
+                      stops: [0.0, 0.7],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: const BoxDecoration(
+                              color: Color(0x20FFFFFF),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.account_balance_rounded,
+                                color: Colors.white, size: 14),
+                          ),
+                          const Gap(8),
+                          Text(
+                            bankName,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: AppFonts.manRope,
+                            ),
+                          ),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: onCopy,
+                        behavior: HitTestBehavior.opaque,
+                        child: SvgPicture.asset(
+                          'assets/icons/home/copy-icon.svg',
+                          width: 16,
+                          height: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Gap(14),
+                  const Text(
+                    "ACCOUNT NUMBER",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.1,
+                      fontFamily: AppFonts.manRope,
+                    ),
+                  ),
+                  const Gap(4),
+                  GestureDetector(
+                    onTap: onCopy,
+                    child: Text(
+                      accountNumber,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: 1.2,
                         fontFamily: AppFonts.manRope,
                       ),
                     ),
-                    const Gap(4),
-                    TextSemiBold(
-                      bankName,
-                      fontSize: 16,
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  InkWell(
-                    onTap: onCopy,
-                    borderRadius: BorderRadius.circular(20),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(
-                        Icons.copy,
-                        size: 20,
-                        color: AppColors.primaryColor,
-                      ),
+                  ),
+                  const Gap(4),
+                  Text(
+                    accountName,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: AppFonts.manRope,
                     ),
                   ),
-                  const Gap(8),
-                  InkWell(
-                    onTap: onShare,
-                    borderRadius: BorderRadius.circular(20),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SvgPicture.asset(
-                        AppAsset.share,
-                        width: 20,
-                        height: 20,
+                  const Gap(14),
+                  Row(
+                    children: [
+                      _cardActionButton(
+                        icon: Icons.copy_rounded,
+                        text: 'Copy',
+                        onTap: onCopy,
                       ),
-                    ),
+                      const Gap(8),
+                      _cardActionButton(
+                        icon: Icons.share_rounded,
+                        text: 'Share',
+                        onTap: onShare,
+                      ),
+                      const Spacer(),
+                      Container(
+                        height: 29,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0x20FFFFFF),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.check_circle_rounded,
+                                color: Colors.white, size: 13),
+                            Gap(4),
+                            Text(
+                              'Active',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: AppFonts.manRope,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-              )
-            ],
-          ),
-          const Gap(24),
-          Text(
-            "ACCOUNT NUMBER",
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade500,
-              letterSpacing: 1.2,
-              fontFamily: AppFonts.manRope,
+              ),
             ),
-          ),
-          const Gap(4),
-          TextBold(
-            accountNumber,
-            fontSize: 28,
-            color: AppColors.primaryColor,
-          ),
-          const Gap(24),
-          Text(
-            "ACCOUNT NAME",
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade500,
-              letterSpacing: 1.2,
-              fontFamily: AppFonts.manRope,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _cardActionButton({
+    required IconData icon,
+    required String text,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 95,
+        height: 29,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        decoration: BoxDecoration(
+          color: const Color(0x20FFFFFF),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 14),
+            const Gap(6),
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: AppFonts.manRope,
+                  ),
+                ),
+              ),
             ),
-          ),
-          const Gap(4),
-          TextSemiBold(
-            accountName,
-            fontSize: 15,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

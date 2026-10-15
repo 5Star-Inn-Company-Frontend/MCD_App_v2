@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/more_module/more_module_page.dart';
+import 'package:mcd/app/widgets/pulsing_shimmer_card.dart';
 import 'package:mcd/core/controllers/service_status_controller.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/services/ads_service.dart';
@@ -274,70 +275,73 @@ class FreeMoneyModuleController extends GetxController {
                 ),
               ),
               const Gap(18),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFFFFBEB), Color(0xFFFEF3C7)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              PulsingShimmerCard(
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFFFBEB), Color(0xFFFEF3C7)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFFCD34D)),
                   ),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFFCD34D)),
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF59E0B),
-                        borderRadius: BorderRadius.circular(6),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF59E0B),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: TextBold(
+                          '2X REWARD',
+                          fontSize: 10,
+                          color: AppColors.white,
+                        ),
                       ),
-                      child: TextBold(
-                        '2X REWARD',
-                        fontSize: 10,
-                        color: AppColors.white,
+                      const Gap(8),
+                      TextSemiBold(
+                        'Upgrade to any paid plan to enjoy x2 anytime you earn.',
+                        textAlign: TextAlign.center,
+                        fontSize: 12.5,
+                        color: const Color(0xFF92400E),
                       ),
-                    ),
-                    const Gap(8),
-                    TextSemiBold(
-                      'Upgrade to any paid plan to enjoy x2 anytime you earn.',
-                      textAlign: TextAlign.center,
-                      fontSize: 12.5,
-                      color: const Color(0xFF92400E),
-                    ),
-                    const Gap(12),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 40,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Get.back();
-                          MoreModulePage.navigateToSubscriptions();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFD97706),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                      const Gap(12),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 40,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Get.back();
+                            MoreModulePage.navigateToSubscriptions();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFD97706),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.flash_on_rounded, color: AppColors.white, size: 16),
+                              const Gap(4),
+                              TextBold(
+                                'Upgrade for 2X',
+                                fontSize: 13.5,
+                                color: AppColors.white,
+                              ),
+                            ],
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.flash_on_rounded, color: AppColors.white, size: 16),
-                            const Gap(4),
-                            TextBold(
-                              'Upgrade for 2X',
-                              fontSize: 13.5,
-                              color: AppColors.white,
-                            ),
-                          ],
-                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const Gap(12),
