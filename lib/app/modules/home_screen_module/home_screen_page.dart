@@ -39,10 +39,11 @@ class HomeScreenPage extends StatelessWidget {
             return Scaffold(
               backgroundColor: Color(0xffF9F9F9),
               appBar: PaylonyAppBar(
-                title:
-                "Hello ${controller.dashboardData?.user.userName ?? 'User'} 👋🏼",
+                titleWidget: _buildGreetingAndPlan(controller),
+                preferredHeight: 56,
+                toolbarHeight: 56,
                 elevation: 0,
-                backgroundColor: Color(0xffF9F9F9),
+                backgroundColor: const Color(0xffF9F9F9),
                 actions: [
                   TouchableOpacity(
                       child: InkWell(
@@ -650,75 +651,65 @@ class HomeScreenPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            if (accs?.hasPrimary ?? false) {
-                              Clipboard.setData(
-                                  ClipboardData(text: accs!.primaryAccountNumber));
-                              Get.snackbar('Copied', 'Account number copied to clipboard',
-                                  backgroundColor: AppColors.primaryColor,
-                                  colorText: Colors.white);
-                            }
-                          },
-                          behavior: HitTestBehavior.opaque,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Flexible(
-                                child: (accs?.hasPrimary ?? false)
-                                    ? RichText(
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 2,
-                                        text: TextSpan(
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              fontFamily: AppFonts.manRope),
-                                          children: [
-                                            TextSpan(
-                                              text: accs!.primaryAccountNumber,
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            TextSpan(
-                                              text:
-                                                  " | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}",
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    : Text(
-                                        accountText,
+                  GestureDetector(
+                    onTap: () {
+                      if (accs?.hasPrimary ?? false) {
+                        Clipboard.setData(
+                            ClipboardData(text: accs!.primaryAccountNumber));
+                        Get.snackbar('Copied', 'Account number copied to clipboard',
+                            backgroundColor: AppColors.primaryColor,
+                            colorText: Colors.white);
+                      }
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          child: (accs?.hasPrimary ?? false)
+                              ? RichText(
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: AppFonts.manRope),
+                                    children: [
+                                      TextSpan(
+                                        text: accs!.primaryAccountNumber,
                                         style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                            fontFamily: AppFonts.manRope),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 2,
+                                            fontWeight: FontWeight.bold),
                                       ),
-                              ),
-                              const Gap(8),
-                              Skeleton.ignore(
-                                child: SvgPicture.asset(
-                                  'assets/icons/home/copy-icon.svg',
-                                  width: 16,
-                                  height: 16,
+                                      TextSpan(
+                                        text:
+                                            " | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}",
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Text(
+                                  accountText,
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: AppFonts.manRope),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
                                 ),
-                              )
-                            ],
-                          ),
                         ),
-                      ),
-                      const Gap(8),
-                      _buildPlanButton(controller),
-                    ],
+                        const Gap(8),
+                        Skeleton.ignore(
+                          child: SvgPicture.asset(
+                            'assets/icons/home/copy-icon.svg',
+                            width: 16,
+                            height: 16,
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                   const Gap(12),
                   Row(
@@ -863,6 +854,36 @@ class HomeScreenPage extends StatelessWidget {
     );
   }
 
+  Widget _buildGreetingAndPlan(HomeScreenController controller) {
+    final userName = controller.dashboardData?.user.userName ?? 'User';
+    return InkWell(
+      onTap: MoreModulePage.navigateToSubscriptions,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Hello, $userName',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimaryColor,
+                fontFamily: AppFonts.manRope,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+            const Gap(3),
+            _buildPlanButton(controller),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildPlanButton(HomeScreenController controller) {
     final rawPlan = controller.dashboardData?.user.referralPlan.trim() ?? '';
     final isFree = rawPlan.isEmpty || rawPlan.toLowerCase() == 'free';
@@ -873,48 +894,45 @@ class HomeScreenPage extends StatelessWidget {
             : '${rawPlan[0].toUpperCase() + rawPlan.substring(1)} Plan');
 
     return Skeleton.ignore(
-      child: TouchableOpacity(
-        onTap: MoreModulePage.navigateToSubscriptions,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-          decoration: BoxDecoration(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: isFree
+              ? const Color(0xFFF3F4F6)
+              : const Color(0xFFFEF3C7),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
             color: isFree
-                ? const Color(0x30FFFFFF)
-                : const Color(0xFFFEF3C7),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isFree
-                  ? const Color(0x59FFFFFF)
-                  : const Color(0xFFF59E0B),
-              width: 1,
+                ? const Color(0xFFE5E7EB)
+                : const Color(0xFFF59E0B),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isFree ? Icons.star_outline_rounded : Icons.workspace_premium_rounded,
+              color: isFree ? const Color(0xFF6B7280) : const Color(0xFFD97706),
+              size: 13,
             ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isFree ? Icons.star_outline_rounded : Icons.workspace_premium_rounded,
-                color: isFree ? Colors.white : const Color(0xFFD97706),
-                size: 13,
+            const Gap(4),
+            Text(
+              isFree ? 'Free - Upgrade' : planTitle,
+              style: TextStyle(
+                color: isFree ? const Color(0xFF374151) : const Color(0xFF92400E),
+                fontSize: 10.5,
+                fontWeight: FontWeight.w700,
+                fontFamily: AppFonts.manRope,
               ),
-              const Gap(4),
-              Text(
-                isFree ? 'Free • Upgrade' : planTitle,
-                style: TextStyle(
-                  color: isFree ? Colors.white : const Color(0xFF92400E),
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: AppFonts.manRope,
-                ),
-              ),
-              const Gap(2),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: isFree ? Colors.white70 : const Color(0xFF92400E),
-                size: 13,
-              ),
-            ],
-          ),
+            ),
+            const Gap(2),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: isFree ? const Color(0xFF9CA3AF) : const Color(0xFF92400E),
+              size: 13,
+            ),
+          ],
         ),
       ),
     );
