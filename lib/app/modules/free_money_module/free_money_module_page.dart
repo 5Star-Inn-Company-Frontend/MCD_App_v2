@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:mcd/app/modules/free_money_module/free_money_module_controller.dart';
+import 'package:mcd/app/modules/more_module/more_module_page.dart';
 import 'package:mcd/core/import/imports.dart';
 
 class FreeMoneyModulePage extends GetView<FreeMoneyModuleController> {
@@ -225,7 +226,10 @@ class FreeMoneyModulePage extends GetView<FreeMoneyModuleController> {
                 ],
               ),
             ),
-            const Gap(24),
+            const Gap(20),
+
+            _buildUpgradeMultiplierCard(),
+            const Gap(20),
 
             // Action Button (Reactively listens to RemoteConfig and loading state)
             Obx(() {
@@ -357,6 +361,88 @@ class FreeMoneyModulePage extends GetView<FreeMoneyModuleController> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildUpgradeMultiplierCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFFFBEB), Color(0xFFFEF3C7)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFCD34D)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF59E0B),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: TextBold(
+                  '2X BOOST',
+                  fontSize: 10,
+                  color: AppColors.white,
+                ),
+              ),
+              const Gap(8),
+              Expanded(
+                child: TextBold(
+                  'Double Your Earnings',
+                  fontSize: 15,
+                  color: const Color(0xFF92400E),
+                ),
+              ),
+            ],
+          ),
+          const Gap(8),
+          Text(
+            'Upgrade to any paid plan to enjoy x2 anytime you earn.',
+            style: const TextStyle(
+              fontFamily: AppFonts.manRope,
+              fontSize: 13,
+              color: Color(0xFF78350F),
+              height: 1.35,
+            ),
+          ),
+          const Gap(12),
+          SizedBox(
+            width: double.infinity,
+            height: 42,
+            child: ElevatedButton(
+              onPressed: MoreModulePage.navigateToSubscriptions,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD97706),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.flash_on_rounded, color: AppColors.white, size: 18),
+                  const Gap(6),
+                  TextBold(
+                    'Upgrade Plan for 2X',
+                    fontSize: 14,
+                    color: AppColors.white,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -17,15 +17,33 @@ class MoreModuleController extends GetxController
   DashboardModel? get dashboardData => dashboardDataRx.value;
   set dashboardData(DashboardModel? value) => dashboardDataRx.value = value;
 
+  int? _handledTabArg;
+
+  void switchTab(int index) {
+    if (index >= 0 && index < 5) {
+      _handledTabArg = index;
+      if (tabController.index != index) {
+        tabController.animateTo(index);
+      }
+    }
+  }
+
+  void checkAndApplyTabArgument(int tab) {
+    if (_handledTabArg != tab) {
+      switchTab(tab);
+    }
+  }
+
   @override
   void onInit() {
     super.onInit();
-    // get initial tab from arguments (first load)
     final currentArgs = Get.arguments as Map<String, dynamic>?;
     final initialTab = currentArgs?['initialTab'] as int?;
     final startIndex = (initialTab != null && initialTab >= 0 && initialTab < 5)
         ? initialTab
         : 0;
+
+    _handledTabArg = startIndex;
 
     tabController = TabController(
       length: 5,
@@ -47,14 +65,11 @@ class MoreModuleController extends GetxController
   @override
   void onReady() {
     super.onReady();
-    // fetch fresh arguments (for re-navigation to this screen)
     final currentArgs = Get.arguments as Map<String, dynamic>?;
     final initialTab = currentArgs?['initialTab'] as int?;
     if (initialTab != null && initialTab >= 0 && initialTab < 5) {
       Future.delayed(const Duration(milliseconds: 100), () {
-        if (tabController.index != initialTab) {
-          tabController.animateTo(initialTab);
-        }
+        switchTab(initialTab);
       });
     }
   }

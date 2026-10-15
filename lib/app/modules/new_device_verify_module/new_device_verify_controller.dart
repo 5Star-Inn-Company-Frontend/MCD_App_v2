@@ -87,7 +87,7 @@ class NewDeviceVerifyController extends GetxController {
 
               await box.write('token', token);
               if (transactionUrl != null) {
-                await box.write('transaction_service_url', transactionUrl);
+                await box.write('transaction_service_url', ApiConstants.temporaryTransUrl.isNotEmpty ? ApiConstants.temporaryTransUrl : transactionUrl);
               }
               if (utilityUrl != null) {
                 await box.write('utility_service_url', utilityUrl);

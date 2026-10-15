@@ -10,8 +10,23 @@ import 'package:mcd/core/controllers/service_status_controller.dart';
 class MoreModulePage extends GetView<MoreModuleController> {
   const MoreModulePage({super.key});
 
+  static void navigateToSubscriptions() {
+    if (Get.isRegistered<MoreModuleController>()) {
+      Get.find<MoreModuleController>().switchTab(1);
+    }
+    Get.toNamed(Routes.MORE_MODULE, arguments: {'initialTab': 1});
+  }
+
   @override
   Widget build(BuildContext context) {
+    final currentArgs = Get.arguments as Map<String, dynamic>?;
+    final initialTab = currentArgs?['initialTab'] as int?;
+    if (initialTab != null && initialTab >= 0 && initialTab < 5) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.checkAndApplyTabArgument(initialTab);
+      });
+    }
+
     return WillPopScope(
       onWillPop: () async {
         return await _showExitDialog(context) ?? false;

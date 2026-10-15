@@ -785,6 +785,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                     ],
                   ),
                 ),
+                /*
                 const Divider(height: 1),
                 Opacity(
                   opacity: isPaystackAvailable ? 1.0 : 0.4,
@@ -798,11 +799,10 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                               child: Text(
                                 'Paystack (1.5% Fee)',
                                 style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 14,
-                                  color: isPaystackAvailable
-                                      ? Colors.black
-                                      : Colors.grey,
-                                ),
+                                    fontSize: 14,
+                                    color: isPaystackAvailable
+                                        ? Colors.black
+                                        : Colors.grey),
                               ),
                             ),
                             if (!isPaystackAvailable)
@@ -868,6 +868,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                     ],
                   ),
                 ),
+                */
               ],
             );
           }),

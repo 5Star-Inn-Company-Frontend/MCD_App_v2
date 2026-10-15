@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import '../network/api_constants.dart';
 import '../../app/modules/home_screen_module/model/dashboard_model.dart';
 
 /// Centralized storage service to avoid Get.find dependencies
@@ -43,7 +44,9 @@ class StorageService extends GetxService {
 
   // Getters
   String? get token => _box.read(keyToken);
-  String? get transactionUrl => _box.read(keyTransactionUrl);
+  String? get transactionUrl => ApiConstants.temporaryTransUrl.isNotEmpty
+      ? ApiConstants.temporaryTransUrl
+      : _box.read(keyTransactionUrl);
   String? get utilityUrl => _box.read(keyUtilityUrl);
   String? get username => _box.read(keyUsername);
   String? get userEmail => _box.read(keyUserEmail);

@@ -303,12 +303,50 @@ class DataModuleController extends GetxController {
               for (var provider in providersList) {
                 if (provider is Map<String, dynamic>) {
                   final name = provider['name'] ?? 'Unknown';
-                  final operatorId = provider['operatorId']?.toString() ?? '';
+                  final operatorId = provider['operatorId']?.toString() ??
+                      provider['operator_id']?.toString() ??
+                      '';
+
+                  final variations = provider['variations'];
+                  if (variations != null && variations is List) {
+                    for (var variation in variations) {
+                      if (variation is Map) {
+                        final planName = variation['name']?.toString() ?? '';
+                        final planCoded = variation['coded']?.toString() ??
+                            variation['variation_code']?.toString() ??
+                            '';
+                        final planPrice = variation['price']?.toString() ?? '0';
+
+                        String category = 'Others';
+                        final descLower = planName.toLowerCase();
+                        if (descLower.contains('daily') || descLower.contains('day')) {
+                          category = 'Daily';
+                        } else if (descLower.contains('weekly') || descLower.contains('week')) {
+                          category = 'Weekly';
+                        } else if (descLower.contains('monthly') || descLower.contains('month')) {
+                          category = 'Monthly';
+                        } else if (descLower.contains('weekend')) {
+                          category = 'Weekend';
+                        } else if (descLower.contains('night')) {
+                          category = 'Night';
+                        }
+
+                        parsedPlans.add(DataPlanModel(
+                          name: planName,
+                          coded: planCoded,
+                          price: planPrice,
+                          network: name,
+                          category: category,
+                          id: int.tryParse(variation['variation_code']?.toString() ?? '0') ?? 0,
+                          operatorId: operatorId,
+                        ));
+                      }
+                    }
+                  }
+
                   final fixedAmountsDescriptions = provider['fixedAmountsDescriptions'];
-                  
                   if (fixedAmountsDescriptions != null && fixedAmountsDescriptions is Map) {
                     fixedAmountsDescriptions.forEach((price, description) {
-                      // Infer category
                       String category = 'Others';
                       final descLower = description.toString().toLowerCase();
                       if (descLower.contains('daily') || descLower.contains('day')) {
@@ -360,16 +398,53 @@ class DataModuleController extends GetxController {
             else if (data['data'] != null && data['data'] is Map) {
               final dataMap = data['data'] as Map<String, dynamic>;
               final name = dataMap['name'] ?? 'Unknown';
-              final operatorId = dataMap['operatorId']?.toString() ?? '';
+              final operatorId = dataMap['operatorId']?.toString() ??
+                  dataMap['operator_id']?.toString() ??
+                  '';
+              final List<DataPlanModel> parsedPlans = [];
+
+              final variations = dataMap['variations'];
+              if (variations != null && variations is List) {
+                for (var variation in variations) {
+                  if (variation is Map) {
+                    final planName = variation['name']?.toString() ?? '';
+                    final planCoded = variation['coded']?.toString() ??
+                        variation['variation_code']?.toString() ??
+                        '';
+                    final planPrice = variation['price']?.toString() ?? '0';
+
+                    String category = 'Others';
+                    final descLower = planName.toLowerCase();
+                    if (descLower.contains('daily') || descLower.contains('day')) {
+                      category = 'Daily';
+                    } else if (descLower.contains('weekly') || descLower.contains('week')) {
+                      category = 'Weekly';
+                    } else if (descLower.contains('monthly') || descLower.contains('month')) {
+                      category = 'Monthly';
+                    } else if (descLower.contains('weekend')) {
+                      category = 'Weekend';
+                    } else if (descLower.contains('night')) {
+                      category = 'Night';
+                    }
+
+                    parsedPlans.add(DataPlanModel(
+                      name: planName,
+                      coded: planCoded,
+                      price: planPrice,
+                      network: name,
+                      category: category,
+                      id: int.tryParse(variation['variation_code']?.toString() ?? '0') ?? 0,
+                      operatorId: operatorId,
+                    ));
+                  }
+                }
+              }
+
               final fixedAmountsDescriptions =
                   dataMap['fixedAmountsDescriptions'];
-
               if (fixedAmountsDescriptions != null &&
                   fixedAmountsDescriptions is Map) {
-                final List<DataPlanModel> parsedPlans = [];
-
                 fixedAmountsDescriptions.forEach((price, description) {
-                  // Infer category
                   String category = 'Others';
                   final descLower = description.toString().toLowerCase();
                   if (descLower.contains('daily') ||
@@ -389,19 +464,22 @@ class DataModuleController extends GetxController {
 
                   parsedPlans.add(DataPlanModel(
                     name: description.toString(),
-                    coded: price.toString(), // Using price as the code/ID
+                    coded: price.toString(),
                     price: price.toString(),
                     network: name,
                     category: category,
-                    id: 0, // No specific plan ID in this response format
+                    id: 0,
                     operatorId: operatorId,
                   ));
                 });
+              }
 
-                // Update categories tab
+              if (parsedPlans.isEmpty) {
+                errorMessage.value =
+                    "No data plans found for this foreign provider.";
+              } else {
                 tabBarItems.assignAll(
                     parsedPlans.map((e) => e.category).toSet().toList());
-                // Sort categories to have typical order if possible
                 tabBarItems.sort((a, b) {
                   final order = [
                     'Daily',
@@ -419,9 +497,6 @@ class DataModuleController extends GetxController {
                 if (tabBarItems.isNotEmpty) {
                   onTabSelected(tabBarItems.first);
                 }
-              } else {
-                errorMessage.value =
-                    "No fixed amounts found for this foreign provider.";
               }
             } else {
               errorMessage.value = "Invalid data format received from server.";

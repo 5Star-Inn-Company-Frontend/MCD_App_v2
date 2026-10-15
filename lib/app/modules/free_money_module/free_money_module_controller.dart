@@ -3,6 +3,7 @@ import 'dart:developer' as dev;
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:mcd/app/modules/more_module/more_module_page.dart';
 import 'package:mcd/core/controllers/service_status_controller.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/services/ads_service.dart';
@@ -144,17 +145,9 @@ class FreeMoneyModuleController extends GetxController {
           adsWatchedCount.value++;
           dev.log('User earned Free Money reward (Count: ${adsWatchedCount.value})', name: 'FreeMoney');
 
-          // Show follow-up interstitial ad if configured
           adsService.showInterstitialAd(type: "freemoneyInterstitial");
 
-          Get.snackbar(
-            'Reward Earned! 🎉',
-            'You earned ₦$freeMoneyAmount for watching the ad!',
-            backgroundColor: AppColors.successBgColor,
-            colorText: AppColors.textSnackbarColor,
-            snackPosition: SnackPosition.TOP,
-            duration: const Duration(seconds: 4),
-          );
+          showRewardEarnedDialog(amountEarned: freeMoneyAmount);
 
           // // Auto-repeat sequence if enabled in Remote Config
           // if (Get.isRegistered<RemoteConfigService>() &&
@@ -210,18 +203,9 @@ class FreeMoneyModuleController extends GetxController {
           adsWatchedCount.value += totalAds;
           dev.log('User completed $totalAds rewarded ads!', name: 'FreeMoney');
 
-          // Show follow-up interstitial ad if configured
           adsService.showInterstitialAd(type: "freemoneyInterstitial");
 
-          Get.snackbar(
-            'Reward Earned! 🎉',
-            'You completed $totalAds video ad(s) and earned ₦$freeMoneyAmount!',
-            backgroundColor: AppColors.successBgColor,
-            colorText: AppColors.textSnackbarColor,
-            snackPosition: SnackPosition.TOP,
-            duration: const Duration(seconds: 4),
-          );
-
+          showRewardEarnedDialog(amountEarned: freeMoneyAmount);
         },
         onAdFailed: (errorMsg) {
           dev.log('Multiple rewarded ads sequence failed: $errorMsg', name: 'FreeMoney');
@@ -247,5 +231,133 @@ class FreeMoneyModuleController extends GetxController {
     } finally {
       isWatchingAd.value = false;
     }
+  }
+
+  void showRewardEarnedDialog({required String amountEarned}) {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: AppColors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(22.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0FDF4),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFBBF7D0), width: 2),
+                ),
+                child: const Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColors.primaryColor,
+                  size: 36,
+                ),
+              ),
+              const Gap(14),
+              TextBold(
+                'Reward Earned!',
+                fontSize: 19,
+                color: AppColors.background,
+              ),
+              const Gap(6),
+              Text(
+                '₦$amountEarned has been added to your wallet balance.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: AppFonts.manRope,
+                  fontSize: 13.5,
+                  color: AppColors.primaryGrey2,
+                ),
+              ),
+              const Gap(18),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFFFFBEB), Color(0xFFFEF3C7)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFFCD34D)),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF59E0B),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: TextBold(
+                        '2X REWARD',
+                        fontSize: 10,
+                        color: AppColors.white,
+                      ),
+                    ),
+                    const Gap(8),
+                    TextSemiBold(
+                      'Upgrade to any paid plan to enjoy x2 anytime you earn.',
+                      textAlign: TextAlign.center,
+                      fontSize: 12.5,
+                      color: const Color(0xFF92400E),
+                    ),
+                    const Gap(12),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 40,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Get.back();
+                          MoreModulePage.navigateToSubscriptions();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFD97706),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.flash_on_rounded, color: AppColors.white, size: 16),
+                            const Gap(4),
+                            TextBold(
+                              'Upgrade for 2X',
+                              fontSize: 13.5,
+                              color: AppColors.white,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Gap(12),
+              SizedBox(
+                width: double.infinity,
+                height: 38,
+                child: TextButton(
+                  onPressed: () => Get.back(),
+                  child: TextSemiBold(
+                    'Claim & Continue',
+                    fontSize: 13.5,
+                    color: AppColors.primaryGrey,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: true,
+    );
   }
 }

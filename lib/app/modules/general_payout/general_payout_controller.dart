@@ -1605,22 +1605,48 @@ class GeneralPayoutController extends GetxController {
     final provider = paymentData['provider'];
     final phoneNumber = paymentData['phoneNumber'];
     final amount = paymentData['amount'];
+    final isForeign = paymentData['isForeign'] == true ||
+        (paymentData['countryCode'] != null &&
+            paymentData['countryCode'] != 'NG');
+    final countryCode = paymentData['countryCode'] ?? "NG";
 
-    final body = {
-      "provider": provider?.network?.toUpperCase() ?? '',
-      "amount": amount.toString(),
-      "number": phoneNumber,
-      "country": paymentData['countryCode'] ?? "NG",
-      "payment": getPaymentMethodKey(),
-      "promo": promoCodeController.text.trim().isEmpty
-          ? "0"
-          : promoCodeController.text.trim(),
-      if (validatedOfferCode != null) "offer_code": validatedOfferCode,
-      "ref": ref,
-      "operatorID": int.tryParse(provider?.server ?? '0') ?? 0,
-      if (paymentData['bonus'] != null)
-        "bonus": paymentData['bonus'].toString(),
-    };
+    final Map<String, dynamic> body;
+    if (isForeign) {
+      final rate = provider?.conversionRate;
+      final ngnAmount = double.tryParse(amount.toString()) ?? 0.0;
+      final localAmount = (rate != null && rate > 0)
+          ? (ngnAmount / rate).round()
+          : ngnAmount.round();
+
+      body = {
+        "coded": provider?.coded ?? provider?.server ?? '',
+        "local_amount": localAmount,
+        "amount": amount.toString(),
+        "number": phoneNumber,
+        "country": countryCode,
+        "payment": getPaymentMethodKey(),
+        "promo": promoCodeController.text.trim().isEmpty
+            ? "0"
+            : promoCodeController.text.trim(),
+        if (validatedOfferCode != null) "offer_code": validatedOfferCode,
+        "ref": ref,
+      };
+    } else {
+      body = {
+        "provider": provider?.network?.toUpperCase() ?? '',
+        "amount": amount.toString(),
+        "number": phoneNumber,
+        "country": "NG",
+        "payment": getPaymentMethodKey(),
+        "promo": promoCodeController.text.trim().isEmpty
+            ? "0"
+            : promoCodeController.text.trim(),
+        if (validatedOfferCode != null) "offer_code": validatedOfferCode,
+        "ref": ref,
+        if (paymentData['bonus'] != null)
+          "bonus": paymentData['bonus'].toString(),
+      };
+    }
 
     await _performHandshake(
       endpoint: 'airtime',
@@ -1711,7 +1737,9 @@ class GeneralPayoutController extends GetxController {
     final Map<String, dynamic> body = isForeign
         ? {
             "name": dataPlan?.name ?? '',
-            "coded": dataPlan?.operatorId?.toString() ?? '',
+            "coded": (dataPlan?.coded != null && dataPlan!.coded.isNotEmpty)
+                ? dataPlan.coded
+                : (dataPlan?.operatorId?.toString() ?? ''),
             "amount": dataPlan?.price ?? '',
             "number": phoneNumber,
             "payment": getPaymentMethodKey(),

@@ -272,7 +272,7 @@ class LoginScreenController extends GetxService {
             final utilityUrl = data['ultility_service'];
 
             await box.write('token', token);
-            await box.write('transaction_service_url', transactionUrl);
+            await box.write('transaction_service_url', ApiConstants.temporaryTransUrl.isNotEmpty ? ApiConstants.temporaryTransUrl : transactionUrl);
             await box.write('utility_service_url', utilityUrl);
 
             // save credentials for biometric login, the username is either phone number or email
@@ -446,7 +446,7 @@ class LoginScreenController extends GetxService {
             final utilityUrl = data['ultility_service'];
 
             await box.write('token', token);
-            await box.write('transaction_service_url', transactionUrl);
+            await box.write('transaction_service_url', ApiConstants.temporaryTransUrl.isNotEmpty ? ApiConstants.temporaryTransUrl : transactionUrl);
             await box.write('utility_service_url', utilityUrl);
             dev.log("Biometric login successful, navigating to home...");
             

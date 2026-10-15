@@ -1,5 +1,6 @@
 import 'package:mcd/app/modules/leaderboard_module/leaderboard_module_controller.dart';
 import 'package:mcd/app/modules/leaderboard_module/models/leaderboard_model.dart';
+import 'package:mcd/app/modules/more_module/more_module_page.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -326,44 +327,85 @@ class LeaderboardModulePage extends GetView<LeaderboardModuleController> {
 
   Widget _buildLeaderboardTip() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: const Color(0xFFFFF8E1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFFFE082)),
       ),
-      child: const Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.info_outline_rounded,
-            color: Color(0xFFF57F17),
-            size: 20,
-          ),
-          Gap(10),
-          Expanded(
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: "How to increase points: ",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      color: Color(0xFF5D4037),
-                      fontFamily: AppFonts.manRope,
-                    ),
-                  ),
-                  TextSpan(
-                    text: "Earn points by making transactions (airtime, data, bills, TV) and referring friends to the app!",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF5D4037),
-                      fontFamily: AppFonts.manRope,
-                    ),
-                  ),
-                ],
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.rocket_launch_rounded,
+                color: Color(0xFFF57F17),
+                size: 20,
               ),
-            ),
+              const Gap(10),
+              Expanded(
+                child: Text(
+                  "Boost your points by Upgrading to any Paid Plan or Refer a user that will upgrade his plan",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12.5,
+                    color: Color(0xFF5D4037),
+                    fontFamily: AppFonts.manRope,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const Gap(12),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 34,
+                  child: ElevatedButton(
+                    onPressed: MoreModulePage.navigateToSubscriptions,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF57F17),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                    ),
+                    child: TextSemiBold(
+                      'Upgrade Plan',
+                      fontSize: 11.5,
+                      color: AppColors.white,
+                    ),
+                  ),
+                ),
+              ),
+              const Gap(10),
+              Expanded(
+                child: SizedBox(
+                  height: 34,
+                  child: OutlinedButton(
+                    onPressed: () => Get.toNamed(Routes.ADD_REFERRAL_MODULE),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFFF57F17)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                    ),
+                    child: TextSemiBold(
+                      'Refer a User',
+                      fontSize: 11.5,
+                      color: const Color(0xFFF57F17),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

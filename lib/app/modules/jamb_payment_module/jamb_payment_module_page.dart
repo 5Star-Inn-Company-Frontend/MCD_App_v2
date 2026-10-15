@@ -194,7 +194,7 @@ class JambPaymentModulePage extends GetView<JambPaymentModuleController> {
             const Gap(20),
             _paymentMethodTile(
                 'wallet', 'Wallet', Icons.account_balance_wallet, context),
-            _paymentMethodTile('paystack', 'Paystack', Icons.payment, context),
+            // _paymentMethodTile('paystack', 'Paystack', Icons.payment, context),
             _paymentMethodTile(
                 'general_market', 'General Market', Icons.store, context),
             _paymentMethodTile(
