@@ -64,8 +64,7 @@ class CountrySelectionPage extends GetView<CountrySelectionController> {
                 );
               }
 
-              // Error state
-              if (controller.errorMessage != null) {
+              if (controller.errorMessage.isNotEmpty) {
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.all(20),
@@ -87,7 +86,7 @@ class CountrySelectionPage extends GetView<CountrySelectionController> {
                         const Gap(24),
                         BusyButton(
                           title: 'Retry',
-                          onTap: controller.fetchCountries,
+                          onTap: () => controller.fetchCountries(forceRefresh: true),
                           width: 120,
                         ),
                       ],
@@ -96,7 +95,6 @@ class CountrySelectionPage extends GetView<CountrySelectionController> {
                 );
               }
 
-              // Empty state
               if (controller.countries.isEmpty) {
                 return Center(
                   child: Padding(
@@ -114,6 +112,12 @@ class CountrySelectionPage extends GetView<CountrySelectionController> {
                           'No countries available',
                           fontSize: 16,
                           color: AppColors.primaryGrey,
+                        ),
+                        const Gap(24),
+                        BusyButton(
+                          title: 'Retry',
+                          onTap: () => controller.fetchCountries(forceRefresh: true),
+                          width: 120,
                         ),
                       ],
                     ),
