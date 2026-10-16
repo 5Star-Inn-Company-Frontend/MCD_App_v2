@@ -1095,7 +1095,7 @@ class HomeScreenPage extends StatelessWidget {
 
   void _navigateToLeaderboard(BuildContext context) {
     Navigator.pop(context);
-    Get.toNamed(Routes.LEADERBOARD_MODULE);
+    Get.toNamed(Routes.MCD_REWARDS_MODULE);
   }
 
   void _showWalletsBottomSheet(
@@ -1534,7 +1534,7 @@ Widget _buildTopEarners(BuildContext context) {
               ),
             ),
             GestureDetector(
-              onTap: () => Get.toNamed(Routes.LEADERBOARD_MODULE),
+              onTap: () => Get.toNamed(Routes.MCD_REWARDS_MODULE),
               child: const Text(
                 "See all",
                 style: TextStyle(

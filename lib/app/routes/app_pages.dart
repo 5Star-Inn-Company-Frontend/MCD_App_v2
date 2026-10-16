@@ -166,6 +166,8 @@ import 'package:mcd/app/modules/epin_module/epin_transaction_detail_page.dart';
 
 import 'package:mcd/app/modules/banner_list_module/banner_list_module_bindings.dart';
 import 'package:mcd/app/modules/banner_list_module/banner_list_module_page.dart';
+import 'package:mcd/app/modules/mcd_rewards_module/mcd_rewards_module_bindings.dart';
+import 'package:mcd/app/modules/mcd_rewards_module/mcd_rewards_module_page.dart';
 
 import '../../app/modules/assistant_screen_module/assistant_screen_page.dart';
 import '../../app/modules/assistant_screen_module/assistant_screen_bindings.dart';
@@ -663,5 +665,9 @@ abstract class AppPages {
         name: Routes.BANNER_LIST_MODULE,
         page: () => const BannerListModulePage(),
         binding: BannerListModuleBindings()),
+    GetPage(
+        name: Routes.MCD_REWARDS_MODULE,
+        page: () => const McdRewardsModulePage(),
+        binding: McdRewardsModuleBindings()),
   ];
 }
