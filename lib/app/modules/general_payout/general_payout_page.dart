@@ -538,10 +538,31 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
 
   Widget _buildOfferCodeField() {
     return Obx(() {
-      final isLoading = controller.isApplyingOffer.value ||
+      final isVerifying = controller.isVerifyingOffer.value ||
+          OffersService.to.isValidatingOffer.value;
+      final isApplying = controller.isApplyingOffer.value ||
           OffersService.to.isPreviewing.value;
+      final isLoading = isVerifying || isApplying;
+      final isVerified = controller.isOfferVerified.value;
+      final isApplied = controller.isOfferApplied.value;
       final status = controller.offerApplyStatus.value;
       final message = controller.offerFeedbackMessage.value;
+
+      String buttonText = 'Verify';
+      if (isApplied) {
+        buttonText = 'Applied';
+      } else if (isVerified) {
+        buttonText = 'Apply';
+      }
+
+      VoidCallback? buttonAction;
+      if (isLoading || isApplied) {
+        buttonAction = null;
+      } else if (isVerified) {
+        buttonAction = controller.applyOfferCode;
+      } else {
+        buttonAction = controller.verifyOfferCode;
+      }
 
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
@@ -560,8 +581,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                   child: TextField(
                     controller: controller.offerCodeController,
                     onChanged: (val) {
-                      if (controller.validatedOfferCode != null &&
-                          val.trim() != controller.validatedOfferCode) {
+                      if (controller.verifiedOfferCode != null &&
+                          val.trim() != controller.verifiedOfferCode) {
                         controller.clearOfferValidationState();
                       }
                     },
@@ -600,10 +621,16 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                   ),
                 const Gap(10),
                 ElevatedButton(
-                  onPressed: isLoading ? null : controller.applyOfferCode,
+                  onPressed: buttonAction,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
+                    backgroundColor: isApplied
+                        ? Colors.green.shade600
+                        : AppColors.primaryColor,
                     foregroundColor: Colors.white,
+                    disabledBackgroundColor: isApplied
+                        ? Colors.green.shade600
+                        : AppColors.primaryGrey2,
+                    disabledForegroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 10),
                     shape: RoundedRectangleBorder(
@@ -616,11 +643,20 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                           child: CircularProgressIndicator(
                               color: Colors.white, strokeWidth: 2),
                         )
-                      : const Text(
-                          'Apply',
-                          style: TextStyle(
-                              fontFamily: AppFonts.manRope,
-                              fontWeight: FontWeight.bold),
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (isApplied) ...[
+                              const Icon(Icons.check, size: 16, color: Colors.white),
+                              const Gap(4),
+                            ],
+                            Text(
+                              buttonText,
+                              style: const TextStyle(
+                                  fontFamily: AppFonts.manRope,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
                         ),
                 ),
               ],
@@ -654,7 +690,13 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            status ? 'Offer Applied!' : 'Offer Failed',
+                            status
+                                ? (isApplied
+                                    ? 'Offer Applied!'
+                                    : 'Offer Code Valid!')
+                                : (isVerified
+                                    ? 'Offer Failed'
+                                    : 'Offer Invalid'),
                             style: TextStyle(
                               fontFamily: AppFonts.manRope,
                               fontSize: 13,
