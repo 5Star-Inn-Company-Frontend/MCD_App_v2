@@ -126,6 +126,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                         _buildPromoCodeField(),
                       ],
                       const Gap(20),
+                      _buildOfferCodeField(),
+                      const Gap(20),
                       _buildPaymentMethod(),
                     ],
                   );
@@ -444,7 +446,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextSemiBold('Promo / Offer Code', fontSize: 14),
+              TextSemiBold('Promo Code', fontSize: 14),
               const Gap(9),
               Row(
                 children: [
@@ -457,8 +459,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                         color: AppColors.background,
                       ),
                       decoration: InputDecoration(
-                        border: UnderlineInputBorder(),
-                        hintText: 'Enter promo or offer code',
+                        border: const UnderlineInputBorder(),
+                        hintText: 'Enter promo code',
                         hintStyle: TextStyle(
                           fontFamily: AppFonts.manRope,
                           fontSize: 14,
@@ -470,8 +472,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                             width: 1,
                           ),
                         ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: const BorderSide(
+                        focusedBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(
                             color: AppColors.primaryColor,
                             width: 1,
                           ),
@@ -484,87 +486,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                       icon: const Icon(Icons.close, size: 20),
                       onPressed: controller.clearPromoCode,
                     ),
-                  const Gap(10),
-                  ElevatedButton(
-                    onPressed: OffersService.to.isPreviewing.value
-                        ? null
-                        : () {
-                            controller.applyOfferCode();
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6)),
-                    ),
-                    child: OffersService.to.isPreviewing.value
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2),
-                          )
-                        : const Text(
-                            'Apply',
-                            style: TextStyle(
-                                fontFamily: AppFonts.manRope,
-                                fontWeight: FontWeight.bold),
-                          ),
-                  ),
                 ],
               ),
-
-              if (OffersService.to.offerPreviewData.value != null) ...[
-                const Gap(12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: Colors.green.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.check_circle,
-                          color: Colors.green, size: 20),
-                      const Gap(8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Offer Applied!',
-                              style: TextStyle(
-                                fontFamily: AppFonts.manRope,
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green[800],
-                              ),
-                            ),
-                            if (OffersService
-                                    .to.offerPreviewData.value!['message'] !=
-                                null)
-                              Text(
-                                OffersService
-                                    .to.offerPreviewData.value!['message']
-                                    .toString(),
-                                style: TextStyle(
-                                  fontFamily: AppFonts.manRope,
-                                  fontSize: 12,
-                                  color: Colors.green[700],
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-
-              // saved promo code suggestion
               if (savedPromoCode != null &&
                   savedPromoCode.toString().isNotEmpty) ...[
                 const Gap(12),
@@ -572,10 +495,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                   onTap: () {
                     controller.promoCodeController.text =
                         savedPromoCode.toString();
-                    // clear saved promo after applied - MOVED to controller success
                     box.remove('saved_promo_code');
                     box.remove('saved_promo_message');
-                    controller.applyOfferCode(); // Call apply right away
                   },
                   child: Container(
                     padding:
@@ -613,6 +534,156 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
             ],
           ),
         ));
+  }
+
+  Widget _buildOfferCodeField() {
+    return Obx(() {
+      final isLoading = controller.isApplyingOffer.value ||
+          OffersService.to.isPreviewing.value;
+      final status = controller.offerApplyStatus.value;
+      final message = controller.offerFeedbackMessage.value;
+
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xffE0E0E0)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextSemiBold('Offer Code', fontSize: 14),
+            const Gap(9),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: controller.offerCodeController,
+                    onChanged: (val) {
+                      if (controller.validatedOfferCode != null &&
+                          val.trim() != controller.validatedOfferCode) {
+                        controller.clearOfferValidationState();
+                      }
+                    },
+                    style: TextStyle(
+                      fontFamily: AppFonts.manRope,
+                      fontSize: 14,
+                      color: AppColors.background,
+                    ),
+                    decoration: InputDecoration(
+                      border: const UnderlineInputBorder(),
+                      hintText: 'Enter offer code',
+                      hintStyle: TextStyle(
+                        fontFamily: AppFonts.manRope,
+                        fontSize: 14,
+                        color: AppColors.primaryGrey2,
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: AppColors.primaryGrey2,
+                          width: 1,
+                        ),
+                      ),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: AppColors.primaryColor,
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                if (controller.offerCodeController.text.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: controller.clearOfferCode,
+                  ),
+                const Gap(10),
+                ElevatedButton(
+                  onPressed: isLoading ? null : controller.applyOfferCode,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6)),
+                  ),
+                  child: isLoading
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Text(
+                          'Apply',
+                          style: TextStyle(
+                              fontFamily: AppFonts.manRope,
+                              fontWeight: FontWeight.bold),
+                        ),
+                ),
+              ],
+            ),
+            if (status != null && message.isNotEmpty) ...[
+              const Gap(12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: status
+                      ? Colors.green.withOpacity(0.08)
+                      : Colors.red.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: status
+                        ? Colors.green.withOpacity(0.3)
+                        : Colors.red.withOpacity(0.3),
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      status ? Icons.check_circle : Icons.cancel,
+                      color: status ? Colors.green : Colors.red,
+                      size: 20,
+                    ),
+                    const Gap(8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            status ? 'Offer Applied!' : 'Offer Failed',
+                            style: TextStyle(
+                              fontFamily: AppFonts.manRope,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  status ? Colors.green[800] : Colors.red[800],
+                            ),
+                          ),
+                          const Gap(2),
+                          Text(
+                            message,
+                            style: TextStyle(
+                              fontFamily: AppFonts.manRope,
+                              fontSize: 12,
+                              color:
+                                  status ? Colors.green[700] : Colors.red[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    });
   }
 
   String _maskPromoCode(String code) {

@@ -586,15 +586,8 @@ class HomeScreenPage extends StatelessWidget {
   Widget _buildWalletCard(
       HomeScreenController controller, BuildContext context) {
     final accs = controller.dashboardData?.virtualAccounts;
-    String accountText = "Loading...";
-    if (accs != null) {
-      if (accs.hasPrimary) {
-        accountText =
-        "${accs.primaryAccountNumber} | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}";
-      } else {
-        accountText = "No Virtual Account";
-      }
-    }
+    final hasPrimaryAccount = accs?.hasPrimary ?? false;
+    final showAccountSkeleton = controller.isLoading && accs == null;
 
     return Skeleton.leaf(
       child: Container(
@@ -651,67 +644,71 @@ class HomeScreenPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      if (accs?.hasPrimary ?? false) {
+                  if (hasPrimaryAccount) ...[
+                    GestureDetector(
+                      onTap: () {
                         Clipboard.setData(
-                            ClipboardData(text: accs!.primaryAccountNumber));
+                            ClipboardData(text: accs.primaryAccountNumber));
                         Get.snackbar('Copied', 'Account number copied to clipboard',
                             backgroundColor: AppColors.primaryColor,
                             colorText: Colors.white);
-                      }
-                    },
-                    behavior: HitTestBehavior.opaque,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Flexible(
-                          child: (accs?.hasPrimary ?? false)
-                              ? RichText(
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                  text: TextSpan(
+                      },
+                      behavior: HitTestBehavior.opaque,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Flexible(
+                            child: RichText(
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              text: TextSpan(
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: AppFonts.manRope),
+                                children: [
+                                  TextSpan(
+                                    text: accs!.primaryAccountNumber,
                                     style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        fontFamily: AppFonts.manRope),
-                                    children: [
-                                      TextSpan(
-                                        text: accs!.primaryAccountNumber,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      TextSpan(
-                                        text:
-                                            " | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}",
-                                      ),
-                                    ],
+                                        fontWeight: FontWeight.bold),
                                   ),
-                                )
-                              : Text(
-                                  accountText,
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: AppFonts.manRope),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                ),
-                        ),
-                        const Gap(8),
-                        Skeleton.ignore(
-                          child: SvgPicture.asset(
-                            'assets/icons/home/copy-icon.svg',
-                            width: 16,
-                            height: 16,
+                                  TextSpan(
+                                    text:
+                                        " | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}",
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        )
+                          const Gap(8),
+                          Skeleton.ignore(
+                            child: SvgPicture.asset(
+                              'assets/icons/home/copy-icon.svg',
+                              width: 16,
+                              height: 16,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    const Gap(12),
+                  ] else if (showAccountSkeleton) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: const [
+                        Text(
+                          "0123456789 | Bank Name | MCD-user",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: AppFonts.manRope),
+                        ),
                       ],
                     ),
-                  ),
-                  const Gap(12),
+                    const Gap(12),
+                  ],
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -940,70 +937,78 @@ class HomeScreenPage extends StatelessWidget {
 
   Widget _buildQuickActionsRow(
       HomeScreenController controller, BuildContext context) {
-    if (controller.isLoading && controller.actionButtonz.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6.0),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: List.generate(
-                5,
-                    (index) => Padding(
-                  padding: const EdgeInsets.only(right: 15.0),
-                  child: Skeleton.leaf(
-                      child: Container(
-                        width: 66,
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15),
+    const cardHeight = 74.0;
+    const itemSpacing = 6.0;
+
+    return Obx(() {
+      if (controller.isLoading && controller.actionButtonz.isEmpty) {
+        return Row(
+          children: List.generate(
+            5,
+            (index) => Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: index == 4 ? 0 : itemSpacing),
+                child: Skeleton.leaf(
+                  child: Container(
+                    height: cardHeight,
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 24,
-                              height: 24,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade200,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const Gap(8),
-                            const Text("...", style: TextStyle(fontSize: 12)),
-                          ],
+                        const Gap(4),
+                        const SizedBox(
+                          height: 28,
+                          child: Center(
+                            child: Text("...", style: TextStyle(fontSize: 10)),
+                          ),
                         ),
-                      )),
-                )),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
-        ),
-      );
-    }
+        );
+      }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0.0),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: controller.actionButtonz.asMap().entries.map((entry) {
-            final index = entry.key;
-            final button = entry.value;
-            final serviceKey = controller.getServiceKey(button.text, button.link);
-            final isAvailable =
-                serviceKey.isEmpty || controller.isServiceAvailable(serviceKey);
+      final buttons = controller.actionButtonz;
+      final totalButtons = buttons.length;
+      if (totalButtons == 0) return const SizedBox.shrink();
 
-            return Padding(
-              padding: const EdgeInsets.only(right: 10.0),
+      return Row(
+        children: buttons.asMap().entries.map((entry) {
+          final index = entry.key;
+          final button = entry.value;
+          final isLast = index == totalButtons - 1;
+          final serviceKey = controller.getServiceKey(button.text, button.link);
+          final isAvailable =
+              serviceKey.isEmpty || controller.isServiceAvailable(serviceKey);
+
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(right: isLast ? 0 : itemSpacing),
               child: _BouncingQuickActionButton(
+                key: ValueKey(button.text),
                 button: button,
                 isAvailable: isAvailable,
+                height: cardHeight,
                 onTap: () async {
                   final isAvailable =
-                  await controller.handleServiceNavigation(button);
+                      await controller.handleServiceNavigation(button);
                   if (!isAvailable) return;
 
                   if (!context.mounted) return;
@@ -1020,15 +1025,12 @@ class HomeScreenPage extends StatelessWidget {
                     Get.toNamed(button.link);
                   }
                 },
-              )
-                  .animate(delay: (index * 100).ms)
-                  .slideY(begin: 0.2, curve: Curves.easeOutQuad)
-                  .fadeIn(),
-            );
-          }).toList(),
-        ),
-      ),
-    );
+              ),
+            ),
+          );
+        }).toList(),
+      );
+    });
   }
 
   Widget _walletItemWithIcon(String title, String amount, IconData icon,
@@ -1098,6 +1100,143 @@ class HomeScreenPage extends StatelessWidget {
     Get.toNamed(Routes.MCD_REWARDS_MODULE);
   }
 
+  void _showGeneralMarketServicesBottomSheet(
+      BuildContext context, HomeScreenController controller) {
+    Navigator.pop(context);
+    showCustomBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (sheetContext) {
+        final options = [
+          {
+            'title': 'Buy Airtime',
+            'subtitle': 'Top up airtime using General Market',
+            'icon': Icons.phone_android_rounded,
+            'action': () {
+              Navigator.pop(sheetContext);
+              _showAirtimeSelectionBottomSheet(context, controller);
+            },
+          },
+          {
+            'title': 'Buy Data',
+            'subtitle': 'Purchase data using General Market',
+            'icon': Icons.wifi_rounded,
+            'action': () {
+              Navigator.pop(sheetContext);
+              _showDataSelectionBottomSheet(context, controller);
+            },
+          },
+        ];
+
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              const Gap(16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'General Market Purchase',
+                    style: TextStyle(
+                      fontFamily: AppFonts.manRope,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.background,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(sheetContext),
+                    child:
+                        const Icon(Icons.close, size: 20, color: Colors.grey),
+                  ),
+                ],
+              ),
+              const Gap(16),
+              ...options.map((option) {
+                return TouchableOpacity(
+                  onTap: option['action'] as VoidCallback,
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.grey.shade200),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE8F5E9),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            option['icon'] as IconData,
+                            color: const Color(0xFF269E5F),
+                            size: 22,
+                          ),
+                        ),
+                        const Gap(14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                option['title'] as String,
+                                style: const TextStyle(
+                                  fontFamily: AppFonts.manRope,
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.background,
+                                ),
+                              ),
+                              const Gap(2),
+                              Text(
+                                option['subtitle'] as String,
+                                style: const TextStyle(
+                                  fontFamily: AppFonts.manRope,
+                                  fontSize: 11.5,
+                                  color: Color(0xFF6B7280),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          color: AppColors.background,
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+              const Gap(10),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _showWalletsBottomSheet(
       BuildContext context, HomeScreenController controller) {
     showCustomBottomSheet(
@@ -1163,6 +1302,8 @@ class HomeScreenPage extends StatelessWidget {
                 "General Market",
                 "(₦${AmountUtil.formatFigure(double.tryParse(controller.gmBalance) ?? 0)})",
                 Icons.storefront_outlined,
+                onTap: () =>
+                    _showGeneralMarketServicesBottomSheet(context, controller),
               ),
               const Gap(20),
             ],
@@ -1440,11 +1581,18 @@ class _BouncingQuickActionButton extends StatefulWidget {
   final ButtonModel button;
   final bool isAvailable;
   final VoidCallback onTap;
+  final double? width;
+  final double? height;
+  final double size;
 
   const _BouncingQuickActionButton({
+    super.key,
     required this.button,
     required this.isAvailable,
     required this.onTap,
+    this.width,
+    this.height,
+    this.size = 80,
   });
 
   @override
@@ -1458,6 +1606,8 @@ class _BouncingQuickActionButtonState
 
   @override
   Widget build(BuildContext context) {
+    final isMore = widget.button.text.trim().toLowerCase() == 'more';
+
     return Opacity(
       opacity: widget.isAvailable ? 1.0 : 0.5,
       child: GestureDetector(
@@ -1468,48 +1618,60 @@ class _BouncingQuickActionButtonState
         },
         onTapCancel: () => setState(() => _isPressed = false),
         child: Container(
-          width: 66,
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 2),
+          width: widget.width,
+          height: widget.height ?? widget.size,
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
           decoration: BoxDecoration(
-            color: widget.button.text.toLowerCase() == 'more' ? AppColors.primaryColor : Colors.white,
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: widget.button.text.toLowerCase() == 'more' ? null : [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              )
-            ],
+            color: isMore ? AppColors.primaryColor : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: isMore
+                ? null
+                : [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    )
+                  ],
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
                 widget.button.icon,
                 width: 24,
                 height: 24,
                 colorFilter: ColorFilter.mode(
-                    widget.button.text.toLowerCase() == 'more' ? Colors.white : AppColors.primaryColor, BlendMode.srcIn),
+                    isMore ? Colors.white : AppColors.primaryColor,
+                    BlendMode.srcIn),
               ),
-              const Gap(5),
-              Text(
-                widget.button.text,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: widget.button.text.toLowerCase() == 'more' ? Colors.white : AppColors.background,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: AppFonts.manRope,
+              const Gap(4),
+              SizedBox(
+                height: 28,
+                child: Center(
+                  child: Text(
+                    widget.button.text,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: isMore ? Colors.white : AppColors.background,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: AppFonts.manRope,
+                      height: 1.15,
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
         ).animate(target: _isPressed ? 1 : 0).scale(
-          begin: const Offset(1, 1),
-          end: const Offset(0.9, 0.9),
-          duration: 100.ms,
-          curve: Curves.easeOut,
-        ),
+              begin: const Offset(1, 1),
+              end: const Offset(0.9, 0.9),
+              duration: 100.ms,
+              curve: Curves.easeOut,
+            ),
       ),
     );
   }

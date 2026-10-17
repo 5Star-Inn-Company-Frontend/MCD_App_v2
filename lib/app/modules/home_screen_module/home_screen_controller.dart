@@ -30,7 +30,22 @@ class HomeScreenController extends GetxController
   set obj(value) => _obj.value = value;
   get obj => _obj.value;
 
-  final actionButtonz = <ButtonModel>[].obs;
+  final actionButtonz = <ButtonModel>[
+    ButtonModel(
+        icon: AppAsset.internet, text: "Data", link: Routes.DATA_MODULE),
+    ButtonModel(
+        icon: AppAsset.airtime, text: "Airtime", link: Routes.AIRTIME_MODULE),
+    ButtonModel(
+        icon: AppAsset.tv, text: "Cable Tv", link: Routes.CABLE_MODULE),
+    ButtonModel(
+        icon: AppAsset.electricity,
+        text: "Electricity",
+        link: Routes.ELECTRICITY_MODULE),
+    ButtonModel(
+        icon: 'assets/icons/home/more.svg',
+        text: "More",
+        link: Routes.ALL_SERVICE_MODULE),
+  ].obs;
 
   DashboardModel? get dashboardData => DashboardService.to.dashboardData.value;
   bool get isLoading => DashboardService.to.isLoadingDashboard.value;
@@ -55,6 +70,8 @@ class HomeScreenController extends GetxController
 
     isBalanceVisible.value = box.read('is_balance_visible') ?? true;
 
+    _loadServiceData();
+
     final token = box.read('token');
     if (token == null || token.toString().isEmpty) {
       dev.log("No token found, skipping dashboard fetch in onInit");
@@ -65,7 +82,6 @@ class HomeScreenController extends GetxController
       unawaited(_bootstrapAfterLogin());
     });
 
-    // react to future updates from ServiceStatusController
     final ssc = ServiceStatusController.to;
     ever(ssc.serviceStatus, (_) => _loadServiceData());
 
@@ -485,14 +501,11 @@ class HomeScreenController extends GetxController
     await DashboardService.to.fetchGMBalance();
   }
 
-  // reads service data from ServiceStatusController — no own API call
   void _loadServiceData() {
     try {
       final ssc = ServiceStatusController.to;
       final rawServices = ssc.getRawServices();
-      if (rawServices.isNotEmpty) {
-        updateActionButtons(rawServices);
-      }
+      updateActionButtons(rawServices);
 
       final sliders = ssc.getImageSliders();
       if (sliders.isNotEmpty) {

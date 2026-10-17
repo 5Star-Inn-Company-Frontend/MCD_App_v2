@@ -42,7 +42,10 @@ class OffersService extends GetxService {
         return;
       }
 
-      final url = '${transactionUrl}offers/preview';
+      final baseUrl = transactionUrl.toString().endsWith('/')
+          ? transactionUrl.toString()
+          : '$transactionUrl/';
+      final url = '${baseUrl}offers/preview';
       final payload = {
         "product": product,
         "provider": provider,
@@ -54,16 +57,50 @@ class OffersService extends GetxService {
 
       response.fold(
         (failure) {
+          offerPreviewData.value = null;
           errorMessage.value = failure.message;
           dev.log('Failed to preview offer: ${failure.message}', name: 'OffersService');
         },
         (data) {
-          offerPreviewData.value = data;
-          dev.log('Successfully previewed offer', name: 'OffersService');
+          if (data is Map<String, dynamic>) {
+            final dynamic successVal = data['success'];
+            final dynamic statusVal = data['status'];
+            final bool isSuccess = successVal == 1 ||
+                successVal == '1' ||
+                successVal == true ||
+                statusVal == true ||
+                statusVal == 'success' ||
+                statusVal == 1;
+
+            final String msg = (data['message'] ?? data['error'] ?? '').toString();
+            final String lowerMsg = msg.toLowerCase();
+            final bool hasFailureKeyword = lowerMsg.contains('not qualify') ||
+                lowerMsg.contains('invalid') ||
+                lowerMsg.contains('failed') ||
+                lowerMsg.contains('cannot use') ||
+                lowerMsg.contains('not found') ||
+                lowerMsg.contains('expired');
+
+            if (isSuccess && !hasFailureKeyword) {
+              offerPreviewData.value = data;
+              errorMessage.value = '';
+              dev.log('Successfully previewed offer', name: 'OffersService');
+            } else {
+              offerPreviewData.value = null;
+              errorMessage.value = msg.isNotEmpty
+                  ? msg
+                  : 'Your transaction does not qualify for this offer.';
+              dev.log('Offer rejected: ${errorMessage.value}', name: 'OffersService');
+            }
+          } else {
+            offerPreviewData.value = null;
+            errorMessage.value = 'Invalid response from offer service';
+          }
         },
       );
     } catch (e) {
       errorMessage.value = e.toString();
+      offerPreviewData.value = null;
       dev.log('Error previewing offer: $e', name: 'OffersService');
     } finally {
       isPreviewing.value = false;
