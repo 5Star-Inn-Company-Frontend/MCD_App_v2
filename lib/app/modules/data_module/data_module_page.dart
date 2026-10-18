@@ -43,8 +43,8 @@ class DataModulePage extends GetView<DataModuleController> {
                     children: [
                       _buildNetworkSelector(),
                       const Gap(16),
-                      _buildUpgradeInfoCard(),
-                      const Gap(20),
+                      // _buildUpgradeInfoCard(),
+                      // const Gap(20),
                       _buildPlanContent(context),
                       const Gap(16),
                       Obx(() => BusyButton(

@@ -640,23 +640,10 @@ class McdRewardsModulePage extends GetView<McdRewardsModuleController> {
 
   Widget _buildEarnTab(BuildContext context) {
     final activities = [
-      {
-        'title': 'Daily Bonus',
-        'subtitle': 'Your daily reward',
-        'linkText': 'Daily bonus',
-        'icon': Icons.card_giftcard_rounded,
-        'action': controller.openDailyBonus,
-      },
-      {
-        'title': 'Refer & Earn',
-        'subtitle': 'Invite your friends',
-        'linkText': 'Referral offer',
-        'icon': Icons.people_outline_rounded,
-        'action': controller.openReferAndEarn,
-      },
+
       {
         'title': 'Buy Airtime',
-        'subtitle': 'Daily Topup',
+        'subtitle': 'Earn 1 Point for NGN 500 airtime and above',
         'linkText': 'Purchase Airtime',
         'icon': Icons.phone_android_rounded,
         'action': () => _showCountrySelectionBottomSheet(
@@ -669,7 +656,7 @@ class McdRewardsModulePage extends GetView<McdRewardsModuleController> {
       },
       {
         'title': 'Buy Data',
-        'subtitle': 'Daily recharge',
+        'subtitle': 'Earn Points for any data plan purchased',
         'linkText': 'Purchase Data',
         'icon': Icons.wifi_rounded,
         'action': () => _showCountrySelectionBottomSheet(
@@ -680,6 +667,20 @@ class McdRewardsModulePage extends GetView<McdRewardsModuleController> {
               redirectTo: Routes.DATA_MODULE,
             ),
       },
+      {
+        'title': 'Subscription',
+        'subtitle': 'Earn up to 7,000 points when you upgrade your plan',
+        'linkText': 'Upgrade',
+        'icon': Icons.card_giftcard_rounded,
+        'action': controller.openDailyBonus,
+      },
+      {
+        'title': 'Refer & Earn',
+        'subtitle': 'Invite your friends and earn points and benefits',
+        'linkText': 'Referral offer',
+        'icon': Icons.people_outline_rounded,
+        'action': controller.openReferAndEarn,
+      }
     ];
 
     return Column(

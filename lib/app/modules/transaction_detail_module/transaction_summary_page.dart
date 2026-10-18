@@ -94,13 +94,13 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () => controller.shareReceipt(),
-                      icon: const Icon(Icons.share, size: 18, color: AppColors.primaryColor),
+                      icon: const Icon(Icons.share, size: 18, color: AppColors.primaryColor2),
                       label: const Text(
                         'Share receipt',
-                        style: TextStyle(color: AppColors.primaryColor, fontSize: 14),
+                        style: TextStyle(color: AppColors.primaryColor2, fontSize: 14),
                       ),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.primaryColor),
+                        side: const BorderSide(color: AppColors.primaryColor2),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -116,15 +116,15 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
                         ? const SizedBox(
                             width: 18, 
                             height: 18, 
-                            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryColor)
+                            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryColor2)
                           )
-                        : const Icon(Icons.refresh, size: 18, color: AppColors.primaryColor),
+                        : const Icon(Icons.refresh, size: 18, color: AppColors.primaryColor2),
                       label: const Text(
                         'Buy again',
-                        style: TextStyle(color: AppColors.primaryColor, fontSize: 14),
+                        style: TextStyle(color: AppColors.primaryColor2, fontSize: 14),
                       ),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.primaryColor),
+                        side: const BorderSide(color: AppColors.primaryColor2),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -138,14 +138,14 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
               Obx(() => Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF7FBF7),
+                  color: const Color(0xFFF2F9F5),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
                   children: [
                     _buildDetailRow('Recipient', controller.phoneNumber),
                     const Gap(15),
-                    _buildDetailRow('Payment type', controller.name),
+                    _buildDetailRow('Payment type', controller.paymentType),
                     if ((double.tryParse(controller.discountGained) ?? 0.0) > 0) ...[
                       const Gap(15),
                       _buildDetailRow('Commission Gain', '₦${AmountUtil.formatFigure(double.tryParse(controller.discountGained) ?? 0)}'),
@@ -168,7 +168,7 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
                           Text(
                             'View Details',
                             style: TextStyle(
-                              color: AppColors.primaryColor,
+                              color: AppColors.primaryColor2,
                               fontWeight: FontWeight.w600,
                               fontSize: 14,
                             ),
@@ -214,7 +214,7 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF7FBF7),
+                          color: const Color(0xFFF2F9F5),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
@@ -264,7 +264,7 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
                                           Text(
                                             title.toString(),
                                             style: const TextStyle(
-                                              color: AppColors.textPrimaryColor,
+                                              color: AppColors.textPrimaryColor3,
                                               fontWeight: FontWeight.w600,
                                               fontSize: 13,
                                             ),
@@ -283,14 +283,14 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                                       decoration: BoxDecoration(
-                                        color: AppColors.primaryColor,
+                                        color: AppColors.primaryColor2,
                                         borderRadius: BorderRadius.circular(16),
                                       ),
                                       child: const Text(
                                         'Go',
                                         style: TextStyle(
                                           color: Colors.white,
-                                          fontWeight: FontWeight.w500,
+                                          fontWeight: FontWeight.w700,
                                           fontSize: 12,
                                         ),
                                       ),

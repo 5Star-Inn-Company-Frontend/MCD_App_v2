@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:mcd/app/modules/leaderboard_module/models/leaderboard_model.dart';
+import 'package:mcd/app/modules/more_module/more_module_controller.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/core/services/dashboard_service.dart';
 import 'package:mcd/core/services/leaderboard_service.dart';
@@ -133,8 +134,18 @@ class McdRewardsModuleController extends GetxController
     Get.toNamed(Routes.FREE_MONEY_MODULE);
   }
 
+  void openSubscription() {
+    if (Get.isRegistered<MoreModuleController>()) {
+      Get.find<MoreModuleController>().switchTab(1);
+    }
+    Get.toNamed(Routes.MORE_MODULE, arguments: {'initialTab': 1});
+  }
+
   void openReferAndEarn() {
-    Get.toNamed(Routes.ADD_REFERRAL_MODULE);
+    if (Get.isRegistered<MoreModuleController>()) {
+      Get.find<MoreModuleController>().switchTab(2);
+    }
+    Get.toNamed(Routes.MORE_MODULE, arguments: {'initialTab': 2});
   }
 
   Future<void> refreshData() async {

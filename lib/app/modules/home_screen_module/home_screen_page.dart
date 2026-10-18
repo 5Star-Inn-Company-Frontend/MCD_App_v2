@@ -6,8 +6,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/app/modules/home_screen_module/home_screen_controller.dart';
 import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
 import 'package:mcd/app/modules/home_screen_module/model/dashboard_model.dart';
+import 'package:mcd/app/modules/more_module/more_module_controller.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:url_launcher/url_launcher.dart' as launcher;
 
 import '../../../core/import/imports.dart';
 import '../../utils/bottom_navigation.dart';
@@ -45,6 +47,16 @@ class HomeScreenPage extends StatelessWidget {
                 elevation: 0,
                 backgroundColor: const Color(0xffF9F9F9),
                 actions: [
+                  TouchableOpacity(
+                      child: InkWell(
+                          onTap: () {
+                            if (Get.isRegistered<MoreModuleController>()) {
+                              Get.find<MoreModuleController>().switchTab(3);
+                            }
+                            Get.toNamed(Routes.MORE_MODULE, arguments: {'initialTab': 3});
+                          },
+                          child: Icon(Icons.support_agent_outlined))),
+                  const Gap(10),
                   TouchableOpacity(
                       child: InkWell(
                           onTap: () {
@@ -357,6 +369,11 @@ class HomeScreenPage extends StatelessWidget {
             'isForeign': true,
             'serviceKey': 'foreign_airtime'
           },
+          {
+            'title': 'Bulk Airtime for Offices and Team',
+            'isForeign': true,
+            'serviceKey': 'bulk_airtime'
+          },
         ];
 
         return Container(
@@ -367,12 +384,18 @@ class HomeScreenPage extends StatelessWidget {
             children: [
               const Gap(20),
               ...options.map((option) {
-                final isAvailable = controller
+                final isAvailable = option['serviceKey'] == "bulk_airtime" ? true : controller
                     .isServiceAvailable(option['serviceKey'] as String);
                 return Opacity(
                   opacity: isAvailable ? 1.0 : 0.5,
                   child: TouchableOpacity(
                     onTap: () async {
+                      if(option['serviceKey'] == "bulk_airtime"){
+                        String url =
+                            "https://megabulk.5starcompany.com.ng/airtime";
+                        await launcher.launchUrl(Uri.parse(url));
+                        return;
+                      }
                       await controller.checkAndNavigate(
                         option['serviceKey'] as String,
                         serviceName: option['title'] as String,
@@ -463,6 +486,11 @@ class HomeScreenPage extends StatelessWidget {
             'isForeign': true,
             'serviceKey': 'foreign_data'
           },
+          {
+          'title': 'Bulk Data for Offices and Team',
+          'isForeign': true,
+          'serviceKey': 'bulk_data'
+          },
         ];
 
         return Container(
@@ -473,12 +501,19 @@ class HomeScreenPage extends StatelessWidget {
             children: [
               const Gap(20),
               ...options.map((option) {
-                final isAvailable = controller
+                final isAvailable = option['serviceKey'] == "bulk_data" ? true : controller
                     .isServiceAvailable(option['serviceKey'] as String);
                 return Opacity(
                   opacity: isAvailable ? 1.0 : 0.5,
                   child: TouchableOpacity(
                     onTap: () async {
+                      if(option['serviceKey'] == "bulk_data"){
+                        String url =
+                            "https://megabulk.5starcompany.com.ng/data";
+                        await launcher.launchUrl(Uri.parse(url));
+                        return;
+                      }
+
                       await controller.checkAndNavigate(
                         option['serviceKey'] as String,
                         serviceName: option['title'] as String,
@@ -1388,7 +1423,14 @@ class _PromoCarouselItem extends StatelessWidget {
                         GestureDetector(
                           onTap: () {
                             if (item.route.isNotEmpty) {
-                              Get.toNamed(item.route);
+                              if(item.route.contains("refer_earn")){
+                                if (Get.isRegistered<MoreModuleController>()) {
+                                  Get.find<MoreModuleController>().switchTab(2);
+                                }
+                                Get.toNamed(Routes.MORE_MODULE, arguments: {'initialTab': 2});
+                              }else {
+                                Get.toNamed(item.route);
+                              }
                             }
                           },
                           child: Container(

@@ -36,7 +36,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
                     ),
                   )
                 : Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.only(right: 10),
                     child: GestureDetector(
                       onTap: () => _showDownloadDialog(context),
                       child: TextSemiBold(
@@ -570,6 +570,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
     DateTime fromDate = DateTime.now().subtract(const Duration(days: 30));
     DateTime toDate = DateTime.now();
     String selectedFormat = 'pdf';
+    print("_showDownloadDialog samji");
 
     showDialog(
       context: context,

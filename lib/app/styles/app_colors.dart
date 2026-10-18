@@ -7,6 +7,7 @@ class AppColors {
   static const Color white = Color(0XFFFFFFFF);
   static const Color textPrimaryColor = Color(0xff0000000);
   static const Color textPrimaryColor2 = Color(0xFF707070);
+  static const Color textPrimaryColor3 = Color(0xFF777777);
   static const Color onboardColor = Color(0XFFFFE4DA);
   static const Color purpleColor = Color(0XFF5842BC);
   static const Color inactiveColor = Color.fromRGBO(95, 109, 239, 0.22);

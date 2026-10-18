@@ -94,26 +94,72 @@ class MoreModuleController extends GetxController
   // copy referral code to clipboard
   Future<void> copyReferralCode() async {
     final referralCode = getReferralCode();
-    if (referralCode.isNotEmpty) {
-      await Clipboard.setData(ClipboardData(text: referralCode));
+    if (referralCode.isEmpty) {
       Get.snackbar(
-        'Copied!',
-        'Referral code copied to clipboard',
-        backgroundColor: AppColors.successBgColor,
+        'Notice',
+        'Referral code not available. Please check your account profile.',
+        backgroundColor: AppColors.errorBgColor,
         colorText: AppColors.textSnackbarColor,
         snackPosition: SnackPosition.TOP,
         duration: const Duration(seconds: 2),
       );
+      return;
     }
+
+    await Clipboard.setData(ClipboardData(text: referralCode));
+    Get.snackbar(
+      'Copied!',
+      'Referral code copied to clipboard',
+      backgroundColor: AppColors.successBgColor,
+      colorText: AppColors.textSnackbarColor,
+      snackPosition: SnackPosition.TOP,
+      duration: const Duration(seconds: 2),
+    );
   }
 
   // share referral code
   Future<void> shareReferralCode() async {
     final referralCode = getReferralCode();
-    if (referralCode.isNotEmpty) {
-      final message =
-          'Use my referral code "$referralCode" to join MEGA Cheap Data and enjoy amazing bonuses! Download now: https://play.google.com/store/apps/details?id=a5starcompany.com.megacheapdata';
-      await Share.share(message);
+    if (referralCode.isEmpty) {
+      Get.snackbar(
+        'Notice',
+        'Referral code not available. Please check your account profile.',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    final message = '''
+🎉 Join me on MEGA Cheap Data (MCD)!
+
+Use my referral code: $referralCode
+
+Enjoy cheap data plans, airtime top-ups, instant bill payments, and earn exciting bonuses! 🚀
+
+Download the app now:
+https://play.google.com/store/apps/details?id=a5starcompany.com.megacheapdata
+'''.trim();
+
+    try {
+      await SharePlus.instance.share(
+        ShareParams(
+          text: message,
+          subject: 'Join MEGA Cheap Data - Referral Code: $referralCode',
+        ),
+      );
+    } catch (e) {
+      dev.log('Error sharing referral code: $e', name: 'MoreModuleController');
+      Get.snackbar(
+        'Error',
+        'Could not share referral code. Please try again.',
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 2),
+      );
     }
   }
 
