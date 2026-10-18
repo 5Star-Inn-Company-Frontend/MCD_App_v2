@@ -14,6 +14,10 @@ class OffersService extends GetxService {
   final offerPreviewData = Rxn<Map<String, dynamic>>();
   final errorMessage = ''.obs;
 
+  final isValidatingOffer = false.obs;
+  final offerValidationData = Rxn<Map<String, dynamic>>();
+  final validationErrorMessage = ''.obs;
+
   final isFetchingFeaturedOffer = false.obs;
   final featuredOfferData = Rxn<Map<String, dynamic>>();
 
@@ -42,7 +46,10 @@ class OffersService extends GetxService {
         return;
       }
 
-      final url = '${transactionUrl}offers/preview';
+      final baseUrl = transactionUrl.toString().endsWith('/')
+          ? transactionUrl.toString()
+          : '$transactionUrl/';
+      final url = '${baseUrl}offers/preview';
       final payload = {
         "product": product,
         "provider": provider,
@@ -54,16 +61,50 @@ class OffersService extends GetxService {
 
       response.fold(
         (failure) {
+          offerPreviewData.value = null;
           errorMessage.value = failure.message;
           dev.log('Failed to preview offer: ${failure.message}', name: 'OffersService');
         },
         (data) {
-          offerPreviewData.value = data;
-          dev.log('Successfully previewed offer', name: 'OffersService');
+          if (data is Map<String, dynamic>) {
+            final dynamic successVal = data['success'];
+            final dynamic statusVal = data['status'];
+            final bool isSuccess = successVal == 1 ||
+                successVal == '1' ||
+                successVal == true ||
+                statusVal == true ||
+                statusVal == 'success' ||
+                statusVal == 1;
+
+            final String msg = (data['message'] ?? data['error'] ?? '').toString();
+            final String lowerMsg = msg.toLowerCase();
+            final bool hasFailureKeyword = lowerMsg.contains('not qualify') ||
+                lowerMsg.contains('invalid') ||
+                lowerMsg.contains('failed') ||
+                lowerMsg.contains('cannot use') ||
+                lowerMsg.contains('not found') ||
+                lowerMsg.contains('expired');
+
+            if (isSuccess && !hasFailureKeyword) {
+              offerPreviewData.value = data;
+              errorMessage.value = '';
+              dev.log('Successfully previewed offer', name: 'OffersService');
+            } else {
+              offerPreviewData.value = null;
+              errorMessage.value = msg.isNotEmpty
+                  ? msg
+                  : 'Your transaction does not qualify for this offer.';
+              dev.log('Offer rejected: ${errorMessage.value}', name: 'OffersService');
+            }
+          } else {
+            offerPreviewData.value = null;
+            errorMessage.value = 'Invalid response from offer service';
+          }
         },
       );
     } catch (e) {
       errorMessage.value = e.toString();
+      offerPreviewData.value = null;
       dev.log('Error previewing offer: $e', name: 'OffersService');
     } finally {
       isPreviewing.value = false;
@@ -73,6 +114,11 @@ class OffersService extends GetxService {
   void clearPreview() {
     offerPreviewData.value = null;
     errorMessage.value = '';
+  }
+
+  void clearValidation() {
+    offerValidationData.value = null;
+    validationErrorMessage.value = '';
   }
 
   Future<void> fetchFeaturedOffer() async {
@@ -100,8 +146,6 @@ class OffersService extends GetxService {
       Future.microtask(() => isFetchingFeaturedOffer.value = false);
     }
   }
-
-  // --- OTHER OFFER ENDPOINTS ---
 
   Future<dynamic> fetchEligibleOffers() async {
     try {
@@ -191,32 +235,92 @@ class OffersService extends GetxService {
     required String product,
     required String provider,
     required String amount,
-    required String offerId, // Updated to offerId based on validation error
+    String? offerCode,
+    String? offerId,
   }) async {
+    final code = (offerCode ?? offerId ?? '').trim();
     try {
-      final transactionUrlV2 = _storage.read('transaction_service_url');
-      if (transactionUrlV2 == null) return null;
-      
-      final url = '${transactionUrlV2}offers/validate';
+      isValidatingOffer.value = true;
+      validationErrorMessage.value = '';
+      offerValidationData.value = null;
+
+      dev.log('Validating offer: $code for $product', name: 'OffersService');
+
+      final transactionUrl = _storage.read('transaction_service_url');
+      if (transactionUrl == null) {
+        validationErrorMessage.value = 'Transaction URL not found';
+        dev.log(validationErrorMessage.value, name: 'OffersService');
+        return null;
+      }
+
+      final baseUrl = transactionUrl.toString().endsWith('/')
+          ? transactionUrl.toString()
+          : '$transactionUrl/';
+      final url = '${baseUrl}offers/validate';
       final payload = {
         "product": product,
         "provider": provider,
         "amount": amount,
-        "offer_id": offerId,
+        "offer_id": code,
+        "offer_code": code,
       };
-      
+
       final response = await _apiService.postrequest(url, payload);
-      
+
       return response.fold(
         (failure) {
+          offerValidationData.value = null;
+          validationErrorMessage.value = failure.message;
           dev.log('Failed to validate offer: ${failure.message}', name: 'OffersService');
           return null;
         },
-        (data) => data,
+        (data) {
+          if (data is Map<String, dynamic>) {
+            final dynamic successVal = data['success'];
+            final dynamic statusVal = data['status'];
+            final bool isSuccess = successVal == 1 ||
+                successVal == '1' ||
+                successVal == true ||
+                statusVal == true ||
+                statusVal == 'success' ||
+                statusVal == 1;
+
+            final String msg = (data['message'] ?? data['error'] ?? '').toString();
+            final String lowerMsg = msg.toLowerCase();
+            final bool hasFailureKeyword = lowerMsg.contains('not qualify') ||
+                lowerMsg.contains('invalid') ||
+                lowerMsg.contains('failed') ||
+                lowerMsg.contains('cannot use') ||
+                lowerMsg.contains('not found') ||
+                lowerMsg.contains('expired');
+
+            if (isSuccess && !hasFailureKeyword) {
+              offerValidationData.value = data;
+              validationErrorMessage.value = '';
+              dev.log('Successfully validated offer', name: 'OffersService');
+              return data;
+            } else {
+              offerValidationData.value = null;
+              validationErrorMessage.value = msg.isNotEmpty
+                  ? msg
+                  : 'Offer code is invalid or does not qualify.';
+              dev.log('Offer rejected: ${validationErrorMessage.value}', name: 'OffersService');
+              return null;
+            }
+          } else {
+            offerValidationData.value = null;
+            validationErrorMessage.value = 'Invalid response from offer service';
+            return null;
+          }
+        },
       );
     } catch (e) {
+      validationErrorMessage.value = e.toString();
+      offerValidationData.value = null;
       dev.log('Error validating offer: $e', name: 'OffersService');
       return null;
+    } finally {
+      isValidatingOffer.value = false;
     }
   }
 }

@@ -46,45 +46,173 @@ class GeneralPayoutController extends GetxController {
   final pointsBalance = '0'.obs;
   final usePoints = false.obs;
   final promoCodeController = TextEditingController();
+  final offerCodeController = TextEditingController();
 
+  final isVerifyingOffer = false.obs;
+  final isOfferVerified = false.obs;
+  final isOfferApplied = false.obs;
+  final isApplyingOffer = false.obs;
+  final offerApplyStatus = Rxn<bool>();
+  final offerFeedbackMessage = ''.obs;
+
+  String? verifiedOfferCode;
   String? validatedOfferCode;
 
-  Future<void> applyOfferCode() async {
-    final code = promoCodeController.text.trim();
-    if (code.isEmpty) {
-      Get.snackbar("Error", "Please enter an offer code.", backgroundColor: AppColors.errorBgColor, colorText: AppColors.textSnackbarColor);
-      return;
-    }
-    
-    String product = '';
-    String provider = '';
-    String amount = _getTransactionAmount().toString();
-    
+  void clearOfferCode() {
+    offerCodeController.clear();
+    isOfferVerified.value = false;
+    isOfferApplied.value = false;
+    verifiedOfferCode = null;
+    validatedOfferCode = null;
+    offerApplyStatus.value = null;
+    offerFeedbackMessage.value = '';
+    OffersService.to.clearValidation();
+    OffersService.to.clearPreview();
+    dev.log('Offer code cleared', name: 'GeneralPayout');
+  }
+
+  void clearOfferValidationState() {
+    isOfferVerified.value = false;
+    isOfferApplied.value = false;
+    verifiedOfferCode = null;
+    validatedOfferCode = null;
+    offerApplyStatus.value = null;
+    offerFeedbackMessage.value = '';
+    OffersService.to.clearValidation();
+    OffersService.to.clearPreview();
+  }
+
+  String _getOfferProduct() {
     switch (paymentType) {
       case PaymentType.airtime:
-        product = 'airtime';
-        provider = paymentData['provider']?.network?.toLowerCase() ?? '';
-        break;
+        return 'airtime';
       case PaymentType.data:
-        product = 'data';
-        provider = paymentData['networkProvider']?.name?.toLowerCase() ?? '';
-        break;
+        return 'data';
       case PaymentType.electricity:
-        product = 'electricity';
-        provider = paymentData['provider']?.slug?.toLowerCase() ?? paymentData['provider']?.name?.toLowerCase() ?? '';
-        break;
+        return 'electricity';
       case PaymentType.cable:
-        product = 'cable';
-        provider = paymentData['provider']?.slug?.toLowerCase() ?? paymentData['provider']?.name?.toLowerCase() ?? '';
-        break;
+        return 'cable';
       case PaymentType.betting:
-        product = 'betting';
-        provider = paymentData['provider']?.slug?.toLowerCase() ?? '';
-        break;
+        return 'betting';
       default:
-        product = 'other';
-        provider = 'other';
+        return 'other';
     }
+  }
+
+  String _getOfferProvider() {
+    switch (paymentType) {
+      case PaymentType.airtime:
+        return paymentData['provider']?.network?.toLowerCase() ?? '';
+      case PaymentType.data:
+        return paymentData['networkProvider']?.name?.toLowerCase() ?? '';
+      case PaymentType.electricity:
+        return paymentData['provider']?.slug?.toLowerCase() ??
+            paymentData['provider']?.name?.toLowerCase() ??
+            '';
+      case PaymentType.cable:
+        return paymentData['provider']?.slug?.toLowerCase() ??
+            paymentData['provider']?.name?.toLowerCase() ??
+            '';
+      case PaymentType.betting:
+        return paymentData['provider']?.slug?.toLowerCase() ?? '';
+      default:
+        return 'other';
+    }
+  }
+
+  Future<void> verifyOfferCode() async {
+    final code = offerCodeController.text.trim();
+    if (code.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please enter an offer code.",
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+
+    isVerifyingOffer.value = true;
+    isOfferVerified.value = false;
+    isOfferApplied.value = false;
+    verifiedOfferCode = null;
+    validatedOfferCode = null;
+    offerApplyStatus.value = null;
+    offerFeedbackMessage.value = '';
+
+    final product = _getOfferProduct();
+    final provider = _getOfferProvider();
+    final amount = _getTransactionAmount().toString();
+
+    final result = await OffersService.to.validateOffer(
+      product: product,
+      provider: provider,
+      amount: amount,
+      offerCode: code,
+    );
+
+    isVerifyingOffer.value = false;
+
+    final err = OffersService.to.validationErrorMessage.value;
+    final data = OffersService.to.offerValidationData.value;
+
+    if (err.isNotEmpty || data == null) {
+      isOfferVerified.value = false;
+      verifiedOfferCode = null;
+      offerApplyStatus.value = false;
+      final msg = err.isNotEmpty
+          ? err
+          : 'Offer code is invalid or does not qualify.';
+      offerFeedbackMessage.value = msg;
+      Get.snackbar(
+        "Offer Invalid",
+        msg,
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    } else {
+      isOfferVerified.value = true;
+      verifiedOfferCode = code;
+      offerApplyStatus.value = true;
+      final msg = (data['message'] != null &&
+              data['message'].toString().isNotEmpty)
+          ? data['message'].toString()
+          : 'Offer code is valid! Tap Apply to apply this offer.';
+      offerFeedbackMessage.value = msg;
+      Get.snackbar(
+        "Offer Valid",
+        msg,
+        backgroundColor: AppColors.successBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    }
+  }
+
+  Future<void> applyOfferCode() async {
+    final code = offerCodeController.text.trim();
+    if (code.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please enter an offer code.",
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+
+    if (!isOfferVerified.value || verifiedOfferCode != code) {
+      await verifyOfferCode();
+      if (!isOfferVerified.value) return;
+    }
+
+    isApplyingOffer.value = true;
+    offerApplyStatus.value = null;
+    offerFeedbackMessage.value = '';
+    validatedOfferCode = null;
+
+    final product = _getOfferProduct();
+    final provider = _getOfferProvider();
+    final amount = _getTransactionAmount().toString();
 
     await OffersService.to.previewOffer(
       product: product,
@@ -93,16 +221,39 @@ class GeneralPayoutController extends GetxController {
       offerCode: code,
     );
 
-    if (OffersService.to.errorMessage.value.isNotEmpty) {
-      Get.snackbar("Offer Failed", OffersService.to.errorMessage.value,
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor);
+    isApplyingOffer.value = false;
+
+    if (OffersService.to.errorMessage.value.isNotEmpty ||
+        OffersService.to.offerPreviewData.value == null) {
       validatedOfferCode = null;
-    } else if (OffersService.to.offerPreviewData.value != null) {
+      isOfferApplied.value = false;
+      offerApplyStatus.value = false;
+      final msg = OffersService.to.errorMessage.value.isNotEmpty
+          ? OffersService.to.errorMessage.value
+          : 'Your transaction does not qualify for this offer.';
+      offerFeedbackMessage.value = msg;
+      Get.snackbar(
+        "Offer Not Applied",
+        msg,
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+    } else {
       validatedOfferCode = code;
-      Get.snackbar("Offer Applied", "Offer code $code successfully applied!",
-          backgroundColor: AppColors.successBgColor,
-          colorText: AppColors.textSnackbarColor);
+      isOfferApplied.value = true;
+      offerApplyStatus.value = true;
+      final data = OffersService.to.offerPreviewData.value!;
+      final msg = (data['message'] != null &&
+              data['message'].toString().isNotEmpty)
+          ? data['message'].toString()
+          : 'Offer code $code successfully applied!';
+      offerFeedbackMessage.value = msg;
+      Get.snackbar(
+        "Offer Applied",
+        msg,
+        backgroundColor: AppColors.successBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
     }
   }
 
@@ -196,6 +347,8 @@ class GeneralPayoutController extends GetxController {
     expiryMonthFocus.dispose();
     expiryYearFocus.dispose();
     cvvFocus.dispose();
+    promoCodeController.dispose();
+    offerCodeController.dispose();
     super.onClose();
   }
 
