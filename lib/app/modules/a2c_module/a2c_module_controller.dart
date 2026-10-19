@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mcd/core/models/bank_model.dart';
 import 'package:mcd/core/services/bank_service.dart';
+import 'package:mcd/core/services/dashboard_service.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
@@ -26,7 +27,6 @@ class A2CModuleController extends GetxController {
   set selectedPaymentMethod(String value) {
     _selectedPaymentMethod.value = value;
     if (value == 'wallet') {
-      // Clear bank-related fields when switching to wallet
       selectedBank.value = null;
       accountNumberController.clear();
       _accountName.value = null;
@@ -76,10 +76,46 @@ class A2CModuleController extends GetxController {
     '9mobile': 'assets/images/etisalat.png',
   };
 
+  String get userPlan {
+    try {
+      if (Get.isRegistered<DashboardService>()) {
+        final dashboard = DashboardService.to.dashboardData.value;
+        if (dashboard != null) {
+          final plan = dashboard.user.userPlan;
+          if (plan.isNotEmpty) {
+            return plan.toLowerCase().trim();
+          }
+        }
+      }
+    } catch (_) {}
+
+    final cachedDashboard = box.read('cached_dashboard');
+    if (cachedDashboard != null) {
+      final user = cachedDashboard['data']?['user'] ?? cachedDashboard['user'];
+      if (user != null) {
+        final plan = user['user_plan'] ?? user['userPlan'] ?? user['referral_plan'];
+        if (plan != null && plan.toString().isNotEmpty) {
+          return plan.toString().toLowerCase().trim();
+        }
+      }
+    }
+    return 'free';
+  }
+
+  int get feePercentage {
+    if (userPlan == 'free') {
+      return 25;
+    }
+    return 20;
+  }
+
   @override
   void onInit() {
     super.onInit();
     dev.log('A2C Module initialized', name: 'A2CModule');
+    if (Get.isRegistered<DashboardService>()) {
+      DashboardService.to.fetchDashboard();
+    }
   }
 
   @override

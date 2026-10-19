@@ -56,13 +56,16 @@ class A2CModulePage extends GetView<A2CModuleController> {
                         ),
                       ),
                       const Gap(10),
-                      Text(
-                        '(MTN Charges: 20% AIRTEL Charges: 20%)',
-                        style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.primaryGrey2,
-                            fontFamily: AppFonts.manRope),
-                      ),
+                      Obx(() {
+                        final fee = controller.feePercentage;
+                        return Text(
+                          '(MTN Charges: $fee% AIRTEL Charges: $fee%)',
+                          style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.primaryGrey2,
+                              fontFamily: AppFonts.manRope),
+                        );
+                      }),
                       const Gap(20),
 
                       // Network Selection

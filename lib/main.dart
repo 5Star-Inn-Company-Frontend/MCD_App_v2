@@ -14,7 +14,6 @@ import 'package:mcd/core/services/country_service.dart';
 import 'package:mcd/core/services/dashboard_service.dart';
 import 'package:mcd/core/services/offers_service.dart';
 import 'package:mcd/core/services/usage_tracker_service.dart';
-import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/services/ads_service.dart';
 import 'package:mcd/core/services/app_lifecycle_service.dart';
 import 'package:mcd/core/services/connectivity_service.dart';
@@ -54,7 +53,6 @@ Future<void> main() async {
     await Get.putAsync(() => RemoteConfigService().init());
   }
   await GetStorage.init();
-  await GetStorage().write('transaction_service_url', ApiConstants.temporaryTransUrl);
   await Get.putAsync(() => StorageService().init());
   Get.put(DialogManagerService());
   await DeviceInfoService().initialize();

@@ -78,6 +78,7 @@ class UserModel {
   final String target;
   final String level;
   final String referralPlan;
+  final String userPlan;
   final int emailValid;
   final int phoneValid;
   final bool bvn;
@@ -93,6 +94,7 @@ class UserModel {
     required this.target,
     required this.level,
     required this.referralPlan,
+    this.userPlan = "free",
     required this.emailValid,
     required this.phoneValid,
     required this.bvn,
@@ -110,6 +112,7 @@ class UserModel {
       target: json['target'] ?? "",
       level: json['level'] ?? "",
       referralPlan: json['referral_plan'] ?? "",
+      userPlan: json['user_plan'] ?? json['userPlan'] ?? json['referral_plan'] ?? "free",
       emailValid: json['email_valid'] ?? 0,
       phoneValid: json['phone_valid'] ?? 0,
       bvn: json['bvn'] ?? false,
@@ -128,6 +131,7 @@ class UserModel {
       "target": target,
       "level": level,
       "referral_plan": referralPlan,
+      "user_plan": userPlan,
       "email_valid": emailValid,
       "phone_valid": phoneValid,
       "bvn": bvn,
@@ -136,7 +140,7 @@ class UserModel {
 
   @override
   String toString() {
-    return "UserModel(fullName: $fullName, userName: $userName, email: $email, phoneNo: $phoneNo, level: $level, referralPlan: $referralPlan)";
+    return "UserModel(fullName: $fullName, userName: $userName, email: $email, phoneNo: $phoneNo, level: $level, referralPlan: $referralPlan, userPlan: $userPlan)";
   }
 }
 
