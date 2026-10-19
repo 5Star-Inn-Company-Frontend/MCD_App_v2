@@ -750,8 +750,8 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                 controller.isPaymentMethodAvailable('wallet');
             final isGeneralMarketAvailable =
                 controller.isPaymentMethodAvailable('pay_gm');
-            final isPaystackAvailable =
-                controller.isPaymentMethodAvailable('paystack');
+            // final isPaystackAvailable =
+            //     controller.isPaymentMethodAvailable('paystack');
 
             return Column(
               children: [

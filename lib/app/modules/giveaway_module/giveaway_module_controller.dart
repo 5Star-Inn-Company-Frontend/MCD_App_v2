@@ -783,11 +783,10 @@ class GiveawayModuleController extends GetxController {
   // Show Ad Dialog first
   Future<void> showAdClaimDialogFirst(
       int giveawayId, String giveawayType, BuildContext context) async {
-    // SECURITY: Double check status before showing ad
     final latestDetail = await fetchGiveawayDetail(giveawayId);
     if (latestDetail == null ||
         latestDetail.completed ||
-        latestDetail.giveaway.status != 1) {
+        latestDetail.giveaway.status == 1) {
       Get.snackbar(
         'Expired',
         'Sorry, this giveaway has just been fully claimed.',

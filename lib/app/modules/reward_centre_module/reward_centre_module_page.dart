@@ -102,7 +102,7 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
                         ),
                       InkWell(
                         onTap: () {
-                          Get.toNamed(Routes.LEADERBOARD_MODULE);
+                          Get.toNamed(Routes.MCD_REWARDS_MODULE);
                         },
                         child: AspectRatio(
                             aspectRatio: 3 / 5,
@@ -194,14 +194,14 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
     );
   }
 
-  bool _isPromoEnabled() {
-    final box = GetStorage();
-    final storedValue = box.read('promo_enabled');
-    if (storedValue is bool) {
-      return storedValue;
-    } else if (storedValue is String) {
-      return storedValue.toLowerCase() == 'true';
-    }
-    return false;
-  }
+  // bool _isPromoEnabled() {
+  //   final box = GetStorage();
+  //   final storedValue = box.read('promo_enabled');
+  //   if (storedValue is bool) {
+  //     return storedValue;
+  //   } else if (storedValue is String) {
+  //     return storedValue.toLowerCase() == 'true';
+  //   }
+  //   return false;
+  // }
 }

@@ -93,7 +93,8 @@ class A2CModuleController extends GetxController {
     if (cachedDashboard != null) {
       final user = cachedDashboard['data']?['user'] ?? cachedDashboard['user'];
       if (user != null) {
-        final plan = user['user_plan'] ?? user['userPlan'] ?? user['referral_plan'];
+        final plan =
+            user['user_plan'] ?? user['userPlan'] ?? user['referral_plan'];
         if (plan != null && plan.toString().isNotEmpty) {
           return plan.toString().toLowerCase().trim();
         }
@@ -262,8 +263,7 @@ class A2CModuleController extends GetxController {
           username.length >= 2 ? username.substring(0, 2).toUpperCase() : 'A2C';
       final ref = 'MCD2_$userPrefix${DateTime.now().microsecondsSinceEpoch}';
 
-      final body = {
-        'bankname': selectedBank.value!.name,
+      final body = <String, dynamic>{
         'network': selectedNetwork,
         'number': phoneController.text,
         'amount': amountController.text,
@@ -271,9 +271,9 @@ class A2CModuleController extends GetxController {
         'ref': ref,
       };
 
-      // Add bank details if bank payment is selected
       if (selectedPaymentMethod == 'bank') {
-        body['bank_code'] = selectedBank.value!.code;
+        body['bankname'] = selectedBank.value?.name ?? '';
+        body['bank_code'] = selectedBank.value?.code ?? '';
         body['account_number'] = accountNumberController.text;
         body['account_name'] = accountName ?? '';
       }

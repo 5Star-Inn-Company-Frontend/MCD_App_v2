@@ -277,19 +277,21 @@ class TransactionDetailModuleController extends GetxController {
 
     if (arguments != null && arguments['transaction'] != null) {
       transaction = arguments['transaction'] as Transaction;
+      dev.log('Transaction Data: ${transaction?.toJson()}',
+          name: 'TransactionDetail');
+      dev.log('Transaction ServerLog: ${transaction?.serverLog?.toJson()}',
+          name: 'TransactionDetail');
 
-      // Fetch detailed transaction data from API
       if (transaction?.ref != null) {
         fetchTransactionDetail(transaction!.ref);
       }
     } else {
-      // Fallback to old format for backward compatibility
-      dev.log('Using legacy transaction format', name: 'TransactionDetail');
+      dev.log('Using legacy transaction format: $arguments',
+          name: 'TransactionDetail');
       _loadLegacyFormat(arguments);
     }
   }
 
-  // Fetch detailed transaction from transactions-detail endpoint
   Future<void> fetchTransactionDetail(String ref) async {
     _isFetchingDetail.value = true;
     try {
@@ -306,9 +308,16 @@ class TransactionDetailModuleController extends GetxController {
               name: 'TransactionDetail', error: failure.message);
         },
         (data) {
+          dev.log('Transaction Detail API Response: $data',
+              name: 'TransactionDetail');
           if (data['success'] == 1 && data['data'] != null) {
             _detailedTransaction.value = data['data'];
-            dev.log('Transaction detail fetched successfully',
+            dev.log('Transaction detail data: ${data['data']}',
+                name: 'TransactionDetail');
+            dev.log('Server response: ${data['data']['server_response']}',
+                name: 'TransactionDetail');
+            dev.log(
+                'Server log: ${data['data']['server_log'] ?? transaction?.serverLog?.toJson()}',
                 name: 'TransactionDetail');
             dev.log(
                 'Server response type: ${data['data']['server_response'].runtimeType}',

@@ -132,8 +132,7 @@ class GiveawayDetailSheet extends StatelessWidget {
                   ),
                 ),
                 const Gap(20),
-                // Claim button
-                if (!detail.completed && detail.giveaway.status == 1)
+                if (!detail.completed && detail.giveaway.status == 0)
                   isOwnGiveaway
                       ? _statusBanner('This is your giveaway', AppColors.primaryGrey2)
                       : SizedBox(
@@ -141,7 +140,7 @@ class GiveawayDetailSheet extends StatelessWidget {
                           child: BusyButton(
                             title: "Claim",
                             onTap: () {
-                              Get.back(); // Close sheet
+                              Get.back();
                               controller.showAdClaimDialogFirst(
                                   giveawayId, detail.giveaway.type, context);
                             },

@@ -110,23 +110,23 @@ class PlanModel {
       featuresList.add('${(tvBonus).toStringAsFixed(1)}% TV Bonus');
     }
 
-    if (userEarnAmount > 0) {
-      featuresList
-          .add('Earn N${AmountUtil.formatFigure(userEarnAmount)} per referral');
+    if (referralEarnPoints > 0) {
+      featuresList.add('Earn $referralEarnPoints points per referral');
     }
 
     if (userEarnPoints > 0) {
-      featuresList.add('Earn $userEarnPoints points per transaction');
+      featuresList.add('Earn $userEarnPoints points for yourself');
     }
 
-    if (referralEarnAmount > 0) {
-      featuresList.add(
-          'Referral earns N${AmountUtil.formatFigure(referralEarnAmount)}');
+    if (userEarnAmount > 0) {
+      featuresList
+          .add('Earn N${AmountUtil.formatFigure(userEarnAmount)} commission for yourself');
     }
 
-    if (referralEarnPoints > 0) {
-      featuresList.add('Referral earns $referralEarnPoints points');
-    }
+    // if (referralEarnAmount > 0) {
+    //   featuresList.add(
+    //       'Earn N${AmountUtil.formatFigure(referralEarnAmount)} per referral');
+    // }
 
     if (aiChatLimit > 0) {
       featuresList.add('$aiChatLimit AI Chat messages per month');

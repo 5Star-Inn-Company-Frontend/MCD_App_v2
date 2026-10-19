@@ -124,14 +124,14 @@ class GiveawayDetailPage extends GetView<GiveawayDetailController> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
-                            color: giveaway.status == 1
+                            color: giveaway.status == 0
                                 ? Colors.green.withOpacity(0.1)
                                 : Colors.red.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: TextSemiBold(
-                            giveaway.status == 1 ? 'Active' : 'Expired',
-                            color: giveaway.status == 1
+                            giveaway.status == 0 ? 'Active' : 'Expired',
+                            color: giveaway.status == 0
                                 ? Colors.green
                                 : Colors.red,
                             fontSize: 12,
@@ -281,8 +281,7 @@ class GiveawayDetailPage extends GetView<GiveawayDetailController> {
               ),
             ),
 
-            // Bottom Action Button
-            if (!detail.completed && giveaway.status == 1)
+            if (!detail.completed && giveaway.status == 0)
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: isOwnGiveaway

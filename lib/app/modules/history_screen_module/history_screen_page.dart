@@ -4,7 +4,6 @@ import 'package:mcd/app/widgets/app_bar.dart';
 import 'package:mcd/app/widgets/skeleton_loader.dart';
 import 'package:mcd/core/import/imports.dart';
 import 'package:mcd/core/utils/functions.dart';
-import 'package:collection/collection.dart' show ListExtensions;
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:developer' as dev;
 
@@ -797,6 +796,7 @@ class HistoryScreenPage extends GetView<HistoryScreenController> {
     return ListTile(
       onTap: () {
         dev.log('Transaction JSON: ${transaction.toJson()}', name: 'HistoryScreen');
+        dev.log('Transaction serverLog: ${transaction.serverLog?.toJson()}', name: 'HistoryScreen');
         controller.fetchTransactionDetail(transaction.ref);
         Get.toNamed(
           Routes.TRANSACTION_DETAIL_FULL,

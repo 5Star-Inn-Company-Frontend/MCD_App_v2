@@ -99,8 +99,7 @@ class GiveawayDetailController extends GetxController {
       return;
     }
 
-    // SECURITY: Double check status before showing ad
-    if (detail.value!.completed || detail.value!.giveaway.status != 1) {
+    if (detail.value!.completed || detail.value!.giveaway.status == 1) {
       Get.snackbar(
         'Expired',
         'Sorry, this giveaway has just been fully claimed.',

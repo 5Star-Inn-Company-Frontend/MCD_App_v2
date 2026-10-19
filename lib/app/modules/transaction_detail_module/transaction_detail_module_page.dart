@@ -818,7 +818,7 @@ class TransactionDetailModulePage
               style: GoogleFonts.plusJakartaSans(
                   fontSize: 15, fontWeight: FontWeight.w500),
               overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+              maxLines: 2,
               textAlign: TextAlign.end,
             ),
           ),
