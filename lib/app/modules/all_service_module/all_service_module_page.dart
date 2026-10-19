@@ -258,24 +258,113 @@ class AllServiceModulePage extends GetView<AllServiceModuleController> {
     );
   }
 
-  void _showEpinOptionsBottomSheet(BuildContext context, HomeScreenController controller) {
+  void _showEpinOptionsBottomSheet(
+      BuildContext context, HomeScreenController controller) {
     showCustomBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       backgroundColor: Colors.white,
       builder: (context) {
+        final options = [
+          {
+            'title': 'Airtime Pin',
+            'route': Routes.AIRTIME_PIN_MODULE,
+            'serviceKey': 'airtime_pin'
+          },
+          {
+            'title': 'Data Pin',
+            'route': Routes.DATA_PIN,
+            'serviceKey': 'data_pin'
+          },
+          {'title': 'Recharge Card', 'route': '', 'serviceKey': 'rechargecard'},
+        ];
+
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ListTile(
-                title: const Text('WAEC E-PIN'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Get.toNamed(Routes.EPIN_MODULE, arguments: {'type': 'WAEC'});
-                },
-              ),
+              const Gap(20),
+              ...options.map((option) {
+                final isAvailable = controller
+                    .isServiceAvailable(option['serviceKey'] as String);
+                return Opacity(
+                  opacity: isAvailable ? 1.0 : 0.5,
+                  child: TouchableOpacity(
+                    onTap: () async {
+                      final serviceKey = option['serviceKey'] as String;
+                      final title = option['title'] as String;
+                      final route = option['route'] as String;
+
+                      await controller.checkAndNavigate(
+                        serviceKey,
+                        serviceName: title,
+                        onAvailable: () {
+                          Navigator.pop(context);
+                          if (serviceKey == 'rechargecard') {
+                            launchUrl(
+                              Uri.parse(
+                                  'https://rechargecardportal.5starcompany.com.ng/authentication/login'),
+                              mode: LaunchMode.externalApplication,
+                            );
+                          } else {
+                            Get.toNamed(route);
+                          }
+                        },
+                      );
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey.shade200),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  option['title'] as String,
+                                  style: const TextStyle(
+                                    fontFamily: AppFonts.manRope,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.background,
+                                  ),
+                                ),
+                                if (!isAvailable) ...[
+                                  const Gap(4),
+                                  const Text(
+                                    'E-pin service is currently unavailable. Please try again later.',
+                                    style: TextStyle(
+                                      fontFamily: AppFonts.manRope,
+                                      fontSize: 12,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const Icon(
+                            Icons.chevron_right,
+                            color: AppColors.background,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+              const Gap(40),
             ],
           ),
         );
