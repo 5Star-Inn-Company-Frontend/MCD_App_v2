@@ -785,151 +785,240 @@ class McdRewardsModulePage extends GetView<McdRewardsModuleController> {
   }
 
   Widget _buildRewardTab(BuildContext context) {
-    final story = controller.primaryWinnerStory;
+    final stories = controller.winnerStories;
+    if (stories.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFF0F0F0)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: const BoxDecoration(
+                color: Color(0xFFF1F5F9),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.video_library_outlined,
+                color: Color(0xFF94A3B8),
+                size: 28,
+              ),
+            ),
+            const Gap(14),
+            const Text(
+              'No Winner Stories Yet',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: AppColors.background,
+                fontFamily: AppFonts.manRope,
+              ),
+            ),
+            const Gap(6),
+            const Text(
+              'Winner celebrations and reward stories will appear here soon. Keep earning points to be featured.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xFF6B7280),
+                fontFamily: AppFonts.manRope,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+      )
+          .animate()
+          .fadeIn(duration: 320.ms)
+          .slideY(begin: 0.06, end: 0, curve: Curves.easeOutQuad);
+    }
+
+    final topTag =
+        stories.first.tag.isNotEmpty ? stories.first.tag : 'Winner stories';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildTag(
-            story?.tag.isNotEmpty == true ? story!.tag : 'Winner stories'),
+        _buildTag(topTag),
         const Gap(12),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              story?.winnerName.isNotEmpty == true
-                  ? story!.winnerName
-                  : 'Previous winners',
-              style: const TextStyle(
+            const Text(
+              'Previous winners',
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: AppColors.background,
                 fontFamily: AppFonts.manRope,
               ),
             ),
-            const Icon(Icons.ondemand_video_rounded,
-                color: Color(0xFF269E5F), size: 22),
+            Row(
+              children: [
+                const Icon(Icons.ondemand_video_rounded,
+                    color: Color(0xFF269E5F), size: 18),
+                const Gap(4),
+                Text(
+                  '${stories.length} ${stories.length == 1 ? 'Story' : 'Stories'}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF269E5F),
+                    fontFamily: AppFonts.manRope,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
         const Gap(14),
-        if (controller.hasWinnerVideo)
-          InkWell(
-            onTap: () {
-              if (story != null) {
-                _openInAppVideo(context, story);
-              } else {
-                controller.openWinnerVideo();
-              }
-            },
-            borderRadius: BorderRadius.circular(18),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: const Color(0xFFF0F0F0)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF1E293B),
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(18)),
-                      ),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          if (story != null &&
-                              story.effectiveThumbnail.isNotEmpty)
-                            ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(18)),
-                              child: Image.network(
-                                story.effectiveThumbnail,
-                                width: double.infinity,
-                                height: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Opacity(
-                                    opacity: 0.25,
-                                    child: Image.asset(
-                                      'assets/images/mcdagentlogo.png',
-                                      width: 110,
-                                    ),
-                                  );
-                                },
-                              ),
-                            )
-                          else
-                            Opacity(
+        ...stories.asMap().entries.map((entry) {
+          final index = entry.key;
+          final story = entry.value;
+          return Padding(
+            padding: EdgeInsets.only(
+                bottom: index == stories.length - 1 ? 0 : 16),
+            child: _buildWinnerStoryCard(context, story, index),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildWinnerStoryCard(
+      BuildContext context, LeaderboardWinnerStory story, int index) {
+    final hasVideo = story.youtubeUrl.trim().isNotEmpty;
+    return InkWell(
+      onTap: () {
+        if (hasVideo) {
+          _openInAppVideo(context, story);
+        } else {
+          controller.openExternalUrl(story.youtubeUrl);
+        }
+      },
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFF0F0F0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1E293B),
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(18)),
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (story.effectiveThumbnail.isNotEmpty)
+                      ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(18)),
+                        child: Image.network(
+                          story.effectiveThumbnail,
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Opacity(
                               opacity: 0.25,
                               child: Image.asset(
                                 'assets/images/mcdagentlogo.png',
                                 width: 110,
                               ),
-                            ),
-                          Container(
-                            width: 52,
-                            height: 52,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.play_arrow_rounded,
-                              color: Color(0xFF269E5F),
-                              size: 34,
-                            ),
-                          )
-                              .animate(
-                                  onPlay: (controller) =>
-                                      controller.repeat(reverse: true))
-                              .scale(
-                                begin: const Offset(1, 1),
-                                end: const Offset(1.06, 1.06),
-                                duration: 1200.ms,
-                                curve: Curves.easeInOut,
-                              ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            story?.title.isNotEmpty == true
-                                ? story!.title
-                                : 'Winner testimony',
-                            style: const TextStyle(
-                              fontSize: 13.5,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.background,
-                              fontFamily: AppFonts.manRope,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                            );
+                          },
                         ),
+                      )
+                    else
+                      Opacity(
+                        opacity: 0.25,
+                        child: Image.asset(
+                          'assets/images/mcdagentlogo.png',
+                          width: 110,
+                        ),
+                      ),
+                    if (hasVideo)
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 10,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.play_arrow_rounded,
+                          color: Color(0xFF269E5F),
+                          size: 34,
+                        ),
+                      )
+                          .animate(
+                              onPlay: (controller) =>
+                                  controller.repeat(reverse: true))
+                          .scale(
+                            begin: const Offset(1, 1),
+                            end: const Offset(1.06, 1.06),
+                            duration: 1200.ms,
+                            curve: Curves.easeInOut,
+                          ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 14, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          story.winnerName.isNotEmpty
+                              ? story.winnerName
+                              : (story.title.isNotEmpty
+                                  ? story.title
+                                  : 'Winner testimony'),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.background,
+                            fontFamily: AppFonts.manRope,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (hasVideo) ...[
                         const Gap(8),
                         Row(
                           children: const [
@@ -948,84 +1037,42 @@ class McdRewardsModulePage extends GetView<McdRewardsModuleController> {
                           ],
                         ),
                       ],
-                    ),
+                    ],
                   ),
-                  if (story != null && story.description.isNotEmpty) ...[
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 14, right: 14, bottom: 12),
-                      child: Text(
-                        story.description,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF6B7280),
-                          fontFamily: AppFonts.manRope,
-                          height: 1.35,
-                        ),
+                  if (story.winnerName.isNotEmpty && story.title.isNotEmpty) ...[
+                    const Gap(3),
+                    Text(
+                      story.title,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF269E5F),
+                        fontFamily: AppFonts.manRope,
+                      ),
+                    ),
+                  ],
+                  if (story.description.isNotEmpty) ...[
+                    const Gap(6),
+                    Text(
+                      story.description,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF6B7280),
+                        fontFamily: AppFonts.manRope,
+                        height: 1.35,
                       ),
                     ),
                   ],
                 ],
               ),
             ),
-          )
-              .animate()
-              .fadeIn(duration: 320.ms)
-              .slideY(begin: 0.06, end: 0, curve: Curves.easeOutQuad)
-        else
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFF0F0F0)),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF1F5F9),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.video_library_outlined,
-                    color: Color(0xFF94A3B8),
-                    size: 28,
-                  ),
-                ),
-                const Gap(14),
-                const Text(
-                  'No Winner Stories Yet',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.background,
-                    fontFamily: AppFonts.manRope,
-                  ),
-                ),
-                const Gap(6),
-                const Text(
-                  'Winner celebrations and reward stories will appear here soon. Keep earning points to be featured.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF6B7280),
-                    fontFamily: AppFonts.manRope,
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          )
-              .animate()
-              .fadeIn(duration: 320.ms)
-              .slideY(begin: 0.06, end: 0, curve: Curves.easeOutQuad),
-      ],
-    );
+          ],
+        ),
+      ),
+    )
+        .animate(delay: (index * 80).ms)
+        .fadeIn(duration: 320.ms)
+        .slideY(begin: 0.06, end: 0, curve: Curves.easeOutQuad);
   }
 
   Widget _buildHelpTab() {
@@ -1093,20 +1140,76 @@ class McdRewardsModulePage extends GetView<McdRewardsModuleController> {
   }
 
   void _openInAppVideo(BuildContext context, LeaderboardWinnerStory story) {
-    final videoId = story.youtubeVideoId.isNotEmpty
-        ? story.youtubeVideoId
-        : _extractYouTubeId(story.youtubeUrl);
+    final videoId = story.youtubeVideoId.trim().isNotEmpty
+        ? story.youtubeVideoId.trim()
+        : _extractYouTubeId(story.youtubeUrl.trim());
 
     if (videoId.isEmpty) {
-      controller.openExternalUrl(story.youtubeUrl);
+      controller.openExternalUrl(story.youtubeUrl.trim());
       return;
     }
 
+    final embedHtml = '''
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; background-color: #000000; overflow: hidden; }
+    #player { width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <div id="player"></div>
+  <script>
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    var player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        videoId: '$videoId',
+        host: 'https://www.youtube.com',
+        playerVars: {
+          'autoplay': 1,
+          'playsinline': 1,
+          'rel': 0,
+          'enablejsapi': 1,
+          'origin': 'https://5starcompany.com.ng'
+        }
+      });
+    }
+  </script>
+</body>
+</html>
+''';
+
     final webViewController = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(
-        Uri.parse(
-            'https://www.youtube.com/embed/$videoId?autoplay=1&playsinline=1'),
+      ..setBackgroundColor(Colors.black)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onNavigationRequest: (NavigationRequest request) {
+            final url = request.url;
+            if (url.contains('youtube.com/watch') ||
+                url.contains('m.youtube.com/watch') ||
+                url.contains('youtu.be/') ||
+                url.contains('youtube.com/shorts')) {
+              controller.openExternalUrl(url);
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..loadHtmlString(
+        embedHtml,
+        baseUrl: 'https://5starcompany.com.ng',
       );
 
     showModalBottomSheet(
@@ -1152,7 +1255,10 @@ class McdRewardsModulePage extends GetView<McdRewardsModuleController> {
                             icon: const Icon(Icons.open_in_new,
                                 color: Colors.white70, size: 20),
                             onPressed: () {
-                              controller.openExternalUrl(story.youtubeUrl);
+                              final target = story.youtubeUrl.trim().isNotEmpty
+                                  ? story.youtubeUrl.trim()
+                                  : 'https://www.youtube.com/watch?v=$videoId';
+                              controller.openExternalUrl(target);
                             },
                           ),
                           IconButton(
@@ -1184,6 +1290,43 @@ class McdRewardsModulePage extends GetView<McdRewardsModuleController> {
                   ),
                 ] else
                   const Gap(16),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: InkWell(
+                    onTap: () {
+                      final target = story.youtubeUrl.trim().isNotEmpty
+                          ? story.youtubeUrl.trim()
+                          : 'https://www.youtube.com/watch?v=$videoId';
+                      controller.openExternalUrl(target);
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF269E5F),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.ondemand_video_rounded,
+                              color: Colors.white, size: 20),
+                          Gap(8),
+                          Text(
+                            'Watch in YouTube App',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: AppFonts.manRope,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -1335,7 +1478,6 @@ class _FaqExpandableTile extends StatefulWidget {
   final bool initialExpanded;
 
   const _FaqExpandableTile({
-    super.key,
     required this.index,
     required this.question,
     required this.answer,

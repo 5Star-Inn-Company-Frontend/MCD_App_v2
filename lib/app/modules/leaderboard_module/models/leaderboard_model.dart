@@ -8,9 +8,18 @@ class LeaderboardModel {
   final List<LeaderboardWinnerStory>? winnerStories;
   final String? banner;
 
-  List<LeaderboardFaq> get safeFaqs => faqs ?? const [];
-  List<LeaderboardWinnerStory> get safeWinnerStories =>
-      winnerStories ?? const [];
+  List<LeaderboardFaq> get safeFaqs {
+    final list = List<LeaderboardFaq>.from(faqs ?? const []);
+    list.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return list;
+  }
+
+  List<LeaderboardWinnerStory> get safeWinnerStories {
+    final list = List<LeaderboardWinnerStory>.from(winnerStories ?? const []);
+    list.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return list;
+  }
+
   String get safeBanner => banner ?? '';
 
   LeaderboardModel({

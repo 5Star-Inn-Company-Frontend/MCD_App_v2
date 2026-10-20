@@ -112,8 +112,7 @@ class McdRewardsModuleController extends GetxController
   String get banner => leaderboardData?.safeBanner ?? '';
 
   bool get hasWinnerVideo =>
-      primaryWinnerStory != null &&
-      primaryWinnerStory!.youtubeUrl.trim().isNotEmpty;
+      winnerStories.any((story) => story.youtubeUrl.trim().isNotEmpty);
 
   Future<void> openExternalUrl(String url) async {
     final cleanUrl = url.trim();

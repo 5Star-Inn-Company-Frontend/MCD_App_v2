@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
 
@@ -62,8 +63,12 @@ class ChangePinModuleController extends GetxController {
       
       dev.log('Change pin request: $body', name: 'ChangePin');
       
+      // final result = await apiService.postrequest(
+      //   '${utilityUrl}change-pin',
+      //   body,
+      // );
       final result = await apiService.postrequest(
-        '${utilityUrl}change-pin',
+        '${ApiConstants.authUrlV2}/change-pin',
         body,
       );
       

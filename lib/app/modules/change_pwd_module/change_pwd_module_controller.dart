@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/core/network/api_constants.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'dart:developer' as dev;
 
@@ -64,11 +65,13 @@ class ChangePwdModuleController extends GetxController {
       };
       
       dev.log('Change password request: $body', name: 'ChangePassword');
-      
+
       final result = await apiService.postrequest(
-        '${utilityUrl}change-password',
+        '${ApiConstants.authUrlV2}/change-password',
         body,
       );
+
+      dev.log('Change passowrd url: ${ApiConstants.authUrlV2}/change-password', name: 'ChangePassword');
       
       result.fold(
         (failure) {
@@ -88,6 +91,7 @@ class ChangePwdModuleController extends GetxController {
               data['message'] ?? "Password changed successfully",
               backgroundColor: AppColors.successBgColor,
               colorText: AppColors.textSnackbarColor,
+              duration: const Duration(seconds: 2)
             );
             
             // Clear the form
