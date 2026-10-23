@@ -20,6 +20,10 @@ class RewardCentreModulePage extends GetView<RewardCentreModuleController> {
       body: Obx(() {
         return Skeletonizer(
           enabled: controller.isLoading,
+          effect: ShimmerEffect(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+          ),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
             child: CustomScrollView(

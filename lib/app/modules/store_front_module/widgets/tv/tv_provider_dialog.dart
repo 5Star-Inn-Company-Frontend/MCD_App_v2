@@ -6,45 +6,41 @@ import 'package:mcd/app/modules/store_front_module/widgets/shared/shared_provide
 class TvProviderDialog extends GetView<StoreFrontController> {
   const TvProviderDialog({super.key});
 
+  String _getAsset(String name) {
+    final lower = name.toLowerCase();
+    if (lower.contains('dstv')) return 'assets/images/dstv.jpeg';
+    if (lower.contains('gotv')) return 'assets/images/gotv.png';
+    if (lower.contains('startimes')) return 'assets/images/startimes.jpeg';
+    return 'assets/icons/storefront/phone.png';
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SharedProviderSelectionDialog(
-      title: 'Cable Tv — Select provider',
-      description: 'Choose a network/provider to edit its pricing.',
-      providers: [
-        ProviderItemConfig(
-          name: 'DStv',
-          subtitle: 'Tap to edit plan setting',
-          imageAsset: 'assets/icons/storefront/phone.png',
-          isEnabled: controller.dstvEnabled,
-          onToggle: (val) => controller.toggleTvProvider('dstv', val),
-          onTap: () => controller.showTvPlanListDialog('DStv'),
-        ),
-        ProviderItemConfig(
-          name: 'GOtv',
-          subtitle: 'Tap to edit plan setting',
-          imageAsset: 'assets/icons/storefront/phone.png',
-          isEnabled: controller.gotvEnabled,
-          onToggle: (val) => controller.toggleTvProvider('gotv', val),
-          onTap: () => controller.showTvPlanListDialog('GOtv'),
-        ),
-        ProviderItemConfig(
-          name: 'Startimes',
-          subtitle: 'Tap to edit plan setting',
-          imageAsset: 'assets/icons/storefront/phone.png',
-          isEnabled: controller.startimesEnabled,
-          onToggle: (val) => controller.toggleTvProvider('startimes', val),
-          onTap: () => controller.showTvPlanListDialog('Startimes'),
-        ),
-        ProviderItemConfig(
-          name: 'Showmax',
-          subtitle: 'Tap to edit plan setting',
-          imageAsset: 'assets/icons/storefront/phone.png',
-          isEnabled: controller.showmaxEnabled,
-          onToggle: (val) => controller.toggleTvProvider('showmax', val),
-          onTap: () => controller.showTvPlanListDialog('Showmax'),
-        ),
-      ],
-    );
+    return Obx(() {
+      final items = controller.tvProviders.map((p) {
+        return ProviderItemConfig(
+          name: p.provider.toUpperCase(),
+          subtitle: 'Tap to view and edit packages',
+          imageAsset: _getAsset(p.provider),
+          isEnabled: p.isEnabled,
+          onToggle: (val) {
+            controller.updateProviderToggle(
+              category: 'cabletv',
+              provider: p.provider,
+              isEnabled: val,
+              discountPercent: p.discountPercent,
+            );
+          },
+          onTap: () => controller.showTvPlanListDialog(p.provider),
+        );
+      }).toList();
+
+      return SharedProviderSelectionDialog(
+        title: 'Cable TV — Select Provider',
+        description: 'Choose a TV provider to edit package prices.',
+        isLoading: controller.isLoadingTv.value,
+        providers: items,
+      );
+    });
   }
 }

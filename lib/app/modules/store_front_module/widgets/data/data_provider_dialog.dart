@@ -6,45 +6,43 @@ import 'package:mcd/app/modules/store_front_module/widgets/shared/shared_provide
 class DataProviderDialog extends GetView<StoreFrontController> {
   const DataProviderDialog({super.key});
 
+  String _getAsset(String name) {
+    final lower = name.toLowerCase();
+    if (lower.contains('mtn')) return 'assets/images/mtn.png';
+    if (lower.contains('glo')) return 'assets/images/glo.png';
+    if (lower.contains('airtel')) return 'assets/images/airtel.png';
+    if (lower.contains('9mobile') || lower.contains('etisalat')) return 'assets/images/etisalat.png';
+    return 'assets/icons/storefront/phone.png';
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SharedProviderSelectionDialog(
-      title: 'Data — Select provider',
-      description: 'Choose a network/provider to edit its pricing.',
-      providers: [
-        ProviderItemConfig(
-          name: 'MTN',
-          subtitle: 'Tap to edit Discount setting',
-          imageAsset: 'assets/icons/storefront/phone.png',
-          isEnabled: controller.mtnDataEnabled,
-          onToggle: (val) => controller.toggleDataProvider('mtn', val),
-          onTap: () => controller.showDataTypeDialog('MTN'),
-        ),
-        ProviderItemConfig(
-          name: 'Glo',
-          subtitle: 'Tap to edit Discount setting',
-          imageAsset: 'assets/icons/storefront/phone.png',
-          isEnabled: controller.gloDataEnabled,
-          onToggle: (val) => controller.toggleDataProvider('glo', val),
-          onTap: () => controller.showDataTypeDialog('Glo'),
-        ),
-        ProviderItemConfig(
-          name: 'Airtel',
-          subtitle: 'Tap to edit Discount setting',
-          imageAsset: 'assets/icons/storefront/phone.png',
-          isEnabled: controller.airtelDataEnabled,
-          onToggle: (val) => controller.toggleDataProvider('airtel', val),
-          onTap: () => controller.showDataTypeDialog('Airtel'),
-        ),
-        ProviderItemConfig(
-          name: '9mobile',
-          subtitle: 'Tap to edit Discount setting',
-          imageAsset: 'assets/icons/storefront/phone.png',
-          isEnabled: controller.etisalatDataEnabled,
-          onToggle: (val) => controller.toggleDataProvider('9mobile', val),
-          onTap: () => controller.showDataTypeDialog('9mobile'),
-        ),
-      ],
-    );
+    return Obx(() {
+      final items = controller.dataProviders.map((p) {
+        final typesText = p.types.isNotEmpty ? p.types.join(', ') : 'All plans';
+        return ProviderItemConfig(
+          name: p.provider.toUpperCase(),
+          subtitle: '$typesText · Tap to view plans',
+          imageAsset: _getAsset(p.provider),
+          isEnabled: p.isEnabled,
+          onToggle: (val) {
+            controller.updateProviderToggle(
+              category: 'data',
+              provider: p.provider,
+              isEnabled: val,
+              discountPercent: p.discountPercent,
+            );
+          },
+          onTap: () => controller.showDataTypeDialog(p),
+        );
+      }).toList();
+
+      return SharedProviderSelectionDialog(
+        title: 'Data — Select Provider',
+        description: 'Choose a network to configure data bundles & pricing.',
+        isLoading: controller.isLoadingData.value,
+        providers: items,
+      );
+    });
   }
 }

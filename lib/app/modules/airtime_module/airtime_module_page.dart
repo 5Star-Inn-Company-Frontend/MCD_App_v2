@@ -177,6 +177,10 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                 child: Obx(() {
                   return Skeletonizer(
                     enabled: controller.isLoading,
+                    effect: ShimmerEffect(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                    ),
                     child: controller.errorMessage != null
                         ? SizedBox(
                             height: 40,
@@ -196,9 +200,29 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                                       size: 30)),
                               items: controller.isLoading
                                   ? [
-                                      const DropdownMenuItem<AirtimeProvider?>(
+                                      DropdownMenuItem<AirtimeProvider?>(
                                         value: null,
-                                        child: Text("Loading..."),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 30,
+                                              height: 30,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey.shade300,
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                            const Gap(12),
+                                            const Text(
+                                              "Loading...",
+                                              style: TextStyle(
+                                                fontFamily: AppFonts.manRope,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       )
                                     ]
                                   : controller.airtimeProviders
@@ -313,96 +337,142 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
 
         // amounts container
         Container(
-          height: screenHeight(context) * 0.24,
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
           decoration:
               BoxDecoration(border: Border.all(color: const Color(0xffF1F1F1))),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Flexible(
-                child: GridView(
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 150,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                    childAspectRatio: 3 / 1.3,
+              if (!controller.isForeign) ...[
+                SizedBox(
+                  height: screenHeight(context) * 0.16,
+                  child: GridView(
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 150,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      childAspectRatio: 3 / 1.3,
+                    ),
+                    children: [
+                      _amountCard('100'),
+                      _amountCard('200'),
+                      _amountCard('500'),
+                      _amountCard('1000'),
+                      _amountCard('2000'),
+                      _amountCard('5000'),
+                    ],
                   ),
-                  children: [
-                    _amountCard('100'),
-                    _amountCard('200'),
-                    _amountCard('500'),
-                    _amountCard('1000'),
-                    _amountCard('2000'),
-                    _amountCard('5000'),
-                  ],
                 ),
-              ),
-              Row(
-                children: [
-                  Text("₦",
-                      style: GoogleFonts.plusJakartaSans(
-                          fontSize: 15, fontWeight: FontWeight.w500)),
-                  const Gap(8),
-                  Flexible(
-                    child: Obx(() {
-                      final provider = controller.selectedProvider.value;
-                      final minAmount = provider?.minAmount;
-                      final maxAmount = provider?.maxAmount;
-                      String hintText = '500.00 - 50,000.00';
-                      if (minAmount != null && maxAmount != null) {
-                        hintText =
-                            '${minAmount.toStringAsFixed(2)} - ${maxAmount.toStringAsFixed(2)}';
-                      } else if (minAmount != null) {
-                        hintText = 'Min: ${minAmount.toStringAsFixed(2)}';
-                      } else if (maxAmount != null) {
-                        hintText = 'Max: ${maxAmount.toStringAsFixed(2)}';
-                      }
+                const Gap(10),
+              ],
+              Obx(() {
+                final provider = controller.selectedProvider.value;
+                final isForeign = controller.isForeign;
+                final currency = isForeign
+                    ? (provider?.localCurrency ?? controller.countryCode ?? '')
+                    : '₦';
+                final minAmount = isForeign
+                    ? (provider?.localMinAmount ?? provider?.minAmount)
+                    : provider?.minAmount;
+                final maxAmount = isForeign
+                    ? (provider?.localMaxAmount ?? provider?.maxAmount)
+                    : provider?.maxAmount;
 
-                      return TextFormField(
-                        controller: controller.amountController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return ("Please input amount");
-                          }
-                          final amount = double.tryParse(value);
-                          if (amount == null) {
-                            return ("Enter a valid amount");
-                          }
-                          if (minAmount != null && amount < minAmount) {
-                            return ("Amount must be at least ${minAmount.toStringAsFixed(0)}");
-                          }
-                          if (maxAmount != null && amount > maxAmount) {
-                            return ("Amount must not exceed ${maxAmount.toStringAsFixed(0)}");
-                          }
-                          return null;
-                        },
-                        keyboardType: TextInputType.number,
-                        style: const TextStyle(
-                          fontFamily: AppFonts.manRope,
-                        ),
-                        decoration: InputDecoration(
-                          hintText: hintText,
-                          hintStyle: const TextStyle(color: AppColors.primaryGrey),
-                          focusedBorder: const UnderlineInputBorder(
-                            borderSide:
-                                BorderSide(color: AppColors.primaryColor),
+                String hintText = '500.00 - 50,000.00';
+                if (minAmount != null && maxAmount != null) {
+                  hintText =
+                      '${AmountUtil.formatFigure(minAmount)} - ${AmountUtil.formatFigure(maxAmount)}';
+                } else if (minAmount != null) {
+                  hintText = 'Min: ${AmountUtil.formatFigure(minAmount)}';
+                } else if (maxAmount != null) {
+                  hintText = 'Max: ${AmountUtil.formatFigure(maxAmount)}';
+                }
+
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      currency.isNotEmpty ? "$currency " : '',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const Gap(8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextFormField(
+                            controller: controller.amountController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return ("Please input amount");
+                              }
+                              final amount = double.tryParse(value);
+                              if (amount == null) {
+                                return ("Enter a valid amount");
+                              }
+                              if (minAmount != null && amount < minAmount) {
+                                return ("Amount must be at least ${AmountUtil.formatFigure(minAmount)} $currency");
+                              }
+                              if (maxAmount != null && amount > maxAmount) {
+                                return ("Amount must not exceed ${AmountUtil.formatFigure(maxAmount)} $currency");
+                              }
+                              return null;
+                            },
+                            keyboardType: TextInputType.number,
+                            style: const TextStyle(
+                              fontFamily: AppFonts.manRope,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: hintText,
+                              hintStyle: const TextStyle(color: AppColors.primaryGrey),
+                              focusedBorder: const UnderlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: AppColors.primaryColor),
+                              ),
+                            ),
                           ),
-                        ),
-                      );
-                    }),
-                  )
-                ],
-              ),
+                          if (minAmount != null || maxAmount != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 6),
+                              child: Text(
+                                minAmount != null && maxAmount != null
+                                    ? 'Min: ${AmountUtil.formatFigure(minAmount)} $currency · Max: ${AmountUtil.formatFigure(maxAmount)} $currency'
+                                    : minAmount != null
+                                        ? 'Min: ${AmountUtil.formatFigure(minAmount)} $currency'
+                                        : 'Max: ${AmountUtil.formatFigure(maxAmount!)} $currency',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.primaryGrey,
+                                  fontFamily: AppFonts.manRope,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }),
             ],
           ),
         ),
 
         const Gap(40),
-        Obx(() => BusyButton(
-              title: "Pay",
-              onTap: controller.pay,
-              isLoading: controller.isPaying,
-            )),
+        Obx(() {
+          final isForeign = controller.isForeign;
+          final ngnEquivalent = controller.calculatedNgnAmount.value;
+          final title = isForeign && ngnEquivalent > 0
+              ? "Pay (₦${AmountUtil.formatFigure(ngnEquivalent)})"
+              : "Pay";
+          return BusyButton(
+            title: title,
+            onTap: controller.pay,
+            isLoading: controller.isPaying,
+          );
+        }),
         const Gap(30),
       ],
     );
@@ -426,6 +496,10 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                 child: Obx(() {
                   return Skeletonizer(
                     enabled: controller.isLoading,
+                    effect: ShimmerEffect(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                    ),
                     child: controller.errorMessage != null
                         ? SizedBox(
                             height: 40,
@@ -445,9 +519,29 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                                       size: 30)),
                               items: controller.isLoading
                                   ? [
-                                      const DropdownMenuItem<AirtimeProvider?>(
+                                      DropdownMenuItem<AirtimeProvider?>(
                                         value: null,
-                                        child: Text("Loading..."),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 30,
+                                              height: 30,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey.shade300,
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                            const Gap(12),
+                                            const Text(
+                                              "Loading...",
+                                              style: TextStyle(
+                                                fontFamily: AppFonts.manRope,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       )
                                     ]
                                   : controller.airtimeProviders
@@ -682,7 +776,7 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
                               style: GoogleFonts.plusJakartaSans(
                                   fontSize: 15, fontWeight: FontWeight.w500)),
                           const Gap(8),
-                          Flexible(
+                          Expanded(
                             child: Obx(() {
                               final provider =
                                   controller.selectedProvider.value;

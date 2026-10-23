@@ -60,11 +60,12 @@ class TransactionDetailModuleController extends GetxController {
     return transaction?.serverLog?.paymentMethod ?? '';
   }
 
-  // legacy fields from arguments
   String? legacyPhoneNumber;
   String? legacyPackageName;
   String? legacyPaymentMethod;
   String? legacyBillerName;
+  String legacyCurrencySymbol = '₦';
+  String get currencySymbol => legacyCurrencySymbol;
 
   String get userId => transaction?.userName ?? 'N/A';
   String get phoneNumber {
@@ -369,6 +370,7 @@ class TransactionDetailModuleController extends GetxController {
     legacyPackageName = arguments['packageName'];
     legacyPaymentMethod = arguments['paymentMethod'];
     legacyBillerName = arguments['billerName'];
+    legacyCurrencySymbol = arguments['currency']?.toString() ?? '₦';
 
     // Load design and network info for epin cards
     if (arguments['designId'] != null) {

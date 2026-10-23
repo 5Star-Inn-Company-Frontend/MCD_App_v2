@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:mcd/app/modules/store_front_module/store_front_controller.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 
@@ -14,6 +15,13 @@ class TvPlanListDialog extends GetView<StoreFrontController> {
 
   @override
   Widget build(BuildContext context) {
+    final currencyFormatter = NumberFormat('#,##0', 'en_US');
+
+    void goBack() {
+      Get.back();
+      controller.showTvProviderDialog();
+    }
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       backgroundColor: Colors.white,
@@ -27,10 +35,7 @@ class TvPlanListDialog extends GetView<StoreFrontController> {
             Row(
               children: [
                 GestureDetector(
-                  onTap: () {
-                    Get.back();
-                    controller.showTvProviderDialog();
-                  },
+                  onTap: goBack,
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: const BoxDecoration(
@@ -47,7 +52,7 @@ class TvPlanListDialog extends GetView<StoreFrontController> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    providerName,
+                    providerName.toUpperCase(),
                     style: const TextStyle(
                       color: AppColors.textPrimaryColor,
                       fontSize: 18,
@@ -68,7 +73,7 @@ class TvPlanListDialog extends GetView<StoreFrontController> {
             const SizedBox(height: 8),
             const Center(
               child: Text(
-                'Tap a plan to edit its price. Max markup 10%.',
+                'Tap a package to customize your resale price.',
                 style: TextStyle(
                   color: AppColors.textPrimaryColor2,
                   fontSize: 14,
@@ -78,38 +83,74 @@ class TvPlanListDialog extends GetView<StoreFrontController> {
             ),
             const SizedBox(height: 24),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildPlanItem(
-                      name: '$providerName Compact',
-                      basePrice: 'N15,700',
-                      sellPrice: 'N16,000',
-                      earn: 'N300',
-                      isEnabled: controller.tvCompactEnabled,
-                      onToggle: (val) => controller.toggleTvPlan('Compact', val),
-                      onTap: () => controller.showEditTvPlanDialog(providerName, 'Compact'),
+              child: Obx(() {
+                if (controller.isLoadingPlans.value) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryColor,
                     ),
-                    const SizedBox(height: 12),
-                    _buildPlanItem(
-                      name: '$providerName Premium',
-                      basePrice: 'N37,000',
-                      sellPrice: 'N37,500',
-                      earn: 'N500',
-                      isEnabled: controller.tvPremiumEnabled,
-                      onToggle: (val) => controller.toggleTvPlan('Premium', val),
-                      onTap: () => controller.showEditTvPlanDialog(providerName, 'Premium'),
+                  );
+                }
+                if (controller.activePlans.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'No packages available for this provider.',
+                          style: TextStyle(
+                            color: AppColors.textPrimaryColor2,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextButton(
+                          onPressed: () => controller.fetchPlans(
+                            category: 'cabletv',
+                            provider: providerName,
+                          ),
+                          child: const Text(
+                            'Retry',
+                            style: TextStyle(color: AppColors.primaryColor),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  );
+                }
+                return ListView.separated(
+                  itemCount: controller.activePlans.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final plan = controller.activePlans[index];
+                    final baseStr = 'N${currencyFormatter.format(plan.baseCost)}';
+                    final sellStr = 'N${currencyFormatter.format(plan.sellPrice)}';
+                    final earnStr = 'N${currencyFormatter.format(plan.commission)}';
+                    return _buildPlanItem(
+                      name: plan.name,
+                      basePrice: baseStr,
+                      sellPrice: sellStr,
+                      earn: earnStr,
+                      isEnabled: plan.isEnabled,
+                      onToggle: (val) {
+                        controller.updatePlanToggle(
+                          category: 'cabletv',
+                          plan: plan,
+                          isEnabled: val,
+                        );
+                      },
+                      onTap: () => controller.showEditTvPlanDialog(
+                        providerName: providerName,
+                        plan: plan,
+                      ),
+                    );
+                  },
+                );
+              }),
             ),
             const SizedBox(height: 24),
             OutlinedButton(
-              onPressed: () {
-                Get.back();
-                controller.showTvProviderDialog();
-              },
+              onPressed: goBack,
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 side: const BorderSide(color: AppColors.filledBorderIColor),
@@ -137,7 +178,7 @@ class TvPlanListDialog extends GetView<StoreFrontController> {
     required String basePrice,
     required String sellPrice,
     required String earn,
-    required RxBool isEnabled,
+    required bool isEnabled,
     required ValueChanged<bool> onToggle,
     required VoidCallback onTap,
   }) {
@@ -176,7 +217,7 @@ class TvPlanListDialog extends GetView<StoreFrontController> {
                       ),
                       const SizedBox(width: 4),
                       const Text(
-                        '-',
+                        '·',
                         style: TextStyle(
                           color: AppColors.textPrimaryColor2,
                           fontSize: 10,
@@ -200,7 +241,7 @@ class TvPlanListDialog extends GetView<StoreFrontController> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 const Text(
-                  'Earn',
+                  'Profit',
                   style: TextStyle(
                     color: AppColors.textPrimaryColor2,
                     fontSize: 10,
@@ -209,7 +250,7 @@ class TvPlanListDialog extends GetView<StoreFrontController> {
                 Text(
                   earn,
                   style: const TextStyle(
-                    color: AppColors.textPrimaryColor,
+                    color: AppColors.primaryColor,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
@@ -217,12 +258,10 @@ class TvPlanListDialog extends GetView<StoreFrontController> {
               ],
             ),
             const SizedBox(width: 16),
-            Obx(
-              () => CupertinoSwitch(
-                value: isEnabled.value,
-                onChanged: onToggle,
-                activeColor: AppColors.primaryColor,
-              ),
+            CupertinoSwitch(
+              value: isEnabled,
+              onChanged: onToggle,
+              activeColor: AppColors.primaryColor,
             ),
           ],
         ),

@@ -112,6 +112,30 @@ class NumberVerificationModulePage
                     isLoading: controller.isLoading.value,
                   )),
 
+              if (controller.isForeign)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: OutlinedButton(
+                    onPressed: controller.continueManually,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                      side: const BorderSide(color: AppColors.primaryColor),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      "Select Network Manually",
+                      style: TextStyle(
+                        color: AppColors.primaryColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        fontFamily: AppFonts.manRope,
+                      ),
+                    ),
+                  ),
+                ),
+
               // beneficiaries section
               Obx(() {
                 if (controller.isLoadingBeneficiaries.value &&

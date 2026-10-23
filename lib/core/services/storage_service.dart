@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import '../../app/modules/home_screen_module/model/dashboard_model.dart';
+import '../../../core/network/api_constants.dart';
 
 /// Centralized storage service to avoid Get.find dependencies
 class StorageService extends GetxService {
@@ -44,6 +45,24 @@ class StorageService extends GetxService {
   // Getters
   String? get token => _box.read(keyToken);
   String? get transactionUrl => _box.read(keyTransactionUrl);
+  String get transactionUrlV2 {
+    final transV1 = _box.read(keyTransactionUrl);
+    if (transV1 != null && transV1.toString().isNotEmpty) {
+      String str = transV1.toString().trim();
+      if (str.contains('/api/v2')) {
+        while (str.contains('/api/v2/api/v2')) {
+          str = str.replaceAll('/api/v2/api/v2', '/api/v2');
+        }
+        return str.endsWith('/') ? str : '$str/';
+      }
+      if (str.contains('/api/v1')) {
+        final replaced = str.replaceAll('/api/v1', '/api/v2');
+        return replaced.endsWith('/') ? replaced : '$replaced/';
+      }
+      return str.endsWith('/') ? '${str}api/v2/' : '$str/api/v2/';
+    }
+    return '${ApiConstants.temporaryTransUrl}/api/v2/';
+  }
   String? get utilityUrl => _box.read(keyUtilityUrl);
   String? get username => _box.read(keyUsername);
   String? get userEmail => _box.read(keyUserEmail);

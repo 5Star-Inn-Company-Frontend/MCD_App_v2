@@ -60,6 +60,10 @@ class CableModulePage extends GetView<CableModuleController> {
         return Skeletonizer(
           enabled: controller.isLoadingProviders.value &&
               controller.cableProviders.isEmpty,
+          effect: ShimmerEffect(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+          ),
           child: controller.errorMessage.value != null
               ? Center(child: Text(controller.errorMessage.value!))
               : DropdownButtonHideUnderline(

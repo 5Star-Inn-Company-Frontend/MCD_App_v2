@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 
-class SharedEditPricingDialog extends StatelessWidget {
+class SharedEditPricingDialog extends StatefulWidget {
   final String title;
   final String subtitle;
-  final RxString baseCost;
+  final String baseCost;
   final String inputLabel;
   final String initialInputValue;
-  final ValueChanged<String> onChanged;
-  final String commissionText;
+  final ValueChanged<String>? onChanged;
+  final RxString commissionText;
+  final RxString? errorText;
   final VoidCallback onSave;
   final VoidCallback onBack;
+  final RxBool? isLoading;
 
   const SharedEditPricingDialog({
     super.key,
@@ -20,11 +22,32 @@ class SharedEditPricingDialog extends StatelessWidget {
     required this.baseCost,
     required this.inputLabel,
     required this.initialInputValue,
-    required this.onChanged,
+    this.onChanged,
     required this.commissionText,
+    this.errorText,
     required this.onSave,
     required this.onBack,
+    this.isLoading,
   });
+
+  @override
+  State<SharedEditPricingDialog> createState() => _SharedEditPricingDialogState();
+}
+
+class _SharedEditPricingDialogState extends State<SharedEditPricingDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialInputValue);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +65,7 @@ class SharedEditPricingDialog extends StatelessWidget {
               Row(
                 children: [
                   GestureDetector(
-                    onTap: onBack,
+                    onTap: widget.onBack,
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
@@ -59,7 +82,7 @@ class SharedEditPricingDialog extends StatelessWidget {
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
-                      title,
+                      widget.title,
                       style: const TextStyle(
                         color: AppColors.textPrimaryColor,
                         fontSize: 16,
@@ -79,7 +102,7 @@ class SharedEditPricingDialog extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                subtitle,
+                widget.subtitle,
                 style: const TextStyle(
                   color: AppColors.textPrimaryColor2,
                   fontSize: 14,
@@ -103,14 +126,12 @@ class SharedEditPricingDialog extends StatelessWidget {
                         fontSize: 14,
                       ),
                     ),
-                    Obx(
-                      () => Text(
-                        baseCost.value,
-                        style: const TextStyle(
-                          color: AppColors.textPrimaryColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    Text(
+                      widget.baseCost,
+                      style: const TextStyle(
+                        color: AppColors.textPrimaryColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
@@ -118,7 +139,7 @@ class SharedEditPricingDialog extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                inputLabel,
+                widget.inputLabel,
                 style: const TextStyle(
                   color: AppColors.textPrimaryColor,
                   fontSize: 14,
@@ -127,7 +148,7 @@ class SharedEditPricingDialog extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               TextField(
-                controller: TextEditingController(text: initialInputValue),
+                controller: _controller,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                   filled: true,
@@ -142,38 +163,57 @@ class SharedEditPricingDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onChanged: onChanged,
+                onChanged: widget.onChanged,
               ),
               const SizedBox(height: 8),
-              Text(
-                commissionText,
-                style: const TextStyle(
-                  color: AppColors.primaryColor,
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: onSave,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Text(
-                  'Save',
+              Obx(() {
+                final hasError = widget.errorText != null && widget.errorText!.value.isNotEmpty;
+                final text = hasError ? widget.errorText!.value : widget.commissionText.value;
+                return Text(
+                  text,
                   style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    color: hasError ? AppColors.errorBgColor : AppColors.primaryColor,
+                    fontSize: 12,
+                    fontWeight: hasError ? FontWeight.w600 : FontWeight.normal,
                   ),
-                ),
-              ),
+                );
+              }),
+              const SizedBox(height: 32),
+              Obx(() {
+                final isBusy = widget.isLoading?.value ?? false;
+                final hasError = widget.errorText != null && widget.errorText!.value.isNotEmpty;
+                return ElevatedButton(
+                  onPressed: (isBusy || hasError) ? null : widget.onSave,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    disabledBackgroundColor: AppColors.primaryColor.withOpacity(0.4),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: isBusy
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Save',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                );
+              }),
               const SizedBox(height: 12),
               OutlinedButton(
-                onPressed: onBack,
+                onPressed: widget.onBack,
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   side: const BorderSide(color: AppColors.filledBorderIColor),

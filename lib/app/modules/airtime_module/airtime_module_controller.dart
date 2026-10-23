@@ -56,11 +56,11 @@ class AirtimeModuleController extends GetxController {
   final isNumberVerified = false.obs;
   final verifiedNetwork = ''.obs;
 
-  // Track if this is foreign airtime
   bool _isForeign = false;
   bool get isForeign => _isForeign;
   String? _countryCode;
   String? get countryCode => _countryCode;
+  final calculatedNgnAmount = 0.0.obs;
 
   final Map<String, String> networkImages = {
     'mtn': AppAsset.mtn,
@@ -127,10 +127,14 @@ class AirtimeModuleController extends GetxController {
     } else {
       fetchAirtimeProviders(preSelectedNetwork: verifiedNetwork);
     }
+
+    ever(selectedProvider, (_) => _recalculateNgnAmount());
+    amountController.addListener(_recalculateNgnAmount);
   }
 
   @override
   void onClose() {
+    amountController.removeListener(_recalculateNgnAmount);
     phoneController.dispose();
     amountController.dispose();
     super.onClose();
@@ -455,6 +459,33 @@ class AirtimeModuleController extends GetxController {
   //   selectedPaymentMethod.value = method;
   // }
 
+  void _recalculateNgnAmount() {
+    final text = amountController.text.trim();
+    if (text.isEmpty) {
+      calculatedNgnAmount.value = 0.0;
+      return;
+    }
+    final enteredAmount = double.tryParse(text) ?? 0.0;
+    if (!_isForeign) {
+      calculatedNgnAmount.value = enteredAmount;
+      return;
+    }
+
+    final provider = selectedProvider.value;
+    final rate = provider?.conversionRate;
+    if (rate != null && rate > 0) {
+      calculatedNgnAmount.value = enteredAmount * rate;
+    } else {
+      final min = provider?.minAmount;
+      final localMin = provider?.localMinAmount;
+      if (min != null && localMin != null && localMin > 0) {
+        calculatedNgnAmount.value = enteredAmount * (min / localMin);
+      } else {
+        calculatedNgnAmount.value = enteredAmount;
+      }
+    }
+  }
+
   void pay() async {
     dev.log('Navigating to payout screen', name: 'AirtimeModule');
 
@@ -468,6 +499,12 @@ class AirtimeModuleController extends GetxController {
     }
 
     if (formKey.currentState?.validate() ?? false) {
+      final enteredAmount = amountController.text.trim();
+      final ngnVal = calculatedNgnAmount.value > 0
+          ? calculatedNgnAmount.value
+          : (double.tryParse(enteredAmount) ?? 0.0);
+      final currency = selectedProvider.value?.localCurrency ?? _countryCode ?? '₦';
+
       Get.toNamed(
         Routes.GENERAL_PAYOUT,
         arguments: {
@@ -475,7 +512,10 @@ class AirtimeModuleController extends GetxController {
           'paymentData': {
             'provider': selectedProvider.value,
             'phoneNumber': phoneController.text,
-            'amount': amountController.text,
+            'amount': ngnVal.toStringAsFixed(2),
+            'localAmount': enteredAmount,
+            'ngnAmount': ngnVal.toStringAsFixed(2),
+            'localCurrency': currency,
             'networkImage': getProviderLogo(selectedProvider.value!.network),
             'isForeign': _isForeign,
             'countryCode': _countryCode,

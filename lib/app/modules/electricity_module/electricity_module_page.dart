@@ -67,6 +67,10 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
       child: Obx(() {
         return Skeletonizer(
           enabled: controller.isLoading.value,
+          effect: ShimmerEffect(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+          ),
           child: controller.errorMessage.value != null
               ? Center(child: Text(controller.errorMessage.value!))
               : DropdownButtonHideUnderline(
@@ -77,9 +81,22 @@ class ElectricityModulePage extends GetView<ElectricityModuleController> {
                         : controller.selectedProvider.value,
                     items: controller.isLoading.value
                         ? [
-                            const DropdownMenuItem<ElectricityProvider?>(
+                            DropdownMenuItem<ElectricityProvider?>(
                               value: null,
-                              child: Text("Loading Providers..."),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 30,
+                                    height: 30,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade300,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const Gap(12),
+                                  const Text("Loading Providers..."),
+                                ],
+                              ),
                             )
                           ]
                         : controller.electricityProviders.map((provider) {

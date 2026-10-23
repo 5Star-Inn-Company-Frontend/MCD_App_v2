@@ -409,17 +409,43 @@ class GeneralPayoutController extends GetxController {
           paymentData['provider']?.network?.toUpperCase() ?? 'Airtime';
       serviceImage = paymentData['networkImage'] ?? '';
       phoneNumber = paymentData['phoneNumber'] ?? 'N/A';
-      detailsRows.value = [
-        {
-          'label': 'Amount',
-          'value':
-              '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0)}'
-        },
-        {'label': 'Phone Number', 'value': phoneNumber},
-        {'label': 'Network', 'value': serviceName},
-        if (paymentData['offerName'] != null)
-          {'label': 'Bonus', 'value': paymentData['offerName'].toString()},
-      ];
+      final isForeign = paymentData['isForeign'] == true;
+      final localCurrency = paymentData['localCurrency'] ??
+          paymentData['provider']?.localCurrency ??
+          (isForeign ? (paymentData['countryCode'] ?? '') : '₦');
+      final localAmount = paymentData['localAmount'] ?? paymentData['amount'];
+      final ngnAmount = paymentData['ngnAmount'] ?? paymentData['amount'];
+
+      if (isForeign) {
+        detailsRows.value = [
+          {
+            'label': 'Airtime Value',
+            'value':
+                '$localCurrency ${AmountUtil.formatFigure(double.tryParse(localAmount.toString()) ?? 0)}'
+          },
+          {
+            'label': 'Amount to Pay',
+            'value':
+                '₦${AmountUtil.formatFigure(double.tryParse(ngnAmount.toString()) ?? 0)}'
+          },
+          {'label': 'Phone Number', 'value': phoneNumber},
+          {'label': 'Network', 'value': serviceName},
+          if (paymentData['offerName'] != null)
+            {'label': 'Bonus', 'value': paymentData['offerName'].toString()},
+        ];
+      } else {
+        detailsRows.value = [
+          {
+            'label': 'Amount',
+            'value':
+                '₦${AmountUtil.formatFigure(double.tryParse((paymentData['amount'] ?? '0').toString()) ?? 0)}'
+          },
+          {'label': 'Phone Number', 'value': phoneNumber},
+          {'label': 'Network', 'value': serviceName},
+          if (paymentData['offerName'] != null)
+            {'label': 'Bonus', 'value': paymentData['offerName'].toString()},
+        ];
+      }
     }
   }
 
@@ -427,16 +453,53 @@ class GeneralPayoutController extends GetxController {
     serviceName = paymentData['networkProvider']?.name?.toUpperCase() ?? 'Data';
     serviceImage = paymentData['networkImage'] ?? '';
     phoneNumber = paymentData['phoneNumber'] ?? 'N/A';
-    detailsRows.value = [
-      {'label': 'Plan', 'value': paymentData['dataPlan']?.name ?? 'N/A'},
-      {
-        'label': 'Amount',
-        'value':
-            '₦${AmountUtil.formatFigure(double.tryParse((paymentData['dataPlan']?.price ?? '0').toString()) ?? 0)}'
-      },
-      {'label': 'Phone Number', 'value': phoneNumber},
-      {'label': 'Network', 'value': serviceName},
-    ];
+    final isForeign = paymentData['isForeign'] == true;
+    final dataPlan = paymentData['dataPlan'];
+    final localCurrency = paymentData['localCurrency'] ??
+        dataPlan?.localCurrency ??
+        (isForeign ? (paymentData['countryCode'] ?? '') : '₦');
+    final localAmount = paymentData['localAmount'] ?? dataPlan?.localAmount;
+    final ngnPrice = dataPlan?.price ?? '0';
+
+    if (isForeign && localAmount != null) {
+      detailsRows.value = [
+        {'label': 'Plan', 'value': dataPlan?.name ?? 'N/A'},
+        {
+          'label': 'Data Value',
+          'value':
+              '$localCurrency ${AmountUtil.formatFigure(double.tryParse(localAmount.toString()) ?? 0)}'
+        },
+        {
+          'label': 'Amount to Pay',
+          'value':
+              '₦${AmountUtil.formatFigure(double.tryParse(ngnPrice.toString()) ?? 0)}'
+        },
+        {'label': 'Phone Number', 'value': phoneNumber},
+        {'label': 'Network', 'value': serviceName},
+      ];
+    } else if (isForeign) {
+      detailsRows.value = [
+        {'label': 'Plan', 'value': dataPlan?.name ?? 'N/A'},
+        {
+          'label': 'Amount',
+          'value':
+              '$localCurrency ${AmountUtil.formatFigure(double.tryParse(ngnPrice.toString()) ?? 0)}'
+        },
+        {'label': 'Phone Number', 'value': phoneNumber},
+        {'label': 'Network', 'value': serviceName},
+      ];
+    } else {
+      detailsRows.value = [
+        {'label': 'Plan', 'value': dataPlan?.name ?? 'N/A'},
+        {
+          'label': 'Amount',
+          'value':
+              '₦${AmountUtil.formatFigure(double.tryParse((ngnPrice).toString()) ?? 0)}'
+        },
+        {'label': 'Phone Number', 'value': phoneNumber},
+        {'label': 'Network', 'value': serviceName},
+      ];
+    }
   }
 
   void _initializeElectricityData() {
@@ -1764,17 +1827,19 @@ class GeneralPayoutController extends GetxController {
     final countryCode = paymentData['countryCode'] ?? "NG";
 
     final Map<String, dynamic> body;
+    final double debitAmount;
     if (isForeign) {
       final rate = provider?.conversionRate;
-      final ngnAmount = double.tryParse(amount.toString()) ?? 0.0;
-      final localAmount = (rate != null && rate > 0)
-          ? (ngnAmount / rate).round()
-          : ngnAmount.round();
+      final localAmountVal = double.tryParse((paymentData['localAmount'] ?? amount).toString()) ?? 0.0;
+      final ngnAmountVal = double.tryParse((paymentData['ngnAmount'] ?? amount).toString()) ??
+          ((rate != null && rate > 0) ? (localAmountVal * rate) : localAmountVal);
+
+      debitAmount = ngnAmountVal;
 
       body = {
         "coded": provider?.coded ?? provider?.server ?? '',
-        "local_amount": localAmount,
-        "amount": amount.toString(),
+        "local_amount": localAmountVal.round(),
+        "amount": ngnAmountVal.toStringAsFixed(2),
         "number": phoneNumber,
         "country": countryCode,
         "payment": getPaymentMethodKey(),
@@ -1785,6 +1850,7 @@ class GeneralPayoutController extends GetxController {
         "ref": ref,
       };
     } else {
+      debitAmount = double.tryParse(amount.toString()) ?? 0.0;
       body = {
         "provider": provider?.network?.toUpperCase() ?? '',
         "amount": amount.toString(),
@@ -1804,7 +1870,7 @@ class GeneralPayoutController extends GetxController {
     await _performHandshake(
       endpoint: 'airtime',
       body: body,
-      amount: double.tryParse(amount.toString()) ?? 0.0,
+      amount: debitAmount,
       localRef: ref,
       successMessage: "Airtime purchase successful!",
     );
@@ -2415,12 +2481,25 @@ class GeneralPayoutController extends GetxController {
           name: 'GeneralPayout');
     }
 
+    final isForeign = paymentData['isForeign'] == true ||
+        (paymentData['countryCode'] != null &&
+            paymentData['countryCode'] != 'NG');
+    final localCurrency = paymentData['localCurrency'] ??
+        paymentData['provider']?.localCurrency ??
+        (isForeign ? (paymentData['countryCode'] ?? '') : '₦');
+    final localAmount = paymentData['localAmount'];
+    final displayAmount = isForeign && localAmount != null
+        ? (double.tryParse(localAmount.toString()) ?? amount)
+        : amount;
+
     Get.offNamed(
       Routes.TRANSACTION_DETAIL_MODULE,
       arguments: {
         'name': serviceName,
         'image': serviceImage,
-        'amount': amount,
+        'amount': displayAmount,
+        'currency': isForeign ? localCurrency : '₦',
+        'isForeign': isForeign,
         'paymentType': paymentType.name.toUpperCase(),
         'paymentMethod': getPaymentMethodDisplayName(),
         'userId': userId,

@@ -1,6 +1,7 @@
+import 'package:mcd/app/modules/store_front_module/store_front_controller.dart';
 import 'package:mcd/core/import/imports.dart';
 
-class EditStoreProfileDialog extends StatelessWidget {
+class EditStoreProfileDialog extends GetView<StoreFrontController> {
   const EditStoreProfileDialog({super.key});
 
   @override
@@ -69,22 +70,17 @@ class EditStoreProfileDialog extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             TextFormField(
+              controller: controller.storeNameController,
               maxLength: 40,
               style: const TextStyle(
                 fontFamily: AppFonts.manRope,
                 fontSize: 15,
               ),
               decoration: InputDecoration(
-                hintText: "John's Quick Bills",
+                hintText: "e.g. My Quick Store",
                 hintStyle: const TextStyle(
                   color: Colors.black54,
                   fontSize: 15,
-                  fontFamily: AppFonts.manRope,
-                ),
-                counterText: '18/40',
-                counterStyle: const TextStyle(
-                  color: Colors.black54,
-                  fontSize: 12,
                   fontFamily: AppFonts.manRope,
                 ),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -112,11 +108,14 @@ class EditStoreProfileDialog extends StatelessWidget {
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: Colors.black87,
-                fontFamily: AppFonts.manRope,))
+                    fontFamily: AppFonts.manRope,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 10),
             TextFormField(
+              controller: controller.welcomeMessageController,
               maxLength: 140,
               maxLines: 4,
               style: const TextStyle(
@@ -124,16 +123,10 @@ class EditStoreProfileDialog extends StatelessWidget {
                 fontSize: 15,
               ),
               decoration: InputDecoration(
-                hintText: 'Cheapest airtime & data 24/7. Tap below to start.',
+                hintText: 'e.g. Cheapest airtime & data 24/7. Tap below to start.',
                 hintStyle: const TextStyle(
                   color: Colors.black54,
                   fontSize: 15,
-                  fontFamily: AppFonts.manRope,
-                ),
-                counterText: '49/140',
-                counterStyle: const TextStyle(
-                  color: Colors.black54,
-                  fontSize: 12,
                   fontFamily: AppFonts.manRope,
                 ),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -154,24 +147,37 @@ class EditStoreProfileDialog extends StatelessWidget {
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Get.back(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+              child: Obx(
+                () => ElevatedButton(
+                  onPressed: controller.isUpdatingProfile.value
+                      ? null
+                      : () => controller.saveProfile(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
                   ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Save changes',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    fontFamily: AppFonts.manRope,
-                  ),
+                  child: controller.isUpdatingProfile.value
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'Save changes',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            fontFamily: AppFonts.manRope,
+                          ),
+                        ),
                 ),
               ),
             ),

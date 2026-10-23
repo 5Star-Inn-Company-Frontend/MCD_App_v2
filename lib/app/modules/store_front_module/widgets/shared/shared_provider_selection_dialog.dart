@@ -7,7 +7,7 @@ class ProviderItemConfig {
   final String name;
   final String subtitle;
   final String imageAsset;
-  final RxBool isEnabled;
+  final bool isEnabled;
   final ValueChanged<bool> onToggle;
   final VoidCallback onTap;
 
@@ -25,12 +25,14 @@ class SharedProviderSelectionDialog extends StatelessWidget {
   final String title;
   final String description;
   final List<ProviderItemConfig> providers;
+  final bool isLoading;
 
   const SharedProviderSelectionDialog({
     super.key,
     required this.title,
     required this.description,
     required this.providers,
+    this.isLoading = false,
   });
 
   @override
@@ -82,16 +84,46 @@ class SharedProviderSelectionDialog extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            ...providers.asMap().entries.map((entry) {
-              final index = entry.key;
-              final provider = entry.value;
-              return Column(
-                children: [
-                  _buildProviderItem(provider),
-                  if (index < providers.length - 1) const SizedBox(height: 12),
-                ],
-              );
-            }).toList(),
+            if (isLoading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+              )
+            else if (providers.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: Text(
+                    'No providers available',
+                    style: TextStyle(
+                      color: AppColors.textPrimaryColor2,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              )
+            else
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: providers.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final provider = entry.value;
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index < providers.length - 1 ? 12 : 0,
+                        ),
+                        child: _buildProviderItem(provider),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
             const SizedBox(height: 24),
             OutlinedButton(
               onPressed: () => Get.back(),
@@ -135,7 +167,7 @@ class SharedProviderSelectionDialog extends StatelessWidget {
                 color: AppColors.lightGreen,
                 shape: BoxShape.circle,
               ),
-              child: Image.asset(config.imageAsset, width: 20, height: 20,),
+              child: Image.asset(config.imageAsset, width: 20, height: 20),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -161,12 +193,10 @@ class SharedProviderSelectionDialog extends StatelessWidget {
                 ],
               ),
             ),
-            Obx(
-              () => CupertinoSwitch(
-                value: config.isEnabled.value,
-                onChanged: config.onToggle,
-                activeColor: AppColors.primaryColor,
-              ),
+            CupertinoSwitch(
+              value: config.isEnabled,
+              onChanged: config.onToggle,
+              activeColor: AppColors.primaryColor,
             ),
           ],
         ),

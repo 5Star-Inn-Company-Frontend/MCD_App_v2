@@ -31,6 +31,10 @@ class BettingModulePage extends GetView<BettingModuleController> {
         return Skeletonizer(
           enabled: controller.isLoading.value &&
               controller.bettingProviders.isEmpty,
+          effect: ShimmerEffect(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+          ),
           child: controller.errorMessage.value != null
               ? Center(child: Text(controller.errorMessage.value!))
               : SingleChildScrollView(
@@ -294,9 +298,22 @@ class BettingModulePage extends GetView<BettingModuleController> {
           itemHeight: 60,
           items: controller.isLoading.value
               ? [
-                  const DropdownMenuItem(
+                  DropdownMenuItem(
                     value: null,
-                    child: Text("Loading Providers..."),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const Gap(12),
+                        const Text("Loading Providers..."),
+                      ],
+                    ),
                   )
                 ]
               : controller.bettingProviders

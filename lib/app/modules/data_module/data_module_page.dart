@@ -75,9 +75,36 @@ class DataModulePage extends GetView<DataModuleController> {
             child: Obx(() => Skeletonizer(
                   enabled: controller.isLoading.value &&
                       controller.networkProviders.isEmpty,
+                  effect: ShimmerEffect(
+                    baseColor: Colors.grey.shade300,
+                    highlightColor: Colors.grey.shade100,
+                  ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton2<NetworkProvider?>(
                       isExpanded: true,
+                      hint: controller.isLoading.value
+                          ? Row(
+                              children: [
+                                Container(
+                                  width: 30,
+                                  height: 30,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade300,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const Gap(12),
+                                const Text(
+                                  "Loading...",
+                                  style: TextStyle(
+                                    fontFamily: AppFonts.manRope,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : null,
                       iconStyleData: const IconStyleData(
                           icon: Icon(Icons.keyboard_arrow_down_rounded,
                               size: 30)),
@@ -152,6 +179,10 @@ class DataModulePage extends GetView<DataModuleController> {
     return Obx(() {
       return Skeletonizer(
         enabled: controller.isLoading.value,
+        effect: ShimmerEffect(
+          baseColor: Colors.grey.shade300,
+          highlightColor: Colors.grey.shade100,
+        ),
         child: controller.errorMessage.value != null
             ? Center(
                 child: Text(controller.errorMessage.value!,
@@ -315,7 +346,9 @@ class DataModulePage extends GetView<DataModuleController> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '₦${AmountUtil.formatFigure(double.tryParse(plan.price.toString()) ?? 0)}',
+                      controller.isForeign && plan.localAmount != null
+                          ? '${plan.localCurrency ?? controller.countryCode ?? ""} ${AmountUtil.formatFigure(double.tryParse(plan.localAmount.toString()) ?? 0)}'
+                          : '₦${AmountUtil.formatFigure(double.tryParse(plan.price.toString()) ?? 0)}',
                       style: GoogleFonts.plusJakartaSans(
                         color: AppColors.primaryColor,
                         fontSize: 15,

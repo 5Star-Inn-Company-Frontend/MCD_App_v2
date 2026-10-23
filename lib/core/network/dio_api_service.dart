@@ -51,7 +51,7 @@ class DioApiService {
             tokenToCheck = extracted;
           }
         }
-        
+
         if (tokenToCheck == null) {
           final storedToken = _storage.read("token");
           if (storedToken != null && storedToken.toString().isNotEmpty) {
@@ -376,17 +376,17 @@ class DioApiService {
     try {
       final parts = token.split('.');
       if (parts.length != 3) return false;
-      
+
       final payload = parts[1];
       final String normalized = base64Url.normalize(payload);
       final String resp = utf8.decode(base64Url.decode(normalized));
       final Map<String, dynamic> payloadMap = jsonDecode(resp);
-      
+
       if (payloadMap.containsKey('exp')) {
         // JWT exp is in seconds, DateTime.now().millisecondsSinceEpoch is in ms
         final expValue = payloadMap['exp'];
         int expInSeconds = 0;
-        
+
         if (expValue is int) {
           expInSeconds = expValue;
         } else if (expValue is double) {
@@ -455,7 +455,10 @@ class DioApiService {
               const SizedBox(height: 12),
               const Text(
                 'Your session has expired. You will be logged out and redirected to login.',
-                style: TextStyle(fontSize: 14, color: Colors.black54, fontFamily: AppFonts.manRope),
+                style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                    fontFamily: AppFonts.manRope),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -480,7 +483,7 @@ class DioApiService {
                   Get.offAllNamed(Routes.LOGIN_SCREEN);
                 }
               },
-              child:TextSemiBold('Login Now'),
+              child: TextSemiBold('Login Now'),
             ),
           ],
         ),

@@ -71,7 +71,9 @@ class TransactionDetailModulePage
                             text: TextSpan(
                               children: [
                                 TextSpan(
-                                  text: "₦",
+                                  text: controller.currencySymbol.length > 1
+                                      ? "${controller.currencySymbol} "
+                                      : controller.currencySymbol,
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w600,

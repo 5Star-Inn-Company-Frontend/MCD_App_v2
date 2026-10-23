@@ -798,7 +798,38 @@ class NumberVerificationModuleController extends GetxController {
       )),
     );
   }
+
+  void continueManually() {
+    final number = phoneController.text.trim();
+    if (number.isEmpty) {
+      Get.snackbar(
+        "Invalid Number",
+        "Please enter a valid phone number",
+        backgroundColor: AppColors.errorBgColor,
+        colorText: AppColors.textSnackbarColor,
+      );
+      return;
+    }
+
+    if (_isMultipleAirtimeAdd) {
+      Get.back(result: {
+        'verifiedNumber': number,
+        'verifiedNetwork': null,
+        'networkData': <String, dynamic>{},
+      });
+    } else if (_redirectTo != null) {
+      Get.offNamed(_redirectTo!, arguments: {
+        'verifiedNumber': number,
+        'verifiedNetwork': null,
+        'networkData': <String, dynamic>{},
+        'isForeign': _isForeign,
+        'countryCode': _countryCode,
+        'countryName': _countryName,
+      });
+    }
+  }
 }
+
 
 extension on Widget {
   Widget onTap(void Function()? param0) {

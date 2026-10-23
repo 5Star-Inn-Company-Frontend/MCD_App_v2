@@ -331,6 +331,10 @@ class DataModuleController extends GetxController {
                           category = 'Night';
                         }
 
+                        final metadata = variation['metadata'] is Map ? variation['metadata'] as Map : null;
+                        final localCurrency = variation['local_currency']?.toString() ?? metadata?['local_currency']?.toString();
+                        final localAmount = variation['local_amount']?.toString() ?? metadata?['local_amount']?.toString();
+
                         parsedPlans.add(DataPlanModel(
                           name: planName,
                           coded: planCoded,
@@ -339,6 +343,8 @@ class DataModuleController extends GetxController {
                           category: category,
                           id: int.tryParse(variation['variation_code']?.toString() ?? '0') ?? 0,
                           operatorId: operatorId,
+                          localCurrency: localCurrency,
+                          localAmount: localAmount,
                         ));
                       }
                     }
@@ -427,6 +433,10 @@ class DataModuleController extends GetxController {
                       category = 'Night';
                     }
 
+                    final metadata = variation['metadata'] is Map ? variation['metadata'] as Map : null;
+                    final localCurrency = variation['local_currency']?.toString() ?? metadata?['local_currency']?.toString();
+                    final localAmount = variation['local_amount']?.toString() ?? metadata?['local_amount']?.toString();
+
                     parsedPlans.add(DataPlanModel(
                       name: planName,
                       coded: planCoded,
@@ -435,6 +445,8 @@ class DataModuleController extends GetxController {
                       category: category,
                       id: int.tryParse(variation['variation_code']?.toString() ?? '0') ?? 0,
                       operatorId: operatorId,
+                      localCurrency: localCurrency,
+                      localAmount: localAmount,
                     ));
                   }
                 }
@@ -599,6 +611,9 @@ class DataModuleController extends GetxController {
           'networkImage': selectedNetworkProvider.value!.imageAsset,
           'isForeign': isForeign,
           'countryCode': countryCode,
+          'localCurrency': selectedPlan.value?.localCurrency ?? countryCode,
+          'localAmount': selectedPlan.value?.localAmount,
+          'amount': selectedPlan.value?.price,
         },
       },
     );

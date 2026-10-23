@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:mcd/app/modules/store_front_module/store_front_controller.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 
@@ -16,6 +17,20 @@ class DataPlanListDialog extends GetView<StoreFrontController> {
 
   @override
   Widget build(BuildContext context) {
+    final currencyFormatter = NumberFormat('#,##0', 'en_US');
+
+    void goBack() {
+      Get.back();
+      final prov = controller.dataProviders.firstWhereOrNull(
+        (p) => p.provider.toLowerCase() == providerName.toLowerCase(),
+      );
+      if (prov != null) {
+        controller.showDataTypeDialog(prov);
+      } else {
+        controller.showDataProviderDialog();
+      }
+    }
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       backgroundColor: Colors.white,
@@ -29,10 +44,7 @@ class DataPlanListDialog extends GetView<StoreFrontController> {
             Row(
               children: [
                 GestureDetector(
-                  onTap: () {
-                    Get.back();
-                    controller.showDataTypeDialog(providerName);
-                  },
+                  onTap: goBack,
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: const BoxDecoration(
@@ -49,7 +61,7 @@ class DataPlanListDialog extends GetView<StoreFrontController> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    '$providerName · $typeName',
+                    '${providerName.toUpperCase()} · $typeName',
                     style: const TextStyle(
                       color: AppColors.textPrimaryColor,
                       fontSize: 18,
@@ -70,7 +82,7 @@ class DataPlanListDialog extends GetView<StoreFrontController> {
             const SizedBox(height: 8),
             const Center(
               child: Text(
-                'Tap a plan to edit its price. Max markup 20%.',
+                'Tap a plan to customize your resale price.',
                 style: TextStyle(
                   color: AppColors.textPrimaryColor2,
                   fontSize: 14,
@@ -80,48 +92,76 @@ class DataPlanListDialog extends GetView<StoreFrontController> {
             ),
             const SizedBox(height: 24),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildPlanItem(
-                      name: '$providerName $typeName 1GB - 30d',
-                      basePrice: 'N350',
-                      sellPrice: 'N400',
-                      earn: 'N50',
-                      isEnabled: controller.plan1GBEnabled,
-                      onToggle: (val) => controller.toggleDataPlan('1GB', val),
-                      onTap: () => controller.showEditDataPlanDialog(providerName, typeName, '1GB - 30d'),
+              child: Obx(() {
+                if (controller.isLoadingPlans.value) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryColor,
                     ),
-                    const SizedBox(height: 12),
-                    _buildPlanItem(
-                      name: '$providerName $typeName 2GB - 30d',
-                      basePrice: 'N950',
-                      sellPrice: 'N1,000',
-                      earn: 'N50',
-                      isEnabled: controller.plan2GBEnabled,
-                      onToggle: (val) => controller.toggleDataPlan('2GB', val),
-                      onTap: () => controller.showEditDataPlanDialog(providerName, typeName, '2GB - 30d'),
+                  );
+                }
+                if (controller.activePlans.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'No plans available for this category.',
+                          style: TextStyle(
+                            color: AppColors.textPrimaryColor2,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextButton(
+                          onPressed: () => controller.fetchPlans(
+                            category: 'data',
+                            provider: providerName,
+                            type: typeName,
+                          ),
+                          child: const Text(
+                            'Retry',
+                            style: TextStyle(color: AppColors.primaryColor),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-                    _buildPlanItem(
-                      name: '$providerName $typeName 5GB - 30d',
-                      basePrice: 'N2,400',
-                      sellPrice: 'N2,500',
-                      earn: 'N100',
-                      isEnabled: controller.plan5GBEnabled,
-                      onToggle: (val) => controller.toggleDataPlan('5GB', val),
-                      onTap: () => controller.showEditDataPlanDialog(providerName, typeName, '5GB - 30d'),
-                    ),
-                  ],
-                ),
-              ),
+                  );
+                }
+                return ListView.separated(
+                  itemCount: controller.activePlans.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final plan = controller.activePlans[index];
+                    final baseStr = 'N${currencyFormatter.format(plan.baseCost)}';
+                    final sellStr = 'N${currencyFormatter.format(plan.sellPrice)}';
+                    final earnStr = 'N${currencyFormatter.format(plan.commission)}';
+                    return _buildPlanItem(
+                      name: plan.name,
+                      basePrice: baseStr,
+                      sellPrice: sellStr,
+                      earn: earnStr,
+                      isEnabled: plan.isEnabled,
+                      onToggle: (val) {
+                        controller.updatePlanToggle(
+                          category: 'data',
+                          plan: plan,
+                          isEnabled: val,
+                        );
+                      },
+                      onTap: () => controller.showEditDataPlanDialog(
+                        providerName: providerName,
+                        typeName: typeName,
+                        plan: plan,
+                      ),
+                    );
+                  },
+                );
+              }),
             ),
             const SizedBox(height: 24),
             OutlinedButton(
-              onPressed: () {
-                Get.back();
-                controller.showDataTypeDialog(providerName);
-              },
+              onPressed: goBack,
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 side: const BorderSide(color: AppColors.filledBorderIColor),
@@ -149,7 +189,7 @@ class DataPlanListDialog extends GetView<StoreFrontController> {
     required String basePrice,
     required String sellPrice,
     required String earn,
-    required RxBool isEnabled,
+    required bool isEnabled,
     required ValueChanged<bool> onToggle,
     required VoidCallback onTap,
   }) {
@@ -188,7 +228,7 @@ class DataPlanListDialog extends GetView<StoreFrontController> {
                       ),
                       const SizedBox(width: 4),
                       const Text(
-                        '-',
+                        '·',
                         style: TextStyle(
                           color: AppColors.textPrimaryColor2,
                           fontSize: 10,
@@ -212,7 +252,7 @@ class DataPlanListDialog extends GetView<StoreFrontController> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 const Text(
-                  'Earn',
+                  'Profit',
                   style: TextStyle(
                     color: AppColors.textPrimaryColor2,
                     fontSize: 10,
@@ -221,7 +261,7 @@ class DataPlanListDialog extends GetView<StoreFrontController> {
                 Text(
                   earn,
                   style: const TextStyle(
-                    color: AppColors.textPrimaryColor,
+                    color: AppColors.primaryColor,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
@@ -229,12 +269,10 @@ class DataPlanListDialog extends GetView<StoreFrontController> {
               ],
             ),
             const SizedBox(width: 16),
-            Obx(
-              () => CupertinoSwitch(
-                value: isEnabled.value,
-                onChanged: onToggle,
-                activeColor: AppColors.primaryColor,
-              ),
+            CupertinoSwitch(
+              value: isEnabled,
+              onChanged: onToggle,
+              activeColor: AppColors.primaryColor,
             ),
           ],
         ),

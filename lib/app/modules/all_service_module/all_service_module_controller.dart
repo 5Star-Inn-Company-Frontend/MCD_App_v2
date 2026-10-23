@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'package:get/get.dart';
 import 'package:mcd/app/modules/home_screen_module/model/button_model.dart';
 import 'package:mcd/app/routes/app_pages.dart';
@@ -97,9 +98,11 @@ class AllServiceModuleController extends GetxController {
     if (isEnabled("Game Center")) categorizedServices['OTHERS']!.add(ButtonModel(icon: 'assets/images/reward_centre/game-centre.png', text: "Game Center", link: Routes.GAME_CENTRE_MODULE));
     if (isEnabled("POS")) categorizedServices['OTHERS']!.add(ButtonModel(icon: AppAsset.posIcon, text: "POS", link: Routes.POS_HOME));
     // if (isEnabled("Store Front")) categorizedServices['OTHERS']!.add(ButtonModel(icon: AppAsset.service, text: "Store Front", link: Routes.STORE_FRONT));
+    categorizedServices['OTHERS']!.add(ButtonModel(icon: AppAsset.service, text: "Store Front", link: Routes.STORE_FRONT));
   }
 
   Future<void> handleServiceTap(ButtonModel button) async {
+    dev.log('[AllService] Service tapped: ${button.text} (link: ${button.link})', name: 'ServiceNavigation');
     UsageTrackerService.to.incrementUsage(button.text);
     
     if (Get.isRegistered<HomeScreenController>()) {

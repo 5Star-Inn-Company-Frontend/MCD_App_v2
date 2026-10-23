@@ -6,6 +6,8 @@ class DataPlanModel {
   final String category;
   final int id;
   final String? operatorId;
+  final String? localCurrency;
+  final String? localAmount;
 
   DataPlanModel({
     required this.name,
@@ -14,7 +16,10 @@ class DataPlanModel {
     required this.network,
     required this.category,
     required this.id,
-    this.operatorId,});
+    this.operatorId,
+    this.localCurrency,
+    this.localAmount,
+  });
 
   factory DataPlanModel.fromJson(Map<String, dynamic> json) {
     return DataPlanModel(
@@ -25,6 +30,14 @@ class DataPlanModel {
       category: json['category'] ?? 'Unknown',
       id: json['id'] ?? 0,
       operatorId: json['operatorId'] ?? '',
+      localCurrency: json['local_currency']?.toString() ??
+          (json['metadata'] is Map
+              ? json['metadata']['local_currency']?.toString()
+              : null),
+      localAmount: json['local_amount']?.toString() ??
+          (json['metadata'] is Map
+              ? json['metadata']['local_amount']?.toString()
+              : null),
     );
   }
 }

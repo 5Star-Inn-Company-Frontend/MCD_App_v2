@@ -4,6 +4,7 @@ class ApiConstants {
   static const String baseUrl = 'https://test.mcd.5starcompany.com.ng/api/v2';
   static const String authUrlV2 = 'https://auth.mcd.5starcompany.com.ng/api/v2';
   static const String temporaryTransUrl = 'https://transactiontest.mcd.5starcompany.com.ng';
+  static const String temporaryTransUrlV2 = 'https://transactiontest.mcd.5starcompany.com.ng/api/v2';
 
   // sourced from .env via envied — obfuscated at compile time
   static String get encryptionKey => Env.aesEncryptionKey;

@@ -1,19 +1,23 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mcd/app/modules/store_front_module/models/storefront_provider_model.dart';
 import 'package:mcd/app/modules/store_front_module/store_front_controller.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 
 class DataTypeDialog extends GetView<StoreFrontController> {
-  final String providerName;
+  final StorefrontProviderModel provider;
 
   const DataTypeDialog({
     super.key,
-    required this.providerName,
+    required this.provider,
   });
 
   @override
   Widget build(BuildContext context) {
+    final types = provider.types.isNotEmpty
+        ? provider.types
+        : const ['CG', 'SME', 'Gifting', 'Direct Coupon'];
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       backgroundColor: Colors.white,
@@ -47,7 +51,7 @@ class DataTypeDialog extends GetView<StoreFrontController> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    '$providerName — Select type',
+                    '${provider.provider.toUpperCase()} — Select Type',
                     style: const TextStyle(
                       color: AppColors.textPrimaryColor,
                       fontSize: 18,
@@ -68,7 +72,7 @@ class DataTypeDialog extends GetView<StoreFrontController> {
             const SizedBox(height: 8),
             const Center(
               child: Text(
-                'Pick a data category to view its plans.',
+                'Pick a data category to view and set prices.',
                 style: TextStyle(
                   color: AppColors.textPrimaryColor2,
                   fontSize: 14,
@@ -77,28 +81,29 @@ class DataTypeDialog extends GetView<StoreFrontController> {
               ),
             ),
             const SizedBox(height: 24),
-            _buildTypeItem(
-              name: 'CG',
-              plansCount: '3 plans',
-              isEnabled: controller.cgDataEnabled,
-              onToggle: (val) => controller.toggleDataType('cg', val),
-              onTap: () => controller.showDataPlanListDialog(providerName, 'CG'),
-            ),
-            const SizedBox(height: 12),
-            _buildTypeItem(
-              name: 'SME',
-              plansCount: '2 plans',
-              isEnabled: controller.smeDataEnabled,
-              onToggle: (val) => controller.toggleDataType('sme', val),
-              onTap: () => controller.showDataPlanListDialog(providerName, 'SME'),
-            ),
-            const SizedBox(height: 12),
-            _buildTypeItem(
-              name: 'DG',
-              plansCount: '2 plans',
-              isEnabled: controller.dgDataEnabled,
-              onToggle: (val) => controller.toggleDataType('dg', val),
-              onTap: () => controller.showDataPlanListDialog(providerName, 'DG'),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: types.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final type = entry.value;
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        bottom: index < types.length - 1 ? 12 : 0,
+                      ),
+                      child: _buildTypeItem(
+                        name: type,
+                        subtitle: 'Tap to view and edit plans',
+                        onTap: () => controller.showDataPlanListDialog(
+                          provider.provider,
+                          type,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
             const SizedBox(height: 24),
             OutlinedButton(
@@ -130,9 +135,7 @@ class DataTypeDialog extends GetView<StoreFrontController> {
 
   Widget _buildTypeItem({
     required String name,
-    required String plansCount,
-    required RxBool isEnabled,
-    required ValueChanged<bool> onToggle,
+    required String subtitle,
     required VoidCallback onTap,
   }) {
     return InkWell(
@@ -160,7 +163,7 @@ class DataTypeDialog extends GetView<StoreFrontController> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    plansCount,
+                    subtitle,
                     style: const TextStyle(
                       color: AppColors.textPrimaryColor2,
                       fontSize: 12,
@@ -169,12 +172,9 @@ class DataTypeDialog extends GetView<StoreFrontController> {
                 ],
               ),
             ),
-            Obx(
-              () => CupertinoSwitch(
-                value: isEnabled.value,
-                onChanged: onToggle,
-                activeColor: AppColors.primaryColor,
-              ),
+            const Icon(
+              Icons.chevron_right,
+              color: AppColors.textPrimaryColor2,
             ),
           ],
         ),

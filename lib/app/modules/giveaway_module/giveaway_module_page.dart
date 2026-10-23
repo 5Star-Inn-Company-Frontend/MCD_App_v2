@@ -40,6 +40,10 @@ class GiveawayModulePage extends GetView<GiveawayModuleController> {
       body: Obx(() {
         return Skeletonizer(
           enabled: controller.isLoading,
+          effect: ShimmerEffect(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+          ),
           child: RefreshIndicator(
             color: AppColors.primaryColor,
             backgroundColor: AppColors.white,

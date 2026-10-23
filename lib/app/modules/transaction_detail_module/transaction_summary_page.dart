@@ -72,7 +72,7 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
               ),
               const Gap(5),
               Text(
-                '₦${AmountUtil.formatFigure(controller.amount)}',
+                '${controller.currencySymbol}${controller.currencySymbol.length > 1 ? " " : ""}${AmountUtil.formatFigure(controller.amount)}',
                 style: const TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
