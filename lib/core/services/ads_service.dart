@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:advert/advert.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:mcd/core/services/remote_config_service.dart';
 import 'connectivity_service.dart';
 
@@ -106,10 +107,61 @@ class AdsService {
       ? ['Android_Rewarded', "rewardedVideo"]
       : ['iOS_Rewarded'];
 
+  /// Gather GDPR / EEA / UK consent using Google User Messaging Platform (UMP)
+  Future<void> gatherConsent() async {
+    final completer = Completer<void>();
+    final params = ConsentRequestParameters();
+
+    ConsentInformation.instance.requestConsentInfoUpdate(
+      params,
+      () async {
+        if (await ConsentInformation.instance.isConsentFormAvailable()) {
+          _loadAndShowConsentForm(completer);
+        } else {
+          if (!completer.isCompleted) completer.complete();
+        }
+      },
+      (FormError error) {
+        dev.log('Consent info update error: ${error.message}', name: 'AdsService');
+        if (!completer.isCompleted) completer.complete();
+      },
+    );
+
+    return completer.future;
+  }
+
+  void _loadAndShowConsentForm(Completer<void> completer) {
+    ConsentForm.loadConsentForm(
+      (ConsentForm consentForm) async {
+        final status = await ConsentInformation.instance.getConsentStatus();
+        if (status == ConsentStatus.required) {
+          consentForm.show((FormError? formError) {
+            if (formError != null) {
+              dev.log('Consent form error: ${formError.message}', name: 'AdsService');
+            }
+            if (!completer.isCompleted) completer.complete();
+          });
+        } else {
+          if (!completer.isCompleted) completer.complete();
+        }
+      },
+      (FormError formError) {
+        dev.log('Consent form load error: ${formError.message}', name: 'AdsService');
+        if (!completer.isCompleted) completer.complete();
+      },
+    );
+  }
+
   Future<void> initialize({bool testMode = false}) async {
     if (_isInitialized) {
       dev.log('Ads already initialized');
       return;
+    }
+
+    try {
+      await gatherConsent();
+    } catch (e) {
+      dev.log('Consent gathering error: $e', name: 'AdsService');
     }
 
     if (Get.isRegistered<RemoteConfigService>()) {
@@ -155,16 +207,22 @@ class AdsService {
     // 8. Configure AppOpen Ads
     googlemodel.addAppOpenPlacement('appOpen', high: [appopenlow]);
 
-    Unitymodel unitymodel = Unitymodel()
-      ..gameId = gameid
-      ..interstitialVideoAdPlacementId = interstitialVideoAdPlacementId
-      ..rewardedVideoAdPlacementId = rewardedVideoAdPlacementId
-      ..bannerAdPlacementId = bannerAdPlacementId;
+    Unitymodel unitymodel = Unitymodel();
+    unitymodel.gameId = gameid;
+    unitymodel.interstitialVideoAdPlacementId = interstitialVideoAdPlacementId;
+    unitymodel.rewardedVideoAdPlacementId = rewardedVideoAdPlacementId;
+    unitymodel.addRewardedPlacement(
+        'freemoney', ['freemoney'],
+      );
+    unitymodel.bannerAdPlacementId = bannerAdPlacementId;
 
     try {
       await _advertPlugin.initialize(
         testmode: testMode,
-        adsmodel: Adsmodel(googlemodel: googlemodel, ),
+        adsmodel: Adsmodel(
+            unitymodel: unitymodel,
+            // googlemodel: googlemodel,
+        ),
       );
       _isInitialized = true;
       dev.log('Ads initialized successfully');
