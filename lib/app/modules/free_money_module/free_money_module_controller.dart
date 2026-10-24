@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:io';
+import 'package:advert/advert.dart';
 import 'package:dio/dio.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mcd/app/modules/more_module/more_module_page.dart';
 import 'package:mcd/app/widgets/pulsing_shimmer_card.dart';
 import 'package:mcd/core/controllers/service_status_controller.dart';
 import 'package:mcd/core/import/imports.dart';
+import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/core/services/ads_service.dart';
 import 'package:mcd/core/services/remote_config_service.dart';
 
@@ -133,6 +135,44 @@ class FreeMoneyModuleController extends GetxController {
     }
   }
 
+  /// Call Free Money endpoint: https://utility.mcd.5starcompany.com.ng/api/v1/freemoney_new
+  Future<void> claimFreeMoneyApi() async {
+    try {
+      String utilityUrl = box.read('utility_service_url') ?? 'https://utility.mcd.5starcompany.com.ng/api/v1/';
+      if (!utilityUrl.endsWith('/')) {
+        utilityUrl = '$utilityUrl/';
+      }
+      final url = '${utilityUrl}freemoney_new';
+
+      dev.log('Calling Free Money API endpoint: $url', name: 'FreeMoney');
+
+      final body = {
+        "username": currentUsername,
+        "device": deviceName,
+        "country": userCountry.value.isNotEmpty ? userCountry.value : "Nigeria",
+        "city": userCity.value,
+        "ip": userIp.value,
+      };
+
+      final result = await DioApiService().postrequest(url, body);
+      result.fold(
+        (failure) async {
+          dev.log('POST freemoney_new failed: ${failure.message}, trying GET fallback...', name: 'FreeMoney');
+          final getResult = await DioApiService().getrequest(url);
+          getResult.fold(
+            (fail) => dev.log('GET freemoney_new failed: ${fail.message}', name: 'FreeMoney'),
+            (data) => dev.log('GET freemoney_new success: $data', name: 'FreeMoney'),
+          );
+        },
+        (data) {
+          dev.log('POST freemoney_new success: $data', name: 'FreeMoney');
+        },
+      );
+    } catch (e) {
+      dev.log('Error calling freemoney_new API: $e', name: 'FreeMoney');
+    }
+  }
+
   /// Launch a single rewarded ad
   Future<void> watchSingleAd() async {
     if (isWatchingAd.value) return;
@@ -142,20 +182,17 @@ class FreeMoneyModuleController extends GetxController {
       dev.log('Starting Free Money single ad sequence', name: 'FreeMoney');
 
       final success = await adsService.showfreemoney(
-        onRewarded: () {
+        onRewarded: (String? provider) async {
           adsWatchedCount.value++;
           dev.log('User earned Free Money reward (Count: ${adsWatchedCount.value})', name: 'FreeMoney');
+
+          if(provider == "Unity") {
+            await claimFreeMoneyApi();
+          }
 
           adsService.showInterstitialAd(type: "freemoneyInterstitial");
 
           showRewardEarnedDialog(amountEarned: freeMoneyAmount);
-
-          // // Auto-repeat sequence if enabled in Remote Config
-          // if (Get.isRegistered<RemoteConfigService>() &&
-          //     RemoteConfigService.to.isServiceEnabled('ads_showrepeat')) {
-          //   dev.log('Auto-repeat ads enabled, starting next ad', name: 'FreeMoney');
-          //   watchSingleAd();
-          // }
         },
         customData: adCustomData,
       );
@@ -200,8 +237,8 @@ class FreeMoneyModuleController extends GetxController {
         adType: 'freemoney',
         reason: 'Free Money Reward',
         customData: adCustomData,
-        onAdCompleted: () {
-          adsWatchedCount.value += totalAds;
+        onAdCompleted: () async {
+          // adsWatchedCount.value += totalAds;
           dev.log('User completed $totalAds rewarded ads!', name: 'FreeMoney');
 
           adsService.showInterstitialAd(type: "freemoneyInterstitial");
@@ -218,6 +255,14 @@ class FreeMoneyModuleController extends GetxController {
             snackPosition: SnackPosition.TOP,
             duration: const Duration(seconds: 4),
           );
+        },
+        onAdWatched: (Advertresponse response) async {
+          adsWatchedCount.value++;
+          dev.log('User earned Free Money reward (Count: ${adsWatchedCount.value})', name: 'FreeMoney');
+        if (response.provider == "Unity"){
+          claimFreeMoneyApi();
+        }
+          dev.log('Individual ad watched in sequence: ${response.message}', name: 'FreeMoney');
         },
       );
     } catch (e) {

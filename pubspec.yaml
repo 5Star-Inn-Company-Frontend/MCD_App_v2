@@ -52,17 +52,17 @@ dependencies:
   syncfusion_flutter_signaturepad: ^35.1.41
   flutter_fortune_wheel: ^1.3.2
   flutter_secure_storage: ^10.3.1
-  firebase_auth: ^7.0.0
+  firebase_auth: ^7.0.1
   webview_flutter: ^4.14.1
-  firebase_core: ^5.0.0
-  firebase_messaging: ^17.0.0
-  firebase_remote_config: ^7.0.0
+  firebase_core: ^5.1.0
+  firebase_messaging: ^17.0.1
+  firebase_remote_config: ^7.0.1
   cached_network_image: ^4.0.3
   wakelock_plus: ^1.8.0
   envied: ^1.3.8
   advert:
-    git: https://github.com/odejinmi/advert.git
-    # path: ../advert
+#    git: https://github.com/odejinmi/advert.git
+     path: ../advert
   socket_io_client: ^3.1.6
   flutter_markdown: ^0.7.7+1
   flutter_paystack_payment_plus: ^0.0.9

@@ -38,18 +38,18 @@ PODS:
   - Firebase/RemoteConfig (12.19.0):
     - Firebase/CoreOnly
     - FirebaseRemoteConfig (~> 12.19.0)
-  - firebase_auth (6.7.0):
+  - firebase_auth (7.0.0):
     - Firebase/Auth (= 12.19.0)
     - firebase_core
     - Flutter
-  - firebase_core (4.15.0):
+  - firebase_core (5.0.0):
     - Firebase/CoreOnly (= 12.19.0)
     - Flutter
-  - firebase_messaging (16.7.0):
+  - firebase_messaging (17.0.0):
     - Firebase/Messaging (= 12.19.0)
     - firebase_core
     - Flutter
-  - firebase_remote_config (6.7.0):
+  - firebase_remote_config (7.0.0):
     - Firebase/RemoteConfig (= 12.19.0)
     - firebase_core
     - Flutter
@@ -139,9 +139,9 @@ PODS:
     - Flutter
     - google_mlkit_commons
     - GoogleMLKit/TextRecognition (~> 9.0.0)
-  - google_mobile_ads (9.1.0):
+  - google_mobile_ads (9.2.0):
     - Flutter
-    - Google-Mobile-Ads-SDK (~> 13.7)
+    - Google-Mobile-Ads-SDK (~> 13.11)
     - webview_flutter_wkwebview
   - google_sign_in_ios (0.0.1):
     - AppAuth (>= 1.7.4)
@@ -160,9 +160,9 @@ PODS:
   - GoogleMLKit/TextRecognition (9.0.0):
     - GoogleMLKit/MLKitCore
     - MLKitTextRecognition (~> 7.0.0)
-  - GoogleMobileAdsMediationUnity (4.21.0.0):
+  - GoogleMobileAdsMediationUnity (4.20.1.0):
     - Google-Mobile-Ads-SDK (~> 13.3)
-    - UnityAds (= 4.21.0)
+    - UnityAds (= 4.20.1)
   - GoogleSignIn (8.0.0):
     - AppAuth (< 2.0, >= 1.7.3)
     - AppCheckCore (~> 11.0)
@@ -174,28 +174,28 @@ PODS:
   - "GoogleToolboxForMac/NSData+zlib (4.2.1)":
     - GoogleToolboxForMac/Defines (= 4.2.1)
   - GoogleUserMessagingPlatform (3.1.0)
-  - GoogleUtilities/AppDelegateSwizzler (8.1.4):
+  - GoogleUtilities/AppDelegateSwizzler (8.1.5):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
     - GoogleUtilities/Network
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Environment (8.1.4):
+  - GoogleUtilities/Environment (8.1.5):
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Logger (8.1.4):
+  - GoogleUtilities/Logger (8.1.5):
     - GoogleUtilities/Environment
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Network (8.1.4):
+  - GoogleUtilities/Network (8.1.5):
     - GoogleUtilities/Logger
     - "GoogleUtilities/NSData+zlib"
     - GoogleUtilities/Privacy
     - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (8.1.4)":
+  - "GoogleUtilities/NSData+zlib (8.1.5)":
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Privacy (8.1.4)
-  - GoogleUtilities/Reachability (8.1.4):
+  - GoogleUtilities/Privacy (8.1.5)
+  - GoogleUtilities/Reachability (8.1.5):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
-  - GoogleUtilities/UserDefaults (8.1.4):
+  - GoogleUtilities/UserDefaults (8.1.5):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
   - GTMAppAuth (4.1.1):
@@ -268,9 +268,12 @@ PODS:
     - Flutter
     - FlutterMacOS
   - TOCropViewController (3.1.2)
-  - UnityAds (4.21.0):
-    - UnityCoherenceLib (~> 0.2.0)
-  - UnityCoherenceLib (0.2.0)
+  - unity_ads_plugin (0.0.1):
+    - Flutter
+    - UnityAds (~> 4.20.0)
+  - UnityAds (4.20.1):
+    - UnityCoherenceLib (= 0.1.0)
+  - UnityCoherenceLib (0.1.0)
   - url_launcher_ios (0.0.1):
     - Flutter
   - wakelock_plus (0.0.1):
@@ -317,6 +320,7 @@ DEPENDENCIES:
   - sprint_check (from `.symlinks/plugins/sprint_check/ios`)
   - sprintliveness (from `.symlinks/plugins/sprintliveness/ios`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
+  - unity_ads_plugin (from `.symlinks/plugins/unity_ads_plugin/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
@@ -438,6 +442,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sprintliveness/ios"
   sqflite_darwin:
     :path: ".symlinks/plugins/sqflite_darwin/darwin"
+  unity_ads_plugin:
+    :path: ".symlinks/plugins/unity_ads_plugin/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   wakelock_plus:
@@ -457,10 +463,10 @@ SPEC CHECKSUMS:
   FaceSDK: e07c3f07930dfb13944968d8297a93489b2165ac
   file_picker_darwin: 27e043831d68462d54f1c40e724b1f53c9d1e8be
   Firebase: 7ca191e43724142f79fae653547b3382c45413cc
-  firebase_auth: 36fa0bc88f7ea4c0ad5c543d117674d05be29799
-  firebase_core: 7ed66bd750bf2b7a29268b21d63eec7bc6799ee8
-  firebase_messaging: 437b5662e6a3a945a7a07166bfba05a86c998b55
-  firebase_remote_config: a683c89aa52739f7808a61ad8ee40b5677348ae3
+  firebase_auth: 80e26abec6fd9ed51749950f44ad783bb36964cc
+  firebase_core: 72d6e5d1b38913a27b9c5f7c84fe429ef4ad07b0
+  firebase_messaging: f7aaa13849d3a82cb3b596809eefd9eb4e2521dd
+  firebase_remote_config: bcadacbbba6623355b1922a46e451c3879f4e3fa
   FirebaseABTesting: 3f0f330ed5e19323fe512006d62a38399a7de7c1
   FirebaseAppCheckInterop: bd4b791ffaed7ae719304af6369d243ddee5e4a0
   FirebaseAuth: 8c38236f67e5e3dd6aacf3e0c46b3eed31e9c820
@@ -486,15 +492,15 @@ SPEC CHECKSUMS:
   google_mlkit_commons: 092da2f8e0a4a77d9a0475fd6eec56958e2b505d
   google_mlkit_face_detection: 6414bbd2ab4b682ea87794c9f9581dda9033680c
   google_mlkit_text_recognition: 960eec5194182c898881a83d2d70afcd4abbb88d
-  google_mobile_ads: 8c61669fb8e2ba987b0b7116b5265ba647cdca0c
+  google_mobile_ads: c8f164ff415b8440e50b0102508d148c7fbea07f
   google_sign_in_ios: 7411fab6948df90490dc4620ecbcabdc3ca04017
   GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
   GoogleMLKit: b1eee21a41c57704fe72483b15c85cb2c0cd7444
-  GoogleMobileAdsMediationUnity: 788c57963a25f7b55be54052d79ab8a6d152528d
+  GoogleMobileAdsMediationUnity: cf8c4104b642d1829ce5ad7fd70184b9599bfc50
   GoogleSignIn: ce8c89bb9b37fb624b92e7514cc67335d1e277e4
   GoogleToolboxForMac: d1a2cbf009c453f4d6ded37c105e2f67a32206d8
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
-  GoogleUtilities: db34c1c11c6f2eccb6fab2340cb8ceb1451299dc
+  GoogleUtilities: 7dc09b3fa9ecb5c2298b952313d14628b61b9da3
   GTMAppAuth: f69bd07d68cd3b766125f7e072c45d7340dea0de
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   image_cropper: d3ba338ce166ebe54a4e1de742829354b521d473
@@ -515,14 +521,15 @@ SPEC CHECKSUMS:
   qr_code_scanner_plus: 84d9ebbb34ed66689bf44de41d407b5c3f0315d1
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
   RegulaCommon: 7784c48d3476f12caed58b4dc0ffb82e3fedba1c
-  share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
+  share_plus: 796a4b55a883a34f4f1ff7bbd19436879a5055db
   shared_preferences_foundation: 5086985c1d43c5ba4d5e69a4e8083a389e2909e6
   sprint_check: 7b11b93e4bbf542438ea5c5959c88cc08d757978
   sprintliveness: 6f699cc50119be9076a1cd524b488514b82a9264
   sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
   TOCropViewController: a916930c465b5d9445a74d95e0c0da931771b4df
-  UnityAds: caaccd3367f77a9a64b061404c5cc8eb2df20103
-  UnityCoherenceLib: 9f7a49d0b53897b6627ad2ecf3b8369d015c66f4
+  unity_ads_plugin: 10418650a07ad903d454ec8d38666b32620e0de8
+  UnityAds: 70ddc29f85c2e26967afca937e5379118f435747
+  UnityCoherenceLib: d9be08c5b9c2880cb220c7ecd643f97ebda422b7
   url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
   wakelock_plus: 4d70a9769dc8dad95ca6131e70c46b2d5a5de261
   webview_flutter_wkwebview: 29eb20d43355b48fe7d07113835b9128f84e3af4

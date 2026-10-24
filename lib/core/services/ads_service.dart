@@ -221,7 +221,7 @@ class AdsService {
         testmode: testMode,
         adsmodel: Adsmodel(
             unitymodel: unitymodel,
-            // googlemodel: googlemodel,
+            googlemodel: googlemodel,
         ),
       );
       _isInitialized = true;
@@ -381,7 +381,7 @@ class AdsService {
 
   Future<bool> showRewardedAd({
     String type = 'rewarded',
-    VoidCallback? onRewarded,
+    Function? onRewarded,
     Map<String, String>? customData,
     Function? onAdClicked,
     Function? onAdImpression,
@@ -398,10 +398,20 @@ class AdsService {
 
       final response = await _advertPlugin.adsProv.showRewardedAd(
         type: type,
-        onRewarded: () {
+        onRewarded: (String? provider) {
           if (!completer.isCompleted) {
             completer.complete();
-            onRewarded?.call();
+            if (onRewarded != null) {
+              try {
+                (onRewarded as dynamic)(provider);
+              } catch (_) {
+                try {
+                  (onRewarded as dynamic)();
+                } catch (e) {
+                  dev.log('Error invoking onRewarded: $e');
+                }
+              }
+            }
           }
         },
         customData: defaultCustomData,
@@ -658,7 +668,7 @@ class AdsService {
   }
 
   Future<bool> showfreemoney({
-    VoidCallback? onRewarded,
+    Function? onRewarded,
     Map<String, String>? customData,
     Function? onAdClicked,
     Function? onAdImpression,
@@ -682,6 +692,7 @@ class AdsService {
     required String reason,
     Function? onAdClicked,
     Function? onAdImpression,
+    Function(Advertresponse response)? onAdWatched,
   }) async {
     if (_isSequenceActive) {
       dev.log('Ad sequence is already active. Ignoring duplicate request.');
@@ -739,6 +750,7 @@ class AdsService {
             _sequenceTimer?.cancel();
             if (onAdCompleted != null) onAdCompleted();
           },
+          onAdWatched: onAdWatched,
           onAdClicked: onAdClicked,
           onAdImpression: onAdImpression,
         );
