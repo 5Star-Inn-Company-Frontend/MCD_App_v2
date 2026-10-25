@@ -27,30 +27,30 @@ PODS:
   - file_picker_darwin (1.0.0):
     - Flutter
     - FlutterMacOS
-  - Firebase/Auth (12.19.0):
+  - Firebase/Auth (12.19.3):
     - Firebase/CoreOnly
     - FirebaseAuth (~> 12.19.0)
-  - Firebase/CoreOnly (12.19.0):
-    - FirebaseCore (~> 12.19.0)
-  - Firebase/Messaging (12.19.0):
+  - Firebase/CoreOnly (12.19.3):
+    - FirebaseCore (~> 12.19.3)
+  - Firebase/Messaging (12.19.3):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 12.19.0)
-  - Firebase/RemoteConfig (12.19.0):
+  - Firebase/RemoteConfig (12.19.3):
     - Firebase/CoreOnly
     - FirebaseRemoteConfig (~> 12.19.0)
-  - firebase_auth (7.0.0):
-    - Firebase/Auth (= 12.19.0)
+  - firebase_auth (7.0.1):
+    - Firebase/Auth (= 12.19.3)
     - firebase_core
     - Flutter
-  - firebase_core (5.0.0):
-    - Firebase/CoreOnly (= 12.19.0)
+  - firebase_core (5.1.0):
+    - Firebase/CoreOnly (= 12.19.3)
     - Flutter
-  - firebase_messaging (17.0.0):
-    - Firebase/Messaging (= 12.19.0)
+  - firebase_messaging (17.0.1):
+    - Firebase/Messaging (= 12.19.3)
     - firebase_core
     - Flutter
-  - firebase_remote_config (7.0.0):
-    - Firebase/RemoteConfig (= 12.19.0)
+  - firebase_remote_config (7.0.1):
+    - Firebase/RemoteConfig (= 12.19.3)
     - firebase_core
     - Flutter
   - FirebaseABTesting (12.19.0):
@@ -66,7 +66,7 @@ PODS:
     - GTMSessionFetcher/Core (< 6.0, >= 3.4)
     - RecaptchaInterop (~> 101.0)
   - FirebaseAuthInterop (12.19.0)
-  - FirebaseCore (12.19.0):
+  - FirebaseCore (12.19.3):
     - FirebaseCoreInternal (~> 12.19.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/Logger (~> 8.1)
@@ -462,16 +462,16 @@ SPEC CHECKSUMS:
   FaceCoreBasic: b92aba627b8b47192f1011452a569a1bfd6104d9
   FaceSDK: e07c3f07930dfb13944968d8297a93489b2165ac
   file_picker_darwin: 27e043831d68462d54f1c40e724b1f53c9d1e8be
-  Firebase: 7ca191e43724142f79fae653547b3382c45413cc
-  firebase_auth: 80e26abec6fd9ed51749950f44ad783bb36964cc
-  firebase_core: 72d6e5d1b38913a27b9c5f7c84fe429ef4ad07b0
-  firebase_messaging: f7aaa13849d3a82cb3b596809eefd9eb4e2521dd
-  firebase_remote_config: bcadacbbba6623355b1922a46e451c3879f4e3fa
+  Firebase: e3c5ab38229ae085490d02398d97b9f5374bbe6e
+  firebase_auth: be1f89ddd82e62d345457f70b1710e7f18b9bee9
+  firebase_core: 53e1816f8f32542079b1f9c96327689c8eb6fd6e
+  firebase_messaging: 560963e22fa0552b0ee3b4b7c2de32d0041b8b15
+  firebase_remote_config: 78ac91d493bdd12eb0dfe7623fe55ebdb098a930
   FirebaseABTesting: 3f0f330ed5e19323fe512006d62a38399a7de7c1
   FirebaseAppCheckInterop: bd4b791ffaed7ae719304af6369d243ddee5e4a0
   FirebaseAuth: 8c38236f67e5e3dd6aacf3e0c46b3eed31e9c820
   FirebaseAuthInterop: f1ad187a0052276ad49a990538accfdf36fc595d
-  FirebaseCore: c990214798d7c568ad436a15ba7da25c7a278c9a
+  FirebaseCore: ab948de5d99e69aeed3cd6f5ace263ce795b2559
   FirebaseCoreExtension: 201c78d7491a273d61d8afbf491214276a951e6d
   FirebaseCoreInternal: 656b1c2fd5a1c5976183dc54b73deda78fb26ee3
   FirebaseInstallations: f70a49eed611f5602f373e40974b3b01556ac217

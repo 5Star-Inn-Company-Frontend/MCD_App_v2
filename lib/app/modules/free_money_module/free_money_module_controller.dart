@@ -138,36 +138,38 @@ class FreeMoneyModuleController extends GetxController {
   /// Call Free Money endpoint: https://utility.mcd.5starcompany.com.ng/api/v1/freemoney_new
   Future<void> claimFreeMoneyApi() async {
     try {
-      String utilityUrl = box.read('utility_service_url') ?? 'https://utility.mcd.5starcompany.com.ng/api/v1/';
-      if (!utilityUrl.endsWith('/')) {
-        utilityUrl = '$utilityUrl/';
-      }
-      final url = '${utilityUrl}freemoney_new';
-
+      const url = 'https://utility.mcd.5starcompany.com.ng/api/v1/freemoney_new';
       dev.log('Calling Free Money API endpoint: $url', name: 'FreeMoney');
 
-      final body = {
-        "username": currentUsername,
-        "device": deviceName,
-        "country": userCountry.value.isNotEmpty ? userCountry.value : "Nigeria",
-        "city": userCity.value,
-        "ip": userIp.value,
-      };
+      // Try unencrypted getJsonRequest first
+      final jsonResult = await DioApiService().getJsonRequest(url);
 
-      final result = await DioApiService().postrequest(url, body);
-      result.fold(
-        (failure) async {
-          dev.log('POST freemoney_new failed: ${failure.message}, trying GET fallback...', name: 'FreeMoney');
-          final getResult = await DioApiService().getrequest(url);
-          getResult.fold(
-            (fail) => dev.log('GET freemoney_new failed: ${fail.message}', name: 'FreeMoney'),
-            (data) => dev.log('GET freemoney_new success: $data', name: 'FreeMoney'),
-          );
+      bool isSuccess = false;
+      jsonResult.fold(
+        (failure) {
+          dev.log('getJsonRequest failed: ${failure.message}', name: 'FreeMoney');
         },
         (data) {
-          dev.log('POST freemoney_new success: $data', name: 'FreeMoney');
+          isSuccess = true;
+          dev.log('freemoney_new success: $data', name: 'FreeMoney');
         },
       );
+
+      if (isSuccess) return;
+
+      // Direct fallback with Authorization token for raw text/JSON response
+      final token = box.read('token');
+      final dio = Dio(BaseOptions(
+        headers: {
+          if (token != null && token.toString().isNotEmpty)
+            'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+        connectTimeout: const Duration(seconds: 15),
+      ));
+
+      final response = await dio.get(url);
+      dev.log('Direct freemoney_new response (${response.statusCode}): ${response.data}', name: 'FreeMoney');
     } catch (e) {
       dev.log('Error calling freemoney_new API: $e', name: 'FreeMoney');
     }

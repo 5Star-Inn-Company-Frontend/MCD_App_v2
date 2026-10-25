@@ -104,8 +104,8 @@ class AdsService {
   final interstitialVideoAdPlacementId =
       Platform.isAndroid ? ['video'] : ['iOS_Interstitial'];
   final rewardedVideoAdPlacementId = Platform.isAndroid
-      ? ['Android_Rewarded', "rewardedVideo"]
-      : ['iOS_Rewarded'];
+      ? ['Android_Rewarded', "rewardedVideo", 'freemoney']
+      : ['iOS_Rewarded', 'freemoney'];
 
   /// Gather GDPR / EEA / UK consent using Google User Messaging Platform (UMP)
   Future<void> gatherConsent() async {
@@ -212,7 +212,7 @@ class AdsService {
     unitymodel.interstitialVideoAdPlacementId = interstitialVideoAdPlacementId;
     unitymodel.rewardedVideoAdPlacementId = rewardedVideoAdPlacementId;
     unitymodel.addRewardedPlacement(
-        'freemoney', ['freemoney'],
+        'freemoney', rewardedVideoAdPlacementId,
       );
     unitymodel.bannerAdPlacementId = bannerAdPlacementId;
 
