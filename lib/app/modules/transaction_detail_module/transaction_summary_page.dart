@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gap/gap.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/utils/amount_formatter.dart';
@@ -47,7 +48,7 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-              const Gap(20),
+              const Gap(5),
               Container(
                 width: 60,
                 height: 60,
@@ -153,39 +154,79 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
                     const Gap(15),
                     const Divider(color: Color(0xFFE5E5E5)),
                     const Gap(10),
-                    GestureDetector(
-                      onTap: () {
-                        // Pass existing arguments downstream to details page
-                        var args = Get.arguments;
-                        Get.toNamed(
-                          Routes.TRANSACTION_DETAIL_FULL,
-                          arguments: args,
-                        );
-                      },
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'View Details',
-                            style: TextStyle(
-                              color: AppColors.primaryColor2,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            // Pass existing arguments downstream to details page
+                            var args = Get.arguments;
+                            Get.toNamed(
+                              Routes.HISTORY_SCREEN,
+                              arguments: args,
+                            );
+                          },
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+
+                              Icon(
+                                Icons.chevron_left,
+                                color: AppColors.primaryColor,
+                                size: 18,
+                              ),
+                              Gap(5),
+                              Text(
+                                'Open History',
+                                style: TextStyle(
+                                  color: AppColors.primaryColor2,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+
+                            ],
                           ),
-                          Gap(5),
-                          Icon(
-                            Icons.chevron_right,
-                            color: AppColors.primaryColor,
-                            size: 18,
+                        ),
+                        const Gap(10),
+                        GestureDetector(
+                          onTap: () {
+                            // Pass existing arguments downstream to details page
+                            var args = Get.arguments;
+                            Get.toNamed(
+                              Routes.TRANSACTION_DETAIL_FULL,
+                              arguments: args,
+                            );
+                          },
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'View Details',
+                                style: TextStyle(
+                                  color: AppColors.primaryColor2,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Gap(5),
+                              Icon(
+                                Icons.chevron_right,
+                                color: AppColors.primaryColor,
+                                size: 18,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               )),
-              const Gap(30),
+              const Gap(20),
+              _buildRatingCard(),
+              const Gap(20),
               Obx(() {
                 final featuredData = OffersService.to.featuredOfferData.value;
                 
@@ -352,6 +393,95 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
       });
     } catch (_) {
       return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildRatingCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFDE68A)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: Color(0xFFFEF3C7),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.star_rounded,
+              color: Color(0xFFF59E0B),
+              size: 26,
+            ),
+          ),
+          const Gap(12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Enjoying MCD?',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: AppColors.textPrimaryColor,
+                  ),
+                ),
+                Gap(2),
+                Text(
+                  'Rate us on the App Store / Play Store',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            onPressed: _requestRating,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryColor,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
+            child: const Text(
+              'Rate Us',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _requestRating() async {
+    try {
+      final InAppReview inAppReview = InAppReview.instance;
+      if (await inAppReview.isAvailable()) {
+        await inAppReview.requestReview();
+      } else {
+        await inAppReview.openStoreListing(
+          appStoreId: '1632253353',
+        );
+      }
+    } catch (e) {
+      dev.log('Error requesting in-app review: $e', name: 'TransactionSummary');
+      try {
+        await InAppReview.instance.openStoreListing();
+      } catch (_) {}
     }
   }
 }
