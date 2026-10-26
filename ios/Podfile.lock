@@ -206,6 +206,9 @@ PODS:
   - GTMSessionFetcher/Core (3.5.0)
   - GTMSessionFetcher/Full (3.5.0):
     - GTMSessionFetcher/Core
+  - hx_liftoff_ads (0.1.1):
+    - Flutter
+    - VungleAds (~> 7.7)
   - image_cropper (0.0.5):
     - Flutter
     - TOCropViewController (~> 3.1.2)
@@ -276,6 +279,7 @@ PODS:
   - UnityCoherenceLib (0.1.0)
   - url_launcher_ios (0.0.1):
     - Flutter
+  - VungleAds (7.7.8)
   - wakelock_plus (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
@@ -309,6 +313,7 @@ DEPENDENCIES:
   - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
   - GoogleMobileAdsMediationUnity
+  - hx_liftoff_ads (from `.symlinks/plugins/hx_liftoff_ads/ios`)
   - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
@@ -370,6 +375,7 @@ SPEC REPOS:
     - TOCropViewController
     - UnityAds
     - UnityCoherenceLib
+    - VungleAds
 
 EXTERNAL SOURCES:
   advert:
@@ -420,6 +426,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/google_mobile_ads/ios"
   google_sign_in_ios:
     :path: ".symlinks/plugins/google_sign_in_ios/darwin"
+  hx_liftoff_ads:
+    :path: ".symlinks/plugins/hx_liftoff_ads/ios"
   image_cropper:
     :path: ".symlinks/plugins/image_cropper/ios"
   image_picker_ios:
@@ -503,6 +511,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: 7dc09b3fa9ecb5c2298b952313d14628b61b9da3
   GTMAppAuth: f69bd07d68cd3b766125f7e072c45d7340dea0de
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
+  hx_liftoff_ads: a062d20282e6f9df95078103fde2a078b1ba3c9b
   image_cropper: d3ba338ce166ebe54a4e1de742829354b521d473
   image_picker_ios: 4f2f91b01abdb52842a8e277617df877e40f905b
   local_auth_darwin: 63c73d6d28cc3e239be2b6aa460ea6e317cd5100
@@ -531,6 +540,7 @@ SPEC CHECKSUMS:
   UnityAds: 70ddc29f85c2e26967afca937e5379118f435747
   UnityCoherenceLib: d9be08c5b9c2880cb220c7ecd643f97ebda422b7
   url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
+  VungleAds: b35408054cb252a1c1df22cedbd0275ed116d79e
   wakelock_plus: 4d70a9769dc8dad95ca6131e70c46b2d5a5de261
   webview_flutter_wkwebview: 29eb20d43355b48fe7d07113835b9128f84e3af4
 

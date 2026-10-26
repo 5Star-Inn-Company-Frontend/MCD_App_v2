@@ -188,7 +188,7 @@ class FreeMoneyModuleController extends GetxController {
           adsWatchedCount.value++;
           dev.log('User earned Free Money reward (Count: ${adsWatchedCount.value})', name: 'FreeMoney');
 
-          if(provider == "Unity") {
+          if(provider != "Google") {
             await claimFreeMoneyApi();
           }
 
@@ -261,7 +261,7 @@ class FreeMoneyModuleController extends GetxController {
         onAdWatched: (Advertresponse response) async {
           adsWatchedCount.value++;
           dev.log('User earned Free Money reward (Count: ${adsWatchedCount.value})', name: 'FreeMoney');
-        if (response.provider == "Unity"){
+        if (response.provider != "Google"){
           claimFreeMoneyApi();
         }
           dev.log('Individual ad watched in sequence: ${response.message}', name: 'FreeMoney');

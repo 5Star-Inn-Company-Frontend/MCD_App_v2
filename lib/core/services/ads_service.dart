@@ -99,6 +99,7 @@ class AdsService {
 
   // Unity Config
   final gameid = Platform.isAndroid ? "3717787" : '3717786';
+  final apppid = Platform.isAndroid ? "6adde9e558e014823b7cf1c7" : '6addb9bbddd6285c51137bb1';
   final bannerAdPlacementId =
       Platform.isAndroid ? ['newandroidbanner'] : ['iOS_Banner'];
   final interstitialVideoAdPlacementId =
@@ -216,12 +217,45 @@ class AdsService {
       );
     unitymodel.bannerAdPlacementId = bannerAdPlacementId;
 
+    List<String> vungleinterstatialplacement = Platform.isAndroid
+    ? ["INTERSTITIAL-8403335"]
+        :["DEFAULT-5743198"];
+    List<String> vunglebannerplacement = Platform.isAndroid?["BANNER-0612661"]:["BANNER-3558091"];
+    List<String> vunglerewardedplacement = Platform.isAndroid?["REWARDED-5418065"]:["REWARDED-7113759"];
+    List<String> vungleappOpenplacement = Platform.isAndroid?["APPOPEN-0302146"] : ["APP_OPEN-7796821"];
+    List<String> vungleNativeplacement = Platform.isAndroid?["NATIVE-0027388"] : ["NATIVE-3538573"];
+    Vunglemodel vunglemodel = Vunglemodel();
+    vunglemodel.appId = apppid;
+    vunglemodel.interstitialVideoAdPlacementId = vungleinterstatialplacement;
+    vunglemodel.rewardedVideoAdPlacementId = vunglerewardedplacement;
+    vunglemodel.addRewardedPlacement(
+        'freemoney', vunglerewardedplacement,
+      );
+    vunglemodel.addNativePlacement(
+        'native', vungleNativeplacement,
+      );
+    vunglemodel.addAppOpenPlacement(
+        'appOpen', vungleappOpenplacement,
+      );
+    vunglemodel.bannerAdPlacementId = vunglebannerplacement;
+
+    final chartboostModel = Chartboostmodel()
+      ..appId = Platform.isAndroid?"6ade5e5614f620e5b750ea1c":"6ade5cf477fbe7caa13effc7"
+      ..appSignature = Platform.isAndroid?"4178d1f4d45bd45175335f101322db02bdae394a":"3e7b0d6e3e107e5e32d50d6546917b91d242f5aa"
+      ..addRewardedPlacement('rewarded', ['rewarded'])
+      ..addRewardedPlacement('freemoney', ['rewarded'])
+      ..addInterstitialPlacement('interstitial', ['interstitial'])
+      ..addBannerPlacement(['Banner']);
+
+
     try {
       await _advertPlugin.initialize(
         testmode: testMode,
         adsmodel: Adsmodel(
             unitymodel: unitymodel,
             googlemodel: googlemodel,
+          vunglemodel: vunglemodel,
+          chartboostmodel: chartboostModel,
         ),
       );
       _isInitialized = true;
