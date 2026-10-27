@@ -11,8 +11,10 @@ import connectivity_plus
 import device_info_plus
 import file_picker_darwin
 import file_selector_macos
+import firebase_analytics
 import firebase_auth
 import firebase_core
+import firebase_crashlytics
 import firebase_messaging
 import firebase_remote_config
 import flutter_inappwebview_macos
@@ -21,6 +23,7 @@ import gal
 import geocoding_darwin
 import geolocator_apple
 import google_sign_in_ios
+import in_app_review
 import local_auth_darwin
 import package_info_plus
 import share_plus
@@ -39,8 +42,10 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   DeviceInfoPlusMacosPlugin.register(with: registry.registrar(forPlugin: "DeviceInfoPlusMacosPlugin"))
   FilePickerPlugin.register(with: registry.registrar(forPlugin: "FilePickerPlugin"))
   FileSelectorPlugin.register(with: registry.registrar(forPlugin: "FileSelectorPlugin"))
+  FirebaseAnalyticsPlugin.register(with: registry.registrar(forPlugin: "FirebaseAnalyticsPlugin"))
   FLTFirebaseAuthPlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseAuthPlugin"))
   FLTFirebaseCorePlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseCorePlugin"))
+  FirebaseCrashlyticsPlugin.register(with: registry.registrar(forPlugin: "FirebaseCrashlyticsPlugin"))
   FLTFirebaseMessagingPlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseMessagingPlugin"))
   FirebaseRemoteConfigPlugin.register(with: registry.registrar(forPlugin: "FirebaseRemoteConfigPlugin"))
   InAppWebViewFlutterPlugin.register(with: registry.registrar(forPlugin: "InAppWebViewFlutterPlugin"))
@@ -49,6 +54,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   GeocodingDarwinPlugin.register(with: registry.registrar(forPlugin: "GeocodingDarwinPlugin"))
   GeolocatorPlugin.register(with: registry.registrar(forPlugin: "GeolocatorPlugin"))
   FLTGoogleSignInPlugin.register(with: registry.registrar(forPlugin: "FLTGoogleSignInPlugin"))
+  InAppReviewPlugin.register(with: registry.registrar(forPlugin: "InAppReviewPlugin"))
   LocalAuthPlugin.register(with: registry.registrar(forPlugin: "LocalAuthPlugin"))
   FPPPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FPPPackageInfoPlusPlugin"))
   SharePlusMacosPlugin.register(with: registry.registrar(forPlugin: "SharePlusMacosPlugin"))

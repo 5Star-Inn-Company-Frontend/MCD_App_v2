@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:advert/advert.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:mcd/core/services/remote_config_service.dart';
 import 'connectivity_service.dart';
 
@@ -119,6 +118,7 @@ class AdsService {
         if (await ConsentInformation.instance.isConsentFormAvailable()) {
           _loadAndShowConsentForm(completer);
         } else {
+          dev.log('Consent form is not available', name: 'AdsService');
           if (!completer.isCompleted) completer.complete();
         }
       },
@@ -139,6 +139,8 @@ class AdsService {
           consentForm.show((FormError? formError) {
             if (formError != null) {
               dev.log('Consent form error: ${formError.message}', name: 'AdsService');
+            } else {
+              dev.log('Consent form completed or not required', name: 'AdsService');
             }
             if (!completer.isCompleted) completer.complete();
           });
