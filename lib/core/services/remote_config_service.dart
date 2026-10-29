@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
+import 'dart:io';
 import 'package:advert/advert.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:get/get.dart';
@@ -64,12 +65,30 @@ class RemoteConfigService extends GetxService {
     'ads_showrepeat': false,
     'ads_showrepeat_users': 'all',
     'ads_test_mode': false,
+
+    // Generic Ad Providers Toggles & Waterfall
     'ads_provider_google': true,
     'ads_provider_unity': true,
     'ads_provider_vungle': true,
     'ads_provider_levelplay': true,
     'ads_provider_chartboost': true,
     'ads_waterfall_priority': 'google,unity,vungle,levelplay,chartboost',
+
+    // Android-specific Ad Provider Toggles & Waterfall
+    'ads_provider_google_android': true,
+    'ads_provider_unity_android': true,
+    'ads_provider_vungle_android': true,
+    'ads_provider_levelplay_android': true,
+    'ads_provider_chartboost_android': true,
+    'ads_waterfall_priority_android': 'google,unity,vungle,levelplay,chartboost',
+
+    // iOS-specific Ad Provider Toggles & Waterfall
+    'ads_provider_google_ios': true,
+    'ads_provider_unity_ios': true,
+    'ads_provider_vungle_ios': true,
+    'ads_provider_levelplay_ios': true,
+    'ads_provider_chartboost_ios': true,
+    'ads_waterfall_priority_ios': 'google,unity,vungle,levelplay,chartboost',
     'unity_game_id_android': '3717787',
     'unity_game_id_ios': '3717786',
 
@@ -205,18 +224,33 @@ class RemoteConfigService extends GetxService {
     }
   }
 
-  /// Get enabled map for all ad providers
+  /// Get enabled map for all ad providers (platform-aware)
   Map<AdProviderType, bool> getAdProviderEnabledMap() {
+    final platformSuffix = Platform.isAndroid ? '_android' : (Platform.isIOS ? '_ios' : '');
+
+    bool checkProvider(String providerName) {
+      final platformKey = 'ads_provider_$providerName$platformSuffix';
+      final genericKey = 'ads_provider_$providerName';
+
+      if (_remoteConfig.getAll().containsKey(platformKey)) {
+        return _remoteConfig.getBool(platformKey);
+      }
+      if (_remoteConfig.getAll().containsKey(genericKey)) {
+        return _remoteConfig.getBool(genericKey);
+      }
+      return getBool(platformKey, defaultValue: true);
+    }
+
     return {
-      AdProviderType.google: getBool('ads_provider_google', defaultValue: true),
-      AdProviderType.unity: getBool('ads_provider_unity', defaultValue: true),
-      AdProviderType.vungle: getBool('ads_provider_vungle', defaultValue: true),
-      AdProviderType.levelplay: getBool('ads_provider_levelplay', defaultValue: true),
-      AdProviderType.chartboost: getBool('ads_provider_chartboost', defaultValue: true),
+      AdProviderType.google: checkProvider('google'),
+      AdProviderType.unity: checkProvider('unity'),
+      AdProviderType.vungle: checkProvider('vungle'),
+      AdProviderType.levelplay: checkProvider('levelplay'),
+      AdProviderType.chartboost: checkProvider('chartboost'),
     };
   }
 
-  /// Get priority order list for ad waterfall
+  /// Get priority order list for ad waterfall (platform-aware)
   List<AdProviderType> getAdProviderPriorityOrder() {
     final defaultOrder = [
       AdProviderType.google,
@@ -226,10 +260,18 @@ class RemoteConfigService extends GetxService {
       AdProviderType.chartboost,
     ];
 
-    final rawOrderString = getString(
-      'ads_waterfall_priority',
-      defaultValue: 'google,unity,vungle,levelplay,chartboost',
-    );
+    final platformSuffix = Platform.isAndroid ? '_android' : (Platform.isIOS ? '_ios' : '');
+    final platformKey = 'ads_waterfall_priority$platformSuffix';
+    final genericKey = 'ads_waterfall_priority';
+
+    String rawOrderString = '';
+    if (_remoteConfig.getAll().containsKey(platformKey)) {
+      rawOrderString = _remoteConfig.getString(platformKey);
+    } else if (_remoteConfig.getAll().containsKey(genericKey)) {
+      rawOrderString = _remoteConfig.getString(genericKey);
+    } else {
+      rawOrderString = getString(platformKey, defaultValue: 'google,unity,vungle,levelplay,chartboost');
+    }
 
     if (rawOrderString.isEmpty) return defaultOrder;
     final parsedOrder = <AdProviderType>[];
