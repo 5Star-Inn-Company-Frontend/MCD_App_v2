@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
+import 'package:advert/advert.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:get/get.dart';
+import 'package:mcd/core/services/ads_service.dart';
 
 class RemoteConfigService extends GetxService {
   static RemoteConfigService get to => Get.find();
@@ -62,6 +64,12 @@ class RemoteConfigService extends GetxService {
     'ads_showrepeat': false,
     'ads_showrepeat_users': 'all',
     'ads_test_mode': false,
+    'ads_provider_google': true,
+    'ads_provider_unity': true,
+    'ads_provider_vungle': true,
+    'ads_provider_levelplay': true,
+    'ads_provider_chartboost': true,
+    'ads_waterfall_priority': 'google,unity,vungle,levelplay,chartboost',
     'unity_game_id_android': '3717787',
     'unity_game_id_ios': '3717786',
 
@@ -119,6 +127,7 @@ class RemoteConfigService extends GetxService {
         );
         await _remoteConfig.activate();
         configUpdateTick.value++;
+        AdsService().applyRemoteConfigAdSettings();
       }, onError: (error) {
         dev.log('Error listening to Remote Config updates: $error',
             name: 'RemoteConfig');
@@ -157,7 +166,7 @@ class RemoteConfigService extends GetxService {
     return userList.contains(username.trim().toLowerCase());
   }
 
-   /// Check if banner list ads are enabled for a specific username/user
+  /// Check if banner list ads are enabled for a specific username/user
   bool isBannerListEnabledForUser(String username) {
     if (!isServiceEnabled('ads_bannerlist')) return false;
 
@@ -172,6 +181,74 @@ class RemoteConfigService extends GetxService {
         .toList();
 
     return userList.contains(username.trim().toLowerCase());
+  }
+
+  /// Map string name to AdProviderType
+  AdProviderType? _parseAdProviderType(String name) {
+    switch (name.trim().toLowerCase()) {
+      case 'google':
+      case 'admob':
+        return AdProviderType.google;
+      case 'unity':
+      case 'unityads':
+        return AdProviderType.unity;
+      case 'vungle':
+      case 'liftoff':
+        return AdProviderType.vungle;
+      case 'levelplay':
+      case 'ironsource':
+        return AdProviderType.levelplay;
+      case 'chartboost':
+        return AdProviderType.chartboost;
+      default:
+        return null;
+    }
+  }
+
+  /// Get enabled map for all ad providers
+  Map<AdProviderType, bool> getAdProviderEnabledMap() {
+    return {
+      AdProviderType.google: getBool('ads_provider_google', defaultValue: true),
+      AdProviderType.unity: getBool('ads_provider_unity', defaultValue: true),
+      AdProviderType.vungle: getBool('ads_provider_vungle', defaultValue: true),
+      AdProviderType.levelplay: getBool('ads_provider_levelplay', defaultValue: true),
+      AdProviderType.chartboost: getBool('ads_provider_chartboost', defaultValue: true),
+    };
+  }
+
+  /// Get priority order list for ad waterfall
+  List<AdProviderType> getAdProviderPriorityOrder() {
+    final defaultOrder = [
+      AdProviderType.google,
+      AdProviderType.unity,
+      AdProviderType.vungle,
+      AdProviderType.levelplay,
+      AdProviderType.chartboost,
+    ];
+
+    final rawOrderString = getString(
+      'ads_waterfall_priority',
+      defaultValue: 'google,unity,vungle,levelplay,chartboost',
+    );
+
+    if (rawOrderString.isEmpty) return defaultOrder;
+    final parsedOrder = <AdProviderType>[];
+    final parts = rawOrderString.split(',');
+
+    for (final part in parts) {
+      final type = _parseAdProviderType(part);
+      if (type != null && !parsedOrder.contains(type)) {
+        parsedOrder.add(type);
+      }
+    }
+
+    for (final type in defaultOrder) {
+      if (!parsedOrder.contains(type)) {
+        parsedOrder.add(type);
+      }
+    }
+
+    return parsedOrder;
   }
 
   /// Check if a specific payment method is enabled via Remote Config
@@ -291,6 +368,7 @@ class RemoteConfigService extends GetxService {
       );
       bool updated = await _remoteConfig.fetchAndActivate();
       configUpdateTick.value++;
+      AdsService().applyRemoteConfigAdSettings();
       dev.log('Remote Config force refresh success: $updated (Tick: ${configUpdateTick.value})', name: 'RemoteConfig');
       return updated;
     } catch (e) {

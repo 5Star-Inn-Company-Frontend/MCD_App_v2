@@ -249,21 +249,58 @@ class AdsService {
       ..addInterstitialPlacement('interstitial', ['interstitial'])
       ..addBannerPlacement(['Banner']);
 
+    final levelPlayModel = Levelplaymodel()
+      ..appKey = Platform.isAndroid ? "YOUR_LEVELPLAY_APP_KEY" : "28fdfd45d"
+      ..addRewardedPlacement('rewarded', [Platform.isAndroid ? 'e5jvy0s5s56wt7v8': '2x65seynidqxbkhm'])
+      ..addRewardedPlacement('freemoney', [Platform.isAndroid ? 'e5jvy0s5s56wt7v8': '2x65seynidqxbkhm'])
+      ..addInterstitialPlacement('interstitial', [Platform.isAndroid ? 'legd72y5b6hgf60z' : 'a2909t9gtzd1jv8h'])
+      ..addBannerPlacement([Platform.isAndroid ? 'creg04p29452uars' : 'o0mavgqbnuc4hp6w']);
+
 
     try {
       await _advertPlugin.initialize(
         testmode: testMode,
         adsmodel: Adsmodel(
-            unitymodel: unitymodel,
-            googlemodel: googlemodel,
+          unitymodel: unitymodel,
+          googlemodel: googlemodel,
           vunglemodel: vunglemodel,
           chartboostmodel: chartboostModel,
+          levelplaymodel: levelPlayModel,
         ),
       );
       _isInitialized = true;
       dev.log('Ads initialized successfully');
+
+      // Dynamically apply provider enables/disables and waterfall priority from Remote Config
+      applyRemoteConfigAdSettings();
     } catch (e) {
       dev.log('Error initializing ads: $e');
+    }
+  }
+
+  /// Apply dynamic ad provider enables/disables and waterfall priority order from Remote Config
+  void applyRemoteConfigAdSettings() {
+    if (!Get.isRegistered<RemoteConfigService>()) return;
+
+    try {
+      final enabledMap = RemoteConfigService.to.getAdProviderEnabledMap();
+      enabledMap.forEach((provider, isEnabled) {
+        if (isEnabled) {
+          _advertPlugin.adsProv.enableProvider(provider);
+        } else {
+          _advertPlugin.adsProv.disableProvider(provider);
+        }
+        dev.log('Ad provider ${provider.name} enabled: $isEnabled', name: 'AdsService');
+      });
+
+      final priorityOrder = RemoteConfigService.to.getAdProviderPriorityOrder();
+      _advertPlugin.adsProv.setProviderPriorityOrder(priorityOrder);
+      dev.log(
+        'Ad waterfall priority order applied: ${priorityOrder.map((p) => p.name).join(', ')}',
+        name: 'AdsService',
+      );
+    } catch (e) {
+      dev.log('Error applying Remote Config ad settings: $e', name: 'AdsService');
     }
   }
 
