@@ -90,11 +90,7 @@ class SettingsModulePage extends GetView<SettingsModuleController> {
 
                       if (!val) {
                         // clear saved credentials when disabling biometric
-                        const secureStorage = FlutterSecureStorage(
-                          aOptions: AndroidOptions(
-                            encryptedSharedPreferences: true,
-                          ),
-                        );
+                        const secureStorage = FlutterSecureStorage();
                         await controller.box.remove('biometric_username');
                         await secureStorage.delete(key: 'biometric_password');
 

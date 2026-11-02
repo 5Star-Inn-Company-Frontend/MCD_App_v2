@@ -17,13 +17,17 @@ PODS:
     - RecaptchaInterop (~> 101.0)
   - camera_avfoundation (0.0.1):
     - Flutter
+  - chartboost_flutter (1.0.0):
+    - ChartboostSDK (~> 9.14.2)
+    - Flutter
+  - ChartboostSDK (9.14.2)
   - connectivity_plus (0.0.1):
     - Flutter
   - device_info_plus (0.0.1):
     - Flutter
-  - FaceCoreBasic (8.3.2550)
-  - FaceSDK (8.3.4727):
-    - RegulaCommon (= 9.7.2626)
+  - FaceCoreBasic (8.4.2746)
+  - FaceSDK (8.4.5062):
+    - RegulaCommon (= 9.9.2925)
   - file_picker_darwin (1.0.0):
     - Flutter
     - FlutterMacOS
@@ -32,29 +36,58 @@ PODS:
     - FirebaseAuth (~> 12.19.0)
   - Firebase/CoreOnly (12.19.3):
     - FirebaseCore (~> 12.19.3)
+  - Firebase/Crashlytics (12.19.3):
+    - Firebase/CoreOnly
+    - FirebaseCrashlytics (~> 12.19.0)
   - Firebase/Messaging (12.19.3):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 12.19.0)
   - Firebase/RemoteConfig (12.19.3):
     - Firebase/CoreOnly
     - FirebaseRemoteConfig (~> 12.19.0)
-  - firebase_auth (7.0.1):
+  - firebase_analytics (12.6.1):
+    - firebase_core
+    - FirebaseAnalytics (~> 12.19.0)
+    - Flutter
+  - firebase_auth (6.7.1):
     - Firebase/Auth (= 12.19.3)
     - firebase_core
     - Flutter
-  - firebase_core (5.1.0):
+  - firebase_core (4.15.2):
     - Firebase/CoreOnly (= 12.19.3)
     - Flutter
-  - firebase_messaging (17.0.1):
+  - firebase_crashlytics (5.4.1):
+    - Firebase/Crashlytics (= 12.19.3)
+    - firebase_core
+    - Flutter
+  - firebase_messaging (16.7.1):
     - Firebase/Messaging (= 12.19.3)
     - firebase_core
     - Flutter
-  - firebase_remote_config (7.0.1):
+  - firebase_remote_config (6.7.1):
     - Firebase/RemoteConfig (= 12.19.3)
     - firebase_core
     - Flutter
   - FirebaseABTesting (12.19.0):
     - FirebaseCore (~> 12.19.0)
+  - FirebaseAnalytics (12.19.0):
+    - FirebaseAnalytics/Default (= 12.19.0)
+    - FirebaseCore (~> 12.19.0)
+    - FirebaseInstallations (~> 12.19.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
+    - GoogleUtilities/MethodSwizzler (~> 8.1)
+    - GoogleUtilities/Network (~> 8.1)
+    - "GoogleUtilities/NSData+zlib (~> 8.1)"
+    - nanopb (~> 3.30910.0)
+  - FirebaseAnalytics/Default (12.19.0):
+    - FirebaseCore (~> 12.19.0)
+    - FirebaseInstallations (~> 12.19.0)
+    - GoogleAppMeasurement/Default (= 12.19.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
+    - GoogleUtilities/MethodSwizzler (~> 8.1)
+    - GoogleUtilities/Network (~> 8.1)
+    - "GoogleUtilities/NSData+zlib (~> 8.1)"
+    - nanopb (~> 3.30910.0)
   - FirebaseAppCheckInterop (12.19.0)
   - FirebaseAuth (12.19.0):
     - FirebaseAppCheckInterop (~> 12.19.0)
@@ -74,6 +107,15 @@ PODS:
     - FirebaseCore (~> 12.19.0)
   - FirebaseCoreInternal (12.19.0):
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
+  - FirebaseCrashlytics (12.19.0):
+    - FirebaseCore (~> 12.19.0)
+    - FirebaseInstallations (~> 12.19.0)
+    - FirebaseRemoteConfigInterop (~> 12.19.0)
+    - FirebaseSessions (~> 12.19.0)
+    - GoogleDataTransport (~> 10.1)
+    - GoogleUtilities/Environment (~> 8.1)
+    - nanopb (~> 3.30910.0)
+    - PromisesObjC (~> 2.4)
   - FirebaseInstallations (12.19.0):
     - FirebaseCore (~> 12.19.0)
     - GoogleUtilities/Environment (~> 8.1)
@@ -97,21 +139,22 @@ PODS:
     - GoogleUtilities/Environment (~> 8.1)
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
   - FirebaseRemoteConfigInterop (12.19.0)
+  - FirebaseSessions (12.19.0):
+    - FirebaseCore (~> 12.19.0)
+    - FirebaseCoreExtension (~> 12.19.0)
+    - FirebaseInstallations (~> 12.19.0)
+    - GoogleDataTransport (~> 10.1)
+    - GoogleUtilities/Environment (~> 8.1)
+    - GoogleUtilities/UserDefaults (~> 8.1)
+    - nanopb (~> 3.30910.0)
+    - PromisesSwift (~> 2.1)
   - FirebaseSharedSwift (12.19.0)
   - Flutter (1.0.0)
-  - flutter_face_api (8.3.1291):
-    - FaceSDK (= 8.3.4727)
+  - flutter_face_api (8.4.1655):
+    - FaceSDK (= 8.4.5062)
     - Flutter
-  - flutter_face_core_basic (8.3.635):
-    - FaceCoreBasic (= 8.3.2550)
-    - Flutter
-  - flutter_inappwebview_ios (0.0.1):
-    - Flutter
-    - flutter_inappwebview_ios/Core (= 0.0.1)
-    - OrderedSet (~> 6.0.3)
-  - flutter_inappwebview_ios/Core (0.0.1):
-    - Flutter
-    - OrderedSet (~> 6.0.3)
+  - flutter_face_core_basic (8.4.761):
+    - FaceCoreBasic (= 8.4.2746)
   - flutter_native_contact_picker (0.0.12):
     - Flutter
   - flutter_secure_storage_darwin (10.0.0):
@@ -120,25 +163,8 @@ PODS:
   - gal (1.0.0):
     - Flutter
     - FlutterMacOS
-  - geocoding_darwin (0.0.1):
-    - Flutter
-    - FlutterMacOS
-  - geolocator_apple (1.2.0):
-    - Flutter
-    - FlutterMacOS
   - Google-Mobile-Ads-SDK (13.11.0):
     - GoogleUserMessagingPlatform (>= 1.1)
-  - google_mlkit_commons (0.13.0):
-    - Flutter
-    - MLKitVision (~> 10.0.0)
-  - google_mlkit_face_detection (0.15.1):
-    - Flutter
-    - google_mlkit_commons
-    - GoogleMLKit/FaceDetection (~> 9.0.0)
-  - google_mlkit_text_recognition (0.17.1):
-    - Flutter
-    - google_mlkit_commons
-    - GoogleMLKit/TextRecognition (~> 9.0.0)
   - google_mobile_ads (9.2.0):
     - Flutter
     - Google-Mobile-Ads-SDK (~> 13.11)
@@ -149,17 +175,36 @@ PODS:
     - FlutterMacOS
     - GoogleSignIn (~> 8.0)
     - GTMSessionFetcher (>= 3.4.0)
+  - GoogleAdsOnDeviceConversion (3.7.0):
+    - GoogleUtilities/Environment (~> 8.1)
+    - GoogleUtilities/Logger (~> 8.1)
+    - GoogleUtilities/Network (~> 8.1)
+    - nanopb (~> 3.30910.0)
+  - GoogleAppMeasurement/Core (12.19.0):
+    - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
+    - GoogleUtilities/MethodSwizzler (~> 8.1)
+    - GoogleUtilities/Network (~> 8.1)
+    - "GoogleUtilities/NSData+zlib (~> 8.1)"
+    - nanopb (~> 3.30910.0)
+  - GoogleAppMeasurement/Default (12.19.0):
+    - GoogleAdsOnDeviceConversion (~> 3.7.0)
+    - GoogleAppMeasurement/Core (= 12.19.0)
+    - GoogleAppMeasurement/IdentitySupport (= 12.19.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
+    - GoogleUtilities/MethodSwizzler (~> 8.1)
+    - GoogleUtilities/Network (~> 8.1)
+    - "GoogleUtilities/NSData+zlib (~> 8.1)"
+    - nanopb (~> 3.30910.0)
+  - GoogleAppMeasurement/IdentitySupport (12.19.0):
+    - GoogleAppMeasurement/Core (= 12.19.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
+    - GoogleUtilities/MethodSwizzler (~> 8.1)
+    - GoogleUtilities/Network (~> 8.1)
+    - "GoogleUtilities/NSData+zlib (~> 8.1)"
+    - nanopb (~> 3.30910.0)
   - GoogleDataTransport (10.1.1):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
-  - GoogleMLKit/FaceDetection (9.0.0):
-    - GoogleMLKit/MLKitCore
-    - MLKitFaceDetection (~> 8.0.0)
-  - GoogleMLKit/MLKitCore (9.0.0):
-    - MLKitCommon (~> 14.0.0)
-  - GoogleMLKit/TextRecognition (9.0.0):
-    - GoogleMLKit/MLKitCore
-    - MLKitTextRecognition (~> 7.0.0)
   - GoogleMobileAdsMediationUnity (4.20.1.0):
     - Google-Mobile-Ads-SDK (~> 13.3)
     - UnityAds (= 4.20.1)
@@ -168,11 +213,6 @@ PODS:
     - AppCheckCore (~> 11.0)
     - GTMAppAuth (< 5.0, >= 4.1.1)
     - GTMSessionFetcher/Core (~> 3.3)
-  - GoogleToolboxForMac/Defines (4.2.1)
-  - GoogleToolboxForMac/Logger (4.2.1):
-    - GoogleToolboxForMac/Defines (= 4.2.1)
-  - "GoogleToolboxForMac/NSData+zlib (4.2.1)":
-    - GoogleToolboxForMac/Defines (= 4.2.1)
   - GoogleUserMessagingPlatform (3.1.0)
   - GoogleUtilities/AppDelegateSwizzler (8.1.5):
     - GoogleUtilities/Environment
@@ -183,6 +223,9 @@ PODS:
     - GoogleUtilities/Privacy
   - GoogleUtilities/Logger (8.1.5):
     - GoogleUtilities/Environment
+    - GoogleUtilities/Privacy
+  - GoogleUtilities/MethodSwizzler (8.1.5):
+    - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
   - GoogleUtilities/Network (8.1.5):
     - GoogleUtilities/Logger
@@ -211,42 +254,26 @@ PODS:
     - VungleAds (~> 7.7)
   - image_cropper (0.0.5):
     - Flutter
-    - TOCropViewController (~> 3.1.2)
+    - TOCropViewController (~> 3.2.0)
   - image_picker_ios (0.0.1):
     - Flutter
+  - in_app_review (2.0.0):
+    - Flutter
+  - IronSourceAdQualitySDK (9.10.0)
+  - IronSourceSDK (9.7.0.0):
+    - IronSourceSDK/AdQuality (= 9.7.0.0)
+    - IronSourceSDK/Ads (= 9.7.0.0)
+  - IronSourceSDK/AdQuality (9.7.0.0):
+    - IronSourceAdQualitySDK (~> 9)
+  - IronSourceSDK/Ads (9.7.0.0)
   - local_auth_darwin (0.0.1):
     - Flutter
     - FlutterMacOS
-  - MLImage (1.0.0-beta8)
-  - MLKitCommon (14.0.0):
-    - GoogleDataTransport (~> 10.0)
-    - GoogleToolboxForMac/Logger (< 5.0, >= 4.2.1)
-    - "GoogleToolboxForMac/NSData+zlib (< 5.0, >= 4.2.1)"
-    - GoogleUtilities/Logger (~> 8.0)
-    - GoogleUtilities/UserDefaults (~> 8.0)
-    - GTMSessionFetcher/Core (< 4.0, >= 3.3.2)
-  - MLKitFaceDetection (8.0.0):
-    - MLKitCommon (~> 14.0)
-    - MLKitVision (~> 10.0)
-  - MLKitTextRecognition (7.0.0):
-    - MLKitCommon (~> 14.0)
-    - MLKitTextRecognitionCommon (= 6.0.0)
-    - MLKitVision (~> 10.0)
-  - MLKitTextRecognitionCommon (6.0.0):
-    - MLKitCommon (~> 14.0)
-    - MLKitVision (~> 10.0)
-  - MLKitVision (10.0.0):
-    - GoogleToolboxForMac/Logger (< 5.0, >= 4.2.1)
-    - "GoogleToolboxForMac/NSData+zlib (< 5.0, >= 4.2.1)"
-    - GTMSessionFetcher/Core (< 4.0, >= 3.3.2)
-    - MLImage (= 1.0.0-beta8)
-    - MLKitCommon (~> 14.0)
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
-  - OrderedSet (6.0.3)
   - package_info_plus (0.4.5):
     - Flutter
   - permission_handler_apple (9.4.8):
@@ -257,7 +284,7 @@ PODS:
   - qr_code_scanner_plus (0.2.6):
     - Flutter
   - RecaptchaInterop (101.0.0)
-  - RegulaCommon (9.7.2626)
+  - RegulaCommon (9.9.2925)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -265,15 +292,22 @@ PODS:
     - FlutterMacOS
   - sprint_check (0.0.1):
     - Flutter
+  - sprintfacedetection (0.1.0):
+    - Flutter
   - sprintliveness (0.0.1):
+    - Flutter
+  - sprintocr (0.1.0):
     - Flutter
   - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
-  - TOCropViewController (3.1.2)
+  - TOCropViewController (3.2.0)
   - unity_ads_plugin (0.0.1):
     - Flutter
     - UnityAds (~> 4.20.0)
+  - unity_levelplay_mediation (9.4.0):
+    - Flutter
+    - IronSourceSDK (= 9.7.0.0)
   - UnityAds (4.20.1):
     - UnityCoherenceLib (= 0.1.0)
   - UnityCoherenceLib (0.1.0)
@@ -290,32 +324,30 @@ DEPENDENCIES:
   - advert (from `.symlinks/plugins/advert/ios`)
   - app_links (from `.symlinks/plugins/app_links/ios`)
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/darwin`)
+  - chartboost_flutter (from `.symlinks/plugins/chartboost_flutter/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - file_picker_darwin (from `.symlinks/plugins/file_picker_darwin/darwin`)
+  - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
+  - firebase_crashlytics (from `.symlinks/plugins/firebase_crashlytics/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - firebase_remote_config (from `.symlinks/plugins/firebase_remote_config/ios`)
   - Flutter (from `Flutter`)
   - flutter_face_api (from `.symlinks/plugins/flutter_face_api/ios`)
   - flutter_face_core_basic (from `.symlinks/plugins/flutter_face_core_basic/ios`)
-  - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
   - flutter_native_contact_picker (from `.symlinks/plugins/flutter_native_contact_picker/ios`)
   - flutter_secure_storage_darwin (from `.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
   - gal (from `.symlinks/plugins/gal/darwin`)
-  - geocoding_darwin (from `.symlinks/plugins/geocoding_darwin/darwin`)
-  - geolocator_apple (from `.symlinks/plugins/geolocator_apple/darwin`)
   - Google-Mobile-Ads-SDK
-  - google_mlkit_commons (from `.symlinks/plugins/google_mlkit_commons/ios`)
-  - google_mlkit_face_detection (from `.symlinks/plugins/google_mlkit_face_detection/ios`)
-  - google_mlkit_text_recognition (from `.symlinks/plugins/google_mlkit_text_recognition/ios`)
   - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
   - GoogleMobileAdsMediationUnity
   - hx_liftoff_ads (from `.symlinks/plugins/hx_liftoff_ads/ios`)
   - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - in_app_review (from `.symlinks/plugins/in_app_review/ios`)
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
@@ -323,9 +355,12 @@ DEPENDENCIES:
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sprint_check (from `.symlinks/plugins/sprint_check/ios`)
+  - sprintfacedetection (from `.symlinks/plugins/sprintfacedetection/ios`)
   - sprintliveness (from `.symlinks/plugins/sprintliveness/ios`)
+  - sprintocr (from `.symlinks/plugins/sprintocr/ios`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
   - unity_ads_plugin (from `.symlinks/plugins/unity_ads_plugin/ios`)
+  - unity_levelplay_mediation (from `.symlinks/plugins/unity_levelplay_mediation/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
@@ -338,37 +373,36 @@ SPEC REPOS:
   trunk:
     - AppAuth
     - AppCheckCore
+    - ChartboostSDK
     - Firebase
     - FirebaseABTesting
+    - FirebaseAnalytics
     - FirebaseAppCheckInterop
     - FirebaseAuth
     - FirebaseAuthInterop
     - FirebaseCore
     - FirebaseCoreExtension
     - FirebaseCoreInternal
+    - FirebaseCrashlytics
     - FirebaseInstallations
     - FirebaseMessaging
     - FirebaseRemoteConfig
     - FirebaseRemoteConfigInterop
+    - FirebaseSessions
     - FirebaseSharedSwift
     - Google-Mobile-Ads-SDK
+    - GoogleAdsOnDeviceConversion
+    - GoogleAppMeasurement
     - GoogleDataTransport
-    - GoogleMLKit
     - GoogleMobileAdsMediationUnity
     - GoogleSignIn
-    - GoogleToolboxForMac
     - GoogleUserMessagingPlatform
     - GoogleUtilities
     - GTMAppAuth
     - GTMSessionFetcher
-    - MLImage
-    - MLKitCommon
-    - MLKitFaceDetection
-    - MLKitTextRecognition
-    - MLKitTextRecognitionCommon
-    - MLKitVision
+    - IronSourceAdQualitySDK
+    - IronSourceSDK
     - nanopb
-    - OrderedSet
     - PromisesObjC
     - PromisesSwift
     - RecaptchaInterop
@@ -384,16 +418,22 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/app_links/ios"
   camera_avfoundation:
     :path: ".symlinks/plugins/camera_avfoundation/darwin"
+  chartboost_flutter:
+    :path: ".symlinks/plugins/chartboost_flutter/ios"
   connectivity_plus:
     :path: ".symlinks/plugins/connectivity_plus/ios"
   device_info_plus:
     :path: ".symlinks/plugins/device_info_plus/ios"
   file_picker_darwin:
     :path: ".symlinks/plugins/file_picker_darwin/darwin"
+  firebase_analytics:
+    :path: ".symlinks/plugins/firebase_analytics/ios"
   firebase_auth:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
     :path: ".symlinks/plugins/firebase_core/ios"
+  firebase_crashlytics:
+    :path: ".symlinks/plugins/firebase_crashlytics/ios"
   firebase_messaging:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   firebase_remote_config:
@@ -404,24 +444,12 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_face_api/ios"
   flutter_face_core_basic:
     :path: ".symlinks/plugins/flutter_face_core_basic/ios"
-  flutter_inappwebview_ios:
-    :path: ".symlinks/plugins/flutter_inappwebview_ios/ios"
   flutter_native_contact_picker:
     :path: ".symlinks/plugins/flutter_native_contact_picker/ios"
   flutter_secure_storage_darwin:
     :path: ".symlinks/plugins/flutter_secure_storage_darwin/darwin"
   gal:
     :path: ".symlinks/plugins/gal/darwin"
-  geocoding_darwin:
-    :path: ".symlinks/plugins/geocoding_darwin/darwin"
-  geolocator_apple:
-    :path: ".symlinks/plugins/geolocator_apple/darwin"
-  google_mlkit_commons:
-    :path: ".symlinks/plugins/google_mlkit_commons/ios"
-  google_mlkit_face_detection:
-    :path: ".symlinks/plugins/google_mlkit_face_detection/ios"
-  google_mlkit_text_recognition:
-    :path: ".symlinks/plugins/google_mlkit_text_recognition/ios"
   google_mobile_ads:
     :path: ".symlinks/plugins/google_mobile_ads/ios"
   google_sign_in_ios:
@@ -432,6 +460,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_cropper/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
+  in_app_review:
+    :path: ".symlinks/plugins/in_app_review/ios"
   local_auth_darwin:
     :path: ".symlinks/plugins/local_auth_darwin/darwin"
   package_info_plus:
@@ -446,12 +476,18 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sprint_check:
     :path: ".symlinks/plugins/sprint_check/ios"
+  sprintfacedetection:
+    :path: ".symlinks/plugins/sprintfacedetection/ios"
   sprintliveness:
     :path: ".symlinks/plugins/sprintliveness/ios"
+  sprintocr:
+    :path: ".symlinks/plugins/sprintocr/ios"
   sqflite_darwin:
     :path: ".symlinks/plugins/sqflite_darwin/darwin"
   unity_ads_plugin:
     :path: ".symlinks/plugins/unity_ads_plugin/ios"
+  unity_levelplay_mediation:
+    :path: ".symlinks/plugins/unity_levelplay_mediation/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   wakelock_plus:
@@ -465,78 +501,78 @@ SPEC CHECKSUMS:
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
   AppCheckCore: be8fce5469f68d7f6a29aa94b25f097409ff7fdc
   camera_avfoundation: 769d252259fa21e39ada7399c9dc9c0921af8165
+  chartboost_flutter: 28f3152254a5c5a1bcb684d9c504365c631b028e
+  ChartboostSDK: a0a62eeaf756b7315ed53608eb21dcb41c6dcd36
   connectivity_plus: 2a701ffec2c0ae28a48cf7540e279787e77c447d
   device_info_plus: bf2e3232933866d73fe290f2942f2156cdd10342
-  FaceCoreBasic: b92aba627b8b47192f1011452a569a1bfd6104d9
-  FaceSDK: e07c3f07930dfb13944968d8297a93489b2165ac
+  FaceCoreBasic: 016865c5b097a881b1bacd963356f19a5ebdf773
+  FaceSDK: 02e78ef6d25d768ca22e03af940b310c71e58187
   file_picker_darwin: 27e043831d68462d54f1c40e724b1f53c9d1e8be
   Firebase: e3c5ab38229ae085490d02398d97b9f5374bbe6e
-  firebase_auth: be1f89ddd82e62d345457f70b1710e7f18b9bee9
-  firebase_core: 53e1816f8f32542079b1f9c96327689c8eb6fd6e
-  firebase_messaging: 560963e22fa0552b0ee3b4b7c2de32d0041b8b15
-  firebase_remote_config: 78ac91d493bdd12eb0dfe7623fe55ebdb098a930
+  firebase_analytics: 89ad90c424394ea4036c57f00cde2cc41e56c4fa
+  firebase_auth: a04ab05eabc10f6a59ca62d8bb5e53e8a4ddf781
+  firebase_core: 1fba45150725a3bb51e7c944bdbc32969d2a9849
+  firebase_crashlytics: 92d57e331ced45e781b597114715653b0bd8c6ad
+  firebase_messaging: 9707e79db267098d8034ac0615ebdda072f01160
+  firebase_remote_config: 8d6a37cb17c49c4bf2b0572a3e19bfeeb5f6efbf
   FirebaseABTesting: 3f0f330ed5e19323fe512006d62a38399a7de7c1
+  FirebaseAnalytics: e9f8c369447e453da23f0455a06e4910bad10de0
   FirebaseAppCheckInterop: bd4b791ffaed7ae719304af6369d243ddee5e4a0
   FirebaseAuth: 8c38236f67e5e3dd6aacf3e0c46b3eed31e9c820
   FirebaseAuthInterop: f1ad187a0052276ad49a990538accfdf36fc595d
   FirebaseCore: ab948de5d99e69aeed3cd6f5ace263ce795b2559
   FirebaseCoreExtension: 201c78d7491a273d61d8afbf491214276a951e6d
   FirebaseCoreInternal: 656b1c2fd5a1c5976183dc54b73deda78fb26ee3
+  FirebaseCrashlytics: 5c8e09beebcd41913b35250cd0e533b58e4961a0
   FirebaseInstallations: f70a49eed611f5602f373e40974b3b01556ac217
   FirebaseMessaging: c15f48126adbe8b4d3238a5e1fa24bab3ad3e472
   FirebaseRemoteConfig: 93d0b4712662842bbea714375ec92f0411d567f6
   FirebaseRemoteConfigInterop: 90659b3cac8f6de884f2d930fbdbeb711533e142
+  FirebaseSessions: 39bcaa7c16b5d8b91d58f495f29ce2988d2f915c
   FirebaseSharedSwift: c91f36aeaa566e12b682caacc40d34c8303c3124
   Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
-  flutter_face_api: 3537a044ce3a7ceb9c6ba13464a26c2429d0204a
-  flutter_face_core_basic: b9286ee3970892f35393b16aed97a54905dc9951
-  flutter_inappwebview_ios: 6f63631e2c62a7c350263b13fa5427aedefe81d4
+  flutter_face_api: c237a6585954a3fc5042193bc51d486ba7921704
+  flutter_face_core_basic: 5308f512ee215f8476838046b697319f3391b286
   flutter_native_contact_picker: 326c7b69d06461907c9f8e3e0ae089e91deb3595
-  flutter_secure_storage_darwin: 557817588b80e60213cbecb573c45c76b788018d
+  flutter_secure_storage_darwin: 79a377dfb00a246ccab2c64fe79d4d78c89e0fbc
   gal: 6a522c75909f1244732d4596d11d6a2f86ff37a5
-  geocoding_darwin: 6b25f60c5c0855c2061f097ca17c937a827b8a76
-  geolocator_apple: 66b711889fd333205763b83c9dcf0a57a28c7afd
   Google-Mobile-Ads-SDK: 09d0868abe43b9f851b7b340a245679f0eafc96c
-  google_mlkit_commons: 092da2f8e0a4a77d9a0475fd6eec56958e2b505d
-  google_mlkit_face_detection: 6414bbd2ab4b682ea87794c9f9581dda9033680c
-  google_mlkit_text_recognition: 960eec5194182c898881a83d2d70afcd4abbb88d
   google_mobile_ads: c8f164ff415b8440e50b0102508d148c7fbea07f
   google_sign_in_ios: 7411fab6948df90490dc4620ecbcabdc3ca04017
+  GoogleAdsOnDeviceConversion: 41f168313b305040f4af27093d3c0af5ba46a9a3
+  GoogleAppMeasurement: f2f676480e4c97936df934aa181bc29caea46975
   GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
-  GoogleMLKit: b1eee21a41c57704fe72483b15c85cb2c0cd7444
   GoogleMobileAdsMediationUnity: cf8c4104b642d1829ce5ad7fd70184b9599bfc50
   GoogleSignIn: ce8c89bb9b37fb624b92e7514cc67335d1e277e4
-  GoogleToolboxForMac: d1a2cbf009c453f4d6ded37c105e2f67a32206d8
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   GoogleUtilities: 7dc09b3fa9ecb5c2298b952313d14628b61b9da3
   GTMAppAuth: f69bd07d68cd3b766125f7e072c45d7340dea0de
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   hx_liftoff_ads: a062d20282e6f9df95078103fde2a078b1ba3c9b
-  image_cropper: d3ba338ce166ebe54a4e1de742829354b521d473
+  image_cropper: e67b5e9d29a9825f1f3594b49d1e1310c9af91a0
   image_picker_ios: 4f2f91b01abdb52842a8e277617df877e40f905b
+  in_app_review: 436034b18594851a7328d7f1c2ed5ec235b79cfc
+  IronSourceAdQualitySDK: 779fc3754f27b3d5fae8da52c5709a2dbdb502a6
+  IronSourceSDK: 2556ce9318cbf296a5e9c980bca3bb70cde47c56
   local_auth_darwin: 63c73d6d28cc3e239be2b6aa460ea6e317cd5100
-  MLImage: 0de5c6c2bf9e93b80ef752e2797f0836f03b58c0
-  MLKitCommon: 47d47b50a031d00db62f1b0efe5a1d8b09a3b2e6
-  MLKitFaceDetection: 32549f1e70e6e7731261bf9cea2b74095e2531cb
-  MLKitTextRecognition: c0ad24510481dfc8893ad15dfcb8a5f05ed9e826
-  MLKitTextRecognitionCommon: 234ceb1cfdfb5fceb4fd664943046609a2961cc2
-  MLKitVision: 39a5a812db83c4a0794445088e567f3631c11961
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
-  OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
   package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
   permission_handler_apple: ee2fe0fd04551b304eb002714ff067c371c822ed
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
   PromisesSwift: 217dea0fd5d2ad65222a109c48698add13cc1c5b
   qr_code_scanner_plus: 84d9ebbb34ed66689bf44de41d407b5c3f0315d1
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
-  RegulaCommon: 7784c48d3476f12caed58b4dc0ffb82e3fedba1c
+  RegulaCommon: 974a79e6e8313be2ce07f956116f919f131f2975
   share_plus: 796a4b55a883a34f4f1ff7bbd19436879a5055db
   shared_preferences_foundation: 5086985c1d43c5ba4d5e69a4e8083a389e2909e6
-  sprint_check: 7b11b93e4bbf542438ea5c5959c88cc08d757978
-  sprintliveness: 6f699cc50119be9076a1cd524b488514b82a9264
+  sprint_check: 9abf3a6aa655452cc0cce9d28fc0d4de913d278e
+  sprintfacedetection: f8daeb3434b93fe550d93ab1f827aeebe3f95491
+  sprintliveness: dcf6c11df8c5041baf6db9100a01610ab9533b56
+  sprintocr: 3243782ad8afe73458bb5d13533a3702d281ca07
   sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
-  TOCropViewController: a916930c465b5d9445a74d95e0c0da931771b4df
+  TOCropViewController: 38189148d7014abafbb2914112fd767262d22659
   unity_ads_plugin: 10418650a07ad903d454ec8d38666b32620e0de8
+  unity_levelplay_mediation: 7c9cb16ea17a0e671aa65d7de87af9483d5bf12b
   UnityAds: 70ddc29f85c2e26967afca937e5379118f435747
   UnityCoherenceLib: d9be08c5b9c2880cb220c7ecd643f97ebda422b7
   url_launcher_ios: bb13df5870e8c4234ca12609d04010a21be43dfa
@@ -544,6 +580,6 @@ SPEC CHECKSUMS:
   wakelock_plus: 4d70a9769dc8dad95ca6131e70c46b2d5a5de261
   webview_flutter_wkwebview: 29eb20d43355b48fe7d07113835b9128f84e3af4
 
-PODFILE CHECKSUM: 91301e65f2f936c90e34e5f674371dd7886b0c0d
+PODFILE CHECKSUM: 47f8cb241b8fb3cf9607ede93ce561537570ca55
 
 COCOAPODS: 1.16.2

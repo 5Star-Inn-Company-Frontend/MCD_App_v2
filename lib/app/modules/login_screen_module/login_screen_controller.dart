@@ -211,12 +211,12 @@ class LoginScreenController extends GetxService {
 
   final box = GetStorage();
 
-  static const _androidOptions = AndroidOptions(
-    encryptedSharedPreferences: true,
-  );
+  // static const _androidOptions = AndroidOptions(
+  //   encryptedSharedPreferences: true,
+  // );
 
   final secureStorage = const FlutterSecureStorage(
-    aOptions: _androidOptions,
+    // aOptions: _androidOptions,
   );
 
   final _isLoading = false.obs;

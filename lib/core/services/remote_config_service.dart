@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
+import 'dart:io';
+import 'package:advert/advert.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:get/get.dart';
+import 'package:mcd/core/services/ads_service.dart';
 
 class RemoteConfigService extends GetxService {
   static RemoteConfigService get to => Get.find();
@@ -63,6 +66,30 @@ class RemoteConfigService extends GetxService {
     'ads_showrepeat': false,
     'ads_showrepeat_users': 'all',
     'ads_test_mode': false,
+
+    // Generic Ad Providers Toggles & Waterfall
+    'ads_provider_google': true,
+    'ads_provider_unity': true,
+    'ads_provider_vungle': true,
+    'ads_provider_levelplay': true,
+    'ads_provider_chartboost': true,
+    'ads_waterfall_priority': 'google,unity,vungle,levelplay,chartboost',
+
+    // Android-specific Ad Provider Toggles & Waterfall
+    'ads_provider_google_android': true,
+    'ads_provider_unity_android': true,
+    'ads_provider_vungle_android': true,
+    'ads_provider_levelplay_android': true,
+    'ads_provider_chartboost_android': true,
+    'ads_waterfall_priority_android': 'google,unity,vungle,levelplay,chartboost',
+
+    // iOS-specific Ad Provider Toggles & Waterfall
+    'ads_provider_google_ios': true,
+    'ads_provider_unity_ios': true,
+    'ads_provider_vungle_ios': true,
+    'ads_provider_levelplay_ios': true,
+    'ads_provider_chartboost_ios': true,
+    'ads_waterfall_priority_ios': 'google,unity,vungle,levelplay,chartboost',
     'unity_game_id_android': '3717787',
     'unity_game_id_ios': '3717786',
 
@@ -120,6 +147,7 @@ class RemoteConfigService extends GetxService {
         );
         await _remoteConfig.activate();
         configUpdateTick.value++;
+        AdsService().applyRemoteConfigAdSettings();
       }, onError: (error) {
         dev.log('Error listening to Remote Config updates: $error',
             name: 'RemoteConfig');
@@ -158,7 +186,7 @@ class RemoteConfigService extends GetxService {
     return userList.contains(username.trim().toLowerCase());
   }
 
-   /// Check if banner list ads are enabled for a specific username/user
+  /// Check if banner list ads are enabled for a specific username/user
   bool isBannerListEnabledForUser(String username) {
     if (!isServiceEnabled('ads_bannerlist')) return false;
 
@@ -173,6 +201,97 @@ class RemoteConfigService extends GetxService {
         .toList();
 
     return userList.contains(username.trim().toLowerCase());
+  }
+
+  /// Map string name to AdProviderType
+  AdProviderType? _parseAdProviderType(String name) {
+    switch (name.trim().toLowerCase()) {
+      case 'google':
+      case 'admob':
+        return AdProviderType.google;
+      case 'unity':
+      case 'unityads':
+        return AdProviderType.unity;
+      case 'vungle':
+      case 'liftoff':
+        return AdProviderType.vungle;
+      case 'levelplay':
+      case 'ironsource':
+        return AdProviderType.levelplay;
+      case 'chartboost':
+        return AdProviderType.chartboost;
+      default:
+        return null;
+    }
+  }
+
+  /// Get enabled map for all ad providers (platform-aware)
+  Map<AdProviderType, bool> getAdProviderEnabledMap() {
+    final platformSuffix = Platform.isAndroid ? '_android' : (Platform.isIOS ? '_ios' : '');
+
+    bool checkProvider(String providerName) {
+      final platformKey = 'ads_provider_$providerName$platformSuffix';
+      final genericKey = 'ads_provider_$providerName';
+
+      if (_remoteConfig.getAll().containsKey(platformKey)) {
+        return _remoteConfig.getBool(platformKey);
+      }
+      if (_remoteConfig.getAll().containsKey(genericKey)) {
+        return _remoteConfig.getBool(genericKey);
+      }
+      return getBool(platformKey, defaultValue: true);
+    }
+
+    return {
+      AdProviderType.google: checkProvider('google'),
+      AdProviderType.unity: checkProvider('unity'),
+      AdProviderType.vungle: checkProvider('vungle'),
+      AdProviderType.levelplay: checkProvider('levelplay'),
+      AdProviderType.chartboost: checkProvider('chartboost'),
+    };
+  }
+
+  /// Get priority order list for ad waterfall (platform-aware)
+  List<AdProviderType> getAdProviderPriorityOrder() {
+    final defaultOrder = [
+      AdProviderType.google,
+      AdProviderType.unity,
+      AdProviderType.vungle,
+      AdProviderType.levelplay,
+      AdProviderType.chartboost,
+    ];
+
+    final platformSuffix = Platform.isAndroid ? '_android' : (Platform.isIOS ? '_ios' : '');
+    final platformKey = 'ads_waterfall_priority$platformSuffix';
+    final genericKey = 'ads_waterfall_priority';
+
+    String rawOrderString = '';
+    if (_remoteConfig.getAll().containsKey(platformKey)) {
+      rawOrderString = _remoteConfig.getString(platformKey);
+    } else if (_remoteConfig.getAll().containsKey(genericKey)) {
+      rawOrderString = _remoteConfig.getString(genericKey);
+    } else {
+      rawOrderString = getString(platformKey, defaultValue: 'google,unity,vungle,levelplay,chartboost');
+    }
+
+    if (rawOrderString.isEmpty) return defaultOrder;
+    final parsedOrder = <AdProviderType>[];
+    final parts = rawOrderString.split(',');
+
+    for (final part in parts) {
+      final type = _parseAdProviderType(part);
+      if (type != null && !parsedOrder.contains(type)) {
+        parsedOrder.add(type);
+      }
+    }
+
+    for (final type in defaultOrder) {
+      if (!parsedOrder.contains(type)) {
+        parsedOrder.add(type);
+      }
+    }
+
+    return parsedOrder;
   }
 
   /// Check if a specific payment method is enabled via Remote Config
@@ -292,6 +411,7 @@ class RemoteConfigService extends GetxService {
       );
       bool updated = await _remoteConfig.fetchAndActivate();
       configUpdateTick.value++;
+      AdsService().applyRemoteConfigAdSettings();
       dev.log('Remote Config force refresh success: $updated (Tick: ${configUpdateTick.value})', name: 'RemoteConfig');
       return updated;
     } catch (e) {
