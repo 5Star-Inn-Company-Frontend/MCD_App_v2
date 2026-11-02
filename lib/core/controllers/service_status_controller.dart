@@ -103,13 +103,20 @@ class ServiceStatusController extends GetxService {
   // Check if a specific service is available (server status takes precedence, falls back to Remote Config)
   bool isServiceAvailable(String serviceKey) {
     if (serviceStatus.value != null) {
-      final isAvailable =
+      bool isAvailable =
           serviceStatus.value!.services.isServiceAvailable(serviceKey);
+      if (!isAvailable && serviceStatus.value!.rawServices.isNotEmpty) {
+        final rawVal = serviceStatus.value!.rawServices[serviceKey] ??
+            serviceStatus.value!.rawServices[serviceKey.toLowerCase()];
+        if (rawVal != null) {
+          isAvailable = rawVal.toString() == '1' || rawVal == true;
+        }
+      }
       if (!isAvailable) {
         dev.log('Service "$serviceKey" is UNAVAILABLE (via Server)', name: 'ServiceStatus');
       }
       if (isAvailable) {
-        // Server data is null, fall back to Remote Config if registered
+        // Fall back to Remote Config if registered
         if (Get.isRegistered<RemoteConfigService>()) {
           final isRcEnabled = RemoteConfigService.to.isServiceEnabled(serviceKey);
           if (!isRcEnabled) {

@@ -70,6 +70,7 @@ class Services {
   final String freemoney;
   final String freeMoneyAmount;
   final String virtualCard;
+  final String airtimeGistplus;
 
   Services({
     required this.airtime,
@@ -96,6 +97,7 @@ class Services {
     required this.freemoney,
     required this.freeMoneyAmount,
     required this.virtualCard,
+    this.airtimeGistplus = '0',
   });
 
   factory Services.fromJson(Map<String, dynamic> json) {
@@ -124,6 +126,7 @@ class Services {
       freemoney: json['freemoney']?.toString() ?? '0',
       freeMoneyAmount: json['free_money_amount']?.toString() ?? '0',
       virtualCard: json['virtual_card']?.toString() ?? '0',
+      airtimeGistplus: (json['airtime_gistplus'] ?? json['gistplus'])?.toString() ?? '0',
     );
   }
 
@@ -177,6 +180,9 @@ class Services {
         return freemoney == '1';
       case 'virtual_card':
         return virtualCard == '1';
+      case 'airtime_gistplus':
+      case 'gistplus':
+        return airtimeGistplus == '1';
       default:
         return false;
     }

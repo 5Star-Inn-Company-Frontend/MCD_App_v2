@@ -36,6 +36,7 @@ class RemoteConfigService extends GetxService {
     'service_predictwin': true,
     'service_freemoney': true,
     'service_virtual_card': true,
+    'service_airtime_gistplus': true,
 
     // Payment methods defaults
     'payment_paystack': true,

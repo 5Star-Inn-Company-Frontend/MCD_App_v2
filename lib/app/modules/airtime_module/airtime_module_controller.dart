@@ -379,6 +379,9 @@ class AirtimeModuleController extends GetxController {
   void onProviderSelected(AirtimeProvider? provider) {
     if (provider != null) {
       selectedProvider.value = provider;
+      if (!provider.network.toLowerCase().contains('mtn')) {
+        selectedOffer.value = 0;
+      }
       dev.log('Provider selected: ${provider.network}', name: 'AirtimeModule');
     }
   }

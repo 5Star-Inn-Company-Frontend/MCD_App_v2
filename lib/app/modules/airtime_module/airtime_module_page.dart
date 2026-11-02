@@ -331,7 +331,6 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
             ? _gistPlusRow()
             : const SizedBox.shrink()),
 
-        const Gap(25),
         TextSemiBold("Select Amount"),
         const Gap(14),
 
@@ -1030,29 +1029,35 @@ class AirtimeModulePage extends GetView<AirtimeModuleController> {
       if (!isMtn) {
         return const SizedBox.shrink();
       }
-      return Row(
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: _offerCard(
-              index: 1,
-              title: "Buy ₦100 and get ₦100",
-              badgeText: "Regular",
-              badgeColor: AppColors.primaryGreen,
-              isSelected: controller.selectedOffer.value == 1,
-              onTap: () => controller.toggleOffer(1),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: _offerCard(
+                  index: 1,
+                  title: "Buy ₦100 and get ₦100",
+                  badgeText: "Regular",
+                  badgeColor: AppColors.primaryGreen,
+                  isSelected: controller.selectedOffer.value == 1,
+                  onTap: () => controller.toggleOffer(1),
+                ),
+              ),
+              const Gap(8),
+              Expanded(
+                child: _offerCard(
+                  index: 2,
+                  title: "Buy ₦100 and get ₦100 + 400",
+                  badgeText: "GistPlus 🔥",
+                  badgeColor: AppColors.primaryOrange,
+                  isSelected: controller.selectedOffer.value == 2,
+                  onTap: () => controller.toggleOffer(2),
+                ),
+              ),
+            ],
           ),
-          const Gap(8),
-          Expanded(
-            child: _offerCard(
-              index: 2,
-              title: "Buy ₦100 and get ₦100 + 400",
-              badgeText: "GistPlus 🔥",
-              badgeColor: AppColors.primaryOrange,
-              isSelected: controller.selectedOffer.value == 2,
-              onTap: () => controller.toggleOffer(2),
-            ),
-          ),
+          const Gap(25),
         ],
       );
     });

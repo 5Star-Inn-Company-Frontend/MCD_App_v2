@@ -8,6 +8,9 @@ allprojects {
         maven {
             url "https://maven.regulaforensics.com/RegulaDocumentReader"
         }
+        maven {
+            url "https://cboost.jfrog.io/artifactory/chartboost-ads/"
+        }
     }
     configurations.all {
         resolutionStrategy {
