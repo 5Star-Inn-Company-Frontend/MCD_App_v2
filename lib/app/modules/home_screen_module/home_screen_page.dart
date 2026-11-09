@@ -1415,7 +1415,7 @@ class _HomePromoCarouselState extends State<HomePromoCarousel> {
     return Column(
       children: [
         SizedBox(
-          height: 120,
+          height: 138,
           child: GestureDetector(
             onPanDown: (_) => _stopAutoSlide(),
             onPanCancel: () => _startAutoSlide(),
@@ -1512,14 +1512,14 @@ class _PromoCarouselItem extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 12, right: 10, top: 10, bottom: 12),
+              padding: const EdgeInsets.only(left: 12, right: 10, top: 8, bottom: 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // circular icon on the far left
-                  Container(
-                    width: 48,
-                    height: 48,
+                  SizedBox(
+                    width: 44,
+                    height: 44,
                     child: CachedNetworkImage(
                       imageUrl: item.iconAsset,
                       errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.white, size: 24),
@@ -1531,11 +1531,12 @@ class _PromoCarouselItem extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           item.title,
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 15,
                             fontWeight: FontWeight.w600,
                             fontFamily: AppFonts.manRope,
                             color: Color(0xFF333333),
@@ -1552,6 +1553,8 @@ class _PromoCarouselItem extends StatelessWidget {
                             fontFamily: AppFonts.manRope,
                             color: _parseColor(item.subtitle1Color),
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         if (item.subtitle2.isNotEmpty) ...[
                           const Gap(2),
@@ -1562,9 +1565,11 @@ class _PromoCarouselItem extends StatelessWidget {
                               fontFamily: AppFonts.manRope,
                               color: Color(0xFF888888),
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
-                        const Gap(10),
+                        const Gap(6),
                         GestureDetector(
                           onTap: () {
                             if (item.route.isNotEmpty) {
@@ -1579,7 +1584,7 @@ class _PromoCarouselItem extends StatelessWidget {
                             }
                           },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                             decoration: BoxDecoration(
                               color: AppColors.primaryColor,
                               borderRadius: BorderRadius.circular(20),
@@ -1591,13 +1596,13 @@ class _PromoCarouselItem extends StatelessWidget {
                                   item.buttonText,
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 12,
+                                    fontSize: 11,
                                     fontWeight: FontWeight.w600,
                                     fontFamily: AppFonts.manRope,
                                   ),
                                 ),
                                 const Gap(4),
-                                const Icon(Icons.arrow_forward, color: Colors.white, size: 14),
+                                const Icon(Icons.arrow_forward, color: Colors.white, size: 13),
                               ],
                             ),
                           ),
