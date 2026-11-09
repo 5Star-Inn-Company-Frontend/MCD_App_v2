@@ -556,7 +556,7 @@ class HistoryScreenController extends GetxController {
       if (network.contains('dstv')) {
         icon = 'assets/images/cable/dstv.jpeg';
       } else if (network.contains('gotv')) {
-        icon = 'assets/images/cable/gotv.jpeg';
+        icon = 'assets/images/cable/gotv.png';
       } else if (network.contains('showmax')) {
         icon = 'assets/images/cable/showmax.jpeg';
       } else if (network.contains('startimes')) {

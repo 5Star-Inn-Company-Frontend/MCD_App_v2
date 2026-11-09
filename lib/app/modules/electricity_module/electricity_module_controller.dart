@@ -41,8 +41,8 @@ class ElectricityModuleController extends GetxController {
     'AEDC': 'assets/images/electricity/AEDC.png',
     'EEDC': 'assets/images/electricity/EEDC.png',
     'ABA': 'assets/images/electricity/ABA.png',
-    'YEDC': 'assets/images/electricity/YEDC.jpeg',
-    'BEDC': 'assets/images/electricity/BEDC.jpg',
+    'YEDC': 'assets/images/electricity/YEDC.png',
+    'BEDC': 'assets/images/electricity/BEDC.png',
     'DEFAULT': 'assets/images/mcdlogo.png',
   };
 

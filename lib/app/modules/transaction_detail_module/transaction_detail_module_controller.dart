@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:mcd/core/constants/app_asset.dart';
 import 'dart:ui' as ui;
 import 'dart:io';
 import 'dart:convert';
@@ -206,7 +207,7 @@ class TransactionDetailModuleController extends GetxController {
       case '9MOBILE':
         return 'assets/images/etisalat.png';
       case 'GLO':
-        return 'assets/images/glo.png';
+        return AppAsset.glo;
       default:
         return 'assets/images/mtn.png';
     }
@@ -509,7 +510,7 @@ class TransactionDetailModuleController extends GetxController {
   }
 
   String _getTransactionIcon() {
-    if (transaction == null) return 'assets/images/mcdlogo.png';
+    if (transaction == null) return AppAsset.mcdLogo;
 
     final code = transaction!.code.toLowerCase();
     final name = transaction!.name.toLowerCase();
@@ -517,29 +518,29 @@ class TransactionDetailModuleController extends GetxController {
     if (code.contains('airtime_pin') || name.contains('airtime_pin')) {
       // Airtime PIN/Epin
       if (name.contains('mtn') || code.contains('mtn')) {
-        return 'assets/images/history/mtn.png';
+        return AppAsset.mtn;
       }
       if (name.contains('glo') || code.contains('glo')) {
-        return 'assets/images/glo.png';
+        return AppAsset.glo;
       }
       if (name.contains('airtel') || code.contains('airtel')) {
-        return 'assets/images/history/airtel.png';
+        return AppAsset.airtel;
       }
       if (name.contains('9mobile') || code.contains('9mobile')) {
-        return 'assets/images/history/9mobile.png';
+        return AppAsset.nineMobile;
       }
-      return 'assets/images/mcdlogo.png';
+      return AppAsset.mcdLogo;
     } else if (code.contains('airtime') || name.contains('airtime')) {
-      if (name.contains('mtn')) return 'assets/images/history/mtn.png';
-      if (name.contains('glo')) return 'assets/images/glo.png';
-      if (name.contains('airtel')) return 'assets/images/history/airtel.png';
-      if (name.contains('9mobile')) return 'assets/images/history/9mobile.png';
-      return 'assets/images/mcdlogo.png';
+      if (name.contains('mtn')) return AppAsset.mtn;
+      if (name.contains('glo')) return AppAsset.glo;
+      if (name.contains('airtel')) return AppAsset.airtel;
+      if (name.contains('9mobile')) return AppAsset.nineMobile;
+      return AppAsset.mcdLogo;
     } else if (code.contains('data') || name.contains('data')) {
-      if (name.contains('mtn')) return 'assets/images/history/mtn.png';
-      if (name.contains('glo')) return 'assets/images/glo.png';
-      if (name.contains('airtel')) return 'assets/images/history/airtel.png';
-      return 'assets/images/mcdlogo.png';
+      if (name.contains('mtn')) return AppAsset.mtn;
+      if (name.contains('glo')) return AppAsset.glo;
+      if (name.contains('airtel')) return AppAsset.airtel;
+      return AppAsset.mcdLogo;
     } else if (code.contains('betting') || name.contains('betting')) {
       // Betting - check for specific platform
       final network = transaction!.serverLog?.network.toLowerCase() ??
@@ -617,7 +618,7 @@ class TransactionDetailModuleController extends GetxController {
       if (network.contains('dstv')) {
         return 'assets/images/cable/dstv.jpeg';
       } else if (network.contains('gotv')) {
-        return 'assets/images/cable/gotv.jpeg';
+        return 'assets/images/cable/gotv.png';
       } else if (network.contains('showmax')) {
         return 'assets/images/cable/showmax.jpeg';
       } else if (network.contains('startimes')) {
@@ -629,10 +630,10 @@ class TransactionDetailModuleController extends GetxController {
       // NIN Validation
       return 'assets/images/nin.png';
     } else if (transaction!.isCredit) {
-      return 'assets/images/mcdlogo.png';
+      return AppAsset.mcdLogo;
     }
 
-    return 'assets/images/mcdlogo.png';
+    return AppAsset.mcdLogo;
   }
 
   String _getPaymentType() {
