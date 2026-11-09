@@ -1121,7 +1121,8 @@ class HomeScreenPage extends StatelessWidget {
   }
 
   void _navigateToWithdrawBonus(BuildContext context, String walletType) {
-    Navigator.pop(context);
+
+    if (context.mounted) Navigator.pop(context);
     if (Get.isRegistered<WithdrawBonusModuleController>()) {
       final withdrawController = Get.find<WithdrawBonusModuleController>();
       withdrawController.applyWalletTypeFromArgs({'walletType': walletType});
@@ -1131,15 +1132,16 @@ class HomeScreenPage extends StatelessWidget {
   }
 
   void _navigateToLeaderboard(BuildContext context) {
-    Navigator.pop(context);
+    if (context.mounted) Navigator.pop(context);
     Get.toNamed(Routes.MCD_REWARDS_MODULE);
   }
 
   void _showGeneralMarketServicesBottomSheet(
       BuildContext context, HomeScreenController controller) {
-    Navigator.pop(context);
+    if (context.mounted) Navigator.pop(context);
+    final targetContext = (Get.context != null && Get.context!.mounted) ? Get.context! : context;
     showCustomBottomSheet(
-      context: context,
+      context: targetContext,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -1151,8 +1153,9 @@ class HomeScreenPage extends StatelessWidget {
             'subtitle': 'Top up airtime using General Market',
             'icon': Icons.phone_android_rounded,
             'action': () {
-              Navigator.pop(sheetContext);
-              _showAirtimeSelectionBottomSheet(context, controller);
+              if (sheetContext.mounted) Navigator.pop(sheetContext);
+              final activeCtx = (Get.context != null && Get.context!.mounted) ? Get.context! : context;
+              _showAirtimeSelectionBottomSheet(activeCtx, controller);
             },
           },
           {
@@ -1160,8 +1163,9 @@ class HomeScreenPage extends StatelessWidget {
             'subtitle': 'Purchase data using General Market',
             'icon': Icons.wifi_rounded,
             'action': () {
-              Navigator.pop(sheetContext);
-              _showDataSelectionBottomSheet(context, controller);
+              if (sheetContext.mounted) Navigator.pop(sheetContext);
+              final activeCtx = (Get.context != null && Get.context!.mounted) ? Get.context! : context;
+              _showDataSelectionBottomSheet(activeCtx, controller);
             },
           },
         ];

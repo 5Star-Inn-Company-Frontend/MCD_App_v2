@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:mcd/app/widgets/abstract_bottom_sheet_content.dart';
 
 Future<T?> showCustomBottomSheet<T>({
@@ -23,8 +24,17 @@ Future<T?> showCustomBottomSheet<T>({
   AnimationController? transitionAnimationController,
   Offset? anchorPoint,
 }) {
+  BuildContext effectiveContext = context;
+  if (!effectiveContext.mounted || Navigator.maybeOf(effectiveContext) == null) {
+    if (Get.context != null && Get.context!.mounted) {
+      effectiveContext = Get.context!;
+    } else {
+      return Future.value(null);
+    }
+  }
+
   return showModalBottomSheet<T>(
-    context: context,
+    context: effectiveContext,
     builder: (context) {
       return AbstractBottomSheetContent(
         child: builder(context),
