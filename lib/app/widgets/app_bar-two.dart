@@ -4,6 +4,8 @@ import 'package:mcd/app/styles/fonts.dart';
 import 'package:mcd/app/widgets/app_back_button.dart';
 import 'package:mcd/app/widgets/touchableOpacity.dart';
 
+import 'package:get/get.dart';
+
 class PaylonyAppBarTwo extends StatelessWidget implements PreferredSizeWidget {
   const PaylonyAppBarTwo({
     super.key,
@@ -25,7 +27,13 @@ class PaylonyAppBarTwo extends StatelessWidget implements PreferredSizeWidget {
       // backgroundColor: Color(0xffFBFBFB),
       // systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: AppColors.white, statusBarIconBrightness: Brightness.dark),
       leading: TouchableOpacity(
-        onTap: () => Navigator.pop(context),
+        onTap: () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            Get.back();
+          }
+        },
         child: const AppBackButton(),
       ),
       title: TextBold(
