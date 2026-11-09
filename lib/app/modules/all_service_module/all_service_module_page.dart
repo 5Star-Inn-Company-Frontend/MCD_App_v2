@@ -144,7 +144,9 @@ class AllServiceModulePage extends GetView<AllServiceModuleController> {
                       final button = buttons[index];
                       return TouchableOpacity(
                         onTap: () async {
-                          final hc = Get.find<HomeScreenController>();
+                          final hc = Get.isRegistered<HomeScreenController>()
+                              ? Get.find<HomeScreenController>()
+                              : Get.put(HomeScreenController());
                           final isAvailable = await hc.handleServiceNavigation(button);
                           if (!isAvailable) return;
                           

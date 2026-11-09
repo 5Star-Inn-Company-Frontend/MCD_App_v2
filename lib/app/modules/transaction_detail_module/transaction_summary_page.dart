@@ -384,6 +384,9 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
 
   Widget _buildMegaSaleSlider() {
     try {
+      if (!Get.isRegistered<HomeScreenController>()) {
+        return const SizedBox.shrink();
+      }
       final homeController = Get.find<HomeScreenController>();
       return Obx(() {
         if (homeController.imageSliders.isEmpty) {

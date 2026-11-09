@@ -95,7 +95,7 @@ class HomeScreenPage extends StatelessWidget {
                             _buildQuickActionsRow(controller, context),
                             const Gap(12),
                             Skeleton.ignore(
-                              child: _buildStaticCarousel(context),
+                              child: _buildStaticCarousel(controller, context),
                             ),
                             const Gap(12),
                             _buildTopEarners(context),
@@ -1348,8 +1348,8 @@ class HomeScreenPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStaticCarousel(BuildContext context) {
-    final controller = Get.find<HomeScreenController>();
+  Widget _buildStaticCarousel(
+      HomeScreenController controller, BuildContext context) {
     final promotions = controller.dashboardData?.appPromotions ?? [];
     if (promotions.isEmpty) return const SizedBox.shrink();
     return Skeleton.leaf(child: HomePromoCarousel(items: promotions));
