@@ -440,17 +440,17 @@ class HistoryScreenController extends GetxController {
       } else if (type.contains('glo') ||
           code.contains('glo') ||
           description.contains('glo')) {
-        icon = 'assets/images/glo.png';
+        icon = AppAsset.glo;
       } else if (type.contains('airtel') ||
           code.contains('airtel') ||
           description.contains('airtel')) {
-        icon = 'assets/images/history/airtel.png';
+        icon = AppAsset.airtel;
       } else if (type.contains('9mobile') ||
           code.contains('9mobile') ||
           description.contains('9mobile')) {
-        icon = 'assets/images/history/9mobile.png';
+        icon = AppAsset.nineMobile;
       } else {
-        icon = 'assets/images/mcdlogo.png';
+        icon = AppAsset.mcdLogo;
       }
     } else if (code.contains('airtime') || type.contains('airtime')) {
       // Regular airtime - Network-specific icons
@@ -459,23 +459,23 @@ class HistoryScreenController extends GetxController {
       } else if (type.contains('glo') || description.contains('glo')) {
         icon = 'assets/images/glo.png';
       } else if (type.contains('airtel') || description.contains('airtel')) {
-        icon = 'assets/images/history/airtel.png';
+        icon = AppAsset.airtel;
       } else if (type.contains('9mobile') || description.contains('9mobile')) {
-        icon = 'assets/images/history/9mobile.png';
+        icon = AppAsset.nineMobile;
       } else {
-        icon = 'assets/images/mcdlogo.png';
+        icon = AppAsset.mcdLogo;
       }
     } else if (code.contains('data') || type.contains('data')) {
       if (type.contains('mtn') || description.contains('mtn')) {
         icon = AppAsset.mtn;
       } else if (type.contains('glo') || description.contains('glo')) {
-        icon = 'assets/images/history/glo.png';
+        icon = AppAsset.glo;
       } else if (type.contains('airtel') || description.contains('airtel')) {
-        icon = 'assets/images/history/airtel.png';
+        icon = AppAsset.airtel;
       } else if (type.contains('9mobile') || description.contains('9mobile')) {
-        icon = 'assets/images/history/9mobile.png';
+        icon = AppAsset.nineMobile;
       } else {
-        icon = 'assets/images/mcdlogo.png';
+        icon = AppAsset.mcdLogo;
       }
     } else if (code.contains('betting') ||
         type.contains('betting') ||
@@ -570,7 +570,7 @@ class HistoryScreenController extends GetxController {
         description.contains('withdrawal')) {
       icon = AppAsset.withdrawal;
     } else {
-      icon = 'assets/images/mcdlogo.png'; // Default icon
+      icon = AppAsset.mcdLogo; // Default icon
     }
 
     return icon;
