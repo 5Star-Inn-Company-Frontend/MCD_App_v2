@@ -215,8 +215,10 @@ class GeneralMarketPaymentService {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () {
-                        Get.back();
-                        completer.complete(false);
+                        if (Get.isDialogOpen ?? false) Get.back();
+                        if (!completer.isCompleted) {
+                          completer.complete(false);
+                        }
                       },
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -239,8 +241,10 @@ class GeneralMarketPaymentService {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () {
-                        Get.back();
-                        completer.complete(true);
+                        if (Get.isDialogOpen ?? false) Get.back();
+                        if (!completer.isCompleted) {
+                          completer.complete(true);
+                        }
                       },
                       style: OutlinedButton.styleFrom(
                         backgroundColor: AppColors.primaryColor,
@@ -267,7 +271,11 @@ class GeneralMarketPaymentService {
         ),
       ),
       barrierDismissible: false,
-    );
+    ).then((_) {
+      if (!completer.isCompleted) {
+        completer.complete(false);
+      }
+    });
 
     return completer.future;
   }
