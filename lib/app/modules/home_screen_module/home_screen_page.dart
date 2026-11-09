@@ -791,7 +791,8 @@ class HomeScreenPage extends StatelessWidget {
                   const Gap(4),
                   Skeleton.ignore(
                     child: StreamBuilder(
-                      stream: Stream.periodic(const Duration(seconds: 1)),
+                      stream: Stream.periodic(const Duration(seconds: 1))
+                          .asBroadcastStream(),
                       builder: (context, snapshot) {
                         return Obx(() {
                           final time = controller.lastUpdated.value;
