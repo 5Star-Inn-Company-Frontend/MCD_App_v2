@@ -732,13 +732,17 @@ class HomeScreenPage extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: const [
-                        Text(
-                          "0123456789 | Bank Name | MCD-user",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: AppFonts.manRope),
+                        Flexible(
+                          child: Text(
+                            "0123456789 | Bank Name | MCD-user",
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: AppFonts.manRope),
+                          ),
                         ),
                       ],
                     ),
