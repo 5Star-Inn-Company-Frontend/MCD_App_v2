@@ -10,49 +10,56 @@ class AbstractBottomSheetContent extends StatelessWidget {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       child: Stack(
+        fit: StackFit.loose,
         children: [
-          Positioned(
-            top: -20,
-            right: 60,
-            bottom: -50,
-            child: Transform.rotate(
-              angle: 0.4,
-              child: Container(
-                width: 35,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppColors.primaryColor.withOpacity(0.05),
-                      AppColors.primaryColor.withOpacity(0.01)
-                    ],
-                    stops: const [0.0, 0.7],
+          Positioned.fill(
+            child: Stack(
+              children: [
+                Positioned(
+                  top: -20,
+                  right: 60,
+                  bottom: -50,
+                  child: Transform.rotate(
+                    angle: 0.4,
+                    child: Container(
+                      width: 35,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            AppColors.primaryColor.withOpacity(0.05),
+                            AppColors.primaryColor.withOpacity(0.01)
+                          ],
+                          stops: const [0.0, 0.7],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: -20,
-            right: 120,
-            bottom: -50,
-            child: Transform.rotate(
-              angle: 0.4,
-              child: Container(
-                width: 35,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppColors.primaryColor.withOpacity(0.05),
-                      AppColors.primaryColor.withOpacity(0.01)
-                    ],
-                    stops: const [0.0, 0.7],
+                Positioned(
+                  top: -20,
+                  right: 120,
+                  bottom: -50,
+                  child: Transform.rotate(
+                    angle: 0.4,
+                    child: Container(
+                      width: 35,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            AppColors.primaryColor.withOpacity(0.05),
+                            AppColors.primaryColor.withOpacity(0.01)
+                          ],
+                          stops: const [0.0, 0.7],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
           child,

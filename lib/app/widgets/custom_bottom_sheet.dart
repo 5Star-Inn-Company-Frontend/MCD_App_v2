@@ -13,7 +13,7 @@ Future<T?> showCustomBottomSheet<T>({
   Clip? clipBehavior,
   BoxConstraints? constraints,
   Color? barrierColor,
-  bool isScrollControlled = false,
+  bool isScrollControlled = true,
   bool useRootNavigator = false,
   bool isDismissible = true,
   bool enableDrag = true,
