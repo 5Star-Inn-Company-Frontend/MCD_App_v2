@@ -710,7 +710,7 @@ class HomeScreenPage extends StatelessWidget {
                                   ),
                                   TextSpan(
                                     text:
-                                        " | ${accs.primaryBankName} | MCD-${controller.dashboardData?.user.userName ?? ''}",
+                                        " | ${accs.primaryBankName.toUpperCase()} | MCD-${controller.dashboardData?.user.userName.toUpperCase() ?? ''}",
                                   ),
                                 ],
                               ),

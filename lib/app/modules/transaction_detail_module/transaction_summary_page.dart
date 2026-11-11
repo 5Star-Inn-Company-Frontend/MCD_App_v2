@@ -25,7 +25,7 @@ class TransactionSummaryPage extends GetView<TransactionDetailModuleController> 
         actions: [
           TextButton(
             onPressed: () {
-              Get.until((route) => route.settings.name == Routes.HOME_SCREEN || route.isFirst);
+              Get.until((route) => route.isFirst || route.settings.name == Routes.HOME_SCREEN);
             },
             child: const Text(
               'Done',

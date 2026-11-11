@@ -573,7 +573,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextSemiBold('Offer Code', fontSize: 14),
+            TextSemiBold('Offer Code (Optional)', fontSize: 14),
             const Gap(9),
             Row(
               children: [
@@ -593,7 +593,7 @@ class GeneralPayoutPage extends GetView<GeneralPayoutController> {
                     ),
                     decoration: InputDecoration(
                       border: const UnderlineInputBorder(),
-                      hintText: 'Enter offer code',
+                      hintText: 'Enter offer code. If you dont have, leave it empty',
                       hintStyle: TextStyle(
                         fontFamily: AppFonts.manRope,
                         fontSize: 14,

@@ -97,7 +97,7 @@ class AllServiceModuleController extends GetxController {
     if (isEnabled("Reward Centre")) categorizedServices['OTHERS']!.add(ButtonModel(icon: AppAsset.gift, text: "Reward Centre", link: Routes.REWARD_CENTRE_MODULE));
     if (isEnabled("Game Center")) categorizedServices['OTHERS']!.add(ButtonModel(icon: 'assets/images/reward_centre/game-centre.png', text: "Game Center", link: Routes.GAME_CENTRE_MODULE));
     if (isEnabled("POS")) categorizedServices['OTHERS']!.add(ButtonModel(icon: AppAsset.posIcon, text: "POS", link: Routes.POS_HOME));
-    // if (isEnabled("Store Front")) categorizedServices['OTHERS']!.add(ButtonModel(icon: AppAsset.service, text: "Store Front", link: Routes.STORE_FRONT));
+    if (isEnabled("Store Front")) categorizedServices['OTHERS']!.add(ButtonModel(icon: AppAsset.service, text: "Store Front", link: Routes.STORE_FRONT));
     // categorizedServices['OTHERS']!.add(ButtonModel(icon: AppAsset.service, text: "Store Front", link: Routes.STORE_FRONT));
   }
 

@@ -60,7 +60,7 @@ class StatItemCard extends StatelessWidget {
               style: const TextStyle(
                 color: AppColors.textPrimaryColor,
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w900,
               ),
             ),
             const SizedBox(height: 4),

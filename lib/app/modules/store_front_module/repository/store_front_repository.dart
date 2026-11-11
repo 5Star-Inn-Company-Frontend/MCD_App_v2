@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:developer' as dev;
 import 'package:dartz/dartz.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:mcd/app/styles/app_colors.dart';
 import 'package:mcd/core/network/dio_api_service.dart';
 import 'package:mcd/core/network/errors.dart';
 import 'package:mcd/core/services/storage_service.dart';
@@ -32,6 +35,15 @@ class StoreFrontRepository {
       (data) {
         dev.log('[StoreFront] getDashboard SUCCESS ($endpoint): ${jsonEncode(data)}', name: 'StoreFront');
         try {
+          if(data['success'] == 0){
+            Get.snackbar(
+              "Error",
+              data['message'],
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+            return Left(ServerFailure(data['message']));
+          }
           return Right(StorefrontDashboardModel.fromJson(data));
         } catch (e) {
           dev.log('[StoreFront] getDashboard Parsing ERROR: $e', name: 'StoreFront');

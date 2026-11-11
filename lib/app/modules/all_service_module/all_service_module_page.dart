@@ -240,17 +240,17 @@ class AllServiceModulePage extends GetView<AllServiceModuleController> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: const Text('WAEC'),
+                title: const Text('Result Checker Token'),
                 onTap: () {
                   Navigator.pop(context);
                   Get.toNamed(Routes.RESULT_CHECKER_MODULE, arguments: {'type': 'WAEC'});
                 },
               ),
               ListTile(
-                title: const Text('NECO'),
+                title: const Text('JAMB Pin'),
                 onTap: () {
                   Navigator.pop(context);
-                  Get.toNamed(Routes.RESULT_CHECKER_MODULE, arguments: {'type': 'NECO'});
+                  Get.toNamed(Routes.JAMB_MODULE, arguments: {'type': 'NECO'});
                 },
               ),
             ],

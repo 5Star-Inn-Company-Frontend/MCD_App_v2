@@ -4,7 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:mcd/app/routes/app_pages.dart';
 import 'package:mcd/app/styles/app_colors.dart';
+import 'package:mcd/core/constants/constants.dart';
 import 'models/storefront_dashboard_model.dart';
 import 'models/storefront_plan_model.dart';
 import 'models/storefront_provider_model.dart';
@@ -94,10 +96,6 @@ class StoreFrontController extends GetxController {
     super.onInit();
     dev.log('[StoreFrontController] onInit - initializing and fetching storefront data', name: 'StoreFront');
     fetchDashboard();
-    fetchUsage();
-    fetchCategoryProviders('airtime');
-    fetchCategoryProviders('data');
-    fetchCategoryProviders('cabletv');
   }
 
   @override
@@ -115,9 +113,16 @@ class StoreFrontController extends GetxController {
     result.fold(
       (failure) {
         dev.log('[StoreFrontController] fetchDashboard() FAILED: ${failure.message}', name: 'StoreFront');
+        _showAgentRequiredModal(failure.message);
       },
       (data) {
         dev.log('[StoreFrontController] fetchDashboard() SUCCESS: store="${data.storeName}", code="${data.storeCode}", link="${data.whatsappLink}", sales=${data.todaySales}', name: 'StoreFront');
+
+        fetchUsage();
+        fetchCategoryProviders('airtime');
+        fetchCategoryProviders('data');
+        fetchCategoryProviders('cabletv');
+
         dashboardData.value = data;
         storeName.value = data.storeName;
         welcomeMessage.value = data.welcomeMessage;
@@ -625,6 +630,285 @@ class StoreFrontController extends GetxController {
         plan: plan,
       ),
       barrierDismissible: true,
+    );
+  }
+
+  void _showAgentRequiredModal(String message) {
+    final context = Get.context;
+    if (context == null) return;
+
+    if (Get.isDialogOpen == true) return;
+
+    String displayTitle = 'Agent Status Required';
+    String friendlyMessage = message.trim();
+
+    if (friendlyMessage.isEmpty) {
+      friendlyMessage =
+          'The WhatsApp Storefront is reserved exclusively for accredited agents. Kindly complete your agent registration and document verification to activate your store.';
+    }
+
+    final lowerMsg = friendlyMessage.toLowerCase();
+    if (lowerMsg.contains('under review') || lowerMsg.contains('review')) {
+      displayTitle = 'Accreditation Under Review';
+      friendlyMessage =
+          'Your agent accreditation is currently under review. Your WhatsApp Storefront will be automatically activated as soon as your accreditation is approved.';
+    } else if (lowerMsg.contains('unauthorized') ||
+        lowerMsg.contains('reserved') ||
+        lowerMsg.contains('not an agent') ||
+        lowerMsg.contains('agent')) {
+      displayTitle = 'Agent Accreditation Required';
+      friendlyMessage =
+          'The WhatsApp Storefront is reserved exclusively for accredited agents. Kindly complete your agent registration and document verification to activate your store.';
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => PopScope(
+        canPop: false,
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          backgroundColor: Colors.white,
+          insetPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Header Icon
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.storefront_rounded,
+                    color: AppColors.primaryColor,
+                    size: 34,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Title
+                Text(
+                  displayTitle,
+                  style: const TextStyle(
+                    color: AppColors.textPrimaryColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+
+                // Friendly Message Body
+                Text(
+                  friendlyMessage,
+                  style: TextStyle(
+                    color: AppColors.primaryGrey2,
+                    fontSize: 14,
+                    height: 1.45,
+                    fontFamily: AppFonts.manRope,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 28),
+
+                // Action Buttons
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Fix Agent Status Button
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        if (Get.isDialogOpen == true) {
+                          Get.back();
+                        }
+                        Get.offNamed(Routes.AGENT_REQUEST_MODULE);
+                      },
+                      icon: const Icon(Icons.how_to_reg_rounded,
+                          color: Colors.white, size: 18),
+                      label: const Text(
+                        'Fix Agent Status',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // Go Home Button
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        if (Get.isDialogOpen == true) {
+                          Get.back();
+                        }
+                        Get.offAllNamed(Routes.HOME_SCREEN);
+                      },
+                      icon: const Icon(Icons.home_outlined,
+                          color: AppColors.primaryColor, size: 18),
+                      label: const Text(
+                        'Go Home',
+                        style: TextStyle(
+                          color: AppColors.primaryColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppColors.primaryColor),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void showInfoModal() {
+    final context = Get.context;
+    if (context == null) return;
+
+    if (Get.isDialogOpen == true) return;
+
+    const String displayTitle = 'What is WhatsApp Store?';
+    const String friendlyMessage =
+        '🛍️ Welcome to Your 24/7 WhatsApp Store! Turn your WhatsApp into an automatic money-making shop — zero stress, zero coding.\n\n'
+        'Imagine having a smart assistant on WhatsApp that sells Data, Airtime, Cable TV, and Electricity to your friends, family, and customers day and night — even while you are asleep or busy!\n\n'
+        'How It Works in 3 Easy Steps:\n\n'
+        '🏷️ Name Your Store: Pick your store name and choose how much profit you want to make on each sale.\n\n'
+        '📲 Share Your Link: Post your unique WhatsApp Store link on your WhatsApp Status, groups, or send it to family & friends.\n\n'
+        '💸 Earn Automatically: Customers chat with our smart AI on WhatsApp, pay via Bank Transfer or Card, get their Data/Tokens instantly, and your profit drops straight into your MCD Commission!\n\n'
+        '✨ No need to reply to messages manually. No need to fund your wallet before customers buy!';
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => PopScope(
+        canPop: true,
+        child: Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          backgroundColor: Colors.white,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.75,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Header Icon
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryColor.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.storefront_rounded,
+                      color: AppColors.primaryColor,
+                      size: 34,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Title
+                  Text(
+                    displayTitle,
+                    style: const TextStyle(
+                      color: AppColors.textPrimaryColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Scrollable Message Body to prevent overflow on small screens
+                  Flexible(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Text(
+                        friendlyMessage,
+                        style: TextStyle(
+                          color: AppColors.primaryGrey2,
+                          fontSize: 14,
+                          height: 1.45,
+                          fontFamily: AppFonts.manRope,
+                        ),
+                        textAlign: TextAlign.left, // Left-aligned looks cleaner for multi-step lists
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Action Buttons
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Get.back();
+                      },
+                      icon: const Icon(
+                        Icons.thumb_up,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                      label: const Text(
+                        'Close',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -320,7 +320,7 @@ class PosTermReqFormModuleController extends GetxController {
                   onPressed: () {
                     Get.back();
                     Get.until(
-                        (route) => route.settings.name == Routes.POS_HOME);
+                        (route) => route.isFirst || route.settings.name == Routes.POS_HOME);
                   },
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: AppColors.primaryColor),
@@ -458,7 +458,7 @@ class PosTermReqFormModuleController extends GetxController {
                   onPressed: () {
                     Get.back();
                     Get.until(
-                        (route) => route.settings.name == Routes.POS_HOME);
+                        (route) => route.isFirst || route.settings.name == Routes.POS_HOME);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,

@@ -13,6 +13,12 @@ class EditDiscountDialog extends GetView<StoreFrontController> {
   });
 
   @override
+  StoreFrontController get controller =>
+      Get.isRegistered<StoreFrontController>()
+          ? Get.find<StoreFrontController>()
+          : Get.put(StoreFrontController());
+
+  @override
   Widget build(BuildContext context) {
     final commissionText = 'Your commission per sale: ${(provider.baseDiscount - provider.discountPercent).clamp(0, 100).toStringAsFixed(2)}% of amount'.obs;
     final errorText = ''.obs;

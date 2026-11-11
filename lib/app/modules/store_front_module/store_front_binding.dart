@@ -6,6 +6,7 @@ class StoreFrontBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<StoreFrontController>(
       () => StoreFrontController(),
+      fenix: true,
     );
   }
 }

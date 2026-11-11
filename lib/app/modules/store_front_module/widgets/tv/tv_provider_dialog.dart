@@ -6,6 +6,12 @@ import 'package:mcd/app/modules/store_front_module/widgets/shared/shared_provide
 class TvProviderDialog extends GetView<StoreFrontController> {
   const TvProviderDialog({super.key});
 
+  @override
+  StoreFrontController get controller =>
+      Get.isRegistered<StoreFrontController>()
+          ? Get.find<StoreFrontController>()
+          : Get.put(StoreFrontController());
+
   String _getAsset(String name) {
     final lower = name.toLowerCase();
     if (lower.contains('dstv')) return 'assets/images/dstv.jpeg';

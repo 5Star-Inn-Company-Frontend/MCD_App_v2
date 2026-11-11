@@ -6,6 +6,12 @@ import 'package:mcd/app/modules/store_front_module/widgets/shared/shared_provide
 class DataProviderDialog extends GetView<StoreFrontController> {
   const DataProviderDialog({super.key});
 
+  @override
+  StoreFrontController get controller =>
+      Get.isRegistered<StoreFrontController>()
+          ? Get.find<StoreFrontController>()
+          : Get.put(StoreFrontController());
+
   String _getAsset(String name) {
     final lower = name.toLowerCase();
     if (lower.contains('mtn')) return 'assets/images/mtn.png';
@@ -39,7 +45,7 @@ class DataProviderDialog extends GetView<StoreFrontController> {
 
       return SharedProviderSelectionDialog(
         title: 'Data — Select Provider',
-        description: 'Choose a network to configure data bundles & pricing.',
+        description: 'Click on a network to configure data bundles & pricing.',
         isLoading: controller.isLoadingData.value,
         providers: items,
       );

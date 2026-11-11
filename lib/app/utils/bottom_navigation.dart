@@ -22,13 +22,16 @@ class BottomNavigation extends StatelessWidget {
       case 1:
         Get.offNamed(Routes.HISTORY_SCREEN);
         break;
+      case 2:
+        Get.toNamed(Routes.STORE_FRONT);
+        break;
       // case 2:
       //   Get.offNamed(Routes.SHOP_SCREEN);
       //   break;
-      case 2:
+      case 3:
         Get.offNamed(Routes.ASSISTANT_SCREEN);
         break;
-      case 3:
+      case 4:
         Get.offNamed(Routes.MORE_MODULE);
         break;
       default:
@@ -81,6 +84,18 @@ class BottomNavigation extends StatelessWidget {
             width: screenWidth(context) * 0.06,
           ),
           label: 'History',
+        ),
+
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            AppAsset.service,
+            width: screenWidth(context) * 0.06,
+          ),
+          activeIcon: SvgPicture.asset(
+            AppAsset.service,
+            width: screenWidth(context) * 0.06
+          ),
+          label: 'Storefront',
         ),
         // BottomNavigationBarItem(
         //   icon: SvgPicture.asset(

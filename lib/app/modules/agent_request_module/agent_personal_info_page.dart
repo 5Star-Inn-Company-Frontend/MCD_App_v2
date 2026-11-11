@@ -69,6 +69,7 @@ class AgentPersonalInfoPage extends GetView<AgentRequestModuleController> {
               const Gap(8),
               TextFormField(
                 controller: controller.streetNumberController,
+                keyboardType: TextInputType.number,
                 style: TextStyle(
                   color: AppColors.textPrimaryColor,
                   fontFamily: AppFonts.manRope,

@@ -58,7 +58,7 @@ class AgentRequestModulePage extends GetView<AgentRequestModuleController> {
               const Gap(16),
               _buildStepCard(
                 stepNumber: '2',
-                title: 'Provide copy of signed document sent to your email',
+                title: 'Signed Agent Agreement Document & Pay',
                 isCompleted: controller.step2.value,
                 isEnabled:
                     controller.step1.value, // enabled only if step 1 is done

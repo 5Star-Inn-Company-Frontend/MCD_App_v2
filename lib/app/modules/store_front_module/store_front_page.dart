@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:mcd/app/modules/store_front_module/store_front_controller.dart';
 import 'package:mcd/app/modules/store_front_module/widgets/shared/payment_method_item.dart';
@@ -41,6 +42,16 @@ class StoreFrontPage extends GetView<StoreFrontController> {
             ),
           ],
         ),
+        actions: [
+          GestureDetector(onTap: (){
+            controller.showInfoModal();
+          },
+            child:Icon(Icons.help),
+          ),
+
+          Gap(20),
+        ],
+        
       ),
       body: RefreshIndicator(
         color: AppColors.primaryColor,

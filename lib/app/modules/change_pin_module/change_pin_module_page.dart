@@ -38,20 +38,20 @@ class ChangePinModulePage extends GetView<ChangePinModuleController> {
                                 TextFormField(
                                     controller: controller.oldPinController,
                                     keyboardType: TextInputType.number,
-                                    maxLength: 4,
+                                    maxLength: 6,
                                     obscureText: true,
                                     obscuringCharacter: '*',
                                     validator: (value) {
                                         if (value == null || value.isEmpty) {
                                             return "Please enter old pin";
                                         }
-                                        if (value.length != 4) {
-                                            return "PIN must be 4 digits";
+                                        if (value.length != 6) {
+                                            return "PIN must be 6 digits";
                                         }
                                         return null;
                                     },
                                     decoration: textInputDecoration.copyWith(
-                                        hintText: 'Enter old pin',
+                                        hintText: 'Enter old pin (Default is 123456)',
                                         hintStyle: TextStyle(
                                             color: AppColors.primaryGrey,
                                             fontSize: 14, fontFamily: AppFonts.manRope,
@@ -93,14 +93,14 @@ class ChangePinModulePage extends GetView<ChangePinModuleController> {
                                 TextFormField(
                                     controller: controller.newPinController,
                                     keyboardType: TextInputType.number,
-                                    maxLength: 4,
+                                    maxLength: 6,
                                     obscureText: true,
                                     obscuringCharacter: '*',
                                     validator: (value) {
                                         if (value == null || value.isEmpty) {
                                             return "Please enter new pin";
                                         }
-                                        if (value.length != 4) {
+                                        if (value.length != 6) {
                                             return "PIN must be 4 digits";
                                         }
                                         return null;
@@ -148,7 +148,7 @@ class ChangePinModulePage extends GetView<ChangePinModuleController> {
                                 TextFormField(
                                     controller: controller.confirmPinController,
                                     keyboardType: TextInputType.number,
-                                    maxLength: 4,
+                                    maxLength: 6,
                                     obscureText: true,
                                     obscuringCharacter: '*',
                                     validator: (value) {

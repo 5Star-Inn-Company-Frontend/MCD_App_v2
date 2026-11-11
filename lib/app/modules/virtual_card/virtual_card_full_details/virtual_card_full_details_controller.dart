@@ -144,7 +144,7 @@ class VirtualCardFullDetailsController extends GetxController
             box.write('vcard_refresh_needed', true);
 
             Get.until(
-                (route) => route.settings.name == Routes.VIRTUAL_CARD_DETAILS);
+                (route) => route.isFirst || route.settings.name == Routes.VIRTUAL_CARD_DETAILS);
             // Or just close enough
             // Get.close(2);
           } else {

@@ -40,6 +40,7 @@ class AgentRequestModuleController extends GetxController {
   final countryController = TextEditingController();
   final isPersonalInfoFormValid = false.obs;
   final isSubmitting = false.obs;
+  final isRead = false.obs;
 
   // Signature Pad
   final signaturePadKey = GlobalKey<SfSignaturePadState>();
@@ -270,6 +271,8 @@ class AgentRequestModuleController extends GetxController {
 
       final result = await apiService.postrequest(fullUrl, payload);
 
+      print("samji result: ${result}");
+
       result.fold(
         (failure) {
           dev.log('Failed to submit agent request',
@@ -282,6 +285,16 @@ class AgentRequestModuleController extends GetxController {
           );
         },
         (response) {
+          if(response['success'] == 0){
+            Get.snackbar(
+              'Error',
+              response['message'],
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+            return;
+          }
+
           dev.log('Agent request submitted successfully', name: 'AgentRequest');
           Get.snackbar(
             'Success',
@@ -297,11 +310,12 @@ class AgentRequestModuleController extends GetxController {
           stateController.clear();
           countryController.clear();
 
+          // Refresh agent status
+          fetchAgentStatus();
+
           // navigate to agent request steps screen
           Get.offNamed(Routes.AGENT_REQUEST_MODULE);
 
-          // Refresh agent status
-          fetchAgentStatus();
         },
       );
     } catch (e) {
@@ -320,39 +334,63 @@ class AgentRequestModuleController extends GetxController {
   // Open document in browser
   Future<void> openDocumentInBrowser() async {
     try {
-      // final authUrl = box.read('authUrlV2');
-      // if (authUrl == null || authUrl.isEmpty) {
-      //   Get.snackbar(
-      //     'Error',
-      //     'Service URL not found. Please log in again.',
-      //     backgroundColor: AppColors.errorBgColor,
-      //     colorText: AppColors.textSnackbarColor,
-      //   );
-      //   return;
-      // }
+
+      isSubmitting.value = true;
 
       final fullUrl = '${ApiConstants.authUrlV2}/request-agentdoc';
-      dev.log('Opening document URL: $fullUrl', name: 'AgentRequest');
 
-      final uri = Uri.parse(fullUrl);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        Get.snackbar(
-          'Error',
-          'Could not open document',
-          backgroundColor: AppColors.errorBgColor,
-          colorText: AppColors.textSnackbarColor,
-        );
-      }
+
+      final result = await apiService.getrequest(fullUrl);
+
+      result.fold(
+            (failure) {
+          dev.log('Failed to fetch signed document',
+              name: 'AgentRequestDoc', error: failure.message);
+          Get.snackbar(
+            'Error',
+            failure.message,
+            backgroundColor: AppColors.errorBgColor,
+            colorText: AppColors.textSnackbarColor,
+          );
+        }, (response) async {
+              if(response['success'] == 0){
+                Get.snackbar(
+                  'Error',
+                  response['message'],
+                  backgroundColor: AppColors.errorBgColor,
+                  colorText: AppColors.textSnackbarColor,
+                );
+                return;
+              }
+
+            dev.log("Opening document URL: ${response['data']}", name: 'AgentRequest');
+
+            final uri = Uri.parse(response['data']);
+
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+              isRead.value=true;
+            } else {
+              Get.snackbar(
+              'Error',
+              'Could not open document',
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+              );
+            }
+        },
+      );
     } catch (e) {
-      dev.log('Error opening document', name: 'AgentRequest', error: e);
+      dev.log('Error submitting signed document',
+          name: 'AgentRequestDoc', error: e);
       Get.snackbar(
         'Error',
-        'Failed to open document: ${e.toString()}',
+        'Failed to fetch signed document: ${e.toString()}',
         backgroundColor: AppColors.errorBgColor,
         colorText: AppColors.textSnackbarColor,
       );
+    } finally {
+      isSubmitting.value = false;
     }
   }
 
@@ -403,7 +441,7 @@ class AgentRequestModuleController extends GetxController {
       dev.log('Submitting signed document to: $fullUrl', name: 'AgentRequest');
 
       final payload = {
-        'document': base64Signature,
+        'signature': base64Signature,
       };
 
       final result = await apiService.postrequest(fullUrl, payload);
@@ -420,18 +458,28 @@ class AgentRequestModuleController extends GetxController {
           );
         },
         (response) {
+          if(response['success'] == 0){
+            Get.snackbar(
+              'Error',
+              response['message'],
+              backgroundColor: AppColors.errorBgColor,
+              colorText: AppColors.textSnackbarColor,
+            );
+            return;
+          }
+
           dev.log('Signed document submitted successfully',
               name: 'AgentRequest');
           Get.snackbar(
             'Success',
-            'Your signed document has been submitted successfully',
+            response['message'],
             backgroundColor: AppColors.successBgColor,
             colorText: AppColors.textSnackbarColor,
           );
 
           // Navigate back to agent request page
           Get.until(
-              (route) => route.settings.name == Routes.AGENT_REQUEST_MODULE);
+              (route) => route.isFirst || route.settings.name == Routes.AGENT_REQUEST_MODULE);
 
           // Refresh agent status
           fetchAgentStatus();

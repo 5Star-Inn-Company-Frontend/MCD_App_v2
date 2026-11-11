@@ -347,7 +347,6 @@ class GeneralPayoutController extends GetxController {
     expiryMonthFocus.dispose();
     expiryYearFocus.dispose();
     cvvFocus.dispose();
-    promoCodeController.dispose();
     offerCodeController.dispose();
     super.onClose();
   }

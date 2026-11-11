@@ -13,6 +13,12 @@ class DataTypeDialog extends GetView<StoreFrontController> {
   });
 
   @override
+  StoreFrontController get controller =>
+      Get.isRegistered<StoreFrontController>()
+          ? Get.find<StoreFrontController>()
+          : Get.put(StoreFrontController());
+
+  @override
   Widget build(BuildContext context) {
     final types = provider.types.isNotEmpty
         ? provider.types

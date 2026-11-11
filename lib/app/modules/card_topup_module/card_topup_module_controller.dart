@@ -723,7 +723,7 @@ class CardTopupModuleController extends GetxController {
 
         // clear amount and go home
         enteredAmount.value = '';
-        Get.until((route) => route.settings.name == Routes.HOME_SCREEN);
+        Get.until((route) => route.isFirst || route.settings.name == Routes.HOME_SCREEN);
       } else {
         isLoading.value = false;
         Get.snackbar(

@@ -6,6 +6,12 @@ import 'package:mcd/app/modules/store_front_module/widgets/shared/shared_provide
 class ProviderSelectionDialog extends GetView<StoreFrontController> {
   const ProviderSelectionDialog({super.key});
 
+  @override
+  StoreFrontController get controller =>
+      Get.isRegistered<StoreFrontController>()
+          ? Get.find<StoreFrontController>()
+          : Get.put(StoreFrontController());
+
   String _getAsset(String name) {
     final lower = name.toLowerCase();
     if (lower.contains('mtn')) return 'assets/images/mtn.png';
@@ -38,7 +44,7 @@ class ProviderSelectionDialog extends GetView<StoreFrontController> {
 
       return SharedProviderSelectionDialog(
         title: 'Airtime — Select Provider',
-        description: 'Choose a network to configure your discount & profit.',
+        description: 'Choose a network to configure your discount & profit. Tap on the name to edit discount',
         isLoading: controller.isLoadingAirtime.value,
         providers: items,
       );

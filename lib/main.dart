@@ -50,7 +50,15 @@ Future<void> main() async {
 
     // Enable Firebase Analytics & set up Crashlytics
     await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    FlutterError.onError = (FlutterErrorDetails details) {
+      final exceptionStr = details.exceptionAsString();
+      if (exceptionStr.contains('Disposed CameraController') ||
+          exceptionStr.contains('buildPreview() was called')) {
+        dev.log('Suppressed non-fatal camera dispose exception: $exceptionStr', name: 'Camera');
+        return;
+      }
+      FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+    };
 
     // Set up background message handler
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);

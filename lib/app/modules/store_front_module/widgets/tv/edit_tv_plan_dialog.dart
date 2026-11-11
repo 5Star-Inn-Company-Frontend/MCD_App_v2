@@ -16,6 +16,12 @@ class EditTvPlanDialog extends GetView<StoreFrontController> {
   });
 
   @override
+  StoreFrontController get controller =>
+      Get.isRegistered<StoreFrontController>()
+          ? Get.find<StoreFrontController>()
+          : Get.put(StoreFrontController());
+
+  @override
   Widget build(BuildContext context) {
     final currencyFormatter = NumberFormat('#,##0', 'en_US');
     final initialSell = plan.sellPrice > 0 ? plan.sellPrice : plan.baseCost;
