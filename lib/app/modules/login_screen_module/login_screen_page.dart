@@ -1,5 +1,6 @@
 import 'package:mcd/core/import/imports.dart';
 import 'package:flutter/material.dart';
+import 'package:mcd/app/widgets/update_status_line.dart';
 import './login_screen_controller.dart';
 
 /**
@@ -40,6 +41,8 @@ class LoginScreenPage extends GetView<LoginScreenController> {
                         mainAxisSize: MainAxisSize.max,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          const UpdateStatusLine(),
+                          const Gap(5),
                           TextSemiBold("Login",
                               fontSize: 20, fontWeight: FontWeight.w500),
                           const Gap(15),

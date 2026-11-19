@@ -3,12 +3,12 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  advert
   file_selector_linux
   flutter_secure_storage_linux
   gtk
-  sprint_check
+  advert
   sprintliveness
+  sprint_check
   url_launcher_linux
 )
 

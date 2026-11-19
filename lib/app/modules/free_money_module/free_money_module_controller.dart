@@ -85,6 +85,7 @@ class FreeMoneyModuleController extends GetxController {
         "country": userCountry.value.isNotEmpty ? userCountry.value : "Nigeria",
         "city": userCity.value,
         "ip": userIp.value,
+        "reward_item": "coins",
       };
 
   /// Force fetch fresh Remote Config values from Firebase
@@ -130,6 +131,9 @@ class FreeMoneyModuleController extends GetxController {
     final ctx = context ?? Get.context;
     if (ctx != null) {
       await watchMultipleRewardedAds(ctx);
+      Future.delayed(const Duration(seconds: 2), () async{
+        await watchMultipleRewardedAds(ctx);
+      });
     } else {
       await watchSingleAd();
     }

@@ -3,6 +3,9 @@ allprojects {
         google()
         mavenCentral()
         maven {
+            url "https://cboost.jfrog.io/artifactory/chartboost-ads/"
+        }
+        maven {
             url "https://maven.regulaforensics.com/RegulaFaceSDK"
         }
         maven {

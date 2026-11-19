@@ -498,7 +498,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   advert: eb59be6d845eb32bb9e41c446060d39c41264de2
   app_links: 6d01271b3907b0ee7325c5297c75d697c4226c4d
-  AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
+  AppAuth: 58e37c546bb9bf2073c1392ccba8cef35ff283cb
   AppCheckCore: be8fce5469f68d7f6a29aa94b25f097409ff7fdc
   camera_avfoundation: 769d252259fa21e39ada7399c9dc9c0921af8165
   chartboost_flutter: 28f3152254a5c5a1bcb684d9c504365c631b028e
@@ -543,10 +543,10 @@ SPEC CHECKSUMS:
   GoogleAppMeasurement: f2f676480e4c97936df934aa181bc29caea46975
   GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
   GoogleMobileAdsMediationUnity: cf8c4104b642d1829ce5ad7fd70184b9599bfc50
-  GoogleSignIn: ce8c89bb9b37fb624b92e7514cc67335d1e277e4
+  GoogleSignIn: e6b83a7093495f8ba4b7547460485f1e308c8df5
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   GoogleUtilities: 7dc09b3fa9ecb5c2298b952313d14628b61b9da3
-  GTMAppAuth: f69bd07d68cd3b766125f7e072c45d7340dea0de
+  GTMAppAuth: 4a3fbbb34098b327feaa51cfbf98b0b12f6892e7
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   hx_liftoff_ads: a062d20282e6f9df95078103fde2a078b1ba3c9b
   image_cropper: e67b5e9d29a9825f1f3594b49d1e1310c9af91a0

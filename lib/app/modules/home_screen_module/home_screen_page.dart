@@ -19,6 +19,7 @@ import 'package:mcd/app/modules/leaderboard_module/models/leaderboard_model.dart
 import 'package:flutter_animate/flutter_animate.dart' hide ShimmerEffect;
 import 'package:mcd/app/modules/more_module/more_module_page.dart';
 import 'package:mcd/app/widgets/custom_bottom_sheet.dart';
+import 'package:mcd/app/widgets/update_status_line.dart';
 import 'package:mcd/app/modules/withdraw_bonus_module/withdraw_bonus_module_controller.dart';
 
 /**
@@ -89,7 +90,8 @@ class HomeScreenPage extends StatelessWidget {
                         ),
                         child: ListView(
                           children: [
-                            const Gap(10),
+                            const UpdateStatusLine(),
+                            const Gap(8),
                             _buildWalletCard(controller, context),
                             const Gap(20),
                             _buildQuickActionsRow(controller, context),

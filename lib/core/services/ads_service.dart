@@ -3,7 +3,6 @@ import 'dart:developer' as dev;
 import 'dart:io';
 
 import 'package:advert/advert.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mcd/core/services/remote_config_service.dart';
@@ -251,7 +250,7 @@ class AdsService {
       ..addBannerPlacement(['Banner']);
 
     final levelPlayModel = Levelplaymodel()
-      ..appKey = Platform.isAndroid ? "YOUR_LEVELPLAY_APP_KEY" : "28fdfd45d"
+      ..appKey = Platform.isAndroid ? "28fdf27c5" : "28fdfd45d"
       ..addRewardedPlacement('rewarded', [Platform.isAndroid ? 'e5jvy0s5s56wt7v8': '2x65seynidqxbkhm'])
       ..addRewardedPlacement('freemoney', [Platform.isAndroid ? 'e5jvy0s5s56wt7v8': '2x65seynidqxbkhm'])
       ..addInterstitialPlacement('interstitial', [Platform.isAndroid ? 'legd72y5b6hgf60z' : 'a2909t9gtzd1jv8h'])
@@ -262,8 +261,8 @@ class AdsService {
       await _advertPlugin.initialize(
         testmode: testMode,
         adsmodel: Adsmodel(
-          unitymodel: unitymodel,
-          googlemodel: googlemodel,
+          // unitymodel: unitymodel,
+          // googlemodel: googlemodel,
           vunglemodel: vunglemodel,
           chartboostmodel: chartboostModel,
           levelplaymodel: levelPlayModel,

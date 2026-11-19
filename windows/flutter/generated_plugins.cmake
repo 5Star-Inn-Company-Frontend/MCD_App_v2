@@ -3,22 +3,22 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  advert
   app_links
   connectivity_plus
   file_selector_windows
-  firebase_auth
   firebase_core
+  firebase_auth
   firebase_remote_config
   flutter_secure_storage_windows
   gal
   hx_liftoff_ads
   local_auth_windows
+  advert
   permission_handler_windows
-  share_plus
-  sprint_check
   sprintliveness
+  sprint_check
   url_launcher_windows
+  share_plus
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
