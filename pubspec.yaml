@@ -64,7 +64,6 @@ dependencies:
   in_app_review: ^2.0.12
   envied: ^1.3.10
   google_mobile_ads: ^9.1.0
-  shorebird_code_push: ^2.0.7
   advert:
 #    git: https://github.com/odejinmi/advert.git
      path: ../advert

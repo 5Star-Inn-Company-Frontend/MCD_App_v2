@@ -18,7 +18,6 @@ import 'package:mcd/core/services/offers_service.dart';
 import 'package:mcd/core/services/usage_tracker_service.dart';
 import 'package:mcd/core/services/ads_service.dart';
 import 'package:mcd/core/services/app_lifecycle_service.dart';
-import 'package:mcd/core/services/app_updates.dart';
 import 'package:mcd/core/services/connectivity_service.dart';
 import 'package:mcd/core/services/device_info_service.dart';
 import 'package:mcd/core/services/deep_link_service.dart';
@@ -88,9 +87,6 @@ Future<void> main() async {
   Get.put(AppLifecycleService());
   // Initialize deep link service
   await Get.putAsync(() => DeepLinkService().init());
-
-  // Check for Shorebird OTA code push updates
-  AppUpdates().check();
 
   if (Platform.isAndroid || Platform.isIOS) {
     // Set up foreground message handling
